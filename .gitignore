@@ -1,0 +1,32 @@
+# Generated recompiler output — ROM-derived, never committed.
+/src/gen/*
+!/src/gen/.gitkeep
+/recomp/funcs.h
+
+# ROM images and anything derived from them.
+*.sfc
+*.smc
+*.srm
+/saves/
+
+# Cx4 internal data ROM (HG51B S169 reciprocal/sqrt/trig table). Capcom/Hitachi
+# firmware, user-supplied, 3072 bytes. All three names are the same blob.
+cx4.rom
+cx4.data.rom
+hg51bs169.data.rom
+
+# Build trees
+/build*/
+/release*/
+/CMakeFiles/
+CMakeCache.txt
+
+# Local runtime state
+/rom.cfg
+/config.ini
+/*.log
+/_*.log
+/_*.png
+/_*.bmp
+/host_report*.json
+/*.dmp
