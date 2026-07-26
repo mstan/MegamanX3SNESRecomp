@@ -104,8 +104,13 @@ void RunOneFrameOfGame(void) {
     x3_run_nmi(frame_end);
   }
 
+  /* Slice cap: a backstop, not the loop's normal exit. The exit is the master
+   * deadline. Sized so the deadline is reachable even when each slice is short
+   * (the quiescence detector needs ~64 instructions to trip, so a slice is
+   * never tiny), and a hit is reported rather than silently throttling. */
+  enum { kMaxSlices = 8192 };
   int slices = 0;
-  while (g_cpu.master_cycles < frame_end && slices < 64) {
+  while (g_cpu.master_cycles < frame_end && slices < kMaxSlices) {
     slices++;
     interp_bridge_set_master_deadline(frame_end);
     (void)interp_bridge_run_until_quiescent(&g_cpu, s_lle_resume_pc);
@@ -129,7 +134,25 @@ void RunOneFrameOfGame(void) {
      * leading NMI on the next RtlRunFrame wakes it one vblank later. */
     if (interp_bridge_lle_took_wai())
       break;
-    break; /* quiescent wait for next NMI, or deadline hit */
+    /* Otherwise the bridge returned because its quiescence detector saw a poll
+     * loop, NOT because the frame is over. Keep slicing until the master
+     * deadline: the guest may be polling something that only changes as master
+     * cycles advance (H/V counter, DMA-done, an APU port), and while NMI is
+     * disabled nothing else will move it along. Breaking out here handed the
+     * guest ~0.5% of a frame per host frame — a ~200x slowdown that looks like
+     * "the interpreter is slow" and is not. */
+  }
+  if (slices >= kMaxSlices) {
+    static unsigned reports;
+    if (reports < 8) {
+      reports++;
+      fprintf(stderr,
+              "[x3_rtl] slice cap hit (%d) at master=%llu — guest advanced "
+              "%llu of %u cycles this frame\n",
+              slices, (unsigned long long)g_cpu.master_cycles,
+              (unsigned long long)(g_cpu.master_cycles + (uint64_t)kX3MasterClocksPerFrame - frame_end),
+              (unsigned)kX3MasterClocksPerFrame);
+    }
   }
 
   s_lle_host_frames++;
