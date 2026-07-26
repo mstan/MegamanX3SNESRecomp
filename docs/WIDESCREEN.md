@@ -11,6 +11,15 @@ An earlier iteration shipped `Widescreen = 1` while every hook was inert — 16:
 with nothing adapted to it. Do not flip any of this back on until the four parts
 below are done and the 4:3 regression gate passes.
 
+## Read `snesrecomp/docs/WIDESCREEN_PATTERNS.md` FIRST
+
+That is engine-level doctrine: sixteen invariants (P1-P16), each one a defect
+Mega Man X 1 actually hit, the invariant that prevents it, and how to measure
+you have it. They are PATTERNS, so they transfer even though no address does.
+Skipping it means rediscovering X1's bugs in X1's order. It also gives the
+recommended ORDER of work, which matters because a later step's symptoms mimic
+an earlier step's bug.
+
 ## Mega Man X 1 is the reference — the SHAPES port, the ADDRESSES do not
 
 `MegamanXRecomp` has a working, surveyed 16:9. Its hooks live in
