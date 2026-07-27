@@ -14,6 +14,8 @@ set(CMAKE_C_STANDARD 11)
 
 set(SNESRECOMP_ROOT "${CMAKE_SOURCE_DIR}/snesrecomp" CACHE PATH
     "Path to the snesrecomp checkout used by this game")
+set(SNESRECOMP_ENABLE_MODS ON CACHE BOOL
+    "Enable MMX3's built-in mod catalog and SNES mod packages" FORCE)
 include(${SNESRECOMP_ROOT}/runner/runner.cmake)
 
 find_package(SDL2 REQUIRED)
@@ -46,6 +48,7 @@ add_executable(MegaManX3SNESRecomp
     src/x3_cpu_infra.c
     src/x3_rtl.c
     src/x3_spc_player.c
+    src/mods/x3_widescreen_plugin.c
     src/fiber_compat.c    # Win32 Fiber API shim (ucontext) for non-Windows
 
     # OpenGL function loader
@@ -117,3 +120,15 @@ endif()
 include(${RECOMP_UI_ROOT}/recomp_ui.cmake)
 recomp_target_launcher_ui(MegaManX3SNESRecomp
     BOXART ${CMAKE_SOURCE_DIR}/recomp/launcher/boxart.tga)
+
+# Preload the game-owned catalog. Every feature remains disabled until the
+# player enables it in Mods; package plugin IDs resolve only to implementations
+# statically linked above.
+set(X3_PRELOADED_MODS "${CMAKE_CURRENT_SOURCE_DIR}/mods/preloaded")
+if(EXISTS "${X3_PRELOADED_MODS}/packages")
+    add_custom_command(TARGET MegaManX3SNESRecomp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${X3_PRELOADED_MODS}"
+            "$<TARGET_FILE_DIR:MegaManX3SNESRecomp>/mods"
+        COMMENT "Preloading the Mega Man X3 mod catalog")
+endif()

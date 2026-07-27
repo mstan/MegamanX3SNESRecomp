@@ -27,9 +27,10 @@ gameplay have been verified through the debug surface. The native coverage
 manifest emits 5,082 exact variants; unsupported control-flow boundaries fall
 back to the interpreter.
 
-16:9 widescreen is implemented and exposed in the launcher. It includes
+16:9 widescreen is implemented as a default-disabled built-in Mod. It includes
 anchored HUD elements, exact BG1/BG2 gutter tiles from X3's retained level
-maps, and widened enemy activation/visibility/draw windows. See
+maps, and widened enemy activation/visibility/draw windows. Enable it from the
+launcher's **Mods** page; see
 [`docs/WIDESCREEN.md`](docs/WIDESCREEN.md) for addresses and validation.
 
 Still open: broad stage-by-stage gameplay/oracle coverage and audio
@@ -105,3 +106,7 @@ cmake --build build
 
 `-DSNESRECOMP_ENABLE_TRACE=ON` builds the TCP debug server and the always-on
 observability rings — the bring-up configuration. Omit it for a release build.
+
+This title opts into snesrecomp's package loader. The build preloads a
+default-disabled Mega Man X3 Widescreen feature under `mods/packages`; users
+may also install data-only `.snesmod` archives from the launcher's Mods page.
