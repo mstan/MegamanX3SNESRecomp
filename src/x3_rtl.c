@@ -334,6 +334,7 @@ static bool x3_bg_stream_valid(const X3BgStream *s, int32_t wx, int32_t wy) {
   if (x3_wram16(s->mtPtrAddr) < 0x8000)
     return false;
   int miss = 0, modal = 0;
+  uint16_t modal_tile = 0;
   uint16_t got_v[12];
   for (int i = 0; i < 12; i++) {
     uint32_t px = (uint32_t)wx + 10u + (uint32_t)i * 20u;
@@ -352,10 +353,48 @@ static bool x3_bg_stream_valid(const X3BgStream *s, int32_t wx, int32_t wy) {
     int same = 0;
     for (int j = 0; j < 12; j++)
       same += (got_v[j] == got_v[i]);
-    if (same > modal)
+    if (same > modal) {
       modal = same;
+      modal_tile = got_v[i];
+    }
   }
-  return modal <= 9;
+  if (modal <= 9)
+    return true;
+
+  /*
+   * A sparse level screen can legitimately make the quick sample almost
+   * uniform.  This happens throughout the slot-8 vertical fall: BG1 is
+   * mostly transparent until the terrain scrolls up, so the old diversity
+   * gate disabled exact gutters for roughly 35 frames and exposed wrapped
+   * stale rows at the right edge.
+   *
+   * Preserve the object-layer safeguard by looking for positive evidence,
+   * rather than merely accepting a uniform match.  Scan the native view for
+   * six source tiles that differ from the modal native entry and require
+   * each one to reproduce VRAM.  A repurposed object layer whose level
+   * source is blank finds no proof; one whose live objects disagree with
+   * that source fails the comparisons.  A genuine sparse level map proves
+   * itself as soon as its off-air terrain entries agree.
+   */
+  int proof = 0, proof_miss = 0;
+  for (uint32_t y = 4; y < 224; y += 8) {
+    for (uint32_t x = 4; x < 256; x += 8) {
+      uint32_t px = (uint32_t)wx + x;
+      uint32_t py = (uint32_t)wy + y;
+      uint16_t want = x3_bg_world_tile(s, px, py);
+      if (want == modal_tile)
+        continue;
+      uint16_t got =
+          g_ppu->vram[x3_bg_vram_word(s, px, py) & 0x7FFF];
+      if (want == got) {
+        if (++proof >= 6)
+          return true;
+      } else if (++proof_miss > 1) {
+        return false;
+      }
+    }
+  }
+  return false;
 }
 
 void X3ConfigureWsBgMargins(void) {
