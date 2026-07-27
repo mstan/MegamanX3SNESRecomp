@@ -22,13 +22,18 @@ and the launcher, so headered dumps verify against the same digest.
 
 ## Status
 
-**Boots to its intro cutscenes.** Verified by screenshot through the debug
-surface: the opening story scenes render with correct BG layers, sprites,
-palettes and text, and advance between scenes.
+**Boots and runs live gameplay.** The opening story scenes and save-slot 0
+gameplay have been verified through the debug surface. The native coverage
+manifest emits 5,082 exact variants; unsupported control-flow boundaries fall
+back to the interpreter.
 
-Not yet done: no gameplay validation, no oracle comparison, no audio
-verification, no widescreen. Static AOT coverage is a one-directive seed, so
-essentially all execution is on the interpreter tier — correct, but slow.
+16:9 widescreen is implemented and exposed in the launcher. It includes
+anchored HUD elements, exact BG1/BG2 gutter tiles from X3's retained level
+maps, and widened enemy activation/visibility/draw windows. See
+[`docs/WIDESCREEN.md`](docs/WIDESCREEN.md) for addresses and validation.
+
+Still open: broad stage-by-stage gameplay/oracle coverage and audio
+verification.
 
 This project was stood up from the MegamanXRecomp host layer; every Mega Man
 X 1 specific finding (the fiber task scheduler, the BG2 widescreen shadow, the
@@ -41,10 +46,9 @@ What that means concretely:
   through the interpreter bridge, injects NMI only once the game arms NMITIMEN,
   and services IRQs as they latch. AOT coverage from `recomp/*.cfg` is layered
   on as an optimization; anything not covered runs the real ROM bytes.
-* **`recomp/bank00.cfg` is a one-directive seed** (`auto_vectors` +
-  `tier_down_stubs`). Static coverage grows from there.
-* **Widescreen is not surveyed** — the launcher toggle is hidden. The
-  widescreen code path is present and wired but inert.
+* **`recomp/bank00.cfg` remains the hand-written seed** (`auto_vectors` +
+  `tier_down_stubs`), augmented by profile-manifest roots and explicit
+  interpreter-only boundaries.
 * **The interrupt handlers live in WRAM.** The ROM's native NMI/IRQ vectors
   point at `$00:1FEF` / `$00:1FF3` (the low WRAM mirror), where boot installs
   `JML` trampolines into a driver block copied out of ROM bank `$08`. That is

@@ -16,16 +16,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "common_cpu_infra.h"
 #include "cpu_state.h"
 #include "cpu_trace.h"
+#include "snes/cart.h"
 #include "snes/interp_bridge.h"
 #include "snes/snes.h"
 #include "snes/dma.h"
 #include "snes/ppu.h"
 #include "snes/saveload.h"
+#include "snes/ws_shadow.h"
 #include "types.h"
 #include "widescreen.h"
 
@@ -234,9 +237,8 @@ static int x3_ws_hud_present(void) {
 
   /* Corroborate with the bar frame, slots 0-4. Do NOT demand an exact count:
    * the bar's length varies with max health and slot 5 parks at Y=224 in most
-   * of the stage. (That tolerance is an X2 finding -- requiring all of 0-5
-   * there evaluated 5/6 and disabled the shift nearly everywhere. Carried over
-   * with the rest of the inherited map; not re-measured on X3.) */
+   * of the stage. Save slot 0 measured the same 5/6 live signature as X2, so
+   * demanding all six would incorrectly disable the shift during gameplay. */
   unsigned frame_slots = 0;
   for (unsigned slot = 0; slot <= 4; slot++) {
     const unsigned w = slot * 2u;
@@ -263,6 +265,228 @@ void X3ConfigureWsHud(void) {
                            kX3HudLeftEnd, kX3HudRightStart);
   PpuSetWsHudOamShiftRange(g_ppu, kX3HudSlotFirst,
                            kX3HudSlotCount);
+}
+
+/* ── 16:9 BG margins: exact fill from X3's level structures ──────────────
+ *
+ * X3 retained X2's two-layer column streamer. The corresponding X3 routines
+ * are $00:B91B (composer), $00:BC60 (address/layout derivation), and
+ * $00:BC9E/$00:BCD5 (BG1/BG2 source setup). Their external data layout is
+ * unchanged:
+ *
+ *          layout     screenDefs   metatile ptr    world anchor
+ *   BG1    $7E:E800   $7E:2800     24-bit [$09C5]  $1E5D / $1E60
+ *   BG2    $7E:EC00   $7E:A600     24-bit [$09C8]  $1E9D / $1EA0
+ *
+ * Live validation on save slot 0 reproduced all sampled native VRAM entries
+ * on both layers before this provider was enabled. As in X2, the native view
+ * is never modified; only gutter lookups are replaced, and only after a
+ * per-frame native-view self-check proves that the scene uses this layout.
+ */
+typedef struct X3BgStream {
+  uint16_t layoutBase;
+  uint16_t screenDefs;
+  uint16_t mtPtrAddr;
+  uint16_t worldXAddr;
+  uint16_t worldYAddr;
+  uint8_t bgsc;
+  uint16_t mapBaseWord;
+} X3BgStream;
+
+static const X3BgStream kX3BgStreams[2] = {
+    {0xE800, 0x2800, 0x09C5, 0x1E5D, 0x1E60, 0x51, 0x5000},
+    {0xEC00, 0xA600, 0x09C8, 0x1E9D, 0x1EA0, 0x59, 0x5800},
+};
+
+static uint16_t x3_wram16(uint32_t addr) {
+  return (uint16_t)(g_ram[addr] | (g_ram[addr + 1] << 8));
+}
+
+static uint16_t x3_bg_world_tile(const X3BgStream *s, uint32_t px,
+                                 uint32_t py) {
+  uint32_t li = (((py >> 8) & 0x1F) << 5) | ((px >> 8) & 0x1F);
+  uint8_t sid = g_ram[s->layoutBase + li];
+  uint16_t ba = (uint16_t)(s->screenDefs + sid * 512u +
+                           ((py >> 4) & 0xF) * 0x20u +
+                           ((px >> 4) & 0xF) * 2u);
+  uint16_t block =
+      (uint16_t)(g_ram[ba] | (g_ram[(uint16_t)(ba + 1)] << 8));
+  uint16_t mt_addr = x3_wram16(s->mtPtrAddr);
+  uint8_t mt_bank = g_ram[s->mtPtrAddr + 2];
+  /* Match the guest's fixed-bank, 16-bit pointer wrap at $00:B9C0. */
+  uint16_t a =
+      (uint16_t)(mt_addr + block * 8u + (((py >> 3) & 1u) << 2) +
+                 (((px >> 3) & 1u) << 1));
+  return (uint16_t)(cart_read(g_snes->cart, mt_bank, a) |
+                    (cart_read(g_snes->cart, mt_bank,
+                               (uint16_t)(a + 1)) << 8));
+}
+
+static uint16_t x3_bg_vram_word(const X3BgStream *s, uint32_t px,
+                                uint32_t py) {
+  uint32_t tx = px >> 3, ty = py >> 3;
+  return (uint16_t)(s->mapBaseWord + ((tx >> 5) & 1u) * 0x400u +
+                    (ty & 0x1F) * 0x20u + (tx & 0x1F));
+}
+
+static bool x3_bg_stream_valid(const X3BgStream *s, int32_t wx, int32_t wy) {
+  if (wx < 0 || wy < 0)
+    return false;
+  /* Boot/menu frames can already have the gameplay BG mode/map bases while
+   * the stream-source cluster is still zero. Reject before cart_read so an
+   * uninitialized pointer cannot create a false off-rails diagnostic. */
+  if (x3_wram16(s->mtPtrAddr) < 0x8000)
+    return false;
+  int miss = 0, modal = 0;
+  uint16_t got_v[12];
+  for (int i = 0; i < 12; i++) {
+    uint32_t px = (uint32_t)wx + 10u + (uint32_t)i * 20u;
+    uint32_t py = (uint32_t)wy + 12u + (uint32_t)(i % 6) * 36u;
+    uint16_t want = x3_bg_world_tile(s, px, py);
+    uint16_t got = g_ppu->vram[x3_bg_vram_word(s, px, py) & 0x7FFF];
+    got_v[i] = got;
+    if (want != got)
+      miss++;
+  }
+  if (miss > 1)
+    return false;
+  /* A near-uniform sample cannot prove that a layer is level data. It may
+   * instead be a dynamic object layer, which authentic map wrap preserves. */
+  for (int i = 0; i < 12; i++) {
+    int same = 0;
+    for (int j = 0; j < 12; j++)
+      same += (got_v[j] == got_v[i]);
+    if (same > modal)
+      modal = same;
+  }
+  return modal <= 9;
+}
+
+void X3ConfigureWsBgMargins(void) {
+  static int s_enabled = -1, s_debug = -1;
+  static bool s_was_active;
+  if (s_enabled < 0) {
+    const char *e = getenv("SNESRECOMP_WS_BG_MARGINS");
+    s_enabled = (e && e[0] == '0') ? 0 : 1;
+    e = getenv("SNESRECOMP_WS_BG_MARGINS_DEBUG");
+    s_debug = (e && e[0] && e[0] != '0') ? 1 : 0;
+  }
+
+  bool scene_ok = s_enabled && g_ws_active && g_ppu &&
+                  (g_ppu->bgmode & 0x37) == 1 &&
+                  g_ppu->bgXsc[0] == kX3BgStreams[0].bgsc &&
+                  g_ppu->bgXsc[1] == kX3BgStreams[1].bgsc;
+  if (s_debug) {
+    static unsigned s_calls;
+    if ((s_calls++ % 120) == 0) {
+      fprintf(stderr,
+              "[x3_ws_bg] call=%u en=%d ws=%d bgmode=%u bgXsc=%02X/%02X "
+              "scene_ok=%d extra=%d\n",
+              s_calls, s_enabled, (int)g_ws_active,
+              g_ppu ? g_ppu->bgmode : 0xFF,
+              g_ppu ? g_ppu->bgXsc[0] : 0xFF,
+              g_ppu ? g_ppu->bgXsc[1] : 0xFF,
+              (int)scene_ok, g_ws_extra);
+    }
+  }
+
+  bool ok[2] = {false, false};
+  int32_t wxp[2] = {0, 0}, wyp[2] = {0, 0};
+  bool any = false;
+  if (scene_ok) {
+    for (int l = 0; l < 2; l++) {
+      const X3BgStream *s = &kX3BgStreams[l];
+      uint16_t h = (uint16_t)(g_ppu->hScroll[l] & 0x3FF);
+      uint16_t v = (uint16_t)(g_ppu->vScroll[l] & 0x3FF);
+      int32_t wx = (int32_t)x3_wram16(s->worldXAddr);
+      int32_t wy = (int32_t)x3_wram16(s->worldYAddr);
+      int32_t dh = (int32_t)((uint16_t)(h - wx) & 0x3FF);
+      int32_t dv = (int32_t)((uint16_t)(v - wy) & 0x3FF);
+      if (dh >= 512) dh -= 1024;
+      if (dv >= 512) dv -= 1024;
+      wx += dh;
+      wy += dv;
+      if (!x3_bg_stream_valid(s, wx, wy)) {
+        if (s_debug) {
+          static unsigned s_fail[2];
+          if ((s_fail[l]++ % 120) == 0)
+            fprintf(stderr,
+                    "[x3_ws_bg] L%d validation fail #%u wx=%d wy=%d "
+                    "h=%u v=%u anchor=(%u,%u)\n",
+                    l, s_fail[l], wx, wy, h, v,
+                    x3_wram16(s->worldXAddr),
+                    x3_wram16(s->worldYAddr));
+        }
+        continue;
+      }
+      ok[l] = true;
+      any = true;
+      wxp[l] = wx;
+      wyp[l] = wy;
+      WsShadowSetWorld(l, (uint32_t)wx, (uint32_t)wy);
+      WsShadowSetBlankTile(l, -1);
+      WsShadowSetRespectGameWrites(l, 60);
+    }
+  }
+
+  if (!any) {
+    if (s_was_active)
+      WsShadowReset();
+    s_was_active = false;
+    WsShadowFrame(g_ppu);
+    return;
+  }
+  s_was_active = true;
+  WsShadowFrame(g_ppu);
+
+  int margin = (g_ws_extra + 7) & ~7;
+  for (int l = 0; l < 2; l++) {
+    if (!ok[l])
+      continue;
+    const X3BgStream *s = &kX3BgStreams[l];
+    const int32_t tx_rng[2][2] = {
+        {(wxp[l] - margin) >> 3, (wxp[l] - 1) >> 3},
+        {(wxp[l] + 256) >> 3, (wxp[l] + 255 + margin) >> 3},
+    };
+    int32_t ty0 = (wyp[l] - 256) >> 3;
+    int32_t ty1 = (wyp[l] + 491) >> 3;
+    if (ty0 < 0)
+      ty0 = 0;
+    for (int r = 0; r < 2; r++) {
+      for (int32_t tx = tx_rng[r][0]; tx <= tx_rng[r][1]; tx++) {
+        if (tx < 0)
+          continue;
+        for (int32_t ty = ty0; ty <= ty1; ty++) {
+          WsShadowForceTile(l, (uint32_t)tx, (uint32_t)ty,
+                            x3_bg_world_tile(s, (uint32_t)tx << 3,
+                                             (uint32_t)ty << 3));
+        }
+      }
+    }
+  }
+}
+
+/* X3's shared object-window family is the X2 implementation moved to bank
+ * $02: $D58A activation, $D611 visibility, and $D636 draw. Generated-code
+ * overrides route only structurally confirmed camera-X add/limit pairs (and
+ * camera-X/dp$05 triggers) through these helpers. Y windows are untouched. */
+static int x3_ws_spawn_margin(void) {
+  static int s_enabled = -1;
+  if (s_enabled < 0) {
+    const char *e = getenv("SNESRECOMP_WS_SPAWN");
+    s_enabled = (e && e[0] == '0') ? 0 : 1;
+  }
+  if (!s_enabled || !g_ws_active)
+    return 0;
+  return g_ws_extra + 32;
+}
+
+uint16 X3WsObjWinAdd(uint16 base) {
+  return (uint16)(base + x3_ws_spawn_margin());
+}
+
+uint16 X3WsObjWinLimit(uint16 base) {
+  return (uint16)(base + 2 * x3_ws_spawn_margin());
 }
 
 void X3DrawPpuFrame(void) {

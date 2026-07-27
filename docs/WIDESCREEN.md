@@ -1,180 +1,118 @@
-# 16:9 widescreen — Mega Man X3
+# Mega Man X3 16:9 widescreen
 
-## Status: NOT IMPLEMENTED. Ground floor is faithful 4:3.
+## Status
 
-The shipped default is native 256x224. `Widescreen` and `NoSpriteLimits` are both
-**0** in the embedded default inside `src/main.c` (that string, not the repo-root
-`config.ini`, is what a fresh run writes and reads), and the launcher toggle is
-hidden (`gi.widescreen_supported = 0`).
+Implemented for Mega Man X3 (USA):
 
-An earlier iteration shipped `Widescreen = 1` while every hook was inert — 16:9 on
-with nothing adapted to it. Do not flip any of this back on until the four parts
-below are done and the 4:3 regression gate passes.
+- true 342x224 rendering at 16:9;
+- player/weapon HUD anchored to the left and boss HUD anchored to the right;
+- exact BG1 and BG2 tiles in newly visible columns, including while scrolling;
+- widescreen-aware enemy activation, visibility, drawing, and camera triggers;
+- unchanged 4:3 output when the feature is disabled.
 
-## Read `snesrecomp/docs/WIDESCREEN_PATTERNS.md` FIRST
+The launcher exposes the widescreen option. The embedded default remains
+`Widescreen = 0`, so a new install starts in authentic 4:3 until selected.
 
-That is engine-level doctrine: sixteen invariants (P1-P16), each one a defect
-Mega Man X 1 actually hit, the invariant that prevents it, and how to measure
-you have it. They are PATTERNS, so they transfer even though no address does.
-Skipping it means rediscovering X1's bugs in X1's order. It also gives the
-recommended ORDER of work, which matters because a later step's symptoms mimic
-an earlier step's bug.
+## Mega Man X2 correspondence
 
-## Mega Man X 1 is the reference — the SHAPES port, the ADDRESSES do not
+X3 retained the relevant X2 engine structures with relocated code. The X2
+implementation and `docs/OAM_SURVEY.md` were used as the structural reference;
+every X3 address and live data source below was then verified against X3.
 
-`MegamanXRecomp` has a working, surveyed 16:9. Its hooks live in
-`src/mmx_rtl.c` and are injected into the *generated* C by
-`tools/apply_overrides.py`, which pattern-matches emitted code at specific
-ROM-derived sites and rewrites a value or a flag in place:
+### Background streamers
 
-```
-/*WS-CULL*/  { cpu->_flag_C = MmxWsCullVerdictX((uint16)(_v12)); }
-/*WS-OAM*/   { _v7 = MmxWsOamRightLimit(_v7); }
-```
+| Purpose | X3 address |
+|---|---:|
+| tile composer | `$00:B91B` |
+| world/layout derivation | `$00:BC60` |
+| BG1 source setup | `$00:BC9E` |
+| BG2 source setup | `$00:BCD5` |
 
-Every MMX1 site is an MMX1 fact: `bank_02_806E` (enemy cull), `bank_82_80B4`
-(shot cull), `bank_00_DC36`/`DCDB` (spawn scan + record walk), `bank_00_D76A`
-(metasprite X gate), `bank_82_B964` (enemy activation), `bank_03_FDD3` (camera
-line triggers), and WRAM `$00D1`/`$00D2` (gameplay gate), `$1E4D` (scan anchor),
-`$0BAD` (camera X). **None of those transfer.** Survey Mega Man X3's own routines
-first; reuse the formulas below, never the constants.
+The retained level-map inputs are:
 
-## The four parts
+| Layer | layout | screen definitions | metatile pointer | world X/Y | BGSC | VRAM map |
+|---|---:|---:|---:|---:|---:|---:|
+| BG1 | `$7E:E800` | `$7E:2800` | `[$09C5]` | `$1E5D/$1E60` | `$51` | `$5000` |
+| BG2 | `$7E:EC00` | `$7E:A600` | `[$09C8]` | `$1E9D/$1EA0` | `$59` | `$5800` |
 
-### 1. Background scrolling on EVERY layer
+`X3ConfigureWsBgMargins` reconstructs only gutter tiles from these structures.
+Before enabling a layer each frame, it compares 12 reconstructed native-view
+samples against VRAM, permits at most one mismatch, and rejects uninitialized
+or near-uniform sources. This makes menus and unrelated layer modes fail safe
+to authentic PPU wrapping. Native-view tiles are never replaced.
 
-Per layer, and it must be every layer the game uses, not just the surveyed one:
+Game-authored gutter writes take priority for 60 frames, matching X2's
+stream-transition handling. `SNESRECOMP_WS_BG_MARGINS=0` disables this provider;
+`SNESRECOMP_WS_BG_MARGINS_DEBUG=1` logs its validation state.
 
-* The added margin columns must be **populated before they are shown**, or
-  first-visit margins display stale or wrapped tiles. MMX1 does this by reading
-  the game's own retained level map to seed the margin (`WsShadowPrefillTile`).
-* **Per-line PPU scroll registers are the authority for pixel phase — never a
-  WRAM camera mirror.** The mirror is off by one against the PPU and produces the
-  "feature sliced in half at the margin" artefact. This bit MMX1 once and is
-  worth not repeating.
-* HDMA-driven per-scanline effects must continue across the margins.
-* Periodic/parallax layers should **fold** by their proven period
-  (`WsShadowSetPeriodicFold`) rather than serving stale history.
-* Stage-trigger lead must not exceed the margin, or CHR paging garbles.
+### HUD
 
-Renderer-side surface already available, no per-game code needed to *call* it:
-`PpuSetExtraSpace`, `PpuSetWidescreenBg3Widen`, `PpuSetWidescreenLineEnhancer`,
-`WsShadowFrame` / `WsShadowSetWorld` / `WsShadowSetPeriodicFold` /
-`WsShadowPrefillTile`.
+Live X3 OAM on save slot 0 confirms the X2 layout:
 
-### 2. HUD anchored to 16:9 bounds
+- slots 0-5: player health, X=8;
+- slots 7-13: weapon health, X=24;
+- slots 16-22: boss health, X=232.
 
-MMX1 reserves OAM slots 0-15 for HUD sprites and shifts them outward with one
-renderer call, gated on real gameplay:
+The player and weapon bars shift toward the widescreen left edge; the boss bar
+shifts toward the right edge. The shift is enabled only when the measured
+player-health signature is present (slot 0 tile `$86`, attribute `$34`, plus at
+least four matching frame slots). Cutscenes that reuse slots 0-23 therefore
+remain unshifted.
 
-```c
-bool in_stage = g_ws_active && <game-state discriminator>;
-PpuSetWsHudOamShift(g_ppu, in_stage ? 16 : 0);
-```
+### Object activation, visibility, and culling
 
-Two requirements:
-* Gate on a **verified game-state discriminator**, not on an HDMA-enable mirror.
-  MMX1 originally gated partly on `$00C3` (an HDMAEN mirror) and the HUD snapped
-  back to native placement during any effect that toggled HDMA channels.
-* Menus, intros and mode-7 scenes must keep native placement.
+X3's shared object-window family is the relocated X2 implementation:
 
-Survey needed: which OAM slots Mega Man X3 uses for HUD, and which WRAM byte
-reliably means "in live stage gameplay".
-
-### 3. Enemy spawning respects 16:9 bounds
-
-Spawn scanning is anchored to a camera column. Widen the anchor so enemies enter
-the world before the widescreen edge reveals them:
-
-```
-right anchor:  v + (margin + 32)
-left  anchor:  max(0, v - (margin + 32))
-```
-
-The `+32` matters: an anchor of exactly the margin lands spawns on the outermost
-*visible* wide column, i.e. visible pop-in.
-
-**The dual-pass trick is the important part.** Widening the anchor for everything
-makes stage controllers, camera staging and minibosses fire early. MMX1 runs the
-record walk twice: the widened pass admits **only ordinary enemy records**, then a
-second pass at the **unmodified 4:3 anchor** admits everything else, so
-progression-critical records keep authentic timing. Per-record flags make an
-already-created enemy a no-op in the native pass.
-
-```c
-int WsSpawnRecordAllowed(uint16 dpage, uint8 type);   /* wide pass: type only */
-void WsSpawnRunNativePass(CpuState *cpu);             /* balanced synthetic JSR */
-```
-
-The native pass must be a **balanced** call that preserves all guest registers and
-cycle accounting (`cpu_dispatch_call_pc`, save/restore `CpuState`), or it corrupts
-the stack.
-
-Survey needed: the spawn-scan routine, the record-descriptor type nibble, and
-which types are ordinary enemies versus controllers.
-
-### 4. Enemy culling respects 16:9 bounds
-
-The mirror of (3) — cull keyed to the native edge deletes things still visible in
-the margins. Widen the scroll-off verdict symmetrically:
-
-```
-vanilla:  carry = (objX - camX + 0x40) >= 0x180          /* keep cam-64..+320 */
-widened:  carry = (v + margin) >= (0x180 + 2*margin)
-```
-
-Projectiles use the same shape with the game's own tighter base window (MMX1:
-`0x20` / `0x140`). Then the OAM emitter, which is a separate gate and easy to
-miss:
-
-* the metasprite X **reject limit** must be widened (`vanilla_limit + margin`);
-* the reject **compare** must be replaced, because it is a single *unsigned*
-  test — negative screen X wraps high and always rejects, so sprites still vanish
-  at the native left edge no matter how far the limit is widened:
-
-```c
-uint16 WsOamXReject(uint16 x_plus_16, uint16 widened_limit) {
-  if (x_plus_16 < widened_limit) return 0;               /* right window */
-  if (m && x_plus_16 >= (uint16)(0u - (uint16)m)) return 0; /* left margin */
-  return 1;
-}
-```
-
-Also widen per-enemy **activation distance** for large objects, or a big sprite's
-controller only wakes when its centre reaches the widened edge and its outer tiles
-pop in.
-
-## Non-negotiables
-
-* **Camera, collision, AI, RNG and save-state data unchanged.** 16:9 is
-  presentation plus spawn/cull bounds. If it alters simulation, it is wrong.
-* **4:3 must stay bit-identical with the enhancement off.** That is the
-  regression gate: capture frames at `Widescreen = 0` before and after, and diff.
-  The engine has `PPU frame-diff` tooling for exactly this.
-* Every widening gets its own env kill-switch (MMX1: `SNESRECOMP_WS_SPAWN`,
-  `SNESRECOMP_WS_STAGE`) so a misbehaving part can fall back to authentic 4:3
-  independently, with the rest still active.
-
-## Survey plan — what to measure, with what
-
-Nothing here can be written without Mega Man X3's addresses. All of these are
-always-on rings; query them, do not arm-then-run:
-
-| question | tool |
+| X3 routine | vanilla horizontal test |
 |---|---|
-| which routines write OAM, and the HUD slot range | `oam_write_get`, `oam_render_get` |
-| the live gameplay-state discriminator | `read_ram`, `set_wram_watch` across mode changes |
-| camera X location in WRAM | `trace_wram` while scrolling |
-| which code culls/spawns | `SNESRECOMP_WRITE_WATCH` on an object slot, then the reported function |
-| per-layer scroll authority | `get_ppu_state` (`hScroll`/`vScroll`) vs the WRAM mirror |
+| `$02:D58A` activation | `(objX - camX + $40) < $180` |
+| `$02:D611` visibility | `(objX - camX + $60) < $1C0` |
+| `$02:D636` draw/common AI tail | `(objX - camX + $20) < $140` |
 
-Reaching live gameplay requires a human at the controls — the standing rule is
-that gameplay verdicts are the owner's, not the agent's.
+`tools/apply_overrides.py` recognizes generated C structurally: a read of the
+X camera anchor `$1E5D`, followed by a complete add/limit pair. A `$1E60` read
+disarms the match so vertical windows remain unchanged. It also recognizes the
+camera-X/add/`dp+$05` trigger idiom used by per-type wake-up logic.
 
-## Turning it on
+The matched horizontal windows grow by `margin + 32` on each side. The extra
+32 pixels ensure an object activates outside the visible 16:9 edge instead of
+popping on its outermost column. The current full native generation contains
+26 marked rewrites across banks `$02`, `$03`, `$07`, `$08`, `$13`, and `$3C`.
+Regeneration fails loudly if the expected structural surface shrinks.
 
-Only after 1-4 are done and the 4:3 gate passes:
-1. `gi.widescreen_supported = 1` in `src/main.c`;
-2. optionally flip the embedded default's `Widescreen` to 1;
-3. record what was surveyed **in this file**, so the next person knows what is
-   proven versus assumed.
+The helpers return their vanilla constants whenever widescreen is inactive.
+`SNESRECOMP_WS_SPAWN=0` independently disables object-window widening.
+
+## Native promotion boundary
+
+Profile promotion originally froze immediately after loading save slot 0.
+First-frame return tracing isolated `$00:DD59 -> $03:8DA0`. Routine `$03:8DA0`
+calls a generated WRAM helper at `$7E:26A0` which rewrites the guest return
+stack and returns directly to the outer caller. A native C call frame cannot
+represent that non-local return; it leaked five guest-stack bytes per call.
+
+`force_lle 038DA0` in `recomp/bank00.cfg` keeps that exact executable boundary
+on the interpreter tier while its callers remain native. `$00:9133`, which
+enters the same stack-programmed WRAM dispatcher at `$7E:26A6` during the
+CAPCOM/title transition, is held LLE for the same reason. The directive is
+implemented in both Python and Rust analyzers in the paired latest-snesrecomp
+worktree. Neither unsafe boundary receives a native dispatch slot.
+
+## Validation
+
+Save slot 0 was loaded through the paused debug bridge and driven right with a
+deterministic input sequence.
+
+- The repaired native build advanced beyond the formerly frozen first frame.
+- Camera X moved from `$0100` to `$0204` over 180 rightward frames.
+- Both BG layers stayed active while scrolling and accumulated hundreds of
+  thousands of west/east shadow hits with zero misses.
+- Captured 342x224 frames showed continuous jungle/terrain in both gutters.
+- Enemy sprites were active and rendering into the east extension.
+- Native entry into `$02:D636` was observed during the same scene.
+- With widescreen disabled, the pre-change interpreter build and the new
+  native build produced an exact 256x224 pixel match after the same save and
+  120-frame input sequence: zero differing pixels.
+
+Generated sources are intentionally untracked. Always run
+`tools/regen.sh`; it applies the widescreen overrides and checks idempotency.

@@ -15,6 +15,9 @@ void X3DrawPpuFrame(void);
  * is active AND the health bar signature is present in OAM. */
 void X3ConfigureWsHud(void);
 
+/* Per-frame exact BG1/BG2 gutter fill, self-gated by native VRAM parity. */
+void X3ConfigureWsBgMargins(void);
+
 /* LLE host execution cursor (resume PC + CpuState) — not covered by
  * snes_saveload, which snapshots the unused snes->cpu. */
 void X3StateSaveExtra(struct SaveLoadInfo *sli);

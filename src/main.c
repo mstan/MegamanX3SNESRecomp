@@ -160,12 +160,11 @@ static void X3Display_PreparePpuFrame(void) {
               (g_ppu_render_flags & kPpuRenderFlags_NewRenderer) != 0;
   PpuBeginDrawing(g_ppu, g_my_pixels, (size_t)width * 4, 0);
   PpuSetExtraSpace(g_ppu, (uint8)g_ws_extra);
-  /* 16:9 HUD anchoring: slot map INHERITED FROM X2, not surveyed on X3
-   * (see the provenance note above X3ConfigureWsHud in x3_rtl.c).
+  /* 16:9 HUD anchoring: X3's live player HUD confirms the X2 slot layout.
    * HP (0-5, X=8) and weapon (7-13, X=24) anchor LEFT; the boss
    * bar (16-22, X=232) anchors RIGHT, so they move in opposite
-   * directions. Gated on the HUD signature being present in OAM,
-   * because cutscenes reuse slots 0-23 for actors. */
+   * directions. Gated on the measured HUD signature in OAM because
+   * cutscenes reuse slots 0-23 for actors. */
   X3ConfigureWsHud();
   /* BG3 widen and the margin line-enhancer are Mega Man X 1
    * findings keyed to MMX1 WRAM; not surveyed here yet. */
@@ -185,14 +184,10 @@ bool X3Display_IsWidescreenEnabled(void) { return g_config.widescreen; }
 bool X3Display_IsWidescreenActive(void) { return g_ws_active; }
 int X3Display_GetCurrentFrameWidth(void) { return g_snes_width > 0 ? g_snes_width : 256; }
 
-/* Widescreen BG2 history/prefill is a per-game reverse-engineering job
- * (Mega Man X 1's version read its retained level map at $EC00/$A600).
- * Until Mega Man X3's streamer is surveyed, register an empty shadow frame
- * so the renderer-side margin cache stays deactivated rather than
- * serving stale tiles. */
+/* Exact per-frame fill from X3's decoded level structures. The
+ * self-validating implementation lives in x3_rtl.c. */
 static void X3Display_PrepareBg2Shadow(void) {
-  WsShadowReset();
-  WsShadowFrame(g_ppu);
+  X3ConfigureWsBgMargins();
 }
 
 // --- Scripted input ---
@@ -955,11 +950,9 @@ int main(int argc, char** argv) {
         gi.has_expected_crc = 1;
         gi.known_sha256 = &kX3RomSha256;   /* single accepted digest */
         gi.num_known_sha256 = 1;
-        /* Widescreen is NOT surveyed for this title yet: nothing has
-         * proven margin spawn/cull or the BG streamer, so 16:9 would
-         * show empty margins with pop-in. The code path stays; the
-         * launcher toggle stays hidden until a survey promotes it. */
-        gi.widescreen_supported = 0;
+        /* X3's BG1/BG2 streamers, HUD slots, and object windows are now
+         * adapted and live-validated; expose the shared launcher toggle. */
+        gi.widescreen_supported = 1;
         gi.num_players = 1;            /* MMX is 1-player — hide the Player 2 row */
         gi.msu1_supported = 0;         /* hide MSU-1 panel */
         gi.config_path = config_file;  /* hotkey editor targets the live config */
@@ -1912,9 +1905,8 @@ static const char kDefaultConfigIniContent[] =
   "\n"
   "# Render real extra PPU columns to match a widescreen display.\n"
   "# OPT-IN ENHANCEMENT, off by default: the faithful ground floor\n"
-  "# is native 4:3. 16:9 is NOT surveyed for this title yet --\n"
-  "# background scrolling on every layer, HUD bounds, and enemy\n"
-  "# spawn/cull bounds all still need doing. See docs/WIDESCREEN.md.\n"
+  "# is native 4:3. X3's BG gutters, HUD, and object activation/cull\n"
+  "# windows are adapted for 16:9. See docs/WIDESCREEN.md.\n"
   "Widescreen = 0\n"
   "\n"
   "# Relax the hardware 32-sprites/34-tiles-per-scanline caps, which\n"

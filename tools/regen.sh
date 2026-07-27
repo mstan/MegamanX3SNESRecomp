@@ -99,6 +99,9 @@ step "Regenerating banks from $ROM"
     --analysis-backend "$ANALYSIS_BACKEND" \
     "${emit_extra[@]+"${emit_extra[@]}"}"
 
+step "Applying widescreen gen-code overrides"
+"$PYTHON" tools/apply_overrides.py --gen-dir src/gen -v
+
 step "Syncing funcs.h"
 "$PYTHON" "$SNESRECOMP_ROOT/tools/v2_sync_funcs_h.py" --cfg-dir recomp \
     --out recomp/funcs.h
@@ -111,6 +114,7 @@ if [ "$STRICT_IDEMPOTENT" -eq 1 ]; then
       --cfg-dir recomp --out-dir "$TMP_GEN" --cfg-roots \
       --analysis-backend "$ANALYSIS_BACKEND" \
       "${emit_extra[@]+"${emit_extra[@]}"}"
+  "$PYTHON" tools/apply_overrides.py --gen-dir "$TMP_GEN"
   : > "$TMP_GEN/.gitkeep"
   "$PYTHON" "$SNESRECOMP_ROOT/tools/v2_compare_output.py" \
       --expected src/gen --actual "$TMP_GEN"
