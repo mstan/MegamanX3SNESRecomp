@@ -10,6 +10,11 @@ struct SaveLoadInfo;
 void RunOneFrameOfGame(void);
 void X3DrawPpuFrame(void);
 
+/* Per-frame 16:9 HUD anchoring. Slot map inherited from X2 and NOT
+ * surveyed on X3 (provenance note in x3_rtl.c); inert unless widescreen
+ * is active AND the health bar signature is present in OAM. */
+void X3ConfigureWsHud(void);
+
 /* LLE host execution cursor (resume PC + CpuState) — not covered by
  * snes_saveload, which snapshots the unused snes->cpu. */
 void X3StateSaveExtra(struct SaveLoadInfo *sli);

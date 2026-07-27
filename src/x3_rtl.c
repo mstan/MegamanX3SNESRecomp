@@ -171,6 +171,100 @@ void RunOneFrameOfGame(void) {
   }
 }
 
+
+/* ── 16:9 HUD anchoring ───────────────────────────────────────────────────
+ *
+ * PROVENANCE (2026-07-26): this slot map is INHERITED FROM MEGA MAN X2 and has
+ * NOT been surveyed on Mega Man X3. X3 has no docs/OAM_SURVEY.md; every
+ * constant below (tile 0x86, attr 0x34/0x36, X 8/24/232, the 0..23 band) is an
+ * X2 measurement assumed to carry over because the two games share a HUD
+ * layout. That assumption is UNVERIFIED here.
+ *
+ * It is safe to ship unverified only because it fails closed: if any constant
+ * is wrong for X3 the signature simply never matches, x3_ws_hud_present()
+ * returns 0, and the HUD keeps its authentic 4:3 placement. Widescreen is also
+ * off by default for this title. Do NOT promote X3 widescreen on the strength
+ * of this block -- run the survey first and write docs/OAM_SURVEY.md.
+ *
+ * Inherited X2 slot map:
+ *
+ *   HP bar      slots  0-5   screen X 8     attr 0x34   anchors LEFT
+ *   weapon bar  slots  7-13  screen X 24    attr 0x36   anchors LEFT
+ *   boss bar    slots 16-22  screen X 232   attr 0x34   anchors RIGHT
+ *   actors      slots 24+
+ *
+ * The bars anchor to OPPOSITE edges, so they cannot be shifted as one block.
+ * PpuAdjustWidescreenHudOamX already handles that: it pushes sprites left of
+ * wsHudLeftEnd outward by extraLeftCur and sprites at/after wsHudRightStart
+ * outward by extraRightCur. So this only has to configure it correctly.
+ *
+ * The layout is symmetric -- HP's left edge is 8px from the left, and the boss
+ * bar at X=232 is 16px wide so its right edge is 8px from the right -- so both
+ * sides move by the same margin and stay symmetric at any width.
+ */
+enum {
+  kX3HudSlotFirst = 0,        /* HP / weapon / boss all live in 0..23 */
+  kX3HudSlotCount = 24,       /* slot 24 onward is actors            */
+  kX3HudBandHeight = 96,      /* measured HUD Y extent is 0..80       */
+  kX3HudLeftEnd = 64,         /* HP X=8 and weapon X=24 are below this */
+  kX3HudRightStart = 192,     /* boss X=232 is at/above this          */
+};
+
+/* True when the health bar's measured signature is present in live OAM.
+ *
+ * Cutscenes reuse slots 0-23 for actors, so the shift MUST NOT be applied
+ * whenever those slots merely happen to be populated. Gating on the HUD's own
+ * fingerprint avoids inventing a WRAM game-state byte and fails safe: no
+ * signature, no shift, authentic placement. Requires only the HP bar -- the
+ * weapon bar is absent until a special weapon is equipped, and the boss bar
+ * only exists during a fight. */
+static int x3_ws_hud_present(void) {
+  if (!g_ppu) return 0;
+
+  /* Slot 0 is the bar's "X" icon: tile 0x86, palette 0x34, hard against the
+   * left edge. Distinctive enough that a cutscene actor will not impersonate it. */
+  const unsigned icon_x = g_ppu->oam[0] & 0xFFu;
+  const unsigned icon_y = g_ppu->oam[0] >> 8;
+  const unsigned icon_tile = g_ppu->oam[1] & 0xFFu;
+  const unsigned icon_attr = g_ppu->oam[1] >> 8;
+  const unsigned icon_xhi = g_ppu->highOam[0] & 1u;
+  if (icon_x != 8u || icon_xhi || icon_attr != 0x34u ||
+      icon_tile != 0x86u || icon_y >= kX3HudBandHeight)
+    return 0;
+
+  /* Corroborate with the bar frame, slots 0-4. Do NOT demand an exact count:
+   * the bar's length varies with max health and slot 5 parks at Y=224 in most
+   * of the stage. (That tolerance is an X2 finding -- requiring all of 0-5
+   * there evaluated 5/6 and disabled the shift nearly everywhere. Carried over
+   * with the rest of the inherited map; not re-measured on X3.) */
+  unsigned frame_slots = 0;
+  for (unsigned slot = 0; slot <= 4; slot++) {
+    const unsigned w = slot * 2u;
+    const unsigned x = g_ppu->oam[w] & 0xFFu;
+    const unsigned y = g_ppu->oam[w] >> 8;
+    const unsigned attr = g_ppu->oam[w + 1] >> 8;
+    const unsigned xhi = (g_ppu->highOam[w >> 3] >> (w & 7)) & 1u;
+    if (x == 8u && !xhi && attr == 0x34u && y < kX3HudBandHeight)
+      frame_slots++;
+  }
+  return frame_slots >= 4u;
+}
+
+/* Call once per frame from the host's frame-prep, after g_ws_extra is known. */
+void X3ConfigureWsHud(void) {
+  extern bool g_ws_active;
+  if (!g_ppu) return;
+  if (!g_ws_active || !x3_ws_hud_present()) {
+    PpuSetWsHudOamShiftRange(g_ppu, 0, 0);   /* off = authentic placement */
+    PpuSetWidescreenHudSplit(g_ppu, 0, 0, 0);
+    return;
+  }
+  PpuSetWidescreenHudSplit(g_ppu, kX3HudBandHeight,
+                           kX3HudLeftEnd, kX3HudRightStart);
+  PpuSetWsHudOamShiftRange(g_ppu, kX3HudSlotFirst,
+                           kX3HudSlotCount);
+}
+
 void X3DrawPpuFrame(void) {
   /* Presentation only. IRQs are serviced inside RunOneFrameOfGame while the
    * bridge advances the beam — never mutate g_cpu here. */
