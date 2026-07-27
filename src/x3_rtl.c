@@ -281,7 +281,7 @@ void X3DrawPpuFrame(void) {
 }
 
 /* ── save-state extras: the LLE host cursor ───────────────────────────── */
-enum { kX3LleSaveMagic = 0x78324C4Cu }; /* 'x','2',"LL" */
+enum { kX3LleSaveMagic = 0x78334C4Cu }; /* 'x','3',"LL" */
 
 typedef struct X3LleSaveChunk {
   uint32_t magic;
