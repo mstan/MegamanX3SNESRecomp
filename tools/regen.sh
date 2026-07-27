@@ -7,6 +7,13 @@
 # ROM: mmx3.sfc at the repo root (headered .smc dumps are accepted — the loader
 # strips a 512-byte copier header).
 #
+# AOT coverage: if recomp/tier2_coverage.json exists it is passed as an
+# optional-root profile (see the block below). Grow coverage with the
+# feedback loop in snesrecomp/docs/MULTI_TIER.md:
+#   run the game -> `tier2_dump` on the debug port -> audit the manifest with
+#   snesrecomp/tools/tier2_ingest.py -> paste the vetted directives into
+#   recomp/*.cfg -> re-run this script. Repeat to fixpoint.
+#
 # Flags:
 #   --no-tests             skip the framework test suite (default: run it).
 #   --strict-idempotent    regenerate into a temp dir and require byte-identical
@@ -65,13 +72,32 @@ if [ "$ANALYSIS_BACKEND" = native ]; then
   "$PYTHON" "$SNESRECOMP_ROOT/tools/build_native_analyzer.py"
 fi
 
+# Tier-2 coverage profile: clean interpreter-observed targets become optional
+# AOT roots. It only influences materialization -- it never authorizes
+# behavior, changes decoding, or removes the LLE fallback. The manifest is
+# produced by the runner (`tier2_dump` on the debug port, or on exit) and
+# audited through snesrecomp/tools/tier2_ingest.py before anything is trusted.
+#
+# Passed conditionally: v2_emit hard-errors on a missing manifest, and X3 has
+# to be able to regen before the first profiling run has ever happened.
+PROFILE_MANIFEST="recomp/tier2_coverage.json"
+emit_extra=()
+if [ -f "$PROFILE_MANIFEST" ]; then
+  emit_extra+=(--profile-manifest "$PROFILE_MANIFEST")
+  echo "regen.sh: using coverage profile $PROFILE_MANIFEST"
+else
+  echo "regen.sh: no $PROFILE_MANIFEST yet - AOT roots come from cfg + vectors only."
+  echo "regen.sh: to build one, run the game and issue 'tier2_dump' on the debug port."
+fi
+
 step "Regenerating banks from $ROM"
 # --cfg-roots is the static-coverage policy: every declared `func` seeds the
 # analysis closure so the proven surface is materialized as AOT; the
 # interpreter is the failsafe for the unprovable remainder, never the plan.
 "$PYTHON" "$SNESRECOMP_ROOT/tools/v2_emit.py" --rom "$ROM" \
     --cfg-dir recomp --out-dir src/gen --cfg-roots \
-    --analysis-backend "$ANALYSIS_BACKEND"
+    --analysis-backend "$ANALYSIS_BACKEND" \
+    "${emit_extra[@]+"${emit_extra[@]}"}"
 
 step "Syncing funcs.h"
 "$PYTHON" "$SNESRECOMP_ROOT/tools/v2_sync_funcs_h.py" --cfg-dir recomp \
@@ -83,7 +109,8 @@ if [ "$STRICT_IDEMPOTENT" -eq 1 ]; then
   trap 'rm -rf "$TMP_GEN"' EXIT
   "$PYTHON" "$SNESRECOMP_ROOT/tools/v2_emit.py" --rom "$ROM" \
       --cfg-dir recomp --out-dir "$TMP_GEN" --cfg-roots \
-      --analysis-backend "$ANALYSIS_BACKEND"
+      --analysis-backend "$ANALYSIS_BACKEND" \
+      "${emit_extra[@]+"${emit_extra[@]}"}"
   : > "$TMP_GEN/.gitkeep"
   "$PYTHON" "$SNESRECOMP_ROOT/tools/v2_compare_output.py" \
       --expected src/gen --actual "$TMP_GEN"
