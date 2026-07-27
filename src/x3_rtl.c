@@ -177,19 +177,9 @@ void RunOneFrameOfGame(void) {
 
 /* ── 16:9 HUD anchoring ───────────────────────────────────────────────────
  *
- * PROVENANCE (2026-07-26): this slot map is INHERITED FROM MEGA MAN X2 and has
- * NOT been surveyed on Mega Man X3. X3 has no docs/OAM_SURVEY.md; every
- * constant below (tile 0x86, attr 0x34/0x36, X 8/24/232, the 0..23 band) is an
- * X2 measurement assumed to carry over because the two games share a HUD
- * layout. That assumption is UNVERIFIED here.
- *
- * It is safe to ship unverified only because it fails closed: if any constant
- * is wrong for X3 the signature simply never matches, x3_ws_hud_present()
- * returns 0, and the HUD keeps its authentic 4:3 placement. Widescreen is also
- * off by default for this title. Do NOT promote X3 widescreen on the strength
- * of this block -- run the survey first and write docs/OAM_SURVEY.md.
- *
- * Inherited X2 slot map:
+ * PROVENANCE (2026-07-26): X2 supplied the candidate slot map; live X3 OAM on
+ * save slots 0 and 4 then confirmed the health/weapon/boss layout and its
+ * signature:
  *
  *   HP bar      slots  0-5   screen X 8     attr 0x34   anchors LEFT
  *   weapon bar  slots  7-13  screen X 24    attr 0x36   anchors LEFT
@@ -197,9 +187,14 @@ void RunOneFrameOfGame(void) {
  *   actors      slots 24+
  *
  * The bars anchor to OPPOSITE edges, so they cannot be shifted as one block.
- * PpuAdjustWidescreenHudOamX already handles that: it pushes sprites left of
- * wsHudLeftEnd outward by extraLeftCur and sprites at/after wsHudRightStart
- * outward by extraRightCur. So this only has to configure it correctly.
+ * PpuAdjustWidescreenHudOamX pushes sprites left of wsHudLeftEnd outward by
+ * extraLeftCur and sprites at/after wsHudRightStart outward by extraRightCur.
+ *
+ * X3's gameplay dialogue is BG3, including rows inside the HUD's Y band.
+ * Therefore the OAM anchor band must be configured independently: applying
+ * the BG3 HUD split moves the first two text columns toward the left gutter
+ * while leaving the rest centered, visibly truncating "(BIT)", "Welcome",
+ * and "I'm". BG3 remains authentic/centered here.
  *
  * The layout is symmetric -- HP's left edge is 8px from the left, and the boss
  * bar at X=232 is 16px wide so its right edge is 8px from the right -- so both
@@ -256,13 +251,14 @@ static int x3_ws_hud_present(void) {
 void X3ConfigureWsHud(void) {
   extern bool g_ws_active;
   if (!g_ppu) return;
+  /* X3's HUD is OAM-only; BG3 is gameplay dialogue and must stay centered. */
+  PpuSetWidescreenHudSplit(g_ppu, 0, 0, 0);
   if (!g_ws_active || !x3_ws_hud_present()) {
     PpuSetWsHudOamShiftRange(g_ppu, 0, 0);   /* off = authentic placement */
-    PpuSetWidescreenHudSplit(g_ppu, 0, 0, 0);
     return;
   }
-  PpuSetWidescreenHudSplit(g_ppu, kX3HudBandHeight,
-                           kX3HudLeftEnd, kX3HudRightStart);
+  PpuSetWsHudOamBand(g_ppu, kX3HudBandHeight,
+                     kX3HudLeftEnd, kX3HudRightStart);
   PpuSetWsHudOamShiftRange(g_ppu, kX3HudSlotFirst,
                            kX3HudSlotCount);
 }

@@ -59,6 +59,12 @@ player-health signature is present (slot 0 tile `$86`, attribute `$34`, plus at
 least four matching frame slots). Cutscenes that reuse slots 0-23 therefore
 remain unshifted.
 
+The bars are OAM-only. BG3 remains centered even while the HUD signature is
+present because X3 uses BG3 for in-game dialogue. This is deliberately
+different from a coupled BG3 HUD split: save slot 4's Bit encounter places
+`(BIT)`, `Welcome, X.`, and `I'm Bit.` across the left/center split boundary,
+which would pull the first two character tiles into the gutter.
+
 ### Object activation, visibility, and culling
 
 X3's shared object-window family is the relocated X2 implementation:
