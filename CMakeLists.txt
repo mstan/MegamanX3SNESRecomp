@@ -39,7 +39,6 @@ add_executable(MegaManX3SNESRecomp
     ${SNESRECOMP_RUNNER_SOURCES}
     # game-specific host runtime
     src/config.c
-    src/glsl_shader.c
     src/main.c
     src/opengl.c
     src/post_mortem.c
@@ -64,6 +63,7 @@ target_include_directories(MegaManX3SNESRecomp PRIVATE
     ${SNESRECOMP_RUNNER_INCLUDE_DIRS}
     ${SDL2_INCLUDE_DIRS}
 )
+snesrecomp_target_glsl_shader(MegaManX3SNESRecomp)
 
 # prod-vs-debug via the single SNESRECOMP_ENABLE_TRACE switch (runner.cmake,
 # default OFF). Prod: no debug_server.c / TCP server / rings.
@@ -91,7 +91,6 @@ endif()
 
 target_link_libraries(MegaManX3SNESRecomp PRIVATE
     OpenGL::GL
-    m                                 # libm: glsl_shader.c uses pow()
     ${SNESRECOMP_RUNNER_LIBRARIES}
 )
 
