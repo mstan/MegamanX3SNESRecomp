@@ -65,7 +65,7 @@ What that means concretely:
   step-cap bails every frame and `master_cycles` running tens of frames ahead
   of the deadline, with the screen stuck in forced blank.
 
-### Cx4 — firmware required
+### Cx4 — no firmware dump required
 
 Mega Man X3 carries Capcom's **Cx4** (a Hitachi HG51B S169 DSP; internal header
 chipset `$F3`, `$FFBF` sub-type `$10`). The engine emulates it at the
@@ -73,11 +73,11 @@ chipset `$F3`, `$FFBF` sub-type `$10`). The engine emulates it at the
 the faithful LLE floor. Without it the game spins forever on the Cx4 status
 register at `$7F5E` and never lifts forced blank.
 
-**You must supply `cx4.rom`** (exactly 3072 bytes) at the repo root, next to the
-executable, or via `$SNESRECOMP_CX4_ROM`. That is the chip's internal
-reciprocal table; it is not in the game ROM, it is Capcom/Hitachi data, and this
-project does not redistribute it. Missing firmware is reported loudly -- it does
-not fail silently.
+The chip's internal 1024-entry data ROM is synthesized from six closed-form
+mathematical tables and has been verified bit-exact against a real dump. No
+firmware file is needed. An optional 3072-byte `cx4.rom`, supplied beside the
+executable or through `$SNESRECOMP_CX4_ROM`, only cross-checks the synthesis;
+the file wins if a platform ever produces a mismatch.
 
 Read `docs/CX4.md` before debugging anything Cx4-shaped.
 

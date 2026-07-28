@@ -15,22 +15,21 @@ game's Cx4 code does, the core runs it.
 
 Full engine-side notes: `snesrecomp/runner/src/snes/CX4_NOTES.md`.
 
-## You must supply the firmware
+## Internal data ROM: synthesized, dump optional
 
-The HG51B S169 has a 1024-entry x 24-bit internal data ROM — a
-reciprocal/division table — which is **not** part of the game ROM. Without it
-`RDROM` reads zeros and every division the Cx4 program performs is wrong.
+The HG51B S169 has a 1024-entry × 24-bit internal data ROM which is **not**
+part of the game ROM. Its six component tables — reciprocal, square root,
+sine, arcsine, tangent, and cosine — have closed forms, so the engine
+synthesizes the complete table at startup. Every generated entry has been
+verified bit-exact against a real dump. No firmware file is required.
 
-Put **`cx4.rom`** (exactly 3072 bytes) at the repo root, or next to the
-executable, or point `$SNESRECOMP_CX4_ROM` at it. It is Capcom/Hitachi data, so
-this project does not redistribute it and `.gitignore` refuses it.
+Measured on X2's boot self-test, which X3 shares, the Cx4 program reads **all
+1024** entries. That makes exact table contents essential, but synthesis
+supplies them without changing the instruction-level emulation path.
 
-Measured on X2's boot self-test: the Cx4 program reads **all 1024** entries. The
-firmware is genuinely required, not optional.
-
-Needing real firmware is the expected cost of an LLE floor. A future HLE layer
-could remove it — but only as a gated optimization on top, with the faithful
-path still forceable, and authored from this core's observed behavior.
+Developers may optionally put a 3072-byte `cx4.rom` beside the executable or
+point `$SNESRECOMP_CX4_ROM` at it. The runtime uses it to cross-check the
+synthesized table and lets the file win on a mismatch.
 
 ## Why the Cx4 blocks boot at all (measured, not assumed)
 
@@ -84,8 +83,8 @@ $ python tools/dbgprobe.py cx4
 
 | field | meaning when it looks wrong |
 |---|---|
-| `firmware` | `0` => `cx4.rom` missing; every `RDROM` result is zeros |
-| `rdrom_hits` | `>0` with `firmware:0` => the missing blob is corrupting results |
+| `firmware` | should remain `1`; `0` => data-ROM initialization failed |
+| `rdrom_hits` | real DSP `RDROM` executions; the full self-test reaches all 1024 entries |
 | `insns` | `0` => the DSP never ran at all |
 | `locked` | `1` => the core wedged its bus (same-space DMA); needs a reset |
 | `ring` | DSP program starts: entry `pb`/`pc` and cache `base` |
