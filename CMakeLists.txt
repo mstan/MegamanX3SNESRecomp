@@ -46,7 +46,6 @@ add_executable(MegaManX3SNESRecomp
     src/x3_rtl.c
     src/x3_spc_player.c
     src/mods/x3_widescreen_plugin.c
-    src/fiber_compat.c    # Win32 Fiber API shim (ucontext) for non-Windows
 
     # OpenGL function loader
     third_party/gl_core/gl_core_3_1.c
@@ -61,6 +60,7 @@ target_include_directories(MegaManX3SNESRecomp PRIVATE
     ${SNESRECOMP_RUNNER_INCLUDE_DIRS}
     ${SDL2_INCLUDE_DIRS}
 )
+snesrecomp_target_fiber_compat(MegaManX3SNESRecomp)
 snesrecomp_target_post_mortem(MegaManX3SNESRecomp TIER2)
 snesrecomp_target_mmx_config(MegaManX3SNESRecomp)
 snesrecomp_target_glsl_shader(MegaManX3SNESRecomp)
