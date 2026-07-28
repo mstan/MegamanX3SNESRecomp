@@ -44,6 +44,7 @@ static bool s_lle_did_reset = false;
 static uint32_t s_lle_resume_pc = 0;
 static unsigned s_lle_host_frames = 0;
 static bool s_lle_extra_loaded = false;
+static void x3_patch_ws_interp_obj_windows(void);
 
 /* Read a 16-bit CPU vector out of bank $00's vector table. */
 static uint32_t x3_read_vector_pc24(uint16_t vec_addr) {
@@ -88,6 +89,11 @@ static int x3_boot_log_enabled(void) {
 }
 
 void RunOneFrameOfGame(void) {
+  /* Generated bodies route viewport constants through X3WsObjWin*.
+   * Interpreter fallbacks fetch the original ROM bytes, so mirror those
+   * dynamic constants into the private runtime ROM copy each frame. */
+  x3_patch_ws_interp_obj_windows();
+
   if (!s_lle_did_reset) {
     cpu_state_init(&g_cpu, g_ram);
     s_lle_resume_pc = x3_read_vector_pc24(0xFFFC);
@@ -522,6 +528,327 @@ uint16 X3WsObjWinAdd(uint16 base) {
 
 uint16 X3WsObjWinLimit(uint16 base) {
   return (uint16)(base + 2 * x3_ws_spawn_margin());
+}
+
+/* $00:DE3A is X3's copy of X2's 32-pixel dynamic record streamer.
+ * Keep its probes beyond the visible margin plus wake slack. The two sides
+ * round in opposite directions because the right base is already camera+$100
+ * while the left sweep starts at camera-$20. */
+static uint16_t x3_ws_spawn_stream_left_extra(void) {
+  int margin = x3_ws_spawn_margin();
+  return margin ? (uint16_t)((margin + 31) & ~31) : 0;
+}
+
+static uint16_t x3_ws_spawn_stream_right_extra(void) {
+  int margin = x3_ws_spawn_margin();
+  return margin ? (uint16_t)((margin + 31) & ~31) : 0;
+}
+
+uint16 X3WsSpawnStreamLeft(uint16 camera) {
+  return (uint16)(camera - x3_ws_spawn_stream_left_extra());
+}
+
+uint16 X3WsSpawnStreamRightAdd(uint16 base) {
+  return (uint16)(base + x3_ws_spawn_stream_right_extra());
+}
+
+uint16 X3WsSpawnStreamGridPad(uint16 base) {
+  uint16_t extra = x3_ws_spawn_stream_left_extra();
+  return extra ? extra : base;
+}
+
+uint16 X3WsSpawnStreamColumns(uint16 base) {
+  uint16_t left = x3_ws_spawn_stream_left_extra();
+  uint16_t right = x3_ws_spawn_stream_right_extra();
+  if (!left)
+    return base;
+  return (uint16)(9 + (left >> 5) + (right >> 5));
+}
+
+/* Private-ROM parity for interpreter and full-LLE DE3A execution. This is the
+ * exact X3 relocation of X2's streamer. The equal-length SBC/NOP/JMP rewrite
+ * rejoins at DE77's existing STA $00 with the original 12-cycle timing. */
+typedef struct X3WsSpawnStreamRom {
+  uint8_t *left_arm;
+  uint8_t *right_operand;
+  uint8_t *grid_operand;
+  uint8_t *columns_operand;
+} X3WsSpawnStreamRom;
+
+static X3WsSpawnStreamRom s_x3_ws_stream_rom;
+static bool s_x3_ws_stream_scanned;
+static bool s_x3_ws_stream_valid;
+
+static void x3_scan_ws_spawn_stream(void) {
+  if (!g_snes || !g_snes->cart || !g_snes->cart->rom)
+    return;
+
+  uint8_t *rom = g_snes->cart->rom;
+  size_t size = g_snes->cart->romSize;
+  uint8_t *body = cart_getRomPtr(g_snes->cart, 0x00, 0xDE3A);
+  static const uint8_t kEntry[] = {
+      0x8B, 0x0B, 0x08, 0xC2, 0x30, 0xA9, 0x00, 0x00,
+      0x5B, 0xAD, 0x7A, 0x1E, 0xCD, 0x5D, 0x1E, 0x30,
+      0x16,
+  };
+  static const uint8_t kLeftState[] = {
+      0xAD, 0x5D, 0x1E, 0x29, 0xE0, 0xFF, 0xC5, 0x00,
+      0xF0, 0x30,
+      0xAD, 0x5D, 0x1E, 0x85, 0x00, 0x80, 0x18,
+  };
+  static const uint8_t kRight[] = {
+      0xAD, 0x5D, 0x1E, 0x18, 0x69, 0x00, 0x01, 0x85,
+      0x00,
+  };
+  static const uint8_t kGrid[] = {
+      0xAD, 0x5D, 0x1E, 0x38, 0xE9, 0x20, 0x00, 0x85,
+      0x00, 0xA9, 0x0A, 0x00, 0x85, 0x06,
+  };
+  static const uint8_t kWalkerMask[] = {
+      0xA5, 0x00, 0x29, 0xE0, 0xFF,
+  };
+  size_t body_offset = body ? (size_t)(body - rom) : size;
+  bool valid =
+      body && body_offset <= size && size - body_offset >= 0xA7 &&
+      memcmp(body, kEntry, sizeof(kEntry)) == 0 &&
+      memcmp(body + 0x16, kLeftState, sizeof(kLeftState)) == 0 &&
+      memcmp(body + 0x36, kRight, sizeof(kRight)) == 0 &&
+      memcmp(body + 0x78, kGrid, sizeof(kGrid)) == 0 &&
+      memcmp(body + 0xA2, kWalkerMask, sizeof(kWalkerMask)) == 0;
+  s_x3_ws_stream_scanned = true;
+  s_x3_ws_stream_valid = valid;
+  if (!valid) {
+    fprintf(stderr,
+            "[x3_ws] $00:DE3A spawn-stream signature mismatch; "
+            "leaving its interpreter bytes unchanged\n");
+    return;
+  }
+  s_x3_ws_stream_rom.left_arm = body + 0x20;
+  s_x3_ws_stream_rom.right_operand = body + 0x3B;
+  s_x3_ws_stream_rom.grid_operand = body + 0x7D;
+  s_x3_ws_stream_rom.columns_operand = body + 0x82;
+
+  const char *debug = getenv("SNESRECOMP_WS_SPAWN_DEBUG");
+  if (debug && debug[0] != '0')
+    fprintf(stderr, "[x3_ws] interpreter spawn-stream signature: exact\n");
+}
+
+static void x3_patch_ws_interp_spawn_stream(void) {
+  if (!s_x3_ws_stream_scanned)
+    x3_scan_ws_spawn_stream();
+  if (!s_x3_ws_stream_scanned || !s_x3_ws_stream_valid)
+    return;
+
+  static const uint8_t kLeftOriginal[] = {
+      0xAD, 0x5D, 0x1E, 0x85, 0x00, 0x80, 0x18,
+  };
+  uint16_t left = x3_ws_spawn_stream_left_extra();
+  uint16_t right = x3_ws_spawn_stream_right_extra();
+  if (!left) {
+    memcpy(s_x3_ws_stream_rom.left_arm, kLeftOriginal,
+           sizeof(kLeftOriginal));
+  } else {
+    uint16_t operand = (uint16_t)(left - 1);
+    uint8_t patched[] = {
+        0xE9, (uint8_t)operand, (uint8_t)(operand >> 8),
+        0xEA, 0x4C, 0x77, 0xDE,
+    };
+    memcpy(s_x3_ws_stream_rom.left_arm, patched, sizeof(patched));
+  }
+
+  uint16_t right_add = (uint16_t)(0x100 + right);
+  uint16_t grid_pad = left ? left : 0x20;
+  uint16_t columns = X3WsSpawnStreamColumns(0x0A);
+  s_x3_ws_stream_rom.right_operand[0] = (uint8_t)right_add;
+  s_x3_ws_stream_rom.right_operand[1] = (uint8_t)(right_add >> 8);
+  s_x3_ws_stream_rom.grid_operand[0] = (uint8_t)grid_pad;
+  s_x3_ws_stream_rom.grid_operand[1] = (uint8_t)(grid_pad >> 8);
+  s_x3_ws_stream_rom.columns_operand[0] = (uint8_t)columns;
+  s_x3_ws_stream_rom.columns_operand[1] = (uint8_t)(columns >> 8);
+}
+
+/* X3 is LLE-first: non-emitted M/X variants, and some complete routines, run
+ * directly from ROM. Generated-code injection alone therefore leaves whole
+ * object classes at native-width activation. Scan the private cart ROM copy
+ * for the same pair-confirmed horizontal windows and dp+$05 camera triggers,
+ * then rewrite only their 16-bit immediate operands. The on-disk ROM is never
+ * changed, and a zero margin restores every original value. */
+typedef struct X3WsRomImm {
+  uint8_t *operand;
+  uint16_t base;
+  uint8_t margin_scale;
+} X3WsRomImm;
+
+enum { kX3WsRomImmMax = 64, kX3WsRomImmExpected = 24 };
+static X3WsRomImm s_x3_ws_rom_imms[kX3WsRomImmMax];
+static int s_x3_ws_rom_imm_count;
+static bool s_x3_ws_rom_scanned;
+static bool s_x3_ws_rom_valid;
+
+static uint16_t x3_ws_rom_u16(const uint8_t *p) {
+  return (uint16_t)(p[0] | (uint16_t)p[1] << 8);
+}
+
+static bool x3_ws_rom_anchor_at(const uint8_t *p) {
+  return (p[0] == 0xAD && p[1] == 0x5D && p[2] == 0x1E) ||
+         (p[0] == 0xAD && p[1] == 0x60 && p[2] == 0x1E);
+}
+
+static bool x3_ws_trigger_add(uint16_t value) {
+  switch (value) {
+  case 0x20:
+  case 0x40:
+  case 0x60:
+  case 0x80:
+  case 0xA0:
+  case 0xC0:
+  case 0x100:
+  case 0x110:
+  case 0x120:
+  case 0x140:
+    return true;
+  default:
+    return false;
+  }
+}
+
+static void x3_ws_add_rom_imm(uint8_t *operand, uint16_t base,
+                              uint8_t margin_scale) {
+  for (int i = 0; i < s_x3_ws_rom_imm_count; i++) {
+    if (s_x3_ws_rom_imms[i].operand == operand)
+      return;
+  }
+  if (s_x3_ws_rom_imm_count >= kX3WsRomImmMax) {
+    static bool warned;
+    if (!warned) {
+      warned = true;
+      fprintf(stderr, "[x3_ws] interpreter window-site table full\n");
+    }
+    return;
+  }
+  X3WsRomImm *site = &s_x3_ws_rom_imms[s_x3_ws_rom_imm_count++];
+  site->operand = operand;
+  site->base = base;
+  site->margin_scale = margin_scale;
+}
+
+static void x3_scan_ws_rom_imms(void) {
+  if (!g_snes || !g_snes->cart || !g_snes->cart->rom)
+    return;
+
+  uint8_t *rom = g_snes->cart->rom;
+  size_t size = g_snes->cart->romSize;
+  for (size_t i = 3; i + 64 < size; i++) {
+    uint8_t *p = rom + i;
+
+    /* Standard symmetric window:
+     *   [SEC] LDA dp+$05 / [SEC] SBC $1E5D / CLC / ADC #add /
+     *   CMP #($100 + 2*add), followed by the matching Y-axis check. */
+    if (p[0] == 0xED && p[1] == 0x5D && p[2] == 0x1E &&
+        p[3] == 0x18 && p[4] == 0x69 && p[7] == 0xC9) {
+      bool object_x = (p[-2] == 0xA5 && p[-1] == 0x05) ||
+                      (p[-3] == 0xA5 && p[-2] == 0x05 &&
+                       p[-1] == 0x38);
+      uint16_t add = x3_ws_rom_u16(p + 5);
+      uint16_t limit = x3_ws_rom_u16(p + 8);
+      if (object_x && add <= 0x140 &&
+          limit == (uint16_t)(0x100 + 2 * add)) {
+        x3_ws_add_rom_imm(p + 5, add, 1);
+        x3_ws_add_rom_imm(p + 8, limit, 2);
+      }
+    }
+
+    /* Bounding-box form used by $03:DDF3. */
+    if (p[0] == 0xAD && p[1] == 0x5D && p[2] == 0x1E &&
+        p[3] == 0x38 && p[4] == 0xE9 &&
+        p[7] == 0x85 && p[8] == 0x08 &&
+        p[9] == 0x18 && p[10] == 0x69 &&
+        p[13] == 0x85 && p[14] == 0x06) {
+      uint16_t add = x3_ws_rom_u16(p + 5);
+      uint16_t limit = x3_ws_rom_u16(p + 11);
+      if (add <= 0x140 && limit == (uint16_t)(0x100 + 2 * add)) {
+        x3_ws_add_rom_imm(p + 5, add, 1);
+        x3_ws_add_rom_imm(p + 11, limit, 2);
+      }
+    }
+
+    /* Symmetric distance form:
+     * camera+K - objectX + bias < limit. Both the leading offset and the
+     * final limit must grow; changing K alone merely shifts the window. */
+    if (p[0] == 0xAD && p[1] == 0x5D && p[2] == 0x1E &&
+        p[3] == 0x69 && p[6] == 0x38 &&
+        p[7] == 0xE5 && p[8] == 0x05 &&
+        p[9] == 0x18 && p[10] == 0x69 && p[13] == 0xC9) {
+      uint16_t add = x3_ws_rom_u16(p + 4);
+      uint16_t limit = x3_ws_rom_u16(p + 14);
+      if (add == 0x80 && limit == 0x1C0) {
+        x3_ws_add_rom_imm(p + 4, add, 1);
+        x3_ws_add_rom_imm(p + 14, limit, 2);
+      }
+    }
+
+    /* Per-type wake/attack line: LDA $1E5D, ADC #K, then CMP dp+$05. */
+    if (p[0] == 0xAD && p[1] == 0x5D && p[2] == 0x1E) {
+      bool found = false;
+      for (size_t j = i + 3; j < i + 48 && !found; j++) {
+        if (x3_ws_rom_anchor_at(rom + j))
+          break;
+        if (rom[j] != 0x69)
+          continue;
+        uint16_t add = x3_ws_rom_u16(rom + j + 1);
+        if (!x3_ws_trigger_add(add))
+          continue;
+        for (size_t k = j + 3; k < j + 33 && k < i + 56; k++) {
+          if (x3_ws_rom_anchor_at(rom + k))
+            break;
+          if (rom[k] == 0xC5 && rom[k + 1] == 0x05) {
+            x3_ws_add_rom_imm(rom + j + 1, add, 1);
+            found = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  s_x3_ws_rom_scanned = true;
+  s_x3_ws_rom_valid = s_x3_ws_rom_imm_count == kX3WsRomImmExpected;
+  if (!s_x3_ws_rom_valid) {
+    fprintf(stderr,
+            "[x3_ws] expected %d interpreter viewport immediates, found %d; "
+            "leaving ROM constants unchanged because the layout may not match "
+            "the supported revision\n",
+            kX3WsRomImmExpected, s_x3_ws_rom_imm_count);
+  }
+  const char *debug = getenv("SNESRECOMP_WS_SPAWN_DEBUG");
+  if (debug && debug[0] != '0') {
+    fprintf(stderr, "[x3_ws] interpreter viewport immediate census: %d\n",
+            s_x3_ws_rom_imm_count);
+    for (int i = 0; i < s_x3_ws_rom_imm_count; i++) {
+      const X3WsRomImm *site = &s_x3_ws_rom_imms[i];
+      size_t offset = (size_t)(site->operand - rom);
+      fprintf(stderr, "[x3_ws]   $%02X:%04X base=$%04X scale=%u\n",
+              (unsigned)(offset >> 15),
+              (unsigned)(0x8000 + (offset & 0x7FFF)),
+              (unsigned)site->base, (unsigned)site->margin_scale);
+    }
+  }
+}
+
+static void x3_patch_ws_interp_obj_windows(void) {
+  if (!s_x3_ws_rom_scanned)
+    x3_scan_ws_rom_imms();
+  if (s_x3_ws_rom_scanned && s_x3_ws_rom_valid) {
+    uint16_t margin = (uint16_t)x3_ws_spawn_margin();
+    for (int i = 0; i < s_x3_ws_rom_imm_count; i++) {
+      X3WsRomImm *site = &s_x3_ws_rom_imms[i];
+      uint16_t value =
+          (uint16_t)(site->base + site->margin_scale * margin);
+      site->operand[0] = (uint8_t)value;
+      site->operand[1] = (uint8_t)(value >> 8);
+    }
+  }
+  x3_patch_ws_interp_spawn_stream();
 }
 
 void X3DrawPpuFrame(void) {

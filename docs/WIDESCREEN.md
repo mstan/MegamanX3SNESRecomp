@@ -76,18 +76,51 @@ X3's shared object-window family is the relocated X2 implementation:
 | `$02:D636` draw/common AI tail | `(objX - camX + $20) < $140` |
 
 `tools/apply_overrides.py` recognizes generated C structurally: a read of the
-X camera anchor `$1E5D`, followed by a complete add/limit pair. A `$1E60` read
-disarms the match so vertical windows remain unchanged. It also recognizes the
-camera-X/add/`dp+$05` trigger idiom used by per-type wake-up logic.
+X camera anchor `$1E5D`, followed by a formula-consistent add/limit pair. A
+`$1E60` read disarms the match so vertical windows remain unchanged. It also
+recognizes camera-X/add followed by an actual `CMP dp+$05`; a plain read of
+that field is not sufficient.
 
 The matched horizontal windows grow by `margin + 32` on each side. The extra
 32 pixels ensure an object activates outside the visible 16:9 edge instead of
-popping on its outermost column. The current full native generation contains
-26 marked rewrites across banks `$02`, `$03`, `$07`, `$08`, `$13`, and `$3C`.
-Regeneration fails loudly if the expected structural surface shrinks.
+popping on its outermost column. Centered-distance routine `$02:DAE7` grows
+both its leading offset and final limit; changing only the offset would shift
+rather than expand its window. `$13:EED6` is motion arithmetic, not a viewport
+test, and is deliberately untouched.
+
+The current generation contains exactly 30 object-window rewrites / 12
+complete pairs.
+`x3_rtl.c` also scans the private runtime ROM copy and patches 24 operands:
+seven standard pairs, the `$02:DAE7` centered pair, the `$03:DDF3` bounds pair,
+and six CMP triggers. This covers missing M/X variants plus interpreter-only
+windows `$00:DF9F` and `$07:B36E`. Regeneration fails if either generated
+census changes unexpectedly.
 
 The helpers return their vanilla constants whenever widescreen is inactive.
 `SNESRECOMP_WS_SPAWN=0` independently disables object-window widening.
+
+### Dynamic level-record frontier
+
+X3 also retained X2's global dynamic record streamer byte-for-byte:
+`$00:DE3A` selects 32-pixel columns and `$00:DED3` walks/allocates their
+records. Its native left/right probes are tied to the 256-pixel camera bounds,
+so widening only the later object windows still lets a large actor be created
+inside a 16:9 gutter.
+
+Four exact generated hooks now move the left/right probes and widen the
+vertical sweep. At 342 pixels, `margin+32` rounds outward to 96 pixels:
+left `camera-$60`, right `camera+$160`, and 15 columns instead of 10.
+The extra outward bucket is intentional; X2's slot-3 frog measurement showed
+that rounding the right side inward allocated a record at screen X=336 in a
+342-pixel frame, too late for its initialization delay.
+
+Interpreter tail-JMP arrivals do not consult the generated dispatch table, so
+`x3_rtl.c` independently validates the exact DE3A/DED3 byte shapes and patches
+the private cart copy. The left arm uses an equal-length, cycle-exact
+`SBC/NOP/JMP` replacement; the other three changes are immediate operands.
+No site changes unless every signature matches, and inactive/kill-switch mode
+restores all original bytes. `tools/apply_overrides.py` requires exactly four
+streamer hooks in addition to the 30 object-window rewrites.
 
 ## Native promotion boundary
 
@@ -116,9 +149,16 @@ deterministic input sequence.
 - Captured 342x224 frames showed continuous jungle/terrain in both gutters.
 - Enemy sprites were active and rendering into the east extension.
 - Native entry into `$02:D636` was observed during the same scene.
+- The runtime ROM census reported exactly 24 interpreter window operands and
+  an exact DE3A streamer signature; generated reinjection reported exactly
+  30 object sites / 12 pairs plus four streamer sites.
 - With widescreen disabled, the pre-change interpreter build and the new
   native build produced an exact 256x224 pixel match after the same save and
   120-frame input sequence: zero differing pixels.
+
+The DE3A fix is structurally identical to the measured X2 DC50 path and has
+build/runtime-signature coverage; a broad X3 stage-by-stage enemy replay
+remains worthwhile.
 
 Generated sources are intentionally untracked. Always run
 `tools/regen.sh`; it applies the widescreen overrides and checks idempotency.
