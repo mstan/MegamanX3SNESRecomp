@@ -40,7 +40,6 @@ add_executable(MegaManX3SNESRecomp
     # game-specific host runtime
     src/main.c
     src/opengl.c
-    src/post_mortem.c
     src/gen_stubs.c
     src/x3_display.c
     src/x3_cpu_infra.c
@@ -62,6 +61,7 @@ target_include_directories(MegaManX3SNESRecomp PRIVATE
     ${SNESRECOMP_RUNNER_INCLUDE_DIRS}
     ${SDL2_INCLUDE_DIRS}
 )
+snesrecomp_target_post_mortem(MegaManX3SNESRecomp TIER2)
 snesrecomp_target_mmx_config(MegaManX3SNESRecomp)
 snesrecomp_target_glsl_shader(MegaManX3SNESRecomp)
 
@@ -98,8 +98,7 @@ if(WIN32 AND NOT MSVC)
     # msys2/mingw SDL2 does not auto-rename main()->SDL_main; link SDL2 without
     # SDL2main. dbghelp is post_mortem.c's StackWalk64 backtrace.
     target_link_libraries(MegaManX3SNESRecomp PRIVATE
-        C:/msys64/mingw64/lib/libSDL2.dll.a
-        dbghelp)
+        C:/msys64/mingw64/lib/libSDL2.dll.a)
 else()
     target_link_libraries(MegaManX3SNESRecomp PRIVATE ${SDL2_LIBRARIES})
 endif()
