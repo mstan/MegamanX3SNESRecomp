@@ -78,8 +78,6 @@ static void HandleInput(int keyCode, int keyMod, bool pressed);
 static void HandleCommand(uint32 j, bool pressed);
 void OpenGLRenderer_Create(struct RendererFuncs *funcs);
 
-bool g_new_ppu = true;
-
 struct SpcPlayer *g_spc_player;
 
 static uint8_t g_my_pixels[(256 + 2 * kWsExtraMax) * 4 * 240];
@@ -159,9 +157,10 @@ static void X3Display_PreparePpuFrame(void) {
   /* The legacy pixel-at-a-time PPU has a hard-coded 256-column loop. Keep the
    * user's renderer selection, but use the priority-buffer PPU while a real
    * widescreen frame is active; disabling widescreen restores that selection. */
-  g_new_ppu = g_ws_active ||
-              (g_ppu_render_flags & kPpuRenderFlags_NewRenderer) != 0;
-  PpuBeginDrawing(g_ppu, g_my_pixels, (size_t)width * 4, 0);
+  uint32 render_flags = g_ppu_render_flags;
+  if (g_ws_active)
+    render_flags |= kPpuRenderFlags_NewRenderer;
+  PpuBeginDrawing(g_ppu, g_my_pixels, (size_t)width * 4, render_flags);
   PpuSetExtraSpace(g_ppu, (uint8)g_ws_extra);
   /* 16:9 HUD anchoring: X3's live player HUD confirms the X2 slot layout.
    * HP (0-5, X=8) and weapon (7-13, X=24) anchor LEFT; the boss
@@ -1695,7 +1694,6 @@ static void HandleCommand(uint32 j, bool pressed) {
     case kKeys_ToggleRenderer:
       g_ppu_render_flags ^= kPpuRenderFlags_NewRenderer;
       printf("New renderer = %x\n", g_ppu_render_flags & kPpuRenderFlags_NewRenderer);
-      g_new_ppu = (g_ppu_render_flags & kPpuRenderFlags_NewRenderer) != 0;
       break;
     case kKeys_ToggleWidescreen:
 #if SNESRECOMP_ENABLE_MODS
