@@ -12,6 +12,9 @@ project(MegaManX3SNESRecomp C CXX)
 
 set(CMAKE_C_STANDARD 11)
 
+set(SNESRECOMP_BUILD_VERSION "dev" CACHE STRING
+    "Version reported in crash diagnostics and network metadata")
+
 set(SNESRECOMP_ROOT "${CMAKE_SOURCE_DIR}/snesrecomp" CACHE PATH
     "Path to the snesrecomp checkout used by this game")
 set(SNESRECOMP_ENABLE_MODS ON CACHE BOOL
@@ -52,6 +55,8 @@ add_executable(MegaManX3SNESRecomp
     # recompiled banks (generated, gitignored)
     ${X3_GEN_SOURCES}
 )
+set_property(SOURCE src/main.c APPEND PROPERTY COMPILE_DEFINITIONS
+    SNESRECOMP_BUILD_VERSION="${SNESRECOMP_BUILD_VERSION}")
 
 target_include_directories(MegaManX3SNESRecomp PRIVATE
     ${CMAKE_SOURCE_DIR}
