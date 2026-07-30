@@ -19,6 +19,11 @@ set(SNESRECOMP_ROOT "${CMAKE_SOURCE_DIR}/snesrecomp" CACHE PATH
     "Path to the snesrecomp checkout used by this game")
 set(SNESRECOMP_ENABLE_MODS ON CACHE BOOL
     "Enable MMX3's built-in mod catalog and SNES mod packages" FORCE)
+# X3's desktop host still uses SDL2 directly. The latest runner defaults to
+# SDL3, so select its supported compatibility backend unless the caller
+# explicitly chooses another backend on the CMake command line.
+set(SNESRECOMP_SDL_BACKEND "SDL2" CACHE STRING
+    "Desktop SDL backend (SDL3 or SDL2)")
 include(${SNESRECOMP_ROOT}/runner/runner.cmake)
 
 find_package(SDL2 REQUIRED)
@@ -122,6 +127,7 @@ if(NOT EXISTS "${RECOMP_UI_ROOT}/recomp_ui.cmake")
 endif()
 include(${RECOMP_UI_ROOT}/recomp_ui.cmake)
 recomp_target_launcher_ui(MegaManX3SNESRecomp
+    CONSOLE snes
     BOXART ${CMAKE_SOURCE_DIR}/recomp/launcher/boxart.tga)
 
 # Preload the game-owned catalog. Every feature remains disabled until the

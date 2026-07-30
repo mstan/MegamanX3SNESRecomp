@@ -6,11 +6,14 @@ and compare them with the camera at $1E5D/$1E60. This pass widens only:
 
 * pair-confirmed X windows: camera-X read -> add constant -> limit constant;
 * camera triggers: camera-X read -> add constant -> compare with dp$05.
-* $00:DE3A's four dynamic record-stream frontiers.
+* $00:DE3A's four dynamic record-stream frontiers, routed through guarded
+  helpers that retain the authentic bounds by default.
 
 The X-axis constants are routed through X3WsObjWinAdd/Limit. Those helpers
 return the original value in 4:3 and widen by the live margin plus 32 pixels
 in 16:9. Camera-Y reads disarm matching, so vertical behavior stays original.
+The record-stream helpers widen only with the diagnostic
+SNESRECOMP_WS_STREAM=1 opt-in because the records also control progression.
 
 src/x3_rtl.c applies equivalent, signature-gated private-ROM rewrites for
 interpreter and full-LLE execution. Injection is idempotent and `--restore`
@@ -186,7 +189,7 @@ def apply_obj_windows(lines, verbose, fname):
 
 
 def apply_spawn_stream(lines, verbose, fname):
-    """Widen X3's DE3A dynamic object-record scan grid."""
+    """Route X3's DE3A record grid through guarded boundary helpers."""
     inject = {}
     cur_fn = None
     block = None

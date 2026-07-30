@@ -101,18 +101,17 @@ The helpers return their vanilla constants whenever widescreen is inactive.
 
 ### Dynamic level-record frontier
 
-X3 also retained X2's global dynamic record streamer byte-for-byte:
-`$00:DE3A` selects 32-pixel columns and `$00:DED3` walks/allocates their
-records. Its native left/right probes are tied to the 256-pixel camera bounds,
-so widening only the later object windows still lets a large actor be created
-inside a 16:9 gutter.
+X3 retained X2's global dynamic record streamer byte-for-byte: `$00:DE3A`
+selects 32-pixel columns and `$00:DED3` walks/allocates their records. These
+records include scripted progression, not just ordinary actors. Widening the
+frontier instantiated an intro-stage progression record from the 16:9 gutter;
+descending the hangar ladder then selected the exterior route and could kill X.
 
-Four exact generated hooks now move the left/right probes and widen the
-vertical sweep. At 342 pixels, `margin+32` rounds outward to 96 pixels:
-left `camera-$60`, right `camera+$160`, and 15 columns instead of 10.
-The extra outward bucket is intentional; X2's slot-3 frog measurement showed
-that rounding the right side inward allocated a record at screen X=336 in a
-342-pixel frame, too late for its initialization delay.
+The four exact generated hooks therefore retain the authentic 256-pixel
+left/right probes and vertical sweep by default. Ordinary resident-object
+activation, visibility, and draw windows remain widened, so this does not
+disable widescreen rendering. `SNESRECOMP_WS_STREAM=1` restores the old widened
+record frontier only as a diagnostic opt-in.
 
 Interpreter tail-JMP arrivals do not consult the generated dispatch table, so
 `x3_rtl.c` independently validates the exact DE3A/DED3 byte shapes and patches
@@ -120,7 +119,8 @@ the private cart copy. The left arm uses an equal-length, cycle-exact
 `SBC/NOP/JMP` replacement; the other three changes are immediate operands.
 No site changes unless every signature matches, and inactive/kill-switch mode
 restores all original bytes. `tools/apply_overrides.py` requires exactly four
-streamer hooks in addition to the 30 object-window rewrites.
+streamer hooks in addition to the 30 object-window rewrites; their helpers
+resolve to the original values during normal play.
 
 ## Native promotion boundary
 
@@ -156,9 +156,9 @@ deterministic input sequence.
   native build produced an exact 256x224 pixel match after the same save and
   120-frame input sequence: zero differing pixels.
 
-The DE3A fix is structurally identical to the measured X2 DC50 path and has
-build/runtime-signature coverage; a broad X3 stage-by-stage enemy replay
-remains worthwhile.
+The DE3A hooks retain build/runtime-signature coverage. A TCP replay from the
+intro-stage ladder save confirmed that the default authentic frontier keeps X
+on the intended interior route while widescreen object windows remain active.
 
 Generated sources are intentionally untracked. Always run
 `tools/regen.sh`; it applies the widescreen overrides and checks idempotency.

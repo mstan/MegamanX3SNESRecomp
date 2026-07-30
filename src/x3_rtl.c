@@ -530,17 +530,27 @@ uint16 X3WsObjWinLimit(uint16 base) {
   return (uint16)(base + 2 * x3_ws_spawn_margin());
 }
 
-/* $00:DE3A is X3's copy of X2's 32-pixel dynamic record streamer.
- * Keep its probes beyond the visible margin plus wake slack. The two sides
- * round in opposite directions because the right base is already camera+$100
- * while the left sweep starts at camera-$20. */
+/* $00:DE3A streams scripted level records, not just ordinary actors. Widening
+ * it can allocate progression records before X crosses the authentic playfield
+ * boundary (the intro-stage ladder is one fatal example). Keep the vanilla
+ * 4:3 frontier by default. SNESRECOMP_WS_STREAM=1 is a diagnostic opt-in for
+ * the old widened behavior; resident object windows remain widescreen-aware. */
+static int x3_ws_spawn_stream_enabled(void) {
+  static int s_enabled = -1;
+  if (s_enabled < 0) {
+    const char *e = getenv("SNESRECOMP_WS_STREAM");
+    s_enabled = e && e[0] == '1';
+  }
+  return s_enabled;
+}
+
 static uint16_t x3_ws_spawn_stream_left_extra(void) {
-  int margin = x3_ws_spawn_margin();
+  int margin = x3_ws_spawn_stream_enabled() ? x3_ws_spawn_margin() : 0;
   return margin ? (uint16_t)((margin + 31) & ~31) : 0;
 }
 
 static uint16_t x3_ws_spawn_stream_right_extra(void) {
-  int margin = x3_ws_spawn_margin();
+  int margin = x3_ws_spawn_stream_enabled() ? x3_ws_spawn_margin() : 0;
   return margin ? (uint16_t)((margin + 31) & ~31) : 0;
 }
 
