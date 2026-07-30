@@ -24,7 +24,7 @@ and the launcher, so headered dumps verify against the same digest.
 
 **Boots and runs live gameplay.** The opening story scenes and save-slot 0
 gameplay have been verified through the debug surface. The native coverage
-manifest emits 5,082 exact variants; unsupported control-flow boundaries fall
+manifest emits 5,964 exact variants; unsupported control-flow boundaries fall
 back to the interpreter.
 
 16:9 widescreen is implemented as a default-disabled built-in Mod. It includes
