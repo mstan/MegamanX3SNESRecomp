@@ -8,7 +8,7 @@ project(MegaManX3SNESRecomp C CXX)
 #     local multi-game working tree);
 #   * generated C in src/gen/ (`bash tools/regen.sh` with a verified
 #     mmx3.sfc staged at the repo root);
-#   * SDL2 + OpenGL.
+#   * SDL3 (or SDL2 via -DSNESRECOMP_SDL_BACKEND=SDL2) + OpenGL.
 
 set(CMAKE_C_STANDARD 11)
 
@@ -19,22 +19,11 @@ set(SNESRECOMP_ROOT "${CMAKE_SOURCE_DIR}/snesrecomp" CACHE PATH
     "Path to the snesrecomp checkout used by this game")
 set(SNESRECOMP_ENABLE_MODS ON CACHE BOOL
     "Enable MMX3's built-in mod catalog and SNES mod packages" FORCE)
-# X3's desktop host still uses SDL2 directly. The latest runner defaults to
-# SDL3, so select its supported compatibility backend unless the caller
-# explicitly chooses another backend on the CMake command line.
-set(SNESRECOMP_SDL_BACKEND "SDL2" CACHE STRING
+set(SNESRECOMP_SDL_BACKEND "SDL3" CACHE STRING
     "Desktop SDL backend (SDL3 or SDL2)")
 include(${SNESRECOMP_ROOT}/runner/runner.cmake)
 
-find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
-
-# MinGW's SDL2 package ships SDL2main by default, but main.c provides a plain
-# main() and uses the CRT entry point; SDL2main's WinMain would demand an
-# SDL_main() that does not exist.
-if(WIN32)
-    list(FILTER SDL2_LIBRARIES EXCLUDE REGEX "SDL2main")
-endif()
 
 file(GLOB X3_GEN_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/gen/*.c)
 if(NOT X3_GEN_SOURCES)
@@ -68,7 +57,6 @@ target_include_directories(MegaManX3SNESRecomp PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/recomp
     ${SNESRECOMP_RUNNER_INCLUDE_DIRS}
-    ${SDL2_INCLUDE_DIRS}
 )
 snesrecomp_target_fiber_compat(MegaManX3SNESRecomp)
 snesrecomp_target_post_mortem(MegaManX3SNESRecomp TIER2)
@@ -104,14 +92,11 @@ target_link_libraries(MegaManX3SNESRecomp PRIVATE
     ${SNESRECOMP_RUNNER_LIBRARIES}
 )
 
-if(WIN32 AND NOT MSVC)
-    # msys2/mingw SDL2 does not auto-rename main()->SDL_main; link SDL2 without
-    # SDL2main. dbghelp is post_mortem.c's StackWalk64 backtrace.
-    target_link_libraries(MegaManX3SNESRecomp PRIVATE
-        C:/msys64/mingw64/lib/libSDL2.dll.a)
-else()
-    target_link_libraries(MegaManX3SNESRecomp PRIVATE ${SDL2_LIBRARIES})
-endif()
+# SDL3 by default, SDL2 via -DSNESRECOMP_SDL_BACKEND=SDL2. Replaces the game's
+# own find_package(SDL2)/libSDL2.dll.a wiring: recomp-ui now compiles its SDL3
+# backend unconditionally, so hardcoding SDL2 here put two SDL majors in one
+# binary. No SDLmain either way (the host provides a plain main()).
+snesrecomp_target_sdl(MegaManX3SNESRecomp)
 
 if(WIN32)
     target_link_libraries(MegaManX3SNESRecomp PRIVATE ws2_32)

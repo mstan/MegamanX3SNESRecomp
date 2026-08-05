@@ -82,8 +82,10 @@ static void x3_run_nmi(uint64_t deadline) {
 static int x3_boot_log_enabled(void) {
   static int v = -1;
   if (v < 0) {
+    /* Opt-IN. This used to default on, so release builds wrote a boot/heartbeat
+     * line to stderr every 60 frames for the whole session. */
     const char *e = getenv("SNESRECOMP_X3_BOOTLOG");
-    v = (e && e[0] == '0') ? 0 : 1;
+    v = (e && e[0] && e[0] != '0') ? 1 : 0;
   }
   return v;
 }
