@@ -110,3 +110,11 @@ observability rings — the bring-up configuration. Omit it for a release build.
 This title opts into snesrecomp's package loader. The build preloads a
 default-disabled Mega Man X3 Widescreen feature under `mods/packages`; users
 may also install data-only `.snesmod` archives from the launcher's Mods page.
+
+## License
+
+PolyForm Noncommercial 1.0.0. See `LICENSE`. Code in this repo is original;
+vendored dependencies under `third_party/` retain their own licenses.
+
+The game ROM and any data extracted from it are **not** in this repo and are
+not licensed for redistribution.
