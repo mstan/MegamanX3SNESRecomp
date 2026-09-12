@@ -118,3 +118,5 @@ vendored dependencies under `third_party/` retain their own licenses.
 
 The game ROM and any data extracted from it are **not** in this repo and are
 not licensed for redistribution.
+
+Save-state and rewind controls, compatibility and focused verification: [SAVE_STATES.md](docs/SAVE_STATES.md).

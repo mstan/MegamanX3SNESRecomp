@@ -31,3 +31,8 @@ CMakeCache.txt
 /host_report*.json
 /*.dmp
 /tools/__pycache__/
+
+# Shared desktop host local preferences and reports
+/config.local.ini
+/keybinds.ini
+/tier2_*.json

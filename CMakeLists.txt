@@ -1,128 +1,44 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 project(MegaManX3SNESRecomp C CXX)
-
-# Mega Man X3 (USA) — static recompilation via snesrecomp.
-#
-# Prerequisites:
-#   * snesrecomp + recomp-ui at the repo root (submodules, or junctions in a
-#     local multi-game working tree);
-#   * generated C in src/gen/ (`bash tools/regen.sh` with a verified
-#     mmx3.sfc staged at the repo root);
-#   * SDL3 (or SDL2 via -DSNESRECOMP_SDL_BACKEND=SDL2) + OpenGL.
-
 set(CMAKE_C_STANDARD 11)
 
-set(SNESRECOMP_BUILD_VERSION "dev" CACHE STRING
-    "Version reported in crash diagnostics and network metadata")
-
-set(SNESRECOMP_ROOT "${CMAKE_SOURCE_DIR}/snesrecomp" CACHE PATH
-    "Path to the snesrecomp checkout used by this game")
-set(SNESRECOMP_ENABLE_MODS ON CACHE BOOL
-    "Enable MMX3's built-in mod catalog and SNES mod packages" FORCE)
-set(SNESRECOMP_SDL_BACKEND "SDL3" CACHE STRING
-    "Desktop SDL backend (SDL3 or SDL2)")
-include(${SNESRECOMP_ROOT}/runner/runner.cmake)
-
-find_package(OpenGL REQUIRED)
-
-file(GLOB X3_GEN_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/gen/*.c)
-if(NOT X3_GEN_SOURCES)
-    message(FATAL_ERROR
-        "src/gen/ is empty — run `bash tools/regen.sh` with a verified "
-        "mmx3.sfc at the repo root before building.")
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" _version)
+string(STRIP "${_version}" GAME_RELEASE_VERSION)
+set(SNESRECOMP_BUILD_VERSION "" CACHE STRING "Build stamp (empty: Release uses VERSION, otherwise dev)")
+if(SNESRECOMP_BUILD_VERSION STREQUAL "")
+    set(SNESRECOMP_BUILD_VERSION "$<IF:$<CONFIG:Release>,${GAME_RELEASE_VERSION},dev>")
 endif()
+set(SNESRECOMP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/snesrecomp" CACHE PATH "snesrecomp checkout")
+set(RECOMP_UI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/recomp-ui" CACHE PATH "recomp-ui checkout")
+set(SNESRECOMP_ENABLE_MODS ON CACHE BOOL "Shared mod package runtime" FORCE)
+include(${SNESRECOMP_ROOT}/runner/runner.cmake)
 
 add_executable(MegaManX3SNESRecomp
     ${SNESRECOMP_RUNNER_SOURCES}
-    # game-specific host runtime
-    src/main.c
-    src/opengl.c
-    src/gen_stubs.c
-    src/x3_display.c
-    src/x3_cpu_infra.c
-    src/x3_rtl.c
-    src/x3_spc_player.c
-    src/mods/x3_widescreen_plugin.c
-
-    # OpenGL function loader
-    third_party/gl_core/gl_core_3_1.c
-    # recompiled banks (generated, gitignored)
-    ${X3_GEN_SOURCES}
-)
+    src/main.c src/gen_stubs.c src/x3_display.c src/x3_cpu_infra.c
+    src/x3_rtl.c src/x3_spc_player.c src/mods/x3_widescreen_plugin.c)
+target_include_directories(MegaManX3SNESRecomp PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/recomp ${SNESRECOMP_RUNNER_INCLUDE_DIRS})
+target_compile_definitions(MegaManX3SNESRecomp PRIVATE
+    SMW_DISABLE_LM=1 SYSTEM_VOLUME_MIXER_AVAILABLE=0
+    SNESRECOMP_TRACE=$<BOOL:${SNESRECOMP_ENABLE_TRACE}> SNESRECOMP_REVERSE_DEBUG=0)
 set_property(SOURCE src/main.c APPEND PROPERTY COMPILE_DEFINITIONS
     SNESRECOMP_BUILD_VERSION="${SNESRECOMP_BUILD_VERSION}")
-
-target_include_directories(MegaManX3SNESRecomp PRIVATE
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/recomp
-    ${SNESRECOMP_RUNNER_INCLUDE_DIRS}
-)
-snesrecomp_target_fiber_compat(MegaManX3SNESRecomp)
-snesrecomp_target_post_mortem(MegaManX3SNESRecomp TIER2)
-snesrecomp_target_mmx_config(MegaManX3SNESRecomp)
-snesrecomp_target_glsl_shader(MegaManX3SNESRecomp)
-
-# prod-vs-debug via the single SNESRECOMP_ENABLE_TRACE switch (runner.cmake,
-# default OFF). Prod: no debug_server.c / TCP server / rings.
-if(SNESRECOMP_ENABLE_TRACE)
-    set(_X3_TRACE 1)
-else()
-    set(_X3_TRACE 0)
-endif()
-
-target_compile_definitions(MegaManX3SNESRecomp PRIVATE
-    SMW_DISABLE_LM=1
-    SYSTEM_VOLUME_MIXER_AVAILABLE=0   # Win32 WASAPI volume control excluded
-    SNESRECOMP_TRACE=${_X3_TRACE}
-    SNESRECOMP_REVERSE_DEBUG=0        # raw WRAM stores; matches non-debug gen C
-)
-
-# The recompiled C is machine-generated; quiet its warnings and tolerate the
-# K&R-style implicit declarations clang rejects by default. Keep the
-# implicit-decl flag C-only so the launcher C++ TUs stay clean.
 if(NOT MSVC)
-    target_compile_options(MegaManX3SNESRecomp PRIVATE -w)
     target_compile_options(MegaManX3SNESRecomp PRIVATE
         $<$<COMPILE_LANGUAGE:C>:-Wno-implicit-function-declaration>)
 endif()
-
-target_link_libraries(MegaManX3SNESRecomp PRIVATE
-    OpenGL::GL
-    ${SNESRECOMP_RUNNER_LIBRARIES}
-)
-
-# SDL3 by default, SDL2 via -DSNESRECOMP_SDL_BACKEND=SDL2. Replaces the game's
-# own find_package(SDL2)/libSDL2.dll.a wiring: recomp-ui now compiles its SDL3
-# backend unconditionally, so hardcoding SDL2 here put two SDL majors in one
-# binary. No SDLmain either way (the host provides a plain main()).
+target_link_libraries(MegaManX3SNESRecomp PRIVATE ${SNESRECOMP_RUNNER_LIBRARIES})
 snesrecomp_target_sdl(MegaManX3SNESRecomp)
+snesrecomp_target_fiber_compat(MegaManX3SNESRecomp)
+snesrecomp_target_desktop_host(MegaManX3SNESRecomp TIER2)
+snesrecomp_target_generated_code(MegaManX3SNESRecomp ${CMAKE_CURRENT_SOURCE_DIR}/src/gen)
+snesrecomp_target_mod_catalog(MegaManX3SNESRecomp ${CMAKE_CURRENT_SOURCE_DIR}/mods/preloaded)
 
-if(WIN32)
-    target_link_libraries(MegaManX3SNESRecomp PRIVATE ws2_32)
-endif()
-
-# Shared Dear ImGui pre-boot launcher (recomp-ui submodule/junction).
-set(RECOMP_UI_ROOT "${CMAKE_SOURCE_DIR}/recomp-ui" CACHE PATH
-    "Root directory of the recomp-ui launcher repo" FORCE)
-if(NOT EXISTS "${RECOMP_UI_ROOT}/recomp_ui.cmake")
-    message(FATAL_ERROR
-        "recomp-ui missing at ${RECOMP_UI_ROOT}.\n"
-        "Run: git submodule update --init --recursive recomp-ui")
-endif()
 include(${RECOMP_UI_ROOT}/recomp_ui.cmake)
-recomp_target_launcher_ui(MegaManX3SNESRecomp
-    CONSOLE snes
-    BOXART ${CMAKE_SOURCE_DIR}/recomp/launcher/boxart.tga)
+recomp_target_launcher_ui(MegaManX3SNESRecomp CONSOLE snes
+    BOXART ${CMAKE_CURRENT_SOURCE_DIR}/recomp/launcher/boxart.tga)
 
-# Preload the game-owned catalog. Every feature remains disabled until the
-# player enables it in Mods; package plugin IDs resolve only to implementations
-# statically linked above.
-set(X3_PRELOADED_MODS "${CMAKE_CURRENT_SOURCE_DIR}/mods/preloaded")
-if(EXISTS "${X3_PRELOADED_MODS}/packages")
-    add_custom_command(TARGET MegaManX3SNESRecomp POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${X3_PRELOADED_MODS}"
-            "$<TARGET_FILE_DIR:MegaManX3SNESRecomp>/mods"
-        COMMENT "Preloading the Mega Man X3 mod catalog")
-endif()
+include(${SNESRECOMP_ROOT}/runner/cmake/mmx_state_tests.cmake)
+snesrecomp_target_mmx_state_tests(MegaManX3SNESRecomp ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c)

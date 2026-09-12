@@ -1,0 +1,21 @@
+name: Desktop host
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - name: Install desktop dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build libsdl2-dev libgl1-mesa-dev
+      - name: Configure ROM-free setup host
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DSNESRECOMP_SDL_BACKEND=SDL2 -DSNESRECOMP_SETUP_HOST=ON
+      - name: Compile shared desktop host and game adapters
+        run: cmake --build build --target MegaManX3SNESRecomp --parallel 4
