@@ -18,7 +18,7 @@ add_executable(MegaManX3SNESRecomp
     src/main.c src/gen_stubs.c src/x3_display.c src/x3_cpu_infra.c
     src/x3_rtl.c src/x3_spc_player.c src/mods/x3_widescreen_plugin.c)
 target_include_directories(MegaManX3SNESRecomp PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/recomp ${SNESRECOMP_RUNNER_INCLUDE_DIRS})
 target_compile_definitions(MegaManX3SNESRecomp PRIVATE
     SMW_DISABLE_LM=1 SYSTEM_VOLUME_MIXER_AVAILABLE=0
