@@ -72,23 +72,29 @@ if [ "$ANALYSIS_BACKEND" = native ]; then
   "$PYTHON" "$SNESRECOMP_ROOT/tools/build_native_analyzer.py"
 fi
 
-# Tier-2 coverage profile: clean interpreter-observed targets become optional
-# AOT roots. It only influences materialization -- it never authorizes
-# behavior, changes decoding, or removes the LLE fallback. The manifest is
-# produced by the runner (`tier2_dump` on the debug port, or on exit) and
-# audited through snesrecomp/tools/tier2_ingest.py before anything is trusted.
+# The checked-in v1 profile predates complete capture identity. Reconcile it
+# as historical evidence explicitly associated with the verified USA ROM.
+# It seeds analysis; it does not authorize execution or remove LLE fallback.
+# New v2 captures use --profile-manifest after audit through tier2_ingest.py.
 #
 # Passed conditionally: v2_emit hard-errors on a missing manifest, and X3 has
 # to be able to regen before the first profiling run has ever happened.
 PROFILE_MANIFEST="recomp/tier2_coverage.json"
 emit_extra=()
 if [ -f "$PROFILE_MANIFEST" ]; then
-  emit_extra+=(--profile-manifest "$PROFILE_MANIFEST")
-  echo "regen.sh: using coverage profile $PROFILE_MANIFEST"
+  emit_extra+=(--historical-profile-manifest "$PROFILE_MANIFEST"
+               --legacy-profile-rom-sha256 65b03268afac296330e8ff8d60dd0825879e13ed658b37713c034a3bd074f1d7)
+  echo "regen.sh: using ROM-bound historical coverage profile $PROFILE_MANIFEST"
 else
   echo "regen.sh: no $PROFILE_MANIFEST yet - AOT roots come from cfg + vectors only."
   echo "regen.sh: to build one, run the game and issue 'tier2_dump' on the debug port."
 fi
+
+# The emitter reads aliases from funcs.h. Generate it first so clean and
+# repeated checkouts emit the same wrappers and generation identity.
+step "Syncing funcs.h"
+"$PYTHON" "$SNESRECOMP_ROOT/tools/v2_sync_funcs_h.py" --cfg-dir recomp \
+    --out recomp/funcs.h
 
 step "Regenerating banks from $ROM"
 # --cfg-roots is the static-coverage policy: every declared `func` seeds the
@@ -101,10 +107,6 @@ step "Regenerating banks from $ROM"
 
 step "Applying widescreen gen-code overrides"
 "$PYTHON" tools/apply_overrides.py --gen-dir src/gen -v
-
-step "Syncing funcs.h"
-"$PYTHON" "$SNESRECOMP_ROOT/tools/v2_sync_funcs_h.py" --cfg-dir recomp \
-    --out recomp/funcs.h
 
 if [ "$STRICT_IDEMPOTENT" -eq 1 ]; then
   step "Idempotency check: regen into temp dir + byte-compare"

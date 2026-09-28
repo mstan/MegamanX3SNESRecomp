@@ -24,8 +24,12 @@ and the launcher, so headered dumps verify against the same digest.
 
 **Boots and runs live gameplay.** The opening story scenes and save-slot 0
 gameplay have been verified through the debug surface. The native coverage
-manifest emits 5,964 exact variants; unsupported control-flow boundaries fall
+manifest emits 6,006 exact variants; unsupported control-flow boundaries fall
 back to the interpreter.
+
+The September 28 coverage update adds 42 address/CPU-width variants. Short
+intro and gameplay captures ingest cleanly, and the owner accepted the
+gameplay smoke test. See [validation results](docs/validation/coverage-2026-09-28.md).
 
 16:9 widescreen is implemented as a default-disabled built-in Mod. It includes
 anchored HUD elements, exact BG1/BG2 gutter tiles from X3's retained level
