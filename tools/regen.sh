@@ -54,6 +54,14 @@ if [ ! -f "$ROM" ]; then
   exit 1
 fi
 
+ROM_SHA256="65b03268afac296330e8ff8d60dd0825879e13ed658b37713c034a3bd074f1d7"
+actual_sha256="$("$PYTHON" -c 'import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],"rb").read()).hexdigest())' "$ROM")"
+actual_sha256="${actual_sha256%$'\r'}"
+if [ "$actual_sha256" != "$ROM_SHA256" ]; then
+  echo "regen.sh: $ROM sha256 $actual_sha256 is not the pinned $ROM_SHA256." >&2
+  exit 1
+fi
+
 if [ ! -f "$SNESRECOMP_ROOT/tools/v2_emit.py" ]; then
   echo "regen.sh: snesrecomp is not initialized (missing $SNESRECOMP_ROOT/tools/v2_emit.py)." >&2
   exit 1
@@ -83,7 +91,11 @@ fi
 PROFILE_MANIFEST="recomp/tier2_coverage.json"
 emit_extra=()
 if [ -f "$PROFILE_MANIFEST" ]; then
-  emit_extra+=(--profile-manifest "$PROFILE_MANIFEST")
+  # A v1 profile has no ROM identity of its own. It was captured from the
+  # ROM verified above, so it is a historical input bound to that digest
+  # (the engine's docs/COVERAGE_FEEDBACK.md conversion procedure).
+  emit_extra+=(--historical-profile-manifest "$PROFILE_MANIFEST"
+              --legacy-profile-rom-sha256 "$ROM_SHA256")
   echo "regen.sh: using coverage profile $PROFILE_MANIFEST"
 else
   echo "regen.sh: no $PROFILE_MANIFEST yet - AOT roots come from cfg + vectors only."
