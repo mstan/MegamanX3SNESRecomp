@@ -31,6 +31,7 @@ CMakeCache.txt
 /host_report*.json
 /*.dmp
 /tools/__pycache__/
+/_diz_baseline_cfg/
 
 # Shared desktop host local preferences and reports
 /config.local.ini
