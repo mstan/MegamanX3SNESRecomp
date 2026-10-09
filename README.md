@@ -111,6 +111,14 @@ This title opts into snesrecomp's package loader. The build preloads a
 default-disabled Mega Man X3 Widescreen feature under `mods/packages`; users
 may also install data-only `.snesmod` archives from the launcher's Mods page.
 
+## Disassembly annotations
+
+[bogaa/dizProjects](https://github.com/bogaa/dizProjects) is pinned at
+`third_party/dizProjects`. The tracked [symbol metadata](symbols/README.md)
+includes 70,916 identified instructions and recorded CPU modes. Upstream
+currently provides only a reset label. Regeneration applies the annotations;
+re-import with `python tools/diz_annotations.py --game x3`.
+
 ## License
 
 PolyForm Noncommercial 1.0.0. See `LICENSE`. Code in this repo is original;
