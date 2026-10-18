@@ -1,0 +1,17 @@
+schema = 1
+identity_file = "rom_identity.txt"
+cfg_roots = true
+bind_legacy_profiles = true
+historical_profiles = ["tier2_coverage.json"]
+
+[[prepare]]
+script = "tools/diz_annotations.py"
+args = ["--game", "x3", "--rom", "{rom}"]
+
+[[postprocess]]
+script = "tools/apply_overrides.py"
+args = ["--gen-dir", "{out_dir}"]
+
+[[postprocess]]
+script = "tools/diz_annotations.py"
+args = ["--game", "x3", "--rom", "{rom}", "--annotate-generated", "{out_dir}"]

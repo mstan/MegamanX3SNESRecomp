@@ -128,3 +128,7 @@ The game ROM and any data extracted from it are **not** in this repo and are
 not licensed for redistribution.
 
 Save-state and rewind controls, compatibility and focused verification: [SAVE_STATES.md](docs/SAVE_STATES.md).
+
+## Coverage survey and regeneration
+
+Game-owned generation policy is in `recomp/generate.toml`; the shared framework runs the same hooks for `tools/regen.sh` and launcher rebuilds. See the [2026-10-18 coverage survey](docs/COVERAGE_2026-10-18.md) for verified ROM identity, observed scenes, corrections, and remaining validation limits.

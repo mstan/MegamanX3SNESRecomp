@@ -2,7 +2,7 @@
   "format_version": 1,
   "game": "x3",
   "upstream_url": "https://github.com/bogaa/dizProjects",
-  "upstream_commit": "b60813ef4785a2f87b1f601e4f8a2be0ee38d9a4",
+  "upstream_commit": "c16f01134f29e4a61b41a3d8ddf5121b556cbdc7",
   "project_path": "snes/Megaman X3/mmx3.diz",
   "project_sha256": "de0cf8891e3b15b4f6fe9d104eb2777a029721bc6614ee11d98435631732c582",
   "rom_sha1": "B226F7EC59283B05C1E276E2F433893F45027CAC",
