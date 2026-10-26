@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-26",
+  "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
+  "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
+  "release_framework_pin": "f68aa0fe8edae75cbc7d4b9473c71687b45ce702",
+  "framework_provenance": "Checkout tree identical to release pin",
+  "rom_sha256": "65b03268afac296330e8ff8d60dd0825879e13eded658b37713c034a3bd074f1d7",
+  "presentation": [
+    342,
+    224
+  ],
+  "diagnostic_change": "Expose the existing instruction debugger behind an explicit default-OFF CMake option, allowing the native original full-graphics checkpoint loader to run before breakpoint-qualified checkpoint selection. Normal builds remain uninstrumented.",
+  "qualified_checks": [
+    {
+      "sequence": "All eight main Maverick boss rooms",
+      "result": "Original full room loader, live AI, real projectile damage after health reduction, native weapon progression and postfight states observed. Stages 1-2: x3-late/sequence-results.json; stages 3-8: x3-cleanse-rdb/sequence-results.json."
+    },
+    {
+      "sequence": "Bit and Byte in Neon Tiger stage",
+      "result": "Prior weapon prerequisites supplied, encounter outcome bits untouched. Dialogue completed, AI/damage/departure observed, native 1FD8 bits 01 and 04 respectively set by the game, and the right exit opened/advanced the camera."
+    },
+    {
+      "sequence": "Powered factory elevator",
+      "result": "Volt Catfish prerequisite supplied before native room setup. Riding/jumping on the elevator and native up input carried X from Y about 1696 to 887 without editing lift state."
+    }
+  ],
+  "partial_checks": [
+    {
+      "sequence": "Lab 1 Godkarmachine branch",
+      "result": "Boss defeat and native fortress counter 1FAF increment observed; other branch/endings not qualified."
+    }
+  ],
+  "unverified": [
+    "Bit ring capture and Byte magnet/grab recovery",
+    "Factory Vile fight and self-destruct escape",
+    "Lab 2/Mosquitus/Vile branches, Dr. Doppler and final Sigma/ending",
+    "Complete terrain, sublevel, checkpoint, death/retry and alternate-route coverage",
+    "Independent music/SFX qualification",
+    "Owner visual acceptance"
+  ],
+  "assists": [
+    "Disposable profiles; dummy audio/video during unattended work",
+    "Stage/checkpoint teleport using original full graphics loader; intro and traversal prerequisites bypassed explicitly",
+    "Player health refill, position assists, reduced boss health followed by real projectile damage",
+    "Bit/Byte eligibility supplied by prior Maverick weapon flags; their own result flags never written"
+  ],
+  "findings": "No confirmed widescreen defect in the qualified routes. Failed or incomplete late-stage setups are not evidence of widescreen defects. Invalid final-Sigma/off-viewport and post-death preparations were excluded from owner review.",
+  "prepared_review": "Six-segment local review selector with current-build full states, normal window/audio, pause/restart, health assist and individually persisted Pass/Fail/Deferred notes; factory lift, Bit and Byte segments cover X3.",
+  "private_evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026",
+  "tracking": "beads-8wg.19.4"
+}
