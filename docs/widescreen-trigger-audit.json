@@ -31,12 +31,9 @@
     }
   ],
   "unverified": [
-    "Bit ring capture and Byte magnet/grab recovery",
-    "Factory Vile fight and self-destruct escape",
-    "Lab 2/Mosquitus/Vile branches, Dr. Doppler and final Sigma/ending",
-    "Complete terrain, sublevel, checkpoint, death/retry and alternate-route coverage",
-    "Independent music/SFX qualification",
-    "Owner visual acceptance"
+    "Byte magnet/grab recovery and Bit/Byte floor correctness",
+    "Serges belongs to the X2 audit; X3 final Sigma/endings and remaining branches",
+    "Complete stage/sublevel/exit and independent music/SFX qualification"
   ],
   "assists": [
     "Disposable profiles; dummy audio/video during unattended work",
@@ -44,7 +41,7 @@
     "Player health refill, position assists, reduced boss health followed by real projectile damage",
     "Bit/Byte eligibility supplied by prior Maverick weapon flags; their own result flags never written"
   ],
-  "findings": "No confirmed widescreen defect in the qualified routes. Failed or incomplete late-stage setups are not evidence of widescreen defects. Invalid final-Sigma/off-viewport and post-death preparations were excluded from owner review.",
+  "findings": "Factory parallax lifetime and actor HUD classification defects repaired; owner background and pickup checks now Pass. Bit/Byte floor clipping remains unresolved. Their rejected checkpoint handoff was replaced by actual near-door saved files with native room entry proved after reload.",
   "prepared_review": "Six-segment local review selector with current-build full states, normal window/audio, pause/restart, health assist and individually persisted Pass/Fail/Deferred notes; factory lift, Bit and Byte segments cover X3.",
   "private_evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026",
   "tracking": "beads-8wg.19.4",
@@ -52,10 +49,10 @@
     "framework_head": "0ecd2fe07a31119c00371bc1ddbdd0f12d0647af",
     "capture_fix": "Forward-slash paths avoid invalid debug-response JSON; verified PNG plus OAM/VRAM/RAM/state diagnostics. UI now shows preview/errors and captures the loaded segment.",
     "remaining": [
-      "Serges double-door and complete spawn art need human confirmation.",
-      "Factory outside-left BG2 layout is empty; flat gutter remains unresolved.",
-      "Bit/Byte floor placement needs natural-approach comparison; old teleport states do not establish a widescreen defect.",
-      "Final Sigma/endings and independent music/SFX qualification remain unverified."
+      "Bit/Byte floor clipping remains unresolved; before-door entry is verified, not floor correctness.",
+      "X2 Serges duplicate doors, incomplete machine art/void, and rocket ascent/boss margins remain open.",
+      "Factory outer-left empty-source strip remains a known caveat; owner background/pickup passes are accepted.",
+      "Serges full exit, final Sigma/endings and independent audio qualification remain unverified."
     ],
     "owner_notes_preserved": true,
     "scope": "Previous passes accepted individually; this is not full campaign/ending certification.",
@@ -99,8 +96,44 @@
     "validated": [
       "Factory: native342 and pure interpreter684 preserve BG2 mode10 after60 right+jump and600 up frames.",
       "Fixed BG2 tilemap matches original-ROM Snes9x reference byte-for-byte; main view excluding relocated HUD matches native control.",
-      "Original-checkpoint Bit/Byte states replace suspect near-door teleports; no claimed floor fix.",
-      "Current-build save/load and repeat rendering/RAM checked in private evidence."
-    ]
+      "Current-build save/load and repeat rendering/RAM checked in private evidence.",
+      "Corrected near-door files: no hunter at load, clear outcome flags, walking right reaches the intended Bit/Byte dialogue. Private feedback2/before-room-verification.json records both reloads. Floor correctness is not claimed."
+    ],
+    "owner_feedback_round2": {
+      "x3-vile": {
+        "title": "3 \u00b7 X3 \u2014 factory background and pickup",
+        "checks": {
+          "lift": "Pass",
+          "forms": "Pass",
+          "escape": "Pass",
+          "background": "Pass",
+          "pickup": "Pass"
+        },
+        "notes": "background  does all sounds of weird things. wrong color, wrong movement.  a mediu menergy flickersi n and out of place where it doesn't belong .\n\nas a conenience, adding a damage modifier to this testing harness would help accelerate things a lot.",
+        "updated_utc": "2026-10-26T21:11:46.455479+00:00"
+      },
+      "x3-bit": {
+        "title": "4 \u00b7 X3 \u2014 Bit floor: natural approach",
+        "checks": {
+          "dialogue": "Pass",
+          "capture": "Pass",
+          "exit": "Deferred",
+          "floor": "Unreviewed"
+        },
+        "notes": "bit shows up below the ground.",
+        "updated_utc": "2026-10-26T21:12:32.770677+00:00"
+      },
+      "x3-byte": {
+        "title": "5 \u00b7 X3 \u2014 Byte floor: natural approach",
+        "checks": {
+          "dialogue": "Unreviewed",
+          "grab": "Deferred",
+          "exit": "Deferred",
+          "floor": "Deferred"
+        },
+        "notes": "byte also clips through the ground. i can't test. the save is after the fight. same for bit.",
+        "updated_utc": "2026-10-26T21:13:12.849701+00:00"
+      }
+    }
   }
 }
