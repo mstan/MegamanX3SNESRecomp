@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import shutil
 import sys
+from hunter_approach import validate_door_graphics
 
 
 def run_case(driver, profile, state, name, actor_id):
@@ -28,6 +29,7 @@ def run_case(driver, profile, state, name, actor_id):
     start=dict(x=driver.word(0x9dd),y=driver.word(0x9e0),
                camera=[driver.word(0x1e5d),driver.word(0x1e60)])
     assert 0x1400 <= start['x'] < 0x1500, start
+    graphics = validate_door_graphics(driver)
     samples=[]
     for n in range(0,660,10):
         driver.byte(0x9ff,32)
@@ -47,7 +49,7 @@ def run_case(driver, profile, state, name, actor_id):
     live=hunters()
     assert len(live)==1 and live[0]['state'][2:4]=='02' and live[0]['hp']>0, live
     driver.snapshot(name+'-active')
-    result=dict(name=name, start=start, landing=actor, feet=foot, floor=floor,
+    result=dict(name=name, start=start, graphics=graphics, landing=actor, feet=foot, floor=floor,
                 active=live, outcome_flags=driver.byte(0x1fd8),samples=samples,
                 passed=True)
     (profile/(name+'-landing-result.json')).write_text(json.dumps(result,indent=2))

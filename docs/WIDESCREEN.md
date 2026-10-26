@@ -189,5 +189,25 @@ sites. `tools/test_hunter_landings.py` replays the before-door snapshots,
 observes both initial landings and active combat, and refuses already-started
 or completed setups. Byte lands at world Y663 and Bit at679, with visible feet
 at703 against floor704 (the normal collision inset), instead of695/727.
-Hybrid342, pure-interpreter684 and native256 checks pass. Owner floor/door
-acceptance is still pending; prior failed notes are retained individually.
+Hybrid342, pure-interpreter684 and native256 checks pass. The owner accepts
+Byte's floor, grab/recovery and exit, and confirms a single door face. The
+remaining moving-door garble was traced separately to checkpoint preparation.
+
+### Checkpoint graphics prerequisites
+
+A direct stage-8 checkpoint-1 load selects graphics group4, which assumes
+resident door asset `$56` from earlier group1. The prepared approach omitted
+that prerequisite: `$7F:8256/$7F:8356` remained zero. The original `$01:E065`
+door initializer cached those zeros and its animation referenced X's tiles.
+Unmodified Snes9x reproduces the same garble with this incomplete setup. The
+earlier native-width comparison only demonstrated renderer agreement; both
+widths shared the missing graphics, so it did not establish authentic art.
+
+`tools/hunter_approach.py` prepares the prerequisite through the original
+`$00:B1FC` cooperative graphics job, loading group1 then restoring group4
+before the room door initializes. It leaves actor/camera/collision/result
+state to the original game. This explicit assist bypasses earlier traversal;
+it does not validate the skipped graphics-group transition. The loaded base
+is `$F0`, attributes `$2F`, and the door CHR is identical to the independent
+original-ROM reference. Both the replay and owner-selector guards reject a
+missing asset or an existing room door with stale cached graphics fields.

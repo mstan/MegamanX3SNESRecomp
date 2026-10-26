@@ -178,9 +178,25 @@
       "X1 room-facing door policy; hidden face overrides dynamic uploads",
       "reset unsaved renderer history on state loads"
     ],
-    "validation": "X2 door crossing continuous/load: zero WRAM/pixel differences. X3 opening/crossing/closing: 100 matched native comparison frames, zero unexplained pixel differences.",
+    "validation": "X2 door crossing continuous/load: zero WRAM/pixel differences. X3 opening/crossing/closing: 100 matched native comparison frames, zero unexplained pixel differences. This compared two modes of the same renderer with a shared invalid graphics setup; it does not establish original animation correctness.",
     "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\feedback3",
     "owner_acceptance": "Pending; existing failures and caveats remain intact.",
     "hunter_fix": "Begin native terrain collision from authored recordY-8; Byte695->663, Bit727->679, feet703/floor704. Hybrid342/pure684/native256 initial drop and active combat pass. No actor coordinate, camera or result writes."
+  },
+  "owner_feedback_round4": {
+    "owner_message": "byte now stands on the floor. there is now single doors. the doors themseelves still garble when opening/closing, but are fine at rest.",
+    "accepted": [
+      "Byte floor",
+      "Byte grab/recovery and exit from saved notes",
+      "single door face"
+    ],
+    "animation_root_cause": "Prepared stage-8 checkpoint omitted resident door graphics asset56. Original initializer cached tilebase0/attrs20 and used X CHR. Unmodified original ROM reproduces this with the same incomplete setup.",
+    "preparation_fix": "Original cooperative graphics job 00:B1FC: group1 then group4 before room-door initialization; no result flags set.",
+    "guards": "Verify fixed asset baseF0/attrs2F AND every resident room door cached baseF0/attrs2F. Old missing-asset and stale-cache snapshots both rejected.",
+    "reference": "Original-ROM Snes9x1.63: door CHR FE00:10000 agrees in all512 bytes, correct mechanical door opening/closing observed.",
+    "qualification": "Prior native-width pixel comparison only proves agreement between widths, not original art correctness.",
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\feedback4",
+    "owner_animation_acceptance": "pending",
+    "validation": "Both exact prepared approach files replayed for 440 consecutive frames each at native256, hybrid342 and pure-interpreter684 (2640 frames). Correct cached asset fields and original-reference door CHR verified every frame; distinct moving-door poses retained. Fresh hybrid342 hunter landing/active-combat checks pass for both."
   }
 }
