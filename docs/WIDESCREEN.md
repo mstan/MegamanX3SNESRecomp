@@ -211,3 +211,7 @@ it does not validate the skipped graphics-group transition. The loaded base
 is `$F0`, attributes `$2F`, and the door CHR is identical to the independent
 original-ROM reference. Both the replay and owner-selector guards reject a
 missing asset or an existing room door with stale cached graphics fields.
+
+The owner subsequently accepted Byte and moving-door animation. That focused
+handoff is complete; do not request it again. This does not qualify the remaining
+fortress branches, final Sigma/endings, or other individual deferred checks.

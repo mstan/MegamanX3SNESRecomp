@@ -31,9 +31,9 @@
     }
   ],
   "unverified": [
-    "Byte magnet/grab recovery and Bit/Byte floor correctness",
-    "Serges belongs to the X2 audit; X3 final Sigma/endings and remaining branches",
-    "Complete stage/sublevel/exit and independent music/SFX qualification"
+    "Bit corrected floor human confirmation and exit (automated landing/combat/exit checks pass; human exit deferred)",
+    "Remaining fortress branches, final Sigma/endings, complete stage/sublevel/exit coverage",
+    "Independent music/SFX qualification"
   ],
   "assists": [
     "Disposable profiles; dummy audio/video during unattended work",
@@ -41,7 +41,7 @@
     "Player health refill, position assists, reduced boss health followed by real projectile damage",
     "Bit/Byte eligibility supplied by prior Maverick weapon flags; their own result flags never written"
   ],
-  "findings": "Factory parallax lifetime and actor HUD classification defects repaired; owner background and pickup checks now Pass. Bit/Byte floor clipping remains unresolved. Their rejected checkpoint handoff was replaced by actual near-door saved files with native room entry proved after reload.",
+  "findings": "Factory parallax, HUD classification, single-face doors and hunter landings repaired. Corrected checkpoint graphics prerequisites restore moving-door art. Owner accepts factory checks, Byte floor/grab/recovery/exit and door animation. Bit automated landing/combat passes; individual human gaps remain separate.",
   "prepared_review": "Six-segment local review selector with current-build full states, normal window/audio, pause/restart, health assist and individually persisted Pass/Fail/Deferred notes; factory lift, Bit and Byte segments cover X3.",
   "private_evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026",
   "tracking": "beads-8wg.19.4",
@@ -196,7 +196,21 @@
     "reference": "Original-ROM Snes9x1.63: door CHR FE00:10000 agrees in all512 bytes, correct mechanical door opening/closing observed.",
     "qualification": "Prior native-width pixel comparison only proves agreement between widths, not original art correctness.",
     "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\feedback4",
-    "owner_animation_acceptance": "pending",
-    "validation": "Both exact prepared approach files replayed for 440 consecutive frames each at native256, hybrid342 and pure-interpreter684 (2640 frames). Correct cached asset fields and original-reference door CHR verified every frame; distinct moving-door poses retained. Fresh hybrid342 hunter landing/active-combat checks pass for both."
+    "owner_animation_acceptance": "Pass: owner explicitly accepted Byte and doors; no repeat handoff.",
+    "validation": "Both exact prepared approach files replayed for 440 consecutive frames each at native256, hybrid342 and pure-interpreter684 (2640 frames). Correct cached asset fields and original-reference door CHR verified every frame; distinct moving-door poses retained. Fresh hybrid342 hunter landing/active-combat checks pass for both.",
+    "owner_acceptance_message": "ok we're good. byte passes. doors pass. we're good on this front. what's left/next?"
+  },
+  "current_status": {
+    "accepted": [
+      "Byte floor/grab/recovery/exit",
+      "door face and opening/closing animation",
+      "factory background/pickup/lift/forms/escape"
+    ],
+    "unverified": [
+      "Bit corrected floor human confirmation and exit (automated landing/combat/exit checks pass; human exit deferred)",
+      "Remaining fortress branches, final Sigma/endings, complete stage/sublevel/exit coverage",
+      "Independent music/SFX qualification"
+    ],
+    "next_cross_title_priority": "X2 actual rocket ascent and boss-arena margins"
   }
 }
