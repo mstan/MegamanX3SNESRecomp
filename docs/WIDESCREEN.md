@@ -162,3 +162,32 @@ on the intended interior route while widescreen object windows remain active.
 
 Generated sources are intentionally untracked. Always run
 `tools/regen.sh`; it applies the widescreen overrides and checks idempotency.
+
+## Owner feedback: doors and hunter landings (2026-10-26)
+
+The shared engine now applies X1's strict mirrored door-body rule to X2/X3:
+only the face looking into the current room is drawn. A presentation override
+also suppresses recent uploads of the hidden face during opening/closing.
+State loading resets unsaved renderer history. A 400-frame X3 crossing,
+sampled every four frames against native width, has zero unexplained pixel
+differences after excluding relocated HUD pixels and the hidden 16-pixel face.
+
+The original Bit/Byte fall routines defer terrain collision until
+`cameraY+$98/$78`. A vertical approach can put that plane below the floor;
+the initial bad landing was also reproduced with the original ROM in Snes9x.
+Use the original stage record to begin collision by `recordY-8`. Collision
+chooses the actual landing; camera, actor coordinates, velocity and result
+flags are not forced. Bit needs its later `$98` operand compensated as well.
+Only `$07:907D` and `$3C:C588` receive this policy. Their interpreter hooks
+validate the original bytes and complete the 16-bit LDA with its original
+five slow-bus cycles and flags. No mutable ROM operands or extra serialized
+state are required.
+
+Generated reinjection now has 32 marked sites: the existing 30 horizontal
+sites/12 pairs, plus these two landing reads, and four separate streamer
+sites. `tools/test_hunter_landings.py` replays the before-door snapshots,
+observes both initial landings and active combat, and refuses already-started
+or completed setups. Byte lands at world Y663 and Bit at679, with visible feet
+at703 against floor704 (the normal collision inset), instead of695/727.
+Hybrid342, pure-interpreter684 and native256 checks pass. Owner floor/door
+acceptance is still pending; prior failed notes are retained individually.

@@ -6,6 +6,8 @@ and compare them with the camera at $1E5D/$1E60. This pass widens only:
 
 * pair-confirmed X windows: camera-X read -> add constant -> limit constant;
 * camera triggers: camera-X read -> add constant -> compare with dp$05.
+* Bit/Byte's landing thresholds, anchored to their original world records
+  so a vertical approach cannot delay collision until below the floor.
 * $00:DE3A's four dynamic record-stream frontiers, routed through guarded
   helpers that retain the authentic bounds by default.
 
@@ -57,14 +59,15 @@ TRIG_ADDS = {
 ADD_BUDGET = 60
 LIMIT_BUDGET = 40
 CENTERED_LIMIT_BUDGET = 180
-EXPECTED_SITES = 30
+EXPECTED_SITES = 32  # 30 horizontal windows + two world-anchored hunter landings
 EXPECTED_PAIRS = 12
 EXPECTED_STREAM_SITES = 4
 EXPECTED_DISPATCH_SITES = 0
 
 
 def win_snippet(indent, var, kind, const):
-    fn = "X3WsObjWinAdd" if kind == "add" else "X3WsObjWinLimit"
+    fn = ("X3HunterLandingCameraY" if kind == "landing" else
+          "X3WsObjWinAdd" if kind == "add" else "X3WsObjWinLimit")
     return (
         f"{indent}{OBJ_MARKER} {{ extern uint16 {fn}(uint16); "
         f"{var} = {fn}({const}); }}\n"
@@ -106,6 +109,11 @@ def apply_obj_windows(lines, verbose, fname):
             state = ("add", ADD_BUDGET)
             continue
         if RE_ANCHOR_Y.search(line):
+            if cur_fn in {"bank_07_9077", "bank_3C_C582"}:
+                match = re.match(r"^(\s*)uint16 (_v\d+) =", line)
+                if match:
+                    indent, var = match.groups()
+                    inject[idx] = (indent,var,"landing",var,cur_fn)
             state = None
             continue
         if state is None:

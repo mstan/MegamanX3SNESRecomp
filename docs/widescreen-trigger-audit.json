@@ -135,5 +135,52 @@
         "updated_utc": "2026-10-26T21:13:12.849701+00:00"
       }
     }
+  },
+  "owner_feedback_round3": {
+    "notes": {
+      "x3-vile": {
+        "title": "3 \u00b7 X3 \u2014 factory background and pickup",
+        "checks": {
+          "lift": "Pass",
+          "forms": "Pass",
+          "escape": "Pass",
+          "background": "Pass",
+          "pickup": "Pass"
+        },
+        "notes": "background  does all sounds of weird things. wrong color, wrong movement.  a mediu menergy flickersi n and out of place where it doesn't belong .\n\nas a conenience, adding a damage modifier to this testing harness would help accelerate things a lot.",
+        "updated_utc": "2026-10-26T21:11:46.455479+00:00"
+      },
+      "x3-bit": {
+        "title": "4 \u00b7 X3 \u2014 Bit floor: natural approach",
+        "checks": {
+          "dialogue": "Pass",
+          "capture": "Pass",
+          "exit": "Deferred",
+          "floor": "Unreviewed"
+        },
+        "notes": "bit shows up below the ground.",
+        "updated_utc": "2026-10-26T21:12:32.770677+00:00"
+      },
+      "x3-byte": {
+        "title": "Before room \u00b7 X3 \u2014 Byte",
+        "checks": {
+          "dialogue": "Unreviewed",
+          "grab": "Unreviewed",
+          "exit": "Deferred",
+          "floor": "Fail"
+        },
+        "notes": "byte still clips through the ground. the double doors are still there and now they garble when you us them. they're fine at rest though.",
+        "updated_utc": "2026-10-26T21:47:04.929653+00:00"
+      }
+    },
+    "engine_pin": "e862e62",
+    "changes": [
+      "X1 room-facing door policy; hidden face overrides dynamic uploads",
+      "reset unsaved renderer history on state loads"
+    ],
+    "validation": "X2 door crossing continuous/load: zero WRAM/pixel differences. X3 opening/crossing/closing: 100 matched native comparison frames, zero unexplained pixel differences.",
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\feedback3",
+    "owner_acceptance": "Pending; existing failures and caveats remain intact.",
+    "hunter_fix": "Begin native terrain collision from authored recordY-8; Byte695->663, Bit727->679, feet703/floor704. Hybrid342/pure684/native256 initial drop and active combat pass. No actor coordinate, camera or result writes."
   }
 }

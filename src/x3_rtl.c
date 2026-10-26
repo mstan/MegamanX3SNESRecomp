@@ -47,6 +47,7 @@ static unsigned s_lle_host_frames = 0;
 static bool s_lle_extra_loaded = false;
 static bool s_execution_loaded;
 static void x3_patch_ws_interp_obj_windows(void);
+static void x3_patch_hunter_landing(void);
 
 /* Read a 16-bit CPU vector out of bank $00's vector table. */
 static uint32_t x3_read_vector_pc24(uint16_t vec_addr) {
@@ -97,6 +98,7 @@ void RunOneFrameOfGame(void) {
    * Interpreter fallbacks fetch the original ROM bytes, so mirror those
    * dynamic constants into the private runtime ROM copy each frame. */
   x3_patch_ws_interp_obj_windows();
+  x3_patch_hunter_landing();
 
   if (!s_lle_did_reset) {
     cpu_state_init(&g_cpu, g_ram);
@@ -320,6 +322,73 @@ uint16 X3WsObjWinAdd(uint16 base) {
 
 uint16 X3WsObjWinLimit(uint16 base) {
   return (uint16)(base + 2 * (x3_ws_native_controller(g_cpu.D) ? 0 : x3_ws_spawn_margin()));
+}
+
+/* Bit/Byte delay terrain collision until cameraY+$98/$78. A vertical
+ * approach can leave the camera below the authored room origin, so that
+ * first collision check happens after their feet have passed through the
+ * floor. Use the original spawn record's world Y for that threshold. Keep
+ * the original falling physics, terrain collision and encounter flags. */
+uint16 X3HunterLandingCameraY(uint16 camera) {
+  uint16_t dp = g_cpu.D;
+  if (dp < 0xd18 || dp >= 0x1518 || ((dp - 0xd18) & 63)) return camera;
+  uint8_t id = g_ram[dp + 10];
+  if (id != 0x46 && id != 0x47) return camera;
+  uint32_t first = g_ram[0xf800] | (g_ram[0xf801] << 8);
+  uint32_t end = g_ram[0xfa00] | (g_ram[0xfa01] << 8);
+  if (first != 0xfa02 || end < first || (end-first)%5) return camera;
+  for (uint32_t p = first; p + 4 < end; p += 5) {
+    uint16_t addr = g_ram[p+3] | (g_ram[p+4] << 8);
+    if (addr < 0x8000 || addr > 0xfff9) continue;
+    if ((cart_read(g_snes->cart,0x3c,addr) & 15) != 3 ||
+        cart_read(g_snes->cart,0x3c,addr+3) != id) continue;
+    uint16_t y = g_ram[p+1] | (g_ram[p+2] << 8);
+    uint16_t x = cart_read(g_snes->cart,0x3c,addr+5) |
+                 ((cart_read(g_snes->cart,0x3c,addr+6) & 31) << 8);
+    uint16_t object_x = g_ram[dp+5] | (g_ram[dp+6] << 8);
+    /* Both hunters must begin checking by recordY-8 (40px above the
+     * authored floor). Bit's stock $98 gate is 32px later than Byte's $78
+     * gate, so compensate that operand too; collision chooses the landing. */
+    unsigned bias = id == 0x46 ? 160 : 128;
+    if (abs((int)x-(int)object_x) <= 512 && y >= bias) return y - bias;
+  }
+  return camera;
+}
+
+static uint8_t *s_hunter_landing[2];
+static bool s_hunter_landing_scanned;
+static void x3_hunter_landing_hook(CpuState *cpu, uint32_t pc24) {
+  unsigned index = pc24 == 0x07907d ? 0 : 1;
+  if (!s_hunter_landing[index] || cpu->m_flag) return;
+  uint16_t camera = cpu_read16(cpu,cpu->DB,0x1e60);
+  uint16_t origin = X3HunterLandingCameraY(camera);
+  /* Complete the proven 16-bit LDA absolute with the substituted operand.
+   * Preserve its five slow-bus cycles, flags and original WRAM read. Keeping
+   * ROM unchanged also avoids mutable instruction operands across state loads. */
+  cpu_write_a_m(cpu,origin);
+  cpu->_flag_Z = origin == 0;
+  cpu->_flag_N = (origin & 0x8000) != 0;
+  cpu_mirrors_to_p(cpu);
+  cpu->cycles += 5;
+  cpu->master_cycles += 5 * 8; /* Both signature sites are slow LoROM banks. */
+  interp_bridge_pre_opcode_redirect(pc24 + 3);
+}
+static void x3_patch_hunter_landing(void) {
+  static const uint32_t pcs[2] = {0x07907d,0x3cc588};
+  if (!s_hunter_landing_scanned && g_snes && g_snes->cart && g_snes->cart->rom) {
+    s_hunter_landing_scanned = true;
+    for (unsigned i=0;i<2;i++) {
+      uint32_t offset = ((pcs[i] >> 16) * 0x8000) + (pcs[i] & 0x7fff);
+      if (offset < 2 || offset + 6 > g_snes->cart->romSize) continue;
+      uint8_t *p = g_snes->cart->rom + offset;
+      uint16_t add = i ? 0x78 : 0x98;
+      if (p[-2]==0xc2 && p[-1]==0x21 && p[0]==0xad && p[1]==0x60 &&
+          p[2]==0x1e && p[3]==0x69 && p[4]==add && p[5]==0) {
+        s_hunter_landing[i] = p;
+        interp_bridge_add_pre_opcode_hook(pcs[i],x3_hunter_landing_hook);
+      } else fprintf(stderr,"[x3] hunter landing signature mismatch at $%06X\n",pcs[i]);
+    }
+  }
 }
 
 /* $00:DE3A streams scripted level records, not just ordinary actors. Widening
@@ -760,6 +829,8 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
 
 void X3OnStateLoaded(uint32_t version) {
   (void)version;
+  /* Renderer history belongs to the abandoned timeline, not this snapshot. */
+  WsShadowReset();
   if (s_execution_loaded) RtlApplyExecutionState();
   s_execution_loaded = false;
   if (s_lle_extra_loaded) {
