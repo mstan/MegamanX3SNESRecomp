@@ -47,5 +47,60 @@
   "findings": "No confirmed widescreen defect in the qualified routes. Failed or incomplete late-stage setups are not evidence of widescreen defects. Invalid final-Sigma/off-viewport and post-death preparations were excluded from owner review.",
   "prepared_review": "Six-segment local review selector with current-build full states, normal window/audio, pause/restart, health assist and individually persisted Pass/Fail/Deferred notes; factory lift, Bit and Byte segments cover X3.",
   "private_evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026",
-  "tracking": "beads-8wg.19.4"
+  "tracking": "beads-8wg.19.4",
+  "visual_followup": {
+    "framework_head": "0ecd2fe07a31119c00371bc1ddbdd0f12d0647af",
+    "capture_fix": "Forward-slash paths avoid invalid debug-response JSON; verified PNG plus OAM/VRAM/RAM/state diagnostics. UI now shows preview/errors and captures the loaded segment.",
+    "remaining": [
+      "Serges double-door and complete spawn art need human confirmation.",
+      "Factory outside-left BG2 layout is empty; flat gutter remains unresolved.",
+      "Bit/Byte floor placement needs natural-approach comparison; old teleport states do not establish a widescreen defect.",
+      "Final Sigma/endings and independent music/SFX qualification remain unverified."
+    ],
+    "owner_notes_preserved": true,
+    "scope": "Previous passes accepted individually; this is not full campaign/ending certification.",
+    "owner_feedback": {
+      "x3-vile": {
+        "title": "3 \u00b7 X3 \u2014 powered factory lift \u2192 Vile / escape",
+        "checks": {
+          "lift": "Pass",
+          "forms": "Pass",
+          "escape": "Pass"
+        },
+        "notes": "background  does all sounds of weird things. wrong color, wrong movement.  a mediu menergy flickersi n and out of place where it doesn't belong .",
+        "updated_utc": "2026-10-26T19:05:38.383085+00:00"
+      },
+      "x3-bit": {
+        "title": "Optional \u00b7 X3 \u2014 Bit dialogue / ring / exit",
+        "checks": {
+          "dialogue": "Pass",
+          "capture": "Pass",
+          "exit": "Deferred"
+        },
+        "notes": "bit shows up below the ground.",
+        "updated_utc": "2026-10-26T19:07:19.289269+00:00"
+      },
+      "x3-byte": {
+        "title": "Optional \u00b7 X3 \u2014 Byte magnet / grab / exit",
+        "checks": {
+          "dialogue": "Unreviewed",
+          "grab": "Unreviewed",
+          "exit": "Unreviewed"
+        },
+        "notes": "byte also clips through the ground.",
+        "updated_utc": "2026-10-26T19:07:57.618486+00:00"
+      }
+    },
+    "changes": [
+      "Resident type04 parallax controllers retain their native cull lifetime. Previous-room controller no longer switches factory BG2 mode10 to02.",
+      "Generated object-window helpers and interpreter entry hook apply the same class guard, including resumes inside the helper.",
+      "HUD signature and exact margin source repairs shared with X2."
+    ],
+    "validated": [
+      "Factory: native342 and pure interpreter684 preserve BG2 mode10 after60 right+jump and600 up frames.",
+      "Fixed BG2 tilemap matches original-ROM Snes9x reference byte-for-byte; main view excluding relocated HUD matches native control.",
+      "Original-checkpoint Bit/Byte states replace suspect near-door teleports; no claimed floor fix.",
+      "Current-build save/load and repeat rendering/RAM checked in private evidence."
+    ]
+  }
 }
