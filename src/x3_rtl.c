@@ -287,9 +287,44 @@ void X3ConfigureWsHud(void) {
   PpuSetWsHudOamShiftRange2(g_ppu, 16, x3_ws_boss_hud_present() ? 7 : 0);
 }
 
+/* Maoh paints BG2 characters0x300..0x3ff over a reused circular map. Other
+ * characters outside the native view are stale level tiles, not boss art.
+ * Filter the renderer's live tile so moving/destructible body pieces retain
+ * their exact map attributes and never depend on cached terrain history. */
+static uint16_t x3_maoh_margin_tile(void *context, uint16_t address,
+                                   uint16_t tile) {
+  (void)context;
+  (void)address;
+  return (tile & 0x3ff) >= 0x300 ? tile : 0;
+}
+
 /* Exact background source for the widescreen margins. */
 void X3ConfigureWsBgMargins(void) {
   Mmx23ConfigureWsBgMargins(g_snes, g_ppu, g_ram, g_ws_active);
+  /* Keep Maoh's genuine offscreen body inside its512px canvas while BG1
+   * supplies the roof. Never reflect the boss or expose stale map
+   * cells beside it. Enter the policy when the original camera reaches the
+   * combat roof, including the introduction before the left bound locks. */
+  static const uint8_t maoh_vertical_bounds[4] = {0x00,0x01,0x00,0x01};
+  const unsigned camera_x = g_ram[0x1e5d] | g_ram[0x1e5e] << 8;
+  const unsigned min_x = g_ram[0x1e6e] | g_ram[0x1e6f] << 8;
+  if (g_ws_active && g_ppu && g_ram[0xd1] == 4 && g_ram[0x1fae] == 0 &&
+      !memcmp(g_ram+0x1e6a,maoh_vertical_bounds,sizeof maoh_vertical_bounds) &&
+      g_ram[0x1e70] == 0x00 && g_ram[0x1e71] == 0x1b &&
+      min_x >= 6656 && min_x <= 6784 && camera_x >= 6784 && camera_x <= 6912 &&
+      (g_ppu->bgmode & 7) == 1 && g_ppu->bgXsc[0] == 0x51 &&
+      g_ppu->bgXsc[1] == 0x59) {
+    WsShadowUseFilteredVram(1,g_ppu,x3_maoh_margin_tile,NULL);
+    PpuSetWidescreenLayerWorldClipBand(g_ppu,1,0,224,1,512,1024);
+    /* This scene uses BG3 for its complete repeating skyline rather than
+     * the normal dialogue sheet. Its loaded map supplies the distant city. */
+    PpuSetWidescreenBg3Widen(g_ppu,1);
+    /* The roof ends at world7168. Its combat section starts at6784;
+     * reflecting the preceding entrance would invent another boss door.
+     * Repeat the32px edge strips only outside the authored roof. Reflecting
+     * the whole combat area would copy Maoh's real floor damage as well. */
+    PpuSetWidescreenLayerWorldRepeatBand(g_ppu,0,0,224,640,1024,32);
+  }
   /* Keep authored fortress arenas' native pixels intact and continue their wall
    * edges into the gutters. The BG2 Kaiser head is a circular object canvas,
    * so it must stay within the room rather than echo beyond the side walls.
