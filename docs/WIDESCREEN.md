@@ -362,3 +362,22 @@ not release benchmarks. Capture/Pause and the current-build Kaiser restart
 also pass. Raw samples and identities are tracked under optimization campaign
 beads-2wy8.1 and owning engine issue beads-8wg.2.151; broader consumer/startup/
 memory qualification and the human final-room checks remain open.
+
+### Refreshed engine base (2026-10-27)
+
+Reviewed engine0095609 is rebased onto main5ac4b98 and has the same tracked
+tree as compiled combinede772aca and integrationa99e2fc. The title now pins
+this engine. New buildc3d20fc6 passes156 paired full-picture/WRAM samples
+against preserved95ad, including Byte/factory, the fortress rooms, hub exits
+and684px Lab2 pans. Its sampled Press PCM and full SPC state match byte for
+byte in default and pure execution. Current save/load, Pause/Capture and the
+refreshed live1HP Kaiser setup replay exactly.
+
+The package selects native APU time and SLICE8 CRC with the standard title
+renderer. Six paired240-frame samples in each execution mode are small and
+mixed within host variation: neutral/inconclusive, with no broader speed claim.
+Warm startup and memory costs are effectively unchanged. Earlier combat and
+renderer proofs keep their original binary identities. The four pending
+human checks are unchanged; accepted Byte/doors/factory checks are preserved.
+Kaiser finishing hit/escape/ending, skipped content/independent audio and
+broader-consumer follow-up remain open. Exact data is in `new_main_qualification`.

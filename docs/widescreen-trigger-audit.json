@@ -10,7 +10,7 @@
       "Bit human floor/exit follow-up (automatic checks pass)",
       "Kaiser final hit, lava escape and endings",
       "Remaining fortress branches/full content inventory/independent audio",
-      "Representative other-consumer/startup/memory gate; paired X2/X3 functional/current-save and short per-game runtime samples recorded"
+      "Broader other-consumer follow-up; current X2/X3 new-base output/state/audio/startup/memory/runtime gates passed without a speed claim"
     ],
     "next_cross_title_priority": "Four focused selector segments remain: Serges front, Ostrich entrance and X2/X3 final-arena visuals plus optional Kaiser hit. Accepted scenes are not repeated.",
     "shared_engine_regression": {
@@ -90,7 +90,8 @@
       "title_repository_head": "929a88dea72982636d5af5743fbca549c62f208e",
       "qualification": "lab2_alternate_world_clip_followup.direct_renderer_followup",
       "note": "Prior individual acceptance remains valid. Four focused human visuals remain; selector closed. No shared-engine merge/release."
-    }
+    },
+    "new_main_automated_gate": "Passed for current X2/X3: full images/WRAM, scalar/native game PCM+SPC, current save/Capture and matched runtime/startup/memory. Human/content/ending and broader-consumer caveats remain."
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -1140,6 +1141,193 @@
         "runtime_assessment": "Direct-window optimization versus the identical-correctness isolated clip: workload-local X3 positive, X2 small mixed neutral/inconclusive. Per-game data is separate; protocol headroom is not a release benchmark. Broader consumer/startup/memory qualification stays open.",
         "promotion": "Verified X3 direct-clip replacement and current-build Kaiser state published; X2 remains the exact634 accepted-scene build. Four selector segments, normal windows/audio/input settings and owner notes preserved. Selector remains closed.",
         "raw_evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\world-clip-publication.json"
+      }
+    }
+  },
+  "new_main_qualification": {
+    "status": "automated X2/X3 gate passed",
+    "compiled_engine": "e772aca74d06cef9435df2f34cda1689329b19c4",
+    "reviewed_engine": "0095609940bc3a304da8c70f2dcab79264bbb8ab",
+    "integration": "a99e2fc0b9ff192d3a7302d02409c64e32f7cf24",
+    "base": "5ac4b98e065b668ed77b65fa6342ec296b8b9e23",
+    "exact_source_tree": "396f26717c1bf151b0e110950c5fd5f179c1823a",
+    "source_equivalence": "Compilede772, rebased PR0095609 and integrationa99e2fc have identical complete tracked trees; git diff--exit-code and tree hashes verified. Rebased push guarded with the reviewed908346c remote head.",
+    "components": "Five production PPU fixtures plus native raster ownership/readback, APU scalar/native and CRC byte/slice contracts pass on the new combined source.",
+    "reuse": "Existing beads-8wg.2.154/current5ac qualification for MMX, SMW, Super Metroid and F-Zero is retained separately. No fresh combined all-consumer run is claimed.",
+    "limits": [
+      "Single shared Windows x64 host; muted software/debug protocol costs, not isolated release frame-time benchmarks",
+      "Matched scalar game audio is not independent original-game soundtrack/SFX coverage",
+      "Earlier actual combat/fortress proofs retain their original binary identities; these comparisons do not relabel them"
+    ],
+    "remaining": [
+      "Four focused human visuals and optional Kaiser finishing hit",
+      "Kaiser escape/ending, skipped traversal/content and independent audio",
+      "Broader consumer follow-up using existing campaign evidence"
+    ],
+    "promotion": "Fresh four current-build setups prepared; owner profiles not yet replaced by this record. No merge or release.",
+    "game": {
+      "executable": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\integration-build-x3\\MegaManX3SNESRecomp.exe",
+      "sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+      "title_code": "a0142c8e13f1f2e4c526784955654356faecbe92",
+      "compiled_title_repository_head": "49f2e6983f5cdab4225f6cb0ef888b0deebc0e89",
+      "package": "Standard title renderer with shared native APU time and SLICE8 CRC; HLE desktop frame staging. These games do not receive the MMX/SM custom native raster consumer package.",
+      "actual_defines": {
+        "APU_NATIVE": 1,
+        "CRC32_SLICES": 8,
+        "AUDIO_TRACE_HISTORY": 2
+      },
+      "functional": {
+        "passed": true,
+        "cases": {
+          "byte": 28,
+          "factory": 24,
+          "god": 8,
+          "press": 8,
+          "doppler": 8,
+          "kaiser": 8,
+          "hub": 20,
+          "vile": 8,
+          "lab2-684": 24,
+          "hub-256": 20
+        },
+        "samples": 156,
+        "preserved": "Complete presented image and128KiB WRAM at15-frame samples; original controlled input/health only."
+      },
+      "default_functional": null,
+      "audio": {
+        "pure": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-press-audio.json",
+          "sample_frames": 128161,
+          "rate": 32040,
+          "pcm_sha256": "48ba2e6267cbd2d55122a8175389c3ead4f763122664cf066b94ab7b27afb9b3",
+          "peak": 20079,
+          "spc_before_after_identical": true,
+          "apu_time_implementation": "NATIVE",
+          "actual_guest_sync_cycles": 0
+        },
+        "default": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-default-audio.json",
+          "sample_frames": 128246,
+          "rate": 32040,
+          "pcm_sha256": "ff1666749dffbcffa8620a0887336941ea5f53e4b96205b77a63b63132670545",
+          "peak": 20152,
+          "spc_before_after_identical": true,
+          "apu_time_implementation": "NATIVE",
+          "actual_guest_sync_cycles": 64241
+        }
+      },
+      "current_build_save_load": {
+        "case": "incoming-main-x3-current",
+        "ram_difference": 0,
+        "pixel_difference": 0,
+        "passed": true
+      },
+      "current_build_capture": {
+        "passed": true,
+        "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-capture-check\\review-captures\\incoming-main-x3-kaiser-20261027-091351-672441.png",
+        "metadata_errors": {},
+        "replay": {
+          "case": "incoming-main-x3-kaiser-capture",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "progress": {
+          "format": "codex-review-progress-v1",
+          "slot": 1,
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3\\saves\\save1.sav",
+          "sha256": "b7d89b261a8c3de4635dfa0a9a43eb02d8eb223b7d5811122623ae30d051a1dc",
+          "frame": 11500,
+          "tag": {
+            "segment": "incoming-main-x3-kaiser",
+            "binary_sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+            "engine": "e772aca74d06cef9435df2f34cda1689329b19c4"
+          },
+          "utc": "2026-10-27T16:13:51.672441+00:00"
+        }
+      },
+      "runtime": {
+        "pure": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-runtime.json",
+          "pairs": 6,
+          "package": "New main5ac/e772: native APU time +SLICE8 CRC, standard title renderer; previous95ad scalar APU +byte CRC. Both HLE desktop frame staging, FULL trace, coverageOFF, pure342 software/dummy video/audio with host volume0.",
+          "configuration": "Matched240-frame original AI workloads, pure interpreter, software/dummy video/audio, unthrottled diagnostic builds; serial alternating order; no input/cheat writes during timed intervals",
+          "median_time_change_percent": 1.261672882034004,
+          "range_percent": [
+            -4.970448511301051,
+            5.753582020656167
+          ],
+          "minimum_candidate_fps": 164.7577988306318,
+          "assessment": "Neutral/inconclusive: mixed changes within shared-host variation; no proven win or reproducible regression. Profiles and games are not pooled."
+        },
+        "default": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-default-runtime.json",
+          "pairs": 6,
+          "package": "Candidate e772/main5ac native APU time +SLICE8 CRC with standard title renderer; baseline95ad scalar APU +byte CRC, same title and frame staging. Separate from pure-interpreter samples.",
+          "configuration": "Matched240-frame original AI, default hybrid execution, widescreen342, HLE frame staging, FULL trace, optional coverageOFF, software/dummy output with audio emulation and volume0; serial alternating order; no input/cheat writes in timed interval.",
+          "median_time_change_percent": -3.4252673903568285,
+          "range_percent": [
+            -5.279625640247065,
+            1.1514821542149445
+          ],
+          "minimum_candidate_fps": 204.13771845626232,
+          "assessment": "Neutral/inconclusive: mixed changes within shared-host variation; no proven win or reproducible regression. Profiles and games are not pooled."
+        }
+      },
+      "resource_costs": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-launch-costs.json",
+        "identities": {
+          "candidate": {
+            "sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+            "executable_bytes": 140517235
+          },
+          "baseline": {
+            "sha256": "2bd74ffd01fa60b61d5dfdb5cd35bd7f585e4a9b890b2db9ee9d84c1e32ff4e3",
+            "executable_bytes": 140505366
+          }
+        },
+        "medians": {
+          "baseline": {
+            "startup_seconds": 0.6562637999886647,
+            "rss": 127254528,
+            "private": 3837022208
+          },
+          "candidate": {
+            "startup_seconds": 0.66311309998855,
+            "rss": 124940288,
+            "private": 3837026304
+          }
+        },
+        "assessment": "Warm debug startup/RSS/private costs effectively unchanged. Approximately3.57GiB private commitment is shared by both diagnostic builds; not a release footprint claim.",
+        "scope": "Startup until first debug-ready frame; protocol/polling overhead included. RSS/private are observed costs, not an isolated cold-start or release benchmark."
+      }
+    },
+    "states": {
+      "x3-kaiser-hit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-owner-states\\x3-kaiser-hit.sav",
+        "sha256": "8af5876fcb9cb66b565a4d7f697e927a1d1cf54f8a3abb6b418fc0a9c96fc2fc",
+        "binary": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+        "info": {
+          "frame": 11502,
+          "mode": "020404000000000e",
+          "stage": "000d0300000000020001",
+          "player": "000200023e410780",
+          "x": 1857,
+          "y": 2735,
+          "hp": 16,
+          "camera": [
+            1792,
+            2560
+          ],
+          "bounds": "0007000a000a00070007f8ff00000000000a0007",
+          "event": "00000000000000000000000000000000000000000000000003000103000000580d0000040000000000000000000000001811000000000000000100000000000000000000480033010200010090000000"
+        },
+        "current_build_replay": {
+          "case": "incoming-handoff-x3-kaiser-hit",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
       }
     }
   }
