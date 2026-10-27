@@ -510,3 +510,8 @@ positioning and does not certify an independent original escape sequence.
 The walls above the fire are authored background art. The owner separately
 accepts the absence of a duplicate Kaiser head. Actual finishing-hit,
 ordinary escape and other pending audit gates retain their own status.
+
+The owner subsequently confirms that a normal charged shot finished the live
+1HP Kaiser in build10994. This actual finishing-hit gate is now passed, along
+with the no-duplicate-head check. No repeat combat handoff is required; the
+new chamber camera visual and the other independent audit gaps remain open.

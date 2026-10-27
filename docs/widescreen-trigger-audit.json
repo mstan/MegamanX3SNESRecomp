@@ -2235,7 +2235,7 @@
     },
     "width_limits": [
       "The anchor is enabled only for the demonstrated entry chamber and widths up to512;684 keeps previous centred presentation because the ordinary one-sided OBJ span is limited. Wider anchoring and other rooms are not certified.",
-      "No duplicate head accepted separately by owner; actual Kaiser finishing hit awaits clarification. Ordinary escape, alternate fresh-stage rescue, Bit and broader audit remain open."
+      "Owner confirms no duplicate head and actual charged-shot Kaiser hit. Ordinary escape, alternate fresh-stage rescue, Bit and broader audit remain open."
     ],
     "current_save_replay": {
       "case": "chamber-anchor-entry-current",
@@ -2251,6 +2251,12 @@
       "assists": "Stage/counter teleport and explicit camera/player positioning for STATIC shaft-art inspection only. Not an independent original escape sequence validation."
     },
     "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\chamber-anchor-qualification.json",
-    "owner_acceptance": "No duplicate head accepted. Chamber camera still needs focused visual confirmation; no repeat Byte/doors/factory or X2 handoff."
+    "owner_acceptance": "Owner accepts no duplicate head and actual charged-shot Kaiser finishing hit. Only new chamber camera visual is pending; no repeat accepted fight/doors/Byte/factory/X2."
+  },
+  "kaiser_owner_finishing_hit": {
+    "owner_confirmed": true,
+    "date": "2026-10-27T23:13:51.165148+00:00",
+    "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+    "message": "Yes, the charged shot finished him"
   }
 }
