@@ -211,7 +211,7 @@
       "Remaining fortress branches, final Sigma/endings, complete stage/sublevel/exit coverage",
       "Independent music/SFX qualification"
     ],
-    "next_cross_title_priority": "X2 actual rocket ascent and boss-arena margins",
+    "next_cross_title_priority": "Focused X2 front/entrance follow-up, then remaining fortress/final routes and integration.",
     "shared_engine_regression": {
       "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
       "cases": [
@@ -222,6 +222,10 @@
       "right_boundary_update": {
         "engine": "7106efd183f9781000a4e3c2b2ab7b42f55a921e",
         "result": "X3 retains the default-zero room option. Byte right420 replay has identical complete presented pixels and128KiB WRAM versus the accepted owner build. Owner acceptance remains valid."
+      },
+      "canvas_policy_update": {
+        "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+        "result": "X3 retains default-off source-canvas and VRAM selection options. All sampled342px presented pixels and128KiB WRAM match the accepted owner build in Byte right420 and factory right+jump60/up300. Accepted owner checks remain complete."
       }
     }
   }
