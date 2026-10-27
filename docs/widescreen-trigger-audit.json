@@ -8,12 +8,11 @@
     ],
     "unverified": [
       "Bit human floor/exit follow-up (automatic checks pass)",
-      "Boss Rush exit/next-stage handoff: automated approach is unresolved in matched native256 and wide684; not a confirmed widescreen defect",
       "Kaiser final hit, lava escape and endings",
       "Remaining fortress branches/full content inventory/independent audio",
-      "Current-main integration and performance gate"
+      "Current-main built runtime/other-consumer gate; X3 final combined output/RAM checks passed"
     ],
-    "next_cross_title_priority": "Pending focused visuals, optional Kaiser/actual all-clear hub exit assistance, remaining fortress branches and integration.",
+    "next_cross_title_priority": "Four focused selector segments remain: pending Serges/Ostrich/final-arena visuals and optional Kaiser hit; no further hub assistance is needed. Other Lab2 branch and final integration/runtime remain.",
     "shared_engine_regression": {
       "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
       "cases": [
@@ -28,19 +27,68 @@
       "canvas_policy_update": {
         "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
         "result": "X3 retains default-off source-canvas and VRAM selection options. All sampled342px presented pixels and128KiB WRAM match the accepted owner build in Byte right420 and factory right+jump60/up300. Accepted owner checks remain complete."
+      },
+      "final_combined_current_title": {
+        "passed": true,
+        "game": "x3",
+        "title_code": "8a71e90abc20da46cb71bc6c6512a4d3e9c1f4dc",
+        "baseline_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+        "candidate_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+        "baseline_sha256": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+        "candidate_sha256": "d0d3cd444e65038b3ccd8daa817dbe70aa402b9c5fca88439a6602c137504260",
+        "comparison": "Complete presented output and128KiB WRAM at15-frame samples; specified controller input and health only. Corrected hub exit actually crosses door at all three widths.",
+        "cases": {
+          "byte": {
+            "passed": true,
+            "samples": 28
+          },
+          "factory": {
+            "passed": true,
+            "samples": 24
+          },
+          "god": {
+            "passed": true,
+            "samples": 8
+          },
+          "doppler": {
+            "passed": true,
+            "samples": 8
+          },
+          "press": {
+            "passed": true,
+            "samples": 8
+          },
+          "kaiser": {
+            "passed": true,
+            "samples": 8
+          },
+          "hub-exit": {
+            "passed": true,
+            "samples": 20
+          },
+          "hub-exit-256": {
+            "passed": true,
+            "samples": 20
+          },
+          "hub-exit-684": {
+            "passed": true,
+            "samples": 20
+          }
+        },
+        "performance": "Separate gate; compiler definitions establish both trace builds use AUDIO_TRACE_HISTORY=2 (FULL), despite earlier cache-based mismatch inference."
       }
     },
     "pending_visual": [
       "New final Sigma arena wall extension/head-wrap correction"
     ],
-    "bossrush": "All8 native transfers/real defeats/returns and cumulativeFF qualify on the final owner build in pure684, including causalHP1 checks; exit/handoff remains separate.",
-    "next_priority": "Authentic postintro/normal fortress selection context, Lab2 alternate encounters, Kaiser escape/ending, remaining content/audio and final integration/runtime checks."
+    "bossrush": "All8 transfers/real defeats/returns and cumulativeFF qualified on the retained ca0 build in pure684, with causalHP1 checks. Current339 preserves framing and sampled native rematch/hub output; no complete339 all8 replay is claimed. Exit/handoff remains separate.",
+    "next_priority": "Other Lab2 branch, Kaiser escape/ending, skipped traversal/full content/audio and final integration/runtime checks. Clean native fortress progression to stage13 and prerequisite-assisted hub exit are now qualified."
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
   "release_framework_pin": "f68aa0fe8edae75cbc7d4b9473c71687b45ce702",
   "framework_provenance": "Checkout tree identical to release pin",
-  "rom_sha256": "65b03268afac296330e8ff8d60dd0825879e13eded658b37713c034a3bd074f1d7",
+  "rom_sha256": "65b03268afac296330e8ff8d60dd0825879e13ed658b37713c034a3bd074f1d7",
   "presentation": [
     342,
     224
@@ -815,5 +863,48 @@
       "Use an authentically completed intro/normal selection baseline before further handoff claims; Lab2 alternate encounters, Kaiser hit/lava escape/ending, content/audio and final integration/runtime gate remain open."
     ],
     "owner_notes_preserved": true
+  },
+  "native_context_fortress_progress": {
+    "date": "2026-10-27",
+    "game_code": "8a71e90abc20da46cb71bc6c6512a4d3e9c1f4dc",
+    "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+    "executable_sha256": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+    "clean_context": "Native controller password and original stage select; no result/gear RAM writes",
+    "passed": [
+      "Reference password stage-select at342 and interpreter256; independent Snes9x64KiB VRAM matches",
+      "Current339 Press native32HP, idle survival after main/trunkHP1, actual shot defeats, nativecounter0->1",
+      "Original password -> stage select -> Lab2 stage14/counter1 without progression writes",
+      "Lab2 checkpoint2 first door/descent/second door, armor99 and on-foot Vile97/sub2 intro/AI/real defeats",
+      "Both Lab2 main forms start32HP and surviveHP1 idle before real damage",
+      "23 postfight B edges; original stage-clear/counter1->2 and password",
+      "Native Lab2 password/stage select enters stage12/counter2",
+      "All-clear prerequisite before original hub initialization clears cached door gate; actual right door opens into corridor",
+      "Doppler original door/intro, native32HP, causalHP1 idle check, real defeat and54 postfight B edges",
+      "Nativecounter2->3/password/stage select enters final stage13 with no new stage/counter/main-weapon writes",
+      "Player-assisted final approach triggers original Zero dialogue;18 B edges restore control"
+    ],
+    "bypasses": [
+      "Password supplies earlier progress/equipment",
+      "Original checkpoint3 for Press and checkpoint2 for Lab2 bypass preceding traversal/branch approach",
+      "Player immunity/health/aiming position and bossHP1; no result/control/camera writes",
+      "Earlier eight rematch results supplied before hub loader; earlier ca0 actual8-rematch proof remains separate",
+      "Player-only flight to upper hub door platform and through ordinary corridor obstacles"
+    ],
+    "limits": [
+      "Lab2 other branch remains unverified",
+      "These new combat runs are hybrid342; no new native256/684 combat claim",
+      "Raw early filenames say Volt; final aggregate corrects the branch to Vile",
+      "Native menus retain mode020001 while awaiting input; provisional hang diagnosis was disproved"
+    ],
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown",
+    "files": [
+      "x3-native-password-control-result.json",
+      "x3-native-context-press-clear.json",
+      "x3-native-context-lab2-clear.json",
+      "x3-native-context-hub-exit.json",
+      "x3-native-context-doppler-clear.json",
+      "x3-native-context-final-zero.json"
+    ],
+    "setup_correction": "39:A2D0 caches1FDA==FF into1F5F bit0 during hub init. LateFF leaves gate locked; correct prerequisite order naturally unlocks it. Door approach lands atY1119, not inside the platform. Optional human hub check retired; notes unchanged."
   }
 }

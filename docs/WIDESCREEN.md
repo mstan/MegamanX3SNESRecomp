@@ -259,8 +259,58 @@ and has the paired checks above. Private evidence lists all bypasses.
 
 Checkpoint2/3 selection bypasses Lab 1's original branch fork. Position
 assists bypass ordinary corridor obstacles before Doppler's real door.
-Normal fortress next-stage selection remains unverified: repeated Start
-after the password loads stage0, and restoring the native fortress entry
-marker alone did not resolve it. No game defect or speculative marker fix is
-claimed. An authentically completed intro/normal-selection baseline is the
-next setup investigation. Lab2 branches and Kaiser/escape/ending remain open.
+The earlier fixture did not qualify normal fortress next-stage selection.
+The clean native-context follow-up below supersedes that setup limitation;
+no speculative marker or progression fix was adopted.
+
+### Native fortress progression follow-up (2026-10-27)
+
+Controller-only password entry and original stage selection now provide a
+clean baseline with earlier progress and equipment initialized by the guest.
+The reference password reaches normal stage select in hybrid342 and pure
+native256. An independent Snes9x replay reaches the same screen with identical
+64 KiB VRAM; an unchanged menu mode is normal while awaiting input.
+
+On current33949e75, the original checkpoint3 loader preserves this native
+context and bypasses only Lab1 traversal/branch selection. Press starts at
+32 HP; the main/trunk survive idle at assisted1HP, then real shots destroy
+both. Original stage-clear, counter0->1, password, stage select and next
+laboratory selection pass without progression writes.
+
+The native selection chooses stage14's Vile branch. Checkpoint2 bypasses
+earlier traversal; right input then exercises the first door, descent, second
+door and armor introduction. Actor99's real defeat creates on-foot Vile
+actor97/sub2 at32HP. Each survives an idle check at1HP before real shots
+produce its native defeat. Twenty-three B edges finish the postfight script;
+the native stage-clear reaches counter1->2 and its password screen. Early
+private captures provisionally named this encounter Volt; the observed second
+form and corrected aggregate identify the Vile branch. Those filenames are
+historical evidence, not alternate boss coverage.
+
+The next native selection enters stage12/counter2. The all-clear hub fixture
+also now opens its real right door into the corridor. Original39:A2D0 caches
+`1FDA==FF` into door prerequisite `1F5F` bit0 at initialization: supplying FF
+after initialization leaves the cached gate locked. Reinitializing with the
+prerequisite already present naturally clears it. Player-only flight reaches
+the upper platform and native gravity lands atY1119 before real right input
+opens the door. The eight earlier rematch results are an explicit prerequisite
+bypass here, separate from the retained ca0 actual-eight-rematch proof.
+The optional human hub check is retired; owner notes remain unchanged.
+
+Position assists then bypass ordinary corridor obstacles before Doppler's
+original door. Native32HP, causal1HP idle check, real defeat and54 postfight
+B edges reach counter2->3. Password and normal stage selection now enter
+final stage13 without additional stage/counter/main-weapon writes. Its original
+Zero approach/dialogue also returns control after18 B edges.
+
+This adds current-build combat and normal progression evidence without
+claiming the skipped approaches or the other Lab2 branch. Kaiser/escape/ending
+and built-runtime/other-consumer qualification remain open.
+
+The final title code8a71 also passes paired checks on combined engine2cb versus
+ownera4: Byte420, factory360, God/Doppler/Press/Kaiser120 each, and the corrected
+hub exit300 at342, native256 and interpreter684. All144 samples preserve the
+complete presented image and128KiB WRAM; all three hub cases cross the door.
+Compiler definitions confirm both trace builds use FULL audio history despite
+the earlier cache-based SMALL/FULL inference. Performance remains a separate
+measurement gate; these functional comparisons establish no speed claim.
