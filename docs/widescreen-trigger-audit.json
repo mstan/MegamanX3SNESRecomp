@@ -211,6 +211,14 @@
       "Remaining fortress branches, final Sigma/endings, complete stage/sublevel/exit coverage",
       "Independent music/SFX qualification"
     ],
-    "next_cross_title_priority": "X2 actual rocket ascent and boss-arena margins"
+    "next_cross_title_priority": "X2 actual rocket ascent and boss-arena margins",
+    "shared_engine_regression": {
+      "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
+      "cases": [
+        "factory right+jump60 then up300",
+        "Byte entry right420"
+      ],
+      "result": "Full342px presented images and128KiB WRAM identical to prior accepted candidate throughout sampled replays. No owner repeat handoff."
+    }
   }
 }
