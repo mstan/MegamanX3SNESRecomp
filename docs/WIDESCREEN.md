@@ -231,3 +231,36 @@ entry120 preserve complete output and WRAM against the preceding build.
 Refreshed Kaiser and all-clear hub states each replay 120 frames identically
 after current-build save/load. This qualifies presentation; alternate branch
 selection, full Lab 1 combat and its following transition remain separate.
+
+### Godkarmachine and Doppler follow-up (2026-10-27)
+
+The lower Lab 1 checkpoint2 room and Doppler's real stage12 checkpoint2 end
+room have the same boundary problem. Their original locked bounds
+`1600/0700/0700/1600/1600` and `0a00/0400/0400/0a00/0a00` join Press and Sigma
+in one explicit descriptor table. All four use the existing wall compositor;
+ordinary corridors and native framing retain their previous policies.
+
+God/Doppler native256, hybrid342 and interpreter684 provide 48 paired samples
+with identical native-view pixels, full WRAM and all 64 KiB VRAM. Native entire
+output is identical. Byte420, factory360, Kaiser120, hub120, rematch entry120
+and Press120 preserve complete output/WRAM against the preceding build.
+The actual post-Doppler clear also reaches its password screen after 900
+frames with identical complete output/WRAM. Both current handoff states replay
+120 frames identically after save/load.
+
+Separate assisted combat runs now qualify live32HP Godkarmachine, Press
+Disposer and Doppler, actual projectile defeats after HP assistance, and
+native fortress counters `0->1` or `2->3`. God needs20 original dialogue
+edges to transform; Doppler needs54 before combat and54 after. Press's
+trunk and head are separate phases; aiming24 pixels above the parent origin
+finishes the head. These mechanics runs retain the exact preceding28f17ee
+binary identity; the new33949e75 executable adds only the presentation cases
+and has the paired checks above. Private evidence lists all bypasses.
+
+Checkpoint2/3 selection bypasses Lab 1's original branch fork. Position
+assists bypass ordinary corridor obstacles before Doppler's real door.
+Normal fortress next-stage selection remains unverified: repeated Start
+after the password loads stage0, and restoring the native fortress entry
+marker alone did not resolve it. No game defect or speculative marker fix is
+claimed. An authentically completed intro/normal-selection baseline is the
+next setup investigation. Lab2 branches and Kaiser/escape/ending remain open.

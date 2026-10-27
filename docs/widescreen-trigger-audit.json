@@ -33,7 +33,8 @@
     "pending_visual": [
       "New final Sigma arena wall extension/head-wrap correction"
     ],
-    "bossrush": "All8 native transfers/real defeats/returns and cumulativeFF qualify on the final owner build in pure684, including causalHP1 checks; exit/handoff remains separate."
+    "bossrush": "All8 native transfers/real defeats/returns and cumulativeFF qualify on the final owner build in pure684, including causalHP1 checks; exit/handoff remains separate.",
+    "next_priority": "Authentic postintro/normal fortress selection context, Lab2 alternate encounters, Kaiser escape/ending, remaining content/audio and final integration/runtime checks."
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -57,14 +58,13 @@
     {
       "sequence": "Powered factory elevator",
       "result": "Volt Catfish prerequisite supplied before native room setup. Riding/jumping on the elevator and native up input carried X from Y about 1696 to 887 without editing lift state."
-    }
-  ],
-  "partial_checks": [
+    },
     {
-      "sequence": "Lab 1 Godkarmachine branch",
-      "result": "Boss defeat and native fortress counter 1FAF increment observed; other branch/endings not qualified."
+      "sequence": "Godkarmachine, Press Disposer and Doppler combat/aftermath",
+      "result": "Live32HP originals, real projectile defeats after HP assistance, native1FAF0->1 or2->3. Separate checkpoint/position/prerequisite bypasses and unresolved normal next-stage selection are recorded in fortress_branch_followup."
     }
   ],
+  "partial_checks": [],
   "unverified": [
     "Bit corrected floor human confirmation and exit (automated landing/combat/exit checks pass; human exit deferred)",
     "Remaining fortress branches, final Sigma/endings, complete stage/sublevel/exit coverage",
@@ -738,5 +738,82 @@
     "remote_tracking": "Two normal central Beads pushes failed at their own remote-transfer deadlines. Local issue comments remain durable; no shared server interruption or timeout bypass.",
     "owner_notes_preserved": true,
     "previous_sha256": "ca0c6437beb75ca29af8cd7d2c12450408c7a63e77cb1503030e594652b0c415"
+  },
+  "fortress_branch_followup": {
+    "game_code": "8a71e90abc20da46cb71bc6c6512a4d3e9c1f4dc",
+    "runtime_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+    "generation_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+    "sha256": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+    "previous_sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+    "mechanics": [
+      {
+        "case": "god",
+        "enemy": 93,
+        "executable_sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-god-current-clear.json",
+        "passed": true
+      },
+      {
+        "case": "press",
+        "enemy": 90,
+        "executable_sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-press-current-clear.json",
+        "passed": true
+      },
+      {
+        "case": "doppler",
+        "enemy": 72,
+        "executable_sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-doppler-current-clear.json",
+        "passed": true
+      }
+    ],
+    "margin_matrix": [
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-god-native256.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-god-hybrid342.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-god-pure684.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-doppler-native256.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-doppler-hybrid342.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-doppler-pure684.json"
+    ],
+    "presentation": "Four explicit original locked-room descriptors share the existing Sigma BG1 wall-edge/BG2 containment policy: Press, Godkarmachine, Doppler and Sigma. No guest simulation or result changes.",
+    "presentation_evidence": "God/Doppler native256, hybrid342 and pure684:48 samples, each with exact native-view pixels,128KiB WRAM and64KiB VRAM. Native entire output unchanged.",
+    "regressions": [
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-byte.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-factory.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-kaiser.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-hub.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-rematch.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-press.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-password-reset.json"
+    ],
+    "lifecycle": "Native post-Doppler clear reaches the password screen after900frames; complete output and WRAM match the preceding executable.",
+    "states": {
+      "x3-kaiser-hit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\fortress-owner-states\\x3-kaiser-hit.sav",
+        "sha256": "1b4289e6feea678379a165f3eafdb54ddf70c8b876fb8f5873e30d3ab37b89fc",
+        "current_build_replay": {
+          "frames": 120,
+          "pixel_differences": 0,
+          "ram_differences": 0
+        }
+      },
+      "x3-bossrush-exit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\fortress-owner-states\\x3-bossrush-exit.sav",
+        "sha256": "d1d8e51af2afe8fa3eb87ba5c117769b0b1455dfcf4b967e3e467ccbe4233939",
+        "current_build_replay": {
+          "frames": 120,
+          "pixel_differences": 0,
+          "ram_differences": 0
+        }
+      }
+    },
+    "scope": "Full real-hit boss mechanics were replayed on preceding28f17ee; new33949e75 changes only room presentation. Current package has the paired scene, default/reset and current-build save/load checks above, not a falsely relabelled full-combat run.",
+    "remaining": [
+      "Original Lab1 branch selection is bypassed by separate checkpoint2/3 setups; complete combat/aftermath passes separately.",
+      "Natural hub door and normal fortress next-stage selection remain unverified. Repeated Start after the password loads stage0; restoring native1EBF=FF alone did not repair setup. No port defect asserted and no speculative marker repair adopted.",
+      "Use an authentically completed intro/normal selection baseline before further handoff claims; Lab2 alternate encounters, Kaiser hit/lava escape/ending, content/audio and final integration/runtime gate remain open."
+    ],
+    "owner_notes_preserved": true
   }
 }
