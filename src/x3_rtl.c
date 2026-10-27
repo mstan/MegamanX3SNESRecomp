@@ -295,15 +295,23 @@ void X3ConfigureWsBgMargins(void) {
    * so it must stay within the room rather than echo beyond the side walls.
    * These presentation fields reset each frame; the escape shaft keeps its
    * normal streaming policy as soon as the original bounds unlock. */
-  static const uint8_t sigma_bounds[10] = {
-      0x00,0x07,0x00,0x0a,0x00,0x0a,0x00,0x07,0x00,0x07};
-  static const uint8_t lab1_bounds[10] = {
-      0x00,0x16,0x00,0x06,0x00,0x06,0x00,0x16,0x00,0x16};
-  const bool fixed_arena =
-      (g_ram[0x1fae] == 13 &&
-       !memcmp(g_ram+0x1e68,sigma_bounds,sizeof(sigma_bounds))) ||
-      (g_ram[0x1fae] == 10 &&
-       !memcmp(g_ram+0x1e68,lab1_bounds,sizeof(lab1_bounds)));
+  static const struct {
+    uint8_t stage;
+    uint8_t bounds[10];
+  } fixed_arenas[] = {
+      {10, {0x00,0x16,0x00,0x06,0x00,0x06,0x00,0x16,0x00,0x16}}, /* Press */
+      {10, {0x00,0x16,0x00,0x07,0x00,0x07,0x00,0x16,0x00,0x16}}, /* Godkarmachine */
+      {12, {0x00,0x0a,0x00,0x04,0x00,0x04,0x00,0x0a,0x00,0x0a}}, /* Doppler */
+      {13, {0x00,0x07,0x00,0x0a,0x00,0x0a,0x00,0x07,0x00,0x07}}, /* Sigma */
+  };
+  bool fixed_arena = false;
+  for (size_t i = 0; i < sizeof(fixed_arenas)/sizeof(fixed_arenas[0]); ++i) {
+    if (g_ram[0x1fae] == fixed_arenas[i].stage &&
+        !memcmp(g_ram+0x1e68,fixed_arenas[i].bounds,sizeof(fixed_arenas[i].bounds))) {
+      fixed_arena = true;
+      break;
+    }
+  }
   if (g_ws_active && g_ppu && fixed_arena &&
       g_ram[0xd1] == 4 && (g_ppu->bgmode & 7) == 1 &&
       (g_ppu->bgXsc[0] & 0xfc) == 0x50 && (g_ppu->bgXsc[1] & 0xfc) == 0x58) {
