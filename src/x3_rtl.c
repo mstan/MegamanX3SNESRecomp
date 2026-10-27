@@ -310,6 +310,15 @@ void X3ConfigureWsBgMargins(void) {
  * $02: $D58A activation, $D611 visibility, and $D636 draw. Generated-code
  * overrides route only structurally confirmed camera-X add/limit pairs (and
  * camera-X/dp$05 triggers) through these helpers. Y windows are untouched. */
+/* Boss Rush stores unrelated arenas beside each other. Match X2's native
+ * framing for isolated rematches; the hub retains its complete wide layout.
+ * Hub teleports select checkpoints 3..8. Checkpoint 2 is the ordinary
+ * corridor after the hub and keeps its scrolling widescreen presentation. */
+bool X3UseNativeFrame(void) {
+  return g_ram[0x1fae] == 12 && g_ram[0xd1] == 4 &&
+         g_ram[0x1fb5] >= 3 && g_ram[0x1fb5] <= 8;
+}
+
 static int x3_ws_spawn_margin(void) {
   static int s_enabled = -1;
   if (s_enabled < 0) {

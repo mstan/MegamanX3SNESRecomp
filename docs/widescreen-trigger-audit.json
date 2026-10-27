@@ -8,11 +8,12 @@
     ],
     "unverified": [
       "Bit human floor/exit follow-up (automatic checks pass)",
+      "Boss Rush exit/next-stage handoff: automated approach is unresolved in matched native256 and wide684; not a confirmed widescreen defect",
       "Kaiser final hit, lava escape and endings",
       "Remaining fortress branches/full content inventory/independent audio",
       "Current-main integration and performance gate"
     ],
-    "next_cross_title_priority": "Focused new visuals/optional Kaiser hit, remaining fortress branches and integration.",
+    "next_cross_title_priority": "Pending focused visuals, optional Kaiser/actual all-clear hub exit assistance, remaining fortress branches and integration.",
     "shared_engine_regression": {
       "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
       "cases": [
@@ -31,7 +32,8 @@
     },
     "pending_visual": [
       "New final Sigma arena wall extension/head-wrap correction"
-    ]
+    ],
+    "bossrush": "All8 native transfers/real defeats/returns and cumulativeFF qualify; exit/handoff remains separate and unverified."
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -287,5 +289,111 @@
       "Boss HP reduction before real damage; no target success writes"
     ],
     "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown"
+  },
+  "native_bossrush_followup": {
+    "date": "2026-10-27",
+    "engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+    "native_mask": [
+      0,
+      2,
+      6,
+      7,
+      15,
+      31,
+      63,
+      127,
+      255
+    ],
+    "cases": [
+      {
+        "boss_id": 82,
+        "before": 0,
+        "after": 2,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rematch-gravity-real-defeat.json"
+      },
+      {
+        "boss_id": 87,
+        "before": 2,
+        "after": 6,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-upper-inner-right.json"
+      },
+      {
+        "boss_id": 83,
+        "before": 6,
+        "after": 7,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-upper-outer-left-fixed-y.json"
+      },
+      {
+        "boss_id": 86,
+        "before": 7,
+        "after": 15,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-upper-outer-right-fixed-y.json"
+      },
+      {
+        "boss_id": 88,
+        "before": 15,
+        "after": 31,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-lower-outer-left.json"
+      },
+      {
+        "boss_id": 89,
+        "before": 31,
+        "after": 63,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-lower-inner-left.json"
+      },
+      {
+        "boss_id": 85,
+        "before": 63,
+        "after": 127,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-lower-inner-right.json"
+      },
+      {
+        "boss_id": 84,
+        "before": 127,
+        "after": 255,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-lower-outer-right.json"
+      }
+    ],
+    "passed": [
+      "All8 native hub-pad transfers initialize a live original32HP Maverick",
+      "Each accepts real projectile damage after explicitHP1 assist; native defeat/return adds exactly one1FDA bit",
+      "Actual cumulative1FDA reachesFF; no rematch result/control/camera writes",
+      "After framing fix, isolated rooms present256px and native returns restore684px hub"
+    ],
+    "setup_findings": [
+      "Direct checkpoint8 is a Neon Tiger rematch, not Doppler; normal-loader warps omit native mode0E initialization and are excluded",
+      "Upper capsule caps are solid. Position assists target inside the cylinder rather than above its cap",
+      "Checkpoint2 is the scrolling corridor after the hub, not a packed rematch; native framing starts at3"
+    ],
+    "presentation_fix": "Reuse X2 native-frame policy only for stage12 isolated rematches3..8. Hub1, ordinary corridor2 and other stages keep adaptive width; eliminates unrelated adjacent arenas.",
+    "native_view": {
+      "non_hud_pixels": 0,
+      "player_camera_progression_differences": 0,
+      "maximum_full_wram_differences": 6,
+      "caveat": "Transient noncritical WRAM differences are retained; no full-WRAM equality claim for cross-width comparison",
+      "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-native-view.json"
+    },
+    "exact_default_resets": {
+      "x3-framing-hub-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-hub-reset.json",
+      "x3-framing-kaiser-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-kaiser-reset.json",
+      "x3-framing-corridor-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-corridor-reset.json"
+    },
+    "assists": [
+      "Initial original checkpoint1 hub setup with earlier weapon/progression eligibility supplied",
+      "Player position/HP, controller button edges and explicit bossHP1 before actual projectile hits",
+      "Width/build change after the first two rematches uses the retained native cumulative state; not an uninterrupted normal playthrough"
+    ],
+    "remaining": [
+      "Boss Rush exit/next-stage handoff: automated approach is unresolved in matched native256 and wide684; not a confirmed widescreen defect",
+      "Kaiser final hit/lava escape/ending, remaining fortress branches/content/audio and final integration/runtime gate"
+    ]
   }
 }

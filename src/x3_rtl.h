@@ -17,6 +17,7 @@ void X3ConfigureWsHud(void);
 
 /* Per-frame exact BG1/BG2 gutter fill, self-gated by native VRAM parity. */
 void X3ConfigureWsBgMargins(void);
+bool X3UseNativeFrame(void);
 
 /* LLE host execution cursor (resume PC + CpuState) — not covered by
  * snes_saveload, which snapshots the unused snes->cpu. */
