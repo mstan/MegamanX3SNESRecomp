@@ -1,5 +1,38 @@
 {
   "date": "2026-10-26",
+  "current_status": {
+    "accepted": [
+      "Byte floor/grab/recovery/exit",
+      "door face and opening/closing animation",
+      "factory background/pickup/lift/forms/escape"
+    ],
+    "unverified": [
+      "Bit human floor/exit follow-up (automatic checks pass)",
+      "Kaiser final hit, lava escape and endings",
+      "Remaining fortress branches/full content inventory/independent audio",
+      "Current-main integration and performance gate"
+    ],
+    "next_cross_title_priority": "Focused new visuals/optional Kaiser hit, remaining fortress branches and integration.",
+    "shared_engine_regression": {
+      "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
+      "cases": [
+        "factory right+jump60 then up300",
+        "Byte entry right420"
+      ],
+      "result": "Full342px presented images and128KiB WRAM identical to prior accepted candidate throughout sampled replays. No owner repeat handoff.",
+      "right_boundary_update": {
+        "engine": "7106efd183f9781000a4e3c2b2ab7b42f55a921e",
+        "result": "X3 retains the default-zero room option. Byte right420 replay has identical complete presented pixels and128KiB WRAM versus the accepted owner build. Owner acceptance remains valid."
+      },
+      "canvas_policy_update": {
+        "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+        "result": "X3 retains default-off source-canvas and VRAM selection options. All sampled342px presented pixels and128KiB WRAM match the accepted owner build in Byte right420 and factory right+jump60/up300. Accepted owner checks remain complete."
+      }
+    },
+    "pending_visual": [
+      "New final Sigma arena wall extension/head-wrap correction"
+    ]
+  },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
   "release_framework_pin": "f68aa0fe8edae75cbc7d4b9473c71687b45ce702",
@@ -200,33 +233,59 @@
     "validation": "Both exact prepared approach files replayed for 440 consecutive frames each at native256, hybrid342 and pure-interpreter684 (2640 frames). Correct cached asset fields and original-reference door CHR verified every frame; distinct moving-door poses retained. Fresh hybrid342 hunter landing/active-combat checks pass for both.",
     "owner_acceptance_message": "ok we're good. byte passes. doors pass. we're good on this front. what's left/next?"
   },
-  "current_status": {
-    "accepted": [
-      "Byte floor/grab/recovery/exit",
-      "door face and opening/closing animation",
-      "factory background/pickup/lift/forms/escape"
+  "fixed_arena_followup": {
+    "date": "2026-10-27",
+    "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+    "source_content_sha256": "39e9d34f8339e62b3cf4eb46e4977e621a57116195174c2b3ad356bd8c395aa7",
+    "binary_sha256": "8ad4bc2b43b29065124e39c0c6d007cf2832ffcf2e343b19a941fe1a9ea233d1",
+    "change": "Reuse the existing elastic compositor to continue only the outer BG1 wall-edge pixels; preserve the native room1:1 and contain BG2 object canvases within it. No actor, camera, physics, timing or outcome writes.",
+    "selection": "Only the authored fixed Sigma arena bounds, in its normal mode1 background maps. Bounds rather than live scroll retain the policy through camera shake; X2 retains it through final-clear fade. Ordinary scenes reset the frame-local policy.",
+    "validation": {
+      "cases": [
+        "x3-first-arena-342",
+        "x3-first-arena-684",
+        "x3-kaiser-arena-342",
+        "x3-kaiser-arena-684"
+      ],
+      "samples": "30 samples over360 frames per form/width at342 and interpreter684; all native pixels,128KiB WRAM and64KiB VRAM match the prior owner runtime",
+      "save_load": "All4 form/width cases: zero pixel and WRAM differences",
+      "lifecycle": "X2 original final clear and ending handoff: native pixels/WRAM match; ending full output matches. X3 accepted factory scene after arena: full output and WRAM match at684.",
+      "shake": "X2 genuine cameraX3587 while locked bounds remain3584 was rendered and inspected; no camera values injected."
+    },
+    "runtime": {
+      "status": "neutral/inconclusive",
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-arena-runtime.json",
+      "limit": "Short matched serial diagnostic headroom samples are mixed under host/disk load. They establish neither an optimization win nor a reproducible regression; current-main built-runtime gate remains ahead."
+    },
+    "owner_visual_acceptance": "Pending only these new final-arena visuals; prior accepted checks remain accepted.",
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown"
+  },
+  "final_route_followup": {
+    "date": "2026-10-27",
+    "route_presentation": "342px hybrid; the separate arena pixel/AI comparisons also cover684px pure interpreter",
+    "passed": [
+      "Native dash/jump approach reaches original Zero dialogue;17 B press/release pulses complete it and restore control",
+      "Original ladder/camera transitions and position-assisted shaft reach Sigma through its room initialization",
+      "Sigma intro/AI and real projectile defeat after HP1 assist create Kaiser; its introduction and live AI/parts initialize correctly"
     ],
     "unverified": [
-      "Bit corrected floor human confirmation and exit (automated landing/combat/exit checks pass; human exit deferred)",
-      "Remaining fortress branches, final Sigma/endings, complete stage/sublevel/exit coverage",
-      "Independent music/SFX qualification"
+      "Kaiser finishing hit",
+      "Lava escape and both ending branches"
     ],
-    "next_cross_title_priority": "Focused X2 front/entrance follow-up, then remaining fortress/final routes and integration.",
-    "shared_engine_regression": {
-      "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
-      "cases": [
-        "factory right+jump60 then up300",
-        "Byte entry right420"
-      ],
-      "result": "Full342px presented images and128KiB WRAM identical to prior accepted candidate throughout sampled replays. No owner repeat handoff.",
-      "right_boundary_update": {
-        "engine": "7106efd183f9781000a4e3c2b2ab7b42f55a921e",
-        "result": "X3 retains the default-zero room option. Byte right420 replay has identical complete presented pixels and128KiB WRAM versus the accepted owner build. Owner acceptance remains valid."
-      },
-      "canvas_policy_update": {
-        "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
-        "result": "X3 retains default-off source-canvas and VRAM selection options. All sampled342px presented pixels and128KiB WRAM match the accepted owner build in Byte right420 and factory right+jump60/up300. Accepted owner checks remain complete."
-      }
-    }
+    "automation_limit": "Normal aiming, charged aiming and a loadout/forehead reassessment did not finish Kaiser. X.Buster selected in original menu; boss remains alive at1HP. This is not evidence of a game defect.",
+    "prepared": "x3-kaiser-hit.sav starts before the finishing hit with a live1HP original Kaiser, original result flags untouched. Pause/save progress plus Capture retain a full current-build restart snapshot.",
+    "checkpoint_inventory": {
+      "table": "06:a8e4",
+      "slots": 15,
+      "records": 53,
+      "scope": "Directory includes intro/ending entries; this is an inventory, not completed coverage."
+    },
+    "assists": [
+      "Earlier Maverick weapon eligibility",
+      "Original full stage/checkpoint loader",
+      "Player health/position for shaft",
+      "Boss HP reduction before real damage; no target success writes"
+    ],
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown"
   }
 }
