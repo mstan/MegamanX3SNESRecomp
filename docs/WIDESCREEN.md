@@ -323,3 +323,28 @@ results within host variation are neutral/inconclusive. Separate earlier
 coverageON samples are retained and are not pooled. X2 has its own workload
 and results. Representative other-consumer/startup/memory qualification is
 still open; no aggregate optimization or release-speed claim is made.
+
+### Other Lab2 route and room boundaries (2026-10-27)
+
+The other native Lab2 selection now has separate coverage. The earlier Vile
+prerequisite is supplied before original stage selection; checkpoint2 bypasses
+the approach. Native256 and interpreter684 follow the same780-frame original
+door/descent/introduction timeline, create actor4A at32HP, and advance the native
+fortress counter1->2 after an assisted1HP idle check and a real shot. No current
+success, camera, control or other boss-part HP is written.
+
+This route revealed a512px room whose expanded margins exposed a neighboring
+corridor, black void and a wrapped BG2 boss copy. BG1 now reflects only beyond
+the authored room. A shared PPU clip band contains BG2 using BG1 actual scroll,
+retaining the real body in genuine offscreen room columns. It preserves native
+camera-shake pixels and clears with the normal frame-local presentation policy.
+
+Final758756b9 passes72 paired samples at256/342/684, centered and at both camera
+edges: every native/authored-room pixel,128KiB WRAM and64KiB VRAM matches339.
+The900-frame entrance probe compares rendered output and observes no correction
+while the entrance door is visible. The full-health entrance, real-shot clear
+and current-build save/load pass. Eight unrelated scenes preserve complete
+output and WRAM over112 paired samples, including accepted Byte/factory,
+God/Press/Doppler/Kaiser, the corrected hub exit and the other Vile route.
+These checks do not qualify skipped traversal, the Kaiser finishing hit,
+escape/ending, independent audio or the remaining human visuals.

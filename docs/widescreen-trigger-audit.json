@@ -12,7 +12,7 @@
       "Remaining fortress branches/full content inventory/independent audio",
       "Representative other-consumer/startup/memory gate; paired X2/X3 functional/current-save and short per-game runtime samples recorded"
     ],
-    "next_cross_title_priority": "Four focused selector segments remain: pending Serges/Ostrich/final-arena visuals and optional Kaiser hit; no further hub assistance is needed. Other Lab2 branch and final integration/runtime remain.",
+    "next_cross_title_priority": "Four focused selector segments remain: Serges front, Ostrich entrance and X2/X3 final-arena visuals plus optional Kaiser hit. Accepted scenes are not repeated.",
     "shared_engine_regression": {
       "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
       "cases": [
@@ -82,7 +82,7 @@
       "New final Sigma arena wall extension/head-wrap correction"
     ],
     "bossrush": "All8 transfers/real defeats/returns and cumulativeFF qualified on the retained ca0 build in pure684, with causalHP1 checks. Current339 preserves framing and sampled native rematch/hub output; no complete339 all8 replay is claimed. Exit/handoff remains separate.",
-    "next_priority": "Other Lab2 branch, Kaiser escape/ending, skipped traversal/content/audio and representative other-consumer/startup/memory qualification. Paired final-title X2/X3 functional/current-save and short per-game runtime evidence is recorded."
+    "next_priority": "Kaiser finishing hit/escape/ending, skipped traversal/content/audio and broader consumer/startup/memory qualification. Both Lab2 branches now have actual entrance/death/native-counter evidence."
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -987,5 +987,69 @@
       "Representative other-consumer/startup/memory gate"
     ],
     "promotion": "One current canonical owner binary per game remains unchanged on enginea4. No merge or release. Selector closed with four focused segments; optional hub assistance retired."
+  },
+  "lab2_alternate_world_clip_followup": {
+    "engine": "0e45123d068a082316b3db0d9007d30cb3015104",
+    "branch": "qa/widescreen-triggers-20261026",
+    "executable": "758756b94511a17ee55b825b39f150f2307a2fe137f6c332f431860e0c7ae5c4",
+    "baseline": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+    "stage": 11,
+    "checkpoint": 2,
+    "actor": 74,
+    "native_prerequisites": "Earlier Vile prerequisite supplied before original menu selection; native stage/counter are preserved. Original checkpoint2 skips prior traversal.",
+    "mechanics": {
+      "passed": true,
+      "original_intro_frames": 780,
+      "evidence": "x3-lab2-world-clip-final-mechanics-684.json",
+      "native_counter": "1->2 after main-only HP1 idle survival and a real shot; other part HP/results/camera/control untouched"
+    },
+    "width_mechanics": {
+      "evidence": "x3-lab2-alternate-width-matrix.json",
+      "scope": "Previous339: native256 and interpreter684 have identical28-sample critical entrance timeline, actual shot and native counter transition. Final758 repeats the684 mechanics."
+    },
+    "presentation": {
+      "passed": true,
+      "cases": 9,
+      "samples": 72,
+      "widths": [
+        256,
+        342,
+        684
+      ],
+      "evidence": "x3-lab2-world-clip-final-matrix.json",
+      "preserved": "All native and authored512px room pixels,128KiB WRAM,64KiB VRAM; changes only beyond room walls"
+    },
+    "door": {
+      "passed": true,
+      "frames": 900,
+      "samples": 150,
+      "last_door_visible_frame": 456,
+      "first_rendered_change_frame": 618,
+      "overlap_frames": [],
+      "evidence": "lab2-world-clip-door-overlap.json",
+      "method": "Actual presented output; ephemeral policy fields at frame boundary are not used as activation evidence"
+    },
+    "regressions": {
+      "passed": true,
+      "cases": 8,
+      "samples": 112,
+      "evidence": "x3-world-clip-regressions.json",
+      "preserved": "Full presented output and128KiB WRAM"
+    },
+    "current_build_save_load": {
+      "case": "x3-lab2-world-clip-final",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "engine_tests": "Five production PPU C fixtures and3 provider/extra-object Python tests pass. Rendered clip coverage includes4bpp/2bpp, large tiles, mosaic, changed reference phase, native camera shake, reset and invalid reference.",
+    "first_experiment": "BG1 reflection alone left a wrapped BG2 boss at edge pans; rejected. Source/status and raw plane diagnosis retained separately.",
+    "remaining": [
+      "Kaiser finishing hit, escape and endings",
+      "Skipped traversal/content inventory and independent audio",
+      "Four focused human visual checks",
+      "Combined/other-consumer qualification"
+    ],
+    "promotion": "Owner binaries and notes unchanged while combined validation and current-state refresh are prepared; no merge/release."
   }
 }
