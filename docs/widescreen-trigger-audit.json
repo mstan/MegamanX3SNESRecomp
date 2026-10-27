@@ -33,7 +33,7 @@
     "pending_visual": [
       "New final Sigma arena wall extension/head-wrap correction"
     ],
-    "bossrush": "All8 native transfers/real defeats/returns and cumulativeFF qualify; exit/handoff remains separate and unverified."
+    "bossrush": "All8 native transfers/real defeats/returns and cumulativeFF qualify on the final owner build in pure684, including causalHP1 checks; exit/handoff remains separate."
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -292,7 +292,7 @@
   },
   "native_bossrush_followup": {
     "date": "2026-10-27",
-    "engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+    "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
     "native_mask": [
       0,
       2,
@@ -305,6 +305,104 @@
       255
     ],
     "cases": [
+      {
+        "boss_id": 82,
+        "before": 0,
+        "after": 2,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-1.json"
+      },
+      {
+        "boss_id": 87,
+        "before": 2,
+        "after": 6,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-2.json"
+      },
+      {
+        "boss_id": 83,
+        "before": 6,
+        "after": 7,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-3.json"
+      },
+      {
+        "boss_id": 86,
+        "before": 7,
+        "after": 15,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-4.json"
+      },
+      {
+        "boss_id": 88,
+        "before": 15,
+        "after": 31,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-5.json"
+      },
+      {
+        "boss_id": 89,
+        "before": 31,
+        "after": 63,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-6.json"
+      },
+      {
+        "boss_id": 85,
+        "before": 63,
+        "after": 127,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-7.json"
+      },
+      {
+        "boss_id": 84,
+        "before": 127,
+        "after": 255,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-8.json"
+      }
+    ],
+    "passed": [
+      "All8 native hub-pad transfers initialize a live original32HP Maverick",
+      "Each accepts real projectile damage after explicitHP1 assist; native defeat/return adds exactly one1FDA bit",
+      "Actual cumulative1FDA reachesFF; no rematch result/control/camera writes",
+      "After framing fix, isolated rooms present256px and native returns restore684px hub"
+    ],
+    "setup_findings": [
+      "Direct checkpoint8 is a Neon Tiger rematch, not Doppler; normal-loader warps omit native mode0E initialization and are excluded",
+      "Upper capsule caps are solid. Position assists target inside the cylinder rather than above its cap",
+      "Checkpoint2 is the scrolling corridor after the hub, not a packed rematch; native framing starts at3"
+    ],
+    "presentation_fix": "Reuse X2 native-frame policy only for stage12 isolated rematches3..8. Hub1, ordinary corridor2 and other stages keep adaptive width; eliminates unrelated adjacent arenas.",
+    "native_view": {
+      "non_hud_pixels": 0,
+      "player_camera_progression_differences": 0,
+      "maximum_full_wram_differences": 6,
+      "caveat": "Transient noncritical WRAM differences are retained; no full-WRAM equality claim for cross-width comparison",
+      "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-native-view.json"
+    },
+    "exact_default_resets": {
+      "x3-framing-hub-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-hub-reset.json",
+      "x3-framing-kaiser-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-kaiser-reset.json",
+      "x3-framing-corridor-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-corridor-reset.json"
+    },
+    "assists": [
+      "Initial original checkpoint1 hub setup with earlier weapon/progression eligibility supplied",
+      "Player position/HP, controller button edges and explicit bossHP1 before actual projectile hits"
+    ],
+    "remaining": [
+      "Boss Rush exit/next-stage handoff: automated approach is unresolved in matched native256 and wide684; not a confirmed widescreen defect",
+      "Kaiser final hit/lava escape/ending, remaining fortress branches/content/audio and final integration/runtime gate"
+    ],
+    "initial_current_main_cases": [
       {
         "boss_id": 82,
         "before": 0,
@@ -362,38 +460,216 @@
         "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-lower-outer-right.json"
       }
     ],
-    "passed": [
-      "All8 native hub-pad transfers initialize a live original32HP Maverick",
-      "Each accepts real projectile damage after explicitHP1 assist; native defeat/return adds exactly one1FDA bit",
-      "Actual cumulative1FDA reachesFF; no rematch result/control/camera writes",
-      "After framing fix, isolated rooms present256px and native returns restore684px hub"
-    ],
-    "setup_findings": [
-      "Direct checkpoint8 is a Neon Tiger rematch, not Doppler; normal-loader warps omit native mode0E initialization and are excluded",
-      "Upper capsule caps are solid. Position assists target inside the cylinder rather than above its cap",
-      "Checkpoint2 is the scrolling corridor after the hub, not a packed rematch; native framing starts at3"
-    ],
-    "presentation_fix": "Reuse X2 native-frame policy only for stage12 isolated rematches3..8. Hub1, ordinary corridor2 and other stages keep adaptive width; eliminates unrelated adjacent arenas.",
-    "native_view": {
-      "non_hud_pixels": 0,
-      "player_camera_progression_differences": 0,
-      "maximum_full_wram_differences": 6,
-      "caveat": "Transient noncritical WRAM differences are retained; no full-WRAM equality claim for cross-width comparison",
-      "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-native-view.json"
+    "initial_current_main_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+    "final_owner_replay": {
+      "identity": {
+        "executable_sha256": "ca0c6437beb75ca29af8cd7d2c12450408c7a63e77cb1503030e594652b0c415",
+        "game_code": "49744236771845450ee42d20ad14294d4682fad6",
+        "runtime_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+        "generation_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+        "window": "2560x720",
+        "pure_interpreter": true
+      },
+      "cases": [
+        {
+          "boss_id": 82,
+          "before": 0,
+          "after": 2,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-1.json"
+        },
+        {
+          "boss_id": 87,
+          "before": 2,
+          "after": 6,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-2.json"
+        },
+        {
+          "boss_id": 83,
+          "before": 6,
+          "after": 7,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-3.json"
+        },
+        {
+          "boss_id": 86,
+          "before": 7,
+          "after": 15,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-4.json"
+        },
+        {
+          "boss_id": 88,
+          "before": 15,
+          "after": 31,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-5.json"
+        },
+        {
+          "boss_id": 89,
+          "before": 31,
+          "after": 63,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-6.json"
+        },
+        {
+          "boss_id": 85,
+          "before": 63,
+          "after": 127,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-7.json"
+        },
+        {
+          "boss_id": 84,
+          "before": 127,
+          "after": 255,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-8.json"
+        }
+      ],
+      "native_mask": [
+        0,
+        2,
+        6,
+        7,
+        15,
+        31,
+        63,
+        127,
+        255
+      ],
+      "interpretation": "One final owner executable in pure interpreter mode at2560x720 throughout all8 real hub transfers, live32HP encounters, reduced-HP actual projectile defeats and native returns. No result/control/camera writes.",
+      "causal_check": "Each assisted boss remains alive at1HP for3 no-shooting frames before actual controller fire."
     },
-    "exact_default_resets": {
-      "x3-framing-hub-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-hub-reset.json",
-      "x3-framing-kaiser-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-kaiser-reset.json",
-      "x3-framing-corridor-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-corridor-reset.json"
-    },
-    "assists": [
-      "Initial original checkpoint1 hub setup with earlier weapon/progression eligibility supplied",
-      "Player position/HP, controller button edges and explicit bossHP1 before actual projectile hits",
-      "Width/build change after the first two rematches uses the retained native cumulative state; not an uninterrupted normal playthrough"
-    ],
-    "remaining": [
-      "Boss Rush exit/next-stage handoff: automated approach is unresolved in matched native256 and wide684; not a confirmed widescreen defect",
-      "Kaiser final hit/lava escape/ending, remaining fortress branches/content/audio and final integration/runtime gate"
-    ]
+    "historical_pilot": "Initial current-main pilot changed width/build after the first2 rematches; final owner replay above repeats all8 in one executable/configuration.",
+    "owner_pin_followup": {
+      "game_code": "49744236771845450ee42d20ad14294d4682fad6",
+      "runtime_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+      "generation_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+      "sha256": "ca0c6437beb75ca29af8cd7d2c12450408c7a63e77cb1503030e594652b0c415",
+      "previous_sha256": "8ad4bc2b43b29065124e39c0c6d007cf2832ffcf2e343b19a941fe1a9ea233d1",
+      "passed": [
+        "Native256 rematches with adaptive342/684 hub and ordinary corridor",
+        "Accepted Byte420/factory360 and Kaiser120 whole images/all128KiB WRAM unchanged",
+        "Current-build hub/rematch save-load has0pixel/WRAM differences"
+      ],
+      "states": {
+        "x3-kaiser-hit": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\rematch-owner-states\\x3-kaiser-hit.sav",
+          "sha256": "558e9ef6f64639cfd6d22438adad9b6a5ff9d7c5064c6c96d297818678bc9b93",
+          "info": {
+            "frame": 11489,
+            "mode": "020404000000000e",
+            "stage": "000d0300000000020001",
+            "player": "000200023e410780",
+            "x": 1857,
+            "y": 2735,
+            "hp": 16,
+            "camera": [
+              1792,
+              2560
+            ],
+            "bounds": "0007000a000a00070007f8ff00000000000a0007",
+            "event": "00000000000000000000000000000000000000000000000003000103000000580d0000040000000000000000000000001811000000000000000100000000000000000000480033010200010090000000"
+          },
+          "actors": [
+            {
+              "dp": 3352,
+              "state": "01020000",
+              "id": 2,
+              "sub": 5,
+              "x": 1920,
+              "y": 2624,
+              "hp": 0
+            },
+            {
+              "dp": 3416,
+              "state": "01020006",
+              "id": 95,
+              "sub": 8,
+              "x": 1970,
+              "y": 2623,
+              "hp": 1
+            },
+            {
+              "dp": 3480,
+              "state": "01020000",
+              "id": 68,
+              "sub": 4,
+              "x": 1970,
+              "y": 2623,
+              "hp": 127
+            },
+            {
+              "dp": 3544,
+              "state": "01020000",
+              "id": 68,
+              "sub": 0,
+              "x": 1970,
+              "y": 2623,
+              "hp": 127
+            },
+            {
+              "dp": 3608,
+              "state": "01020000",
+              "id": 68,
+              "sub": 2,
+              "x": 1970,
+              "y": 2623,
+              "hp": 127
+            },
+            {
+              "dp": 4888,
+              "state": "41020000",
+              "id": 45,
+              "sub": 0,
+              "x": 1996,
+              "y": 2716,
+              "hp": 8
+            }
+          ]
+        },
+        "x3-bossrush-exit": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\rematch-owner-states\\x3-bossrush-exit.sav",
+          "sha256": "d5bdae1ae862836d266b0c363f462f3e2f732fe94e6cf25fc7413ec1132997e8",
+          "info": {
+            "frame": 18070,
+            "mode": "0204040000000004",
+            "stage": "000c0200000000020101",
+            "player": "0002000200700300",
+            "x": 880,
+            "y": 1103,
+            "hp": 16,
+            "camera": [
+              752,
+              1024
+            ],
+            "bounds": "00040004000500020004f8ff000000000004f002",
+            "event": "0000000000000000000000000000000000000000000000000100000300000000000000040000000000000000000000000000000000000000000100000000000000000000000000000000000000000000"
+          },
+          "actors": [
+            {
+              "dp": 3352,
+              "state": "01020000",
+              "id": 101,
+              "sub": 0,
+              "x": 880,
+              "y": 1151,
+              "hp": 64
+            }
+          ]
+        }
+      },
+      "launch": "Left closed; normal window/audio and existing controller settings, owner notes and native saves preserved"
+    }
   }
 }
