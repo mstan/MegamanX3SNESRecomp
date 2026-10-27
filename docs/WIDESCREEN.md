@@ -440,3 +440,26 @@ are written. This closes the assisted alternate-rescue check, while the real
 Kaiser finishing hit, ordinary physical escape, earlier Zero-loss/fresh-stage
 loading and remaining content/human checks retain their separate limits.
 See `alternate_rescue_followup` for the exact prerequisite and raw evidence.
+
+### Maoh object canvas and shared presentation follow-up (2026-10-27)
+
+Maoh uses BG1 for its roof, BG2 for a moving boss canvas and BG3 for the city.
+The scoped stage0 policy keeps live boss tiles, hides unrelated circular-map
+cells, widens the genuine skyline and repeats only32px world-edge strips
+beyond the combat roof. Real in-room damage remains; outer margins no longer
+reflect another door, boss or destroyed floor. Codee5e5f15 pins engine05786e5.
+
+Build10994be1 passes fresh opening, original full32HP introduction, assisted
+real projectile defeat, native clear/stage-select and controller next-stage
+load at256/default,342/default and684/interpreter. All93 sampled native
+pictures/WRAM/VRAM/OAM agree with3435; six current live/selection replays
+match exactly. Connecting travel and HP1/aiming assists remain explicit.
+
+The shared X2/X3 package passes188 full-output/128KiB WRAM regression
+samples, non-silent PCM/full SPC/APU comparisons, and all four prepared
+states’ save/load and Pause/Capture/restart checks. Accepted Byte/doors/
+factory observations remain closed. Per-game timing samples are small
+and mixed: neutral/inconclusive, without a speed claim. Actual trace is
+FULL in these diagnostic builds despite the SMALL cache request.
+Remaining human/content/branch/audio gaps are unchanged; see
+`maoh_object_canvas_followup` for precise identities and bypasses.

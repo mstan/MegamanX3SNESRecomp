@@ -94,7 +94,13 @@
       "owner_data_unchanged": true
     },
     "new_main_automated_gate": "Passed for current X2/X3: full images/WRAM, scalar/native game PCM+SPC, current save/Capture and matched runtime/startup/memory. Human/content/ending and broader-consumer caveats remain.",
-    "latest_native_final": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-qualification.json"
+    "latest_native_final": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-qualification.json",
+    "current_package": {
+      "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440",
+      "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-qualification.json",
+      "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-publication.json"
+    }
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -1782,5 +1788,367 @@
     "owner_data_unchanged": true,
     "owner_visual_review": "Same four segments pending; no new owner game launch or replay request",
     "implementation": "No code, engine, generated files, binaries or prepared owner states changed"
+  },
+  "maoh_object_canvas_followup": {
+    "date": "2026-10-27T21:24:18.738050+00:00",
+    "passed": true,
+    "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440",
+    "compiled_engine": "162783ecfbbb3db6e19e4ad240efe8b8a9e3deac",
+    "engine_tree": "a4cf0a18ebcf70a8f83299a06648f128db533519",
+    "game_code": "e5e5f15abebdde2515159ed139bcdfe073fc6c9d",
+    "x2_pin_commit": "83eee195ac258adf44a631265910de8d53a6145d",
+    "x2_title_code": "73936500f792d99cea5eeb1e27d2238797b1c00d",
+    "ui": "0546fbcb0126bb14bf88d2128b4fe8a4229570a3",
+    "compiled_source": {
+      "path": "src/x3_rtl.c",
+      "sha256": "101d0fd66208b721bbb53f0c05b865cbb8bdee5eb58a2ac6dd8fe02bf7b01be1",
+      "note": "Compiled working source is byte-identical to committed game codee5e5f15; later docs do not change it."
+    },
+    "identities": {
+      "x2": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+      "x3": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1"
+    },
+    "binaries": {
+      "x2": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-filter-x2\\MegaManX2SNESRecomp.exe",
+      "x3": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-clamp-x3\\MegaManX3SNESRecomp.exe"
+    },
+    "baseline": {
+      "x3": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+      "old3": "3435c01797d24e26591b6ee093b2b444f54cf5e59b12472bc63a8fe1fe6d6d4a",
+      "x2": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+      "old2": "58982242f20e1a761fa78aae07eecc0937890788c9e727cfe9ebf147dbd82cb2"
+    },
+    "defect": "Maoh exposes stale BG2 map cells and a truncated skyline/roof at very wide widths. Whole-roof reflection also copies live destroyed floor beyond the combat room.",
+    "change": "Scoped original stage0 introduction/fight: exact live BG2 boss-character filter plus existing world clip, genuine BG3 skyline, BG1 world-edge32px strip continuation. Native and authored room pixels/damage stay intact; no duplicate door/boss/pit outside the arena. No guest writes.",
+    "maoh": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-maoh-package-qualification.json",
+      "widths": {
+        "256": {
+          "passed": true,
+          "pure_interpreter": false,
+          "entry_samples": 15,
+          "fight_samples": 16,
+          "real_hit": true,
+          "clear_pulses": 40,
+          "next_stage": "00020000000000020001",
+          "live_save_replay": {
+            "case": "maoh-package-256-live",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "stage_select_save_replay": {
+            "case": "maoh-package-256-stage-select",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        },
+        "342": {
+          "passed": true,
+          "pure_interpreter": false,
+          "entry_samples": 15,
+          "fight_samples": 16,
+          "real_hit": true,
+          "clear_pulses": 40,
+          "next_stage": "00020000000000020001",
+          "live_save_replay": {
+            "case": "maoh-package-342-live",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "stage_select_save_replay": {
+            "case": "maoh-package-342-stage-select",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        },
+        "684": {
+          "passed": true,
+          "pure_interpreter": true,
+          "entry_samples": 15,
+          "fight_samples": 16,
+          "real_hit": true,
+          "clear_pulses": 40,
+          "next_stage": "00020000000000020001",
+          "live_save_replay": {
+            "case": "maoh-package-684-live",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "stage_select_save_replay": {
+            "case": "maoh-package-684-stage-select",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        }
+      },
+      "scope": "Fresh opening, original Maoh introduction/full32HP, real assisted finishing hit, authentic clear/stage-select and controller next-Maverick loading at256/default,342/default,684/interpreter. Saved travel setup bypassed; not whole-stage natural traversal or a full-game audit.",
+      "assists": "Fresh controller-only opening. Original-route saved travel setup and one pre-door Y alignment bypass connecting traversal. MainHP1 before idle survival/real fire and player position/health while aiming only. No RAM writes after real hit through clear/selection/next stage; no camera/AI/control/current-result/progression writes."
+    },
+    "regression": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-regressions.json",
+      "cases": {
+        "x3-byte": {
+          "passed": true,
+          "samples": 28
+        },
+        "x3-factory": {
+          "passed": true,
+          "samples": 24
+        },
+        "x3-press": {
+          "passed": true,
+          "samples": 8
+        },
+        "x3-kaiser": {
+          "passed": true,
+          "samples": 8
+        },
+        "x3-hub-exit": {
+          "passed": true,
+          "samples": 20
+        },
+        "x3-epilogue": {
+          "passed": true,
+          "samples": 20
+        },
+        "x2-serges": {
+          "passed": true,
+          "samples": 16
+        },
+        "x2-rocket": {
+          "passed": true,
+          "samples": 16
+        },
+        "x2-sigma": {
+          "passed": true,
+          "samples": 8
+        },
+        "x3-lab2": {
+          "passed": true,
+          "samples": 24
+        },
+        "x2-ostrich": {
+          "passed": true,
+          "samples": 16
+        }
+      },
+      "samples": 188,
+      "scope": "Whole output/128KiB WRAM match current frozen owner builds in representative accepted and pending scenes; declared health/control only. No new owner visual acceptance or full-stage traversal claim."
+    },
+    "current_handoff": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-handoff-verification.json",
+      "states": {
+        "x2-serges": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-owner-states\\x2-serges.sav",
+          "sha256": "a55fbea975cfecdf623f37c090f68f37836d4b310e91a136bfe1b3ab10a5c8d0",
+          "binary": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+          "replay": {
+            "case": "maoh-package-owner-x2-serges",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "capture": {
+            "passed": true,
+            "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-capture-check\\review-captures\\maoh-package-owner-x2-serges-20261027-141512-141881.png",
+            "metadata_errors": {},
+            "replay": {
+              "case": "maoh-package-owner-x2-serges-capture",
+              "ram_difference": 0,
+              "pixel_difference": 0,
+              "passed": true
+            },
+            "progress": {
+              "format": "codex-review-progress-v1",
+              "slot": 1,
+              "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-filter-x2\\saves\\save1.sav",
+              "sha256": "0978fd6461b2c6dd7a0fb4eca59d3f3f5a0e85521981f697bd557e647c8ff0be",
+              "frame": 3097,
+              "tag": {
+                "segment": "maoh-package-owner-x2-serges",
+                "binary_sha256": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+                "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440"
+              },
+              "utc": "2026-10-27T21:15:12.140326+00:00"
+            }
+          }
+        },
+        "x2-ostrich-entry": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-owner-states\\x2-ostrich-entry.sav",
+          "sha256": "8d7fca6bca3eb6a4216a43b818ad56e44d0e6f304bbaaf205864aa3aa49fd13a",
+          "binary": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+          "replay": {
+            "case": "maoh-package-owner-x2-ostrich-entry",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "capture": {
+            "passed": true,
+            "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-capture-check\\review-captures\\maoh-package-owner-x2-ostrich-entry-20261027-141516-229073.png",
+            "metadata_errors": {},
+            "replay": {
+              "case": "maoh-package-owner-x2-ostrich-entry-capture",
+              "ram_difference": 0,
+              "pixel_difference": 0,
+              "passed": true
+            },
+            "progress": {
+              "format": "codex-review-progress-v1",
+              "slot": 1,
+              "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-filter-x2\\saves\\save1.sav",
+              "sha256": "db5198151aa02d447f80ec9ec6a3abba2cf0b4d35460cb046593d18b3768a98e",
+              "frame": 4917,
+              "tag": {
+                "segment": "maoh-package-owner-x2-ostrich-entry",
+                "binary_sha256": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+                "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440"
+              },
+              "utc": "2026-10-27T21:15:16.228031+00:00"
+            }
+          }
+        },
+        "x2-sigma-walls": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-owner-states\\x2-sigma-walls.sav",
+          "sha256": "997deda0df99ba0af2d6c8cc1dbead64446f7081999b6aea3d7c92c7d89be8aa",
+          "binary": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+          "replay": {
+            "case": "maoh-package-owner-x2-sigma-walls",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "capture": {
+            "passed": true,
+            "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-capture-check\\review-captures\\maoh-package-owner-x2-sigma-walls-20261027-141520-284226.png",
+            "metadata_errors": {},
+            "replay": {
+              "case": "maoh-package-owner-x2-sigma-walls-capture",
+              "ram_difference": 0,
+              "pixel_difference": 0,
+              "passed": true
+            },
+            "progress": {
+              "format": "codex-review-progress-v1",
+              "slot": 1,
+              "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-filter-x2\\saves\\save1.sav",
+              "sha256": "508aca6258ad656406271a1096540fd362e6ef3c076f2c8b7e8fd33367b7bebc",
+              "frame": 30235,
+              "tag": {
+                "segment": "maoh-package-owner-x2-sigma-walls",
+                "binary_sha256": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+                "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440"
+              },
+              "utc": "2026-10-27T21:15:20.283707+00:00"
+            }
+          }
+        },
+        "x3-kaiser-hit": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-owner-states\\x3-kaiser-hit.sav",
+          "sha256": "2bdd00a5b92773114694df7bd4cf8a1f27b9502af33e53327a63d4aed248cea1",
+          "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+          "replay": {
+            "case": "maoh-package-owner-x3-kaiser-hit",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "capture": {
+            "passed": true,
+            "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-capture-check\\review-captures\\maoh-package-owner-x3-kaiser-hit-20261027-141524-305988.png",
+            "metadata_errors": {},
+            "replay": {
+              "case": "maoh-package-owner-x3-kaiser-hit-capture",
+              "ram_difference": 0,
+              "pixel_difference": 0,
+              "passed": true
+            },
+            "progress": {
+              "format": "codex-review-progress-v1",
+              "slot": 1,
+              "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-clamp-x3\\saves\\save1.sav",
+              "sha256": "ee60bc714330fe882cf705702da712cea16aa381cc1026b9359ab3185b00806a",
+              "frame": 11509,
+              "tag": {
+                "segment": "maoh-package-owner-x3-kaiser-hit",
+                "binary_sha256": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+                "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440"
+              },
+              "utc": "2026-10-27T21:15:24.305468+00:00"
+            }
+          }
+        }
+      },
+      "scope": "Same four existing segments; player health/current full snapshots only. Kaiser remains alive1HP. No outcome writes or owner launch."
+    },
+    "audio": {
+      "x2": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-audio-x2.json",
+        "passed": true,
+        "scope": "Actual non-silent PCM, full SPC/ARAM/DSP/APU and WRAM match the current frozen owner engine009/NATIVE-APU package. New engine057 changes presentation only. Not independent original-game music/SFX correctness."
+      },
+      "x3": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-audio-x3.json",
+        "passed": true,
+        "scope": "Actual non-silent PCM, full SPC/ARAM/DSP/APU and WRAM match the current frozen owner engine009/NATIVE-APU package. New engine057 changes presentation only. Not independent original-game music/SFX correctness."
+      }
+    },
+    "runtime": {
+      "x2-default": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-cost-x2-default.json",
+        "median_time_change_percent": 1.5533253805994907,
+        "range_percent": [
+          -2.323784461839007,
+          4.358531713722669
+        ],
+        "classification": "neutral/inconclusive: small mixed samples on a busy shared host, not a proven win/regression",
+        "minimum_candidate_fps": 221.35067444226442
+      },
+      "x3-default": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-cost-x3-default.json",
+        "median_time_change_percent": 3.0261839572331417,
+        "range_percent": [
+          -0.8720543983877005,
+          4.370754555707768
+        ],
+        "classification": "neutral/inconclusive: small mixed samples on a busy shared host, not a proven win/regression",
+        "minimum_candidate_fps": 194.69049807919438
+      },
+      "x3-maoh-684": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-cost-x3-maoh-684.json",
+        "median_time_change_percent": 1.558962903296135,
+        "range_percent": [
+          -8.390596924800187,
+          11.370765520505199
+        ],
+        "classification": "neutral/inconclusive: small mixed samples on a busy shared host, not a proven win/regression",
+        "minimum_candidate_fps": 146.89372110919726
+      }
+    },
+    "settings": "Release software/dummy QA, native APU time,SLICE8 CRC,coverageOFF. FULL audio trace is the actual compiler value2 forced by TRACE=1; SMALL cache request is not the effective profile. Default342 plus forced-interpreter684 checks. Owner normal audio/window settings are preserved.",
+    "unit_tests": [
+      "Live filtered-VRAM provider/native/fine-scroll/8-16px/history/lifecycle",
+      "World mirror/clip/edge-repeat production pixels,8-16px/mosaic/2-4bpp/684/native/shake/damage/reset/source limits",
+      "Elastic bands",
+      "Raster journal",
+      "Sprite limits",
+      "HD Mode7"
+    ],
+    "storage": "One private candidate per game and frozen former owner baselines outside delivery folders; small full states/PNG/RAM/JSON/PCM/SPC and unit/build evidence retained. Duplicate private BMP cleanup follows.",
+    "promotion": "One current executable per owner title, verified replacement/current-build states; settings/native saves/notes/acceptance preserved. Frozen previous binaries remain private evidence. No merge/release.",
+    "remaining": [
+      "Four individual owner visuals/optional actual Kaiser hit",
+      "Bit human floor/exit deferred; automated checks pass",
+      "Full capture/rescue width matrix, remaining stage/branch/exit coverage, independent original-game music/SFX",
+      "Ordinary physical escape and earlier actual Zero loss/fresh-stage rescue branch",
+      "Broader engine consumer follow-up; old and new package measurements retain exact identities"
+    ],
+    "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-publication.json"
   }
 }
