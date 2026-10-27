@@ -381,3 +381,24 @@ renderer proofs keep their original binary identities. The four pending
 human checks are unchanged; accepted Byte/doors/factory checks are preserved.
 Kaiser finishing hit/escape/ending, skipped content/independent audio and
 broader-consumer follow-up remain open. Exact data is in `new_main_qualification`.
+
+### Native final-room trigger qualification (2026-10-27)
+
+On current c3d20fc6, the clean native fortress route now reaches the
+original upper-room cue, full32HP Sigma introduction, real projectile
+defeat and full32HP Kaiser introduction/control return. Native256/default
+and684/interpreter repeats pass the same cues; introductions take22 and36
+B pulses respectively. Combat hit timing is not asserted equal.
+
+Actual ladder grabs/climbs and connector traversal work. Position-only
+alignment and flight bypass ordinary shaft/wall-jump traversal; main
+Sigma HP1 survives idle before the real hit. No camera, AI, progression
+or result flags are written. The hit changes a mutable parameter byte;
+stable actor-slot/id proves HP0/primary04 and corrects a false helper
+failure. Original raw output and excluded setup experiments are retained.
+
+Current Kaiser save/load and Pause/Capture/restart are exact in full
+pixels and128KiB WRAM. Captures now include actual generated-CPU
+registers. Kaiser finishing hit, escape and endings remain unverified;
+the existing optional human segment remains available. See
+`native_final_qualification` in the audit JSON for assists and evidence.

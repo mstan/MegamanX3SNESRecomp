@@ -93,7 +93,8 @@
       "source": "new_main_qualification",
       "owner_data_unchanged": true
     },
-    "new_main_automated_gate": "Passed for current X2/X3: full images/WRAM, scalar/native game PCM+SPC, current save/Capture and matched runtime/startup/memory. Human/content/ending and broader-consumer caveats remain."
+    "new_main_automated_gate": "Passed for current X2/X3: full images/WRAM, scalar/native game PCM+SPC, current save/Capture and matched runtime/startup/memory. Human/content/ending and broader-consumer caveats remain.",
+    "latest_native_final": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-qualification.json"
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -1332,5 +1333,123 @@
         }
       }
     }
+  },
+  "native_final_qualification": {
+    "date": "2026-10-27T17:38:20.735565+00:00",
+    "binary": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+    "title_code": "a0142c8e13f1f2e4c526784955654356faecbe92",
+    "reviewed_engine": "0095609940bc3a304da8c70f2dcab79264bbb8ab",
+    "compiled_engine": "e772aca74d06cef9435df2f34cda1689329b19c4",
+    "prior_context": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-context-progress-summary.json",
+    "passed": [
+      "First ladder catches with actual Up+B; original climb/camera transition works.",
+      "X-only alignment to the second ladder, long Up+B then Up reaches its top; actual right input traverses connector and opens native shaft camera bounds.",
+      "Player-only upper-shaft flight crosses the authored room cue, starts original actor02/sub5, camera lock and Sigma introduction.",
+      "Native32HP Sigma returns control, survives main-only HP1 idle assist, then a real shot gives same actor slot/id HP0/primary04.",
+      "Original post-Sigma script allocates32HP Kaiser and all parts, completes dialogue/introduction and returns control.",
+      "Native256/default and684/pure-interpreter repeats pass original entry,32HP Sigma, real defeat and32HP Kaiser/control return.",
+      "Current342 Kaiser full-state replay and Pause/Capture/restart have zero full-image/128KiB WRAM differences; capture includes actual get_v2_cpu registers.",
+      "Optional current342 Kaiser main-only HP1 survives idle and full-state120frame replay exactly."
+    ],
+    "bypasses": [
+      "Earlier password/equipment and eight-rematch eligibility supplied before native initialization; prior actual eight-fight proof is separate.",
+      "Position-only alignment and flight bypass shaft wall-jump/ordinary traversal; physical upper-door traversal is not claimed.",
+      "Player health/immunity/aiming position and Sigma main HP1; no camera, AI, encounter-control, progression or result flags written."
+    ],
+    "widths": {
+      "256": {
+        "execution": "default hybrid",
+        "sigma_intro_pulses": 22,
+        "kaiser_intro_pulses": 36,
+        "real_sigma_defeat": true
+      },
+      "684": {
+        "execution": "pure interpreter",
+        "sigma_intro_pulses": 22,
+        "kaiser_intro_pulses": 36,
+        "real_sigma_defeat": true
+      }
+    },
+    "timing_scope": "Both width repeats need22 original-intro B pulses and36 post-defeat Kaiser pulses. Combat damage lands on different fire cycles; no exact combat timing, full cross-width RAM or image equality claim.",
+    "identity_correction": {
+      "original_reported_passed": false,
+      "reason": "Mutable parameter byte changed0->8 on real hit; same actor slot/id has HP0/nativeprimary04.",
+      "after": {
+        "dp": 3416,
+        "state": "01040000",
+        "id": 94,
+        "sub": 8,
+        "x": 2000,
+        "y": 2720,
+        "hp": 0
+      },
+      "original_record": "x3-native-final-sigma-real-hit-legacy-parameter-check.json"
+    },
+    "current_states": {
+      "x3-native-final-before-upper-door.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-before-upper-door.sav",
+        "sha256": "800d195488bb730f043d249703c1ec887ed37e405cbda2ceac3a70c88b28dcb7"
+      },
+      "x3-native-final-sigma-live32.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-sigma-live32.sav",
+        "sha256": "a568d13e4260663edf571877f7ceef37835c803d6313c813ffc806390bb3392e"
+      },
+      "x3-native-final-sigma-actual-hit.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-sigma-actual-hit.sav",
+        "sha256": "d52703dfad34052fa058c5cb6aa5a75e51f5b77159ec14c94240c900d79d9571"
+      },
+      "x3-native-final-kaiser-live32.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-kaiser-live32.sav",
+        "sha256": "2f73aaf8d160e71374afadf91ab281c060a319f2ef3a7dca3a819812fe4968f0"
+      },
+      "x3-native-final-kaiser-live1.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-kaiser-live1.sav",
+        "sha256": "ef429e4acc562a2491b43b2ef4e632d101e9052ec6add890185d1485af122e87"
+      }
+    },
+    "current_build_capture": {
+      "passed": true,
+      "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-capture-check\\review-captures\\x3-native-final-kaiser-live32-20261027-103417-801277.png",
+      "metadata_errors": {},
+      "replay": {
+        "case": "x3-native-final-kaiser-live32-capture",
+        "ram_difference": 0,
+        "pixel_difference": 0,
+        "passed": true
+      },
+      "progress": {
+        "format": "codex-review-progress-v1",
+        "slot": 1,
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3\\saves\\save1.sav",
+        "sha256": "8f6b52331bb97ec312a7908560083e89b024b10e73409459a4297cf8cf0014ab",
+        "frame": 40583,
+        "tag": {
+          "segment": "x3-native-final-kaiser-live32",
+          "binary_sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+          "engine": "e772aca74d06cef9435df2f34cda1689329b19c4"
+        },
+        "utc": "2026-10-27T17:34:17.799720+00:00"
+      }
+    },
+    "current_build_live1_replay": {
+      "case": "x3-native-final-kaiser-live1",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "remaining": [
+      "Kaiser finishing hit, lava escape and endings",
+      "Four individual pending human visuals; Bit human floor/exit is separately deferred",
+      "Skipped traversal/content inventory and independent original-game audio",
+      "Broader consumer follow-up; requested X2/X3 new-main qualification is passed"
+    ],
+    "raw": [
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-sigma-intro.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-sigma-real-hit.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-kaiser-intro.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-width-matrix.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-experiment-label-corrections.json"
+    ],
+    "owner": "No owner games opened, accepted scenes repeated or new review segments added. Current four-segment handoff and owner settings/saves/notes are preserved."
   }
 }
