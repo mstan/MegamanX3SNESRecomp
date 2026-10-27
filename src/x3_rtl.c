@@ -290,17 +290,23 @@ void X3ConfigureWsHud(void) {
 /* Exact background source for the widescreen margins. */
 void X3ConfigureWsBgMargins(void) {
   Mmx23ConfigureWsBgMargins(g_snes, g_ppu, g_ram, g_ws_active);
-  /* Keep the fixed Sigma arena's native pixels intact and continue its wall
+  /* Keep fixed fortress arenas' native pixels intact and continue their wall
    * edges into the gutters. The BG2 Kaiser head is a circular object canvas,
    * so it must stay within the room rather than echo beyond the side walls.
    * These presentation fields reset each frame; the escape shaft keeps its
    * normal streaming policy as soon as the original bounds unlock. */
   static const uint8_t sigma_bounds[10] = {
       0x00,0x07,0x00,0x0a,0x00,0x0a,0x00,0x07,0x00,0x07};
-  if (g_ws_active && g_ppu && g_ram[0x1fae] == 13 &&
+  static const uint8_t lab1_bounds[10] = {
+      0x00,0x16,0x00,0x06,0x00,0x06,0x00,0x16,0x00,0x16};
+  const bool fixed_arena =
+      (g_ram[0x1fae] == 13 &&
+       !memcmp(g_ram+0x1e68,sigma_bounds,sizeof(sigma_bounds))) ||
+      (g_ram[0x1fae] == 10 &&
+       !memcmp(g_ram+0x1e68,lab1_bounds,sizeof(lab1_bounds)));
+  if (g_ws_active && g_ppu && fixed_arena &&
       g_ram[0xd1] == 4 && (g_ppu->bgmode & 7) == 1 &&
-      (g_ppu->bgXsc[0] & 0xfc) == 0x50 && (g_ppu->bgXsc[1] & 0xfc) == 0x58 &&
-      !memcmp(g_ram+0x1e68,sigma_bounds,sizeof(sigma_bounds))) {
+      (g_ppu->bgXsc[0] & 0xfc) == 0x50 && (g_ppu->bgXsc[1] & 0xfc) == 0x58) {
     PpuSetWidescreenLayerElasticSplitBandSlot(g_ppu,0,0,0,224,0,1,255,256);
     PpuSetWidescreenLayerClamp(g_ppu,2);
   }
