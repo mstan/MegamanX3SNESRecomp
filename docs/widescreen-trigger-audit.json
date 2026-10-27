@@ -84,12 +84,14 @@
     "bossrush": "All8 transfers/real defeats/returns and cumulativeFF qualified on the retained ca0 build in pure684, with causalHP1 checks. Current339 preserves framing and sampled native rematch/hub output; no complete339 all8 replay is claimed. Exit/handoff remains separate.",
     "next_priority": "Kaiser finishing hit/escape/ending, skipped traversal/content/audio and broader consumer/startup/memory qualification. Both Lab2 branches now have actual entrance/death/native-counter evidence.",
     "current_owner_build": {
-      "sha256": "2833b6b55bca185cb5db6e553e06840a6249cabb5e6e27aa4f5532570fb01dd1",
-      "engine": "d0968ccfc328fd471a2bd851c35cab6fd8c41c8d",
+      "sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+      "engine": "0095609940bc3a304da8c70f2dcab79264bbb8ab",
+      "compiled_engine": "e772aca74d06cef9435df2f34cda1689329b19c4",
+      "source_tree": "396f26717c1bf151b0e110950c5fd5f179c1823a",
+      "title_pin": "e0fb303780fe8b0ec938d579409c3d7d521b7ac6",
       "title_code": "a0142c8e13f1f2e4c526784955654356faecbe92",
-      "title_repository_head": "929a88dea72982636d5af5743fbca549c62f208e",
-      "qualification": "lab2_alternate_world_clip_followup.direct_renderer_followup",
-      "note": "Prior individual acceptance remains valid. Four focused human visuals remain; selector closed. No shared-engine merge/release."
+      "source": "new_main_qualification",
+      "owner_data_unchanged": true
     },
     "new_main_automated_gate": "Passed for current X2/X3: full images/WRAM, scalar/native game PCM+SPC, current save/Capture and matched runtime/startup/memory. Human/content/ending and broader-consumer caveats remain."
   },
@@ -1164,7 +1166,7 @@
       "Kaiser escape/ending, skipped traversal/content and independent audio",
       "Broader consumer follow-up using existing campaign evidence"
     ],
-    "promotion": "Fresh four current-build setups prepared; owner profiles not yet replaced by this record. No merge or release.",
+    "promotion": "One verified current executable per owner title, normal untouched window/audio/input configuration. No merge/release or repeated accepted human handoff.",
     "game": {
       "executable": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\integration-build-x3\\MegaManX3SNESRecomp.exe",
       "sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
