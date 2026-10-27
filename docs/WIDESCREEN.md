@@ -348,3 +348,17 @@ output and WRAM over112 paired samples, including accepted Byte/factory,
 God/Press/Doppler/Kaiser, the corrected hub exit and the other Vile route.
 These checks do not qualify skipped traversal, the Kaiser finishing hit,
 escape/ending, independent audio or the remaining human visuals.
+
+The first correct clip had a measurable compositing cost at the widest camera
+edge, so it was held from the owner package. Engine d0968cc reuses existing
+hardware-window spans to draw contiguous room clips directly; mosaic, disjoint
+rooms and source anchors retain the original compositor. Final2833b6b5 preserves
+the entire presented picture and WRAM through72 pan samples at256/342/684 and
+repeats the original full-health entrance, real-shot clear and native counter
+transition. Six matched684 edge pairs all take less time than first-correct758;
+X2 default-path results are small and mixed within host variation, hence
+neutral/inconclusive. These are separate per-game protocol measurements,
+not release benchmarks. Capture/Pause and the current-build Kaiser restart
+also pass. Raw samples and identities are tracked under optimization campaign
+beads-2wy8.1 and owning engine issue beads-8wg.2.151; broader consumer/startup/
+memory qualification and the human final-room checks remain open.
