@@ -271,9 +271,44 @@ static bool x3_ws_boss_hud_present(void) {
 }
 
 /* Call once per frame from the host's frame-prep, after g_ws_extra is known. */
+static void x3_configure_chamber_view(void) {
+  /* The final-stage entrance starts at world256. Its left neighbour is
+   * unused map data, not room art. Reuse X1's presentation anchor to spend
+   * the widescreen allowance inside this authored room. Leave the guest's
+   * camera, scroll limits, OAM and sequence comparisons untouched.
+   * Locked boss/escape views keep their separate arena policies. */
+  if (!g_ws_active || g_ws_extra > 128 || g_ram[0xd1] != 4 ||
+      g_ram[0x1fae] != 13 || (g_ppu->bgmode & 7) != 1 ||
+      g_ppu->bgXsc[0] != 0x51 || g_ppu->bgXsc[1] != 0x59)
+    return;
+  const int camera = g_ram[0x1e5d] | g_ram[0x1e5e] << 8;
+  const int left_bound = g_ram[0x1e6e] | g_ram[0x1e6f] << 8;
+  const int right_bound = g_ram[0x1e68] | g_ram[0x1e69] << 8;
+  const int top = g_ram[0x1e6a] | g_ram[0x1e6b] << 8;
+  if (left_bound != 256 || right_bound != 1536 || top != 3584 ||
+      camera < left_bound - 16 || camera > right_bound + 16)
+    return;
+  const int cx = camera < left_bound ? left_bound :
+                 camera > right_bound ? right_bound : camera;
+  int left = cx - left_bound;
+  if (left > g_ws_extra) left = g_ws_extra;
+  int right = right_bound - cx;
+  if (right > 2 * g_ws_extra - left) right = 2 * g_ws_extra - left;
+  left = cx - left_bound;
+  if (left > 2 * g_ws_extra - right) left = 2 * g_ws_extra - right;
+  PpuSetWidescreenViewAnchor(g_ppu, true);
+  PpuSetExtraSideSpace(g_ppu, left, right, 0);
+  /* Dialogue is authored in screen coordinates. Keep its complete native
+   * sheet at the physical centre while only the world view slides. */
+  const int shift = g_ws_extra - g_ppu->extraFrameLeft;
+  const PpuWsElasticSeg dialogue = {shift, shift + 256, 0, 256};
+  PpuSetWidescreenLayerElasticBand(g_ppu, 2, 0, 224, &dialogue, 1);
+}
+
 void X3ConfigureWsHud(void) {
   extern bool g_ws_active;
   if (!g_ppu) return;
+  x3_configure_chamber_view();
   /* X3's HUD is OAM-only; BG3 is gameplay dialogue and must stay centered. */
   PpuSetWidescreenHudSplit(g_ppu, 0, 0, 0);
   if (!g_ws_active || !x3_ws_hud_present()) {

@@ -2204,5 +2204,53 @@
       "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-fresh-final-first-load.json",
       "scope": "Earned unavailable bit survives the original fresh stage13/counter3/checkpoint0 loader. Stage/counter selection bypassed prior fortress eligibility; this alone is not final alternate-rescue validation. Wrong checkpoint1 probe dies in unused geometry and is excluded as setup failure, not a product/branch failure."
     }
+  },
+  "final_entry_camera_followup": {
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+    "compiled_engine": "952705a04c670d6be7bff2baf17001e8c84ff459",
+    "engine_tree": "f8c6ebfd0472b1f5580b7aeab768d420a5452afd",
+    "source_sha256": "456ccf4fb89cb98afa45d2e43dcafd2680abdb5affb2c51aca0b4ae985cb8304",
+    "passed": true,
+    "scope": "Final-stage entry chamber camera presentation at342. No guest camera, AI, OAM or progression writes are introduced by the fix.",
+    "native_image_samples": 25,
+    "unchanged_scene_samples": 68,
+    "regressions": {
+      "escape": {
+        "passed": true,
+        "samples": 8
+      },
+      "kaiser": {
+        "passed": true,
+        "samples": 8
+      },
+      "byte": {
+        "passed": true,
+        "samples": 28
+      },
+      "factory": {
+        "passed": true,
+        "samples": 24
+      }
+    },
+    "width_limits": [
+      "The anchor is enabled only for the demonstrated entry chamber and widths up to512;684 keeps previous centred presentation because the ordinary one-sided OBJ span is limited. Wider anchoring and other rooms are not certified.",
+      "No duplicate head accepted separately by owner; actual Kaiser finishing hit awaits clarification. Ordinary escape, alternate fresh-stage rescue, Bit and broader audit remain open."
+    ],
+    "current_save_replay": {
+      "case": "chamber-anchor-entry-current",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "capture_passed": true,
+    "reference": {
+      "directory": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\original-x3-chamber-shaft-layout",
+      "core": "Unmodified snes9x_libretro",
+      "observation": "Original fresh stage13/checkpoint0 renders the same chamber. Original shaft BG1 contains the pipe walls, including above the lava line in the recomp native escape view.",
+      "assists": "Stage/counter teleport and explicit camera/player positioning for STATIC shaft-art inspection only. Not an independent original escape sequence validation."
+    },
+    "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\chamber-anchor-qualification.json",
+    "owner_acceptance": "No duplicate head accepted. Chamber camera still needs focused visual confirmation; no repeat Byte/doors/factory or X2 handoff."
   }
 }

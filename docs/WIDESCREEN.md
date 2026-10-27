@@ -484,3 +484,29 @@ checkpoint0 loader after a stage/counter teleport. Propagating it through
 the complete alternate rescue remains open, as do the actual Kaiser
 finishing hit and ordinary escape. Prior alternate-rescue evidence with
 a supplied prerequisite keeps its original3435 binary and assists.
+
+### Final-stage entrance camera (2026-10-27)
+
+Buildd897f993 reuses the parked X1 view-anchor mechanism in engine819e2e1.
+At the demonstrated final-stage entrance, the extra columns go inside the
+room, removing the unused strip to its left. Native camera/scroll/OAM and
+sequence state are unchanged. HUD and dialogue retain screen coordinates.
+This is scoped to the measured chamber and internal widths up to512;684
+retains the previous centred policy because its one-sided ordinary OBJ span
+exceeds512. Other rooms and wider anchoring remain separate work.
+
+Twenty-five controller-only movement samples retain the complete native
+picture outside the existing HUD footprints and exact128KiB WRAM. The
+observed image origin moves from0 to43 as X leaves the wall. Kaiser, escape,
+Byte and factory retain whole output/WRAM in68 samples. Native256 and
+684/interpreter remain unchanged in16 samples. Current-build entry/Kaiser
+save/load and Pause/Capture/restart checks pass; seven PPU fixtures pass.
+One initial unsettled Byte picture is retained as an inconclusive observer
+sample; the independent settled replay passes every sample.
+
+The unmodified Snes9x reference confirms the entrance composition and the
+original shaft pipe walls. Static shaft-art inspection uses explicit camera
+positioning and does not certify an independent original escape sequence.
+The walls above the fire are authored background art. The owner separately
+accepts the absence of a duplicate Kaiser head. Actual finishing-hit,
+ordinary escape and other pending audit gates retain their own status.
