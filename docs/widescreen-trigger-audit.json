@@ -10,7 +10,7 @@
       "Bit human floor/exit follow-up (automatic checks pass)",
       "Kaiser final hit, lava escape and endings",
       "Remaining fortress branches/full content inventory/independent audio",
-      "Current-main built runtime/other-consumer gate; X3 final combined output/RAM checks passed"
+      "Representative other-consumer/startup/memory gate; paired X2/X3 functional/current-save and short per-game runtime samples recorded"
     ],
     "next_cross_title_priority": "Four focused selector segments remain: pending Serges/Ostrich/final-arena visuals and optional Kaiser hit; no further hub assistance is needed. Other Lab2 branch and final integration/runtime remain.",
     "shared_engine_regression": {
@@ -82,7 +82,7 @@
       "New final Sigma arena wall extension/head-wrap correction"
     ],
     "bossrush": "All8 transfers/real defeats/returns and cumulativeFF qualified on the retained ca0 build in pure684, with causalHP1 checks. Current339 preserves framing and sampled native rematch/hub output; no complete339 all8 replay is claimed. Exit/handoff remains separate.",
-    "next_priority": "Other Lab2 branch, Kaiser escape/ending, skipped traversal/full content/audio and final integration/runtime checks. Clean native fortress progression to stage13 and prerequisite-assisted hub exit are now qualified."
+    "next_priority": "Other Lab2 branch, Kaiser escape/ending, skipped traversal/content/audio and representative other-consumer/startup/memory qualification. Paired final-title X2/X3 functional/current-save and short per-game runtime evidence is recorded."
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -906,5 +906,86 @@
       "x3-native-context-final-zero.json"
     ],
     "setup_correction": "39:A2D0 caches1FDA==FF into1F5F bit0 during hub init. LateFF leaves gate locked; correct prerequisite order naturally unlocks it. Door approach lands atY1119, not inside the platform. Optional human hub check retired; notes unchanged."
+  },
+  "final_combined_engine_followup": {
+    "functional": {
+      "passed": true,
+      "game": "x3",
+      "title_code": "8a71e90abc20da46cb71bc6c6512a4d3e9c1f4dc",
+      "baseline_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+      "candidate_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+      "baseline_sha256": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+      "candidate_sha256": "d0d3cd444e65038b3ccd8daa817dbe70aa402b9c5fca88439a6602c137504260",
+      "comparison": "Complete presented output and128KiB WRAM at15-frame samples; specified controller input and health only. Corrected hub exit actually crosses door at all three widths.",
+      "cases": {
+        "byte": {
+          "passed": true,
+          "samples": 28
+        },
+        "factory": {
+          "passed": true,
+          "samples": 24
+        },
+        "god": {
+          "passed": true,
+          "samples": 8
+        },
+        "doppler": {
+          "passed": true,
+          "samples": 8
+        },
+        "press": {
+          "passed": true,
+          "samples": 8
+        },
+        "kaiser": {
+          "passed": true,
+          "samples": 8
+        },
+        "hub-exit": {
+          "passed": true,
+          "samples": 20
+        },
+        "hub-exit-256": {
+          "passed": true,
+          "samples": 20
+        },
+        "hub-exit-684": {
+          "passed": true,
+          "samples": 20
+        }
+      },
+      "performance": "Separate gate; compiler definitions establish both trace builds use AUDIO_TRACE_HISTORY=2 (FULL), despite earlier cache-based mismatch inference."
+    },
+    "current_build_save_load": {
+      "case": "integration-final-x3-current-save",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "runtime": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\integration-final-x3-runtime-coverage-off.json",
+      "workload": "Original live Press Disposer",
+      "samples": 6,
+      "timed_frames_per_sample": 360,
+      "median_time_change_percent": -3.704280523257192,
+      "paired_range_percent": [
+        -10.308538282390245,
+        21.9702987485229
+      ],
+      "median_fps": {
+        "baseline": 190.02016941775696,
+        "candidate": 196.69173766437532
+      },
+      "assessment": "Neutral/inconclusive: mixed paired results within large host variation; no proven improvement or reproducible regression.",
+      "qualification": "Pure interpreter342/software/dummy output, audio emulation, traceFULL, optional coverage recordingOFF in both. One workload per game; separate earlier coverageON samples are not pooled."
+    },
+    "host": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\integration-final-runtime-host.json",
+    "remaining": [
+      "Pending individual owner visuals and optional Kaiser hit/escape/endings",
+      "Other Lab2 branch and skipped traversal/content/audio",
+      "Representative other-consumer/startup/memory gate"
+    ],
+    "promotion": "One current canonical owner binary per game remains unchanged on enginea4. No merge or release. Selector closed with four focused segments; optional hub assistance retired."
   }
 }

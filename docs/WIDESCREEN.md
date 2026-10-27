@@ -314,3 +314,12 @@ complete presented image and128KiB WRAM; all three hub cases cross the door.
 Compiler definitions confirm both trace builds use FULL audio history despite
 the earlier cache-based SMALL/FULL inference. Performance remains a separate
 measurement gate; these functional comparisons establish no speed claim.
+
+Current combined-build Press save/load reproduces complete output and WRAM.
+Six alternating paired360-frame live-Press samples match interpreter342,
+software/dummy output, FULL trace history and optional coverage recordingOFF.
+Time changes range from10.3% lower to22.0% higher (median3.7% lower): mixed
+results within host variation are neutral/inconclusive. Separate earlier
+coverageON samples are retained and are not pooled. X2 has its own workload
+and results. Representative other-consumer/startup/memory qualification is
+still open; no aggregate optimization or release-speed claim is made.
