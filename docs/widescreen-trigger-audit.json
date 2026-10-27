@@ -218,7 +218,11 @@
         "factory right+jump60 then up300",
         "Byte entry right420"
       ],
-      "result": "Full342px presented images and128KiB WRAM identical to prior accepted candidate throughout sampled replays. No owner repeat handoff."
+      "result": "Full342px presented images and128KiB WRAM identical to prior accepted candidate throughout sampled replays. No owner repeat handoff.",
+      "right_boundary_update": {
+        "engine": "7106efd183f9781000a4e3c2b2ab7b42f55a921e",
+        "result": "X3 retains the default-zero room option. Byte right420 replay has identical complete presented pixels and128KiB WRAM versus the accepted owner build. Owner acceptance remains valid."
+      }
     }
   }
 }
