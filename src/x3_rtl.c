@@ -362,8 +362,12 @@ void X3ConfigureWsBgMargins(void) {
  * Hub teleports select checkpoints 3..8. Checkpoint 2 is the ordinary
  * corridor after the hub and keeps its scrolling widescreen presentation. */
 bool X3UseNativeFrame(void) {
-  return g_ram[0x1fae] == 12 && g_ram[0xd1] == 4 &&
-         g_ram[0x1fb5] >= 3 && g_ram[0x1fb5] <= 8;
+  /* The opening epilogue is an authored256px composition. Its background
+   * canvases repeat the sun and factory when extended. The subsequent
+   * scrolling cast (ending phase2) keeps adaptive widescreen. */
+  return (g_ram[0xd1] == 6 && g_ram[0xd2] == 0) ||
+         (g_ram[0x1fae] == 12 && g_ram[0xd1] == 4 &&
+          g_ram[0x1fb5] >= 3 && g_ram[0x1fb5] <= 8);
 }
 
 static int x3_ws_spawn_margin(void) {
