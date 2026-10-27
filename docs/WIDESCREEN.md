@@ -428,3 +428,15 @@ same low prepared entry stalls natively too, so it is excluded as a
 demonstrated widescreen defect. Real finishing hit, uninterrupted
 physical escape and alternate rescue ending remain unverified. Exact
 binary identities and caveats are in `epilogue_and_aftermath_followup`.
+
+The subsequent current3435 audit also qualifies the alternate Doppler rescue
+at native256/default and684/interpreter. An earlier Zero-unavailable prerequisite
+is supplied before rescue-script allocation; Kaiser defeat and ordinary escape
+traversal remain bypassed. Moving above the ledge before the original upper cue
+lets the native walk finish without a post-control position correction. Both
+runs reach original counter3->5, stage clear and ending mode6, with exact
+current-build ending save/load. No camera, AI, current result or ending flags
+are written. This closes the assisted alternate-rescue check, while the real
+Kaiser finishing hit, ordinary physical escape, earlier Zero-loss/fresh-stage
+loading and remaining content/human checks retain their separate limits.
+See `alternate_rescue_followup` for the exact prerequisite and raw evidence.

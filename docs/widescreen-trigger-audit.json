@@ -8,7 +8,7 @@
     ],
     "unverified": [
       "Bit human floor/exit follow-up (automatic checks pass)",
-      "Real Kaiser finishing hit; uninterrupted normal escape/ledge approach; alternate Doppler-rescue ending",
+      "Real Kaiser finishing hit; uninterrupted normal escape/ledge approach",
       "Four individual pending owner visual checks; skipped traversal/content inventory and independent original-game audio",
       "Broader other-consumer follow-up; current X2/X3 new-base qualification remains passed without a speed claim"
     ],
@@ -1739,5 +1739,48 @@
     "provenance": "Aftermath/terminal traversal ran on preceding current engine-matched c3d2 binary. New3435 ending presentation is compared against it through actual clear entry,6000frames/mode and the cast transition; gameplay/currentsave/capture are separately exact. No new all-boss sweep or full terminal replay is claimed for3435.",
     "promotion": "One current executable per owner title; only X3 epilogue presentation and its disposable current-build Kaiser snapshot replaced. No merge/release.",
     "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-publication.json"
+  },
+  "alternate_rescue_followup": {
+    "date": "2026-10-27T18:54:09.582010+00:00",
+    "passed": true,
+    "binary": "3435c01797d24e26591b6ee093b2b444f54cf5e59b12472bc63a8fe1fe6d6d4a",
+    "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-alternate-rescue-qualification.json",
+    "original_script": "03:A827+12 ->03:B53D;03:B5E3 tests earlier Zero-unavailable bit1FB2.40 and selects alternate appearance at03:B5F9. Native loss handler00:9D02..18 sets that bit.",
+    "variants": {
+      "256": {
+        "controller_pulses": 83,
+        "native_clear": "020408000000da01",
+        "native_counter": 5,
+        "ending": "020600020c000000",
+        "save_replay": {
+          "case": "x3-alternate-rescue-256-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      },
+      "684": {
+        "controller_pulses": 81,
+        "native_clear": "020408000000b601",
+        "native_counter": 5,
+        "ending": "020600020c000000",
+        "save_replay": {
+          "case": "x3-alternate-rescue-684-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      }
+    },
+    "observed": "Original walk target reached without a post-control position correction; alternate rescue dialogue and native counter3->5/stage-clear08/ending mode6. Current-build ending save/load replays match.",
+    "assists": "Upstream Kaiser HP1->0 bypasses the real finishing hit. Player position/health bypass escape traversal, with the player moved above the raised ledge before the native upper-corridor cue; no correction after original control takeover. The earlier Zero-unavailable bit is supplied before final-script allocation. Controller B edges/health during rescue only; no camera, AI, current result, progression, escape or ending writes. No input/RAM writes after native clear.",
+    "limitations": "Assisted script/trigger qualification, not a real Kaiser finishing hit, ordinary wall-jump escape, earlier Zero-loss validation, full fresh-stage loading validation or exhaustive visual certification. Cross-width exact RAM/image equality is not asserted.",
+    "prepared_fixture": {
+      "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-zero-unavailable-before-final-script.sav",
+      "sha256": "0574cd02b2088f8e70fb1198f7d8a646968e6bcbdeb09c40331dd182f38e6a31"
+    },
+    "owner_data_unchanged": true,
+    "owner_visual_review": "Same four segments pending; no new owner game launch or replay request",
+    "implementation": "No code, engine, generated files, binaries or prepared owner states changed"
   }
 }
