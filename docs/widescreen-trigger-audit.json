@@ -82,7 +82,15 @@
       "New final Sigma arena wall extension/head-wrap correction"
     ],
     "bossrush": "All8 transfers/real defeats/returns and cumulativeFF qualified on the retained ca0 build in pure684, with causalHP1 checks. Current339 preserves framing and sampled native rematch/hub output; no complete339 all8 replay is claimed. Exit/handoff remains separate.",
-    "next_priority": "Kaiser finishing hit/escape/ending, skipped traversal/content/audio and broader consumer/startup/memory qualification. Both Lab2 branches now have actual entrance/death/native-counter evidence."
+    "next_priority": "Kaiser finishing hit/escape/ending, skipped traversal/content/audio and broader consumer/startup/memory qualification. Both Lab2 branches now have actual entrance/death/native-counter evidence.",
+    "current_owner_build": {
+      "sha256": "2833b6b55bca185cb5db6e553e06840a6249cabb5e6e27aa4f5532570fb01dd1",
+      "engine": "d0968ccfc328fd471a2bd851c35cab6fd8c41c8d",
+      "title_code": "a0142c8e13f1f2e4c526784955654356faecbe92",
+      "title_repository_head": "929a88dea72982636d5af5743fbca549c62f208e",
+      "qualification": "lab2_alternate_world_clip_followup.direct_renderer_followup",
+      "note": "Prior individual acceptance remains valid. Four focused human visuals remain; selector closed. No shared-engine merge/release."
+    }
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -1050,6 +1058,89 @@
       "Four focused human visual checks",
       "Combined/other-consumer qualification"
     ],
-    "promotion": "Owner binaries and notes unchanged while combined validation and current-state refresh are prepared; no merge/release."
+    "promotion": "First-correct758 was never promoted: its measured runtime cost led to the direct-renderer follow-up. Current owner2833 is the verified direct build; see direct_renderer_followup.",
+    "first_correct_build_promotion": "First-correct758 was held after a runtime cost was demonstrated. The direct renderer follow-up supersedes it for owner delivery.",
+    "direct_renderer_followup": {
+      "passed": true,
+      "executable": "2833b6b55bca185cb5db6e553e06840a6249cabb5e6e27aa4f5532570fb01dd1",
+      "engine": "d0968ccfc328fd471a2bd851c35cab6fd8c41c8d",
+      "title_repository_head": "929a88dea72982636d5af5743fbca549c62f208e",
+      "title_c_code": "a0142c8e13f1f2e4c526784955654356faecbe92",
+      "combined_engine": "95ad5c108b2c6ad806485b59321df433ad28c4de",
+      "campaign": "beads-2wy8.1",
+      "owning_engine_issue": "beads-8wg.2.151",
+      "scope": "Correctness feature plus direct draw for contiguous non-mosaic BG room clips. Disjoint rooms, mosaic and anchors retain the working isolated fallback. Portable C; no CPU/OS-specific dependency.",
+      "exact_output": {
+        "evidence": "world-clip-direct-final-matrix.json",
+        "widths": [
+          256,
+          342,
+          684
+        ],
+        "samples": 72,
+        "result": "Full presented picture and128KiB WRAM identical to first-correct758 through camera pans. First-correct758 separately preserves all native/authored512px-room pixels and64KiB VRAM against339."
+      },
+      "real_mechanics": {
+        "evidence": "x3-lab2-direct-final-mechanics-684.json",
+        "result": "Original780-frame full-health entrance, main-only1HP idle survival, actual shot and native counter1->2. Critical28-sample timeline matches first-correct758; no current success/camera/control writes."
+      },
+      "combined": {
+        "x2": "fb2eb8f2e8600eab8ef195276c3412f9f28a7e9f6f64efa0cf1eeefed69a80ba",
+        "x3": "2bd74ffd01fa60b61d5dfdb5cd35bd7f585e4a9b890b2db9ee9d84c1e32ff4e3",
+        "result": "X2 rocket/Serges/Ostrich full output and WRAM match. X3 sequential24-sample684 pans match full output/128KiB WRAM/64KiB VRAM. Both current-save/load checks pass."
+      },
+      "current_kaiser_and_capture": "New2833 state has exactly one active primary02 actor95 at1HP. Full current-build Save/Pause/Capture restart replays120frames with identical image/WRAM and error-free capture metadata.",
+      "runtime": {
+        "x2": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\world-clip-direct-x2-runtime.json",
+          "pairs": 6,
+          "package": "Engine direct clipd0968cc on combined95ad5c1 versus identical-correctness combined29500a1/0e45123; title739 unchanged, clip disabled. Optimization campaign2wy8.1, owner8wg.2.151.",
+          "configuration": "Matched240-frame original AI workloads, pure interpreter, software/dummy video/audio, unthrottled diagnostic builds; serial alternating order; no input/cheat writes during timed intervals",
+          "median_time_change_percent": 1.1398076654342004,
+          "paired_range_percent": [
+            -1.5263196626484787,
+            3.825718874880857
+          ],
+          "candidate_minimum_fps": 132.04383723221306,
+          "assessment": "Neutral/inconclusive: small mixed changes within host variation; no proven win or reproducible regression"
+        },
+        "x3": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\world-clip-direct-final-runtime-684.json",
+          "pairs": 6,
+          "package": "Direct window-span crop versus first-correct isolated clip0e45123; same titlea0142c8, preserved output and guest RAM. Engine optimization issue8wg.2.151, campaign2wy8.1.",
+          "configuration": "Matched240-frame live Lab2 boss AI at right camera stop; default hybrid684/software/dummy video/audio, coverageOFF, traceFULL; serial alternating order; same correctness and no input/cheat writes in timed interval.",
+          "median_time_change_percent": -12.349196992515687,
+          "paired_range_percent": [
+            -23.7186808940441,
+            -5.983616998463526
+          ],
+          "candidate_minimum_fps": 114.65903317413894,
+          "assessment": "Workload-local positive: all6 paired times lower; no broader/release claim"
+        }
+      },
+      "host_caveat": "Other owner PSX compiler jobs were observed. Retain paired results/variation; do not claim isolated release throughput or pool games.",
+      "remaining": [
+        "Four focused owner visuals, optional Kaiser finishing hit/escape/ending",
+        "Skipped traversal/content and independent audio",
+        "Representative other-consumer/startup/memory qualification"
+      ],
+      "promotion": "Qualified for the existing X3 owner QA replacement; no shared-engine merge, release or campaign completion.",
+      "publication": {
+        "owner_sha256": "2833b6b55bca185cb5db6e553e06840a6249cabb5e6e27aa4f5532570fb01dd1",
+        "engine": "d0968ccfc328fd471a2bd851c35cab6fd8c41c8d",
+        "title_code": "929a88dea72982636d5af5743fbca549c62f208e",
+        "current_state": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\handoff-states\\x3-kaiser-hit.sav",
+          "sha256": "9c7cd61cff1589160ed8736fb4071eb7120d623d018f6ee1b15032def4c5a58d",
+          "kaiser": "Exactly one active primary02 actor95 atHP1, alive before the optional real finishing hit"
+        },
+        "capture": "Current-build Pause/Capture produced full restart state, PNG/RAM/VRAM/OAM/L3 and error-free metadata; full captured state replays120frames with identical output and WRAM.",
+        "owner_notes_settings_saves_preserved": true,
+        "selector": "Closed; four existing focused segments; accepted checks not repeated",
+        "runtime_assessment": "Direct-window optimization versus the identical-correctness isolated clip: workload-local X3 positive, X2 small mixed neutral/inconclusive. Per-game data is separate; protocol headroom is not a release benchmark. Broader consumer/startup/memory qualification stays open.",
+        "promotion": "Verified X3 direct-clip replacement and current-build Kaiser state published; X2 remains the exact634 accepted-scene build. Four selector segments, normal windows/audio/input settings and owner notes preserved. Selector remains closed.",
+        "raw_evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\world-clip-publication.json"
+      }
+    }
   }
 }
