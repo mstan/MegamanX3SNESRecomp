@@ -2150,5 +2150,59 @@
       "Broader engine consumer follow-up; old and new package measurements retain exact identities"
     ],
     "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-publication.json"
+  },
+  "actual_zero_loss_followup": {
+    "date": "2026-10-27T22:28:13.031128+00:00",
+    "passed": true,
+    "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+    "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualification.json",
+    "variants": {
+      "256": {
+        "execution": "default hybrid",
+        "contact_pulses": 4,
+        "retreat_pulses": 30,
+        "save_replay": {
+          "case": "zero-loss-qualified-256-x-return",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "result_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-256-x-return.sav",
+        "result_sha256": "27dbbaca591eff10425fcadcef36682ee23e0341239357121ccf2292ac2392f3"
+      },
+      "342": {
+        "execution": "default hybrid",
+        "contact_pulses": 4,
+        "retreat_pulses": 30,
+        "save_replay": {
+          "case": "zero-loss-qualified-342-x-return",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "result_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-342-x-return.sav",
+        "result_sha256": "8fe7ee863e8ff88d1fd007638b772111ac0a3a8701b7bbec16479a8c5b9342d1"
+      },
+      "684": {
+        "execution": "pure interpreter",
+        "contact_pulses": 4,
+        "retreat_pulses": 30,
+        "save_replay": {
+          "case": "zero-loss-qualified-684-x-return",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "result_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-684-x-return.sav",
+        "result_sha256": "b8e73886aeabf290e023fb8ad3c5c4a8eb15d3f798827f3cd6dd4ed4f030a2e2"
+      }
+    },
+    "observed": "Original communication/Start selects live Zero,HP1 survives idle,actual controller movement/enemy contact gives HP0/death,original native retreat sets1FB2.40,then X returns with16HP and normal control. Current-build X-return save/load replays match full output/128KiB WRAM.",
+    "assists": "Saved current-build ready character menu bypasses prior travel. Only Zero HP1 is written before live idle survival. All selection, movement, damage, retreat and X return use original execution/controller input; no position, AI,camera,character/current result/progression/unavailable flag writes.",
+    "remaining": "Actual earlier loss is now qualified; fresh fortress-stage loading and alternate-rescue propagation of this naturally earned result still require their own test. Kaiser finishing hit and ordinary physical escape remain separate.",
+    "fresh_loader": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-fresh-final-first-load.json",
+      "scope": "Earned unavailable bit survives the original fresh stage13/counter3/checkpoint0 loader. Stage/counter selection bypassed prior fortress eligibility; this alone is not final alternate-rescue validation. Wrong checkpoint1 probe dies in unused geometry and is excluded as setup failure, not a product/branch failure."
+    }
   }
 }

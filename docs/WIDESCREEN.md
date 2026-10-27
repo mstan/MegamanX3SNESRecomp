@@ -463,3 +463,24 @@ and mixed: neutral/inconclusive, without a speed claim. Actual trace is
 FULL in these diagnostic builds despite the SMALL cache request.
 Remaining human/content/branch/audio gaps are unchanged; see
 `maoh_object_canvas_followup` for precise identities and bypasses.
+
+### Actual earlier Zero loss (2026-10-27)
+
+Build10994be1 passes the real Zero-loss prerequisite at256/default,
+342/default and684/interpreter. The original communication menu/Start
+selects playable28HP Zero. Only HP1 is supplied before idle survival;
+actual Right/jump contact causes HP0/death. The original retreat sets
+1FB2.40 and restores16HP X with normal control. All three current-build
+return states replay with exact full output and128KiB WRAM. No position,
+camera, AI, character, current result or unavailable-bit writes are used.
+
+A saved ready menu bypasses upstream travel. Four contact pulses and30
+retreat/dialogue pulses occur in each width case. Earlier too-early Start
+inputs did not wait for the communication-page animation and are excluded
+as setup errors; they do not establish a widescreen menu defect.
+
+The naturally earned bit also survives a fresh original final-stage
+checkpoint0 loader after a stage/counter teleport. Propagating it through
+the complete alternate rescue remains open, as do the actual Kaiser
+finishing hit and ordinary escape. Prior alternate-rescue evidence with
+a supplied prerequisite keeps its original3435 binary and assists.
