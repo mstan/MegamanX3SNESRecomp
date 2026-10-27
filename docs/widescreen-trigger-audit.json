@@ -671,5 +671,72 @@
       },
       "launch": "Left closed; normal window/audio and existing controller settings, owner notes and native saves preserved"
     }
+  },
+  "lab1_margin_followup": {
+    "game_code": "fbff2b9ab7ee18c952683fb2968bf80c7b72a15d",
+    "runtime_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+    "generation_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+    "sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+    "policy": "Original locked stage10 bounds1600/0600/0600/1600/1600 and mode1 maps50/58 reuse fixed-Sigma BG1 wall edges/BG2 containment; approach/other stages retain existing policy.",
+    "matrix": [
+      {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-margins-native256.json",
+        "width": 256,
+        "samples": 8
+      },
+      {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-margins-hybrid342.json",
+        "width": 342,
+        "samples": 8
+      },
+      {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-margins-pure684.json",
+        "width": 684,
+        "samples": 8
+      }
+    ],
+    "entry": {
+      "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-door-approach.json",
+      "frames": 360,
+      "samples": 24
+    },
+    "proved": "All48 Lab1 samples preserve every native-view pixel,128KiB WRAM and64KiB VRAM. Native256 complete output is identical. Native actual door approach/lock is retained.",
+    "regressions": [
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-byte.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-factory.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-kaiser.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-hub.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-rematch.json"
+    ],
+    "states": {
+      "x3-kaiser-hit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\lab1-owner-states\\x3-kaiser-hit.sav",
+        "sha256": "0757d3b6b86c74fb4d7dcbe38ea1e00efcc249ba5ef0c190d15721cb297ca5b1",
+        "current_build_replay": {
+          "frames": 120,
+          "pixel_differences": 0,
+          "ram_differences": 0
+        }
+      },
+      "x3-bossrush-exit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\lab1-owner-states\\x3-bossrush-exit.sav",
+        "sha256": "9eb453d1fa61919c2bfa78d71dc24cf74aac127a67156d69f28488437410364d",
+        "current_build_replay": {
+          "frames": 120,
+          "pixel_differences": 0,
+          "ram_differences": 0
+        }
+      }
+    },
+    "bossrush_provenance": "All8 actual fights/returns were qualified on the preceding ca0 executable. Its stage12 policy is unchanged; current executable replays actual native rematch entry, all-clear hub and Kaiser with exact whole output/WRAM. No new all8-binary claim.",
+    "remaining": [
+      "Lab1 alternate branch selection/combat completion and subsequent stage transition remain unverified in this replay; earlier Godkarmachine-labelled result is historical evidence only.",
+      "Providing prior1FD8=0F did not establish a distinct encounter; it is not alternate-branch coverage.",
+      "Kaiser finishing hit/lava escape/ending, all-clear hub exit, other branches/content/audio and final integration/runtime gate remain open."
+    ],
+    "instrumentation": "128KiB TCP read occasionally returned short data; current paired Lab1 proof uses bounded32KiB reads with an unchanged-frame assertion. Failed attempts were not accepted.",
+    "remote_tracking": "Two normal central Beads pushes failed at their own remote-transfer deadlines. Local issue comments remain durable; no shared server interruption or timeout bypass.",
+    "owner_notes_preserved": true,
+    "previous_sha256": "ca0c6437beb75ca29af8cd7d2c12450408c7a63e77cb1503030e594652b0c415"
   }
 }

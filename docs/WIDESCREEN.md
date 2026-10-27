@@ -215,3 +215,19 @@ missing asset or an existing room door with stale cached graphics fields.
 The owner subsequently accepted Byte and moving-door animation. That focused
 handoff is complete; do not request it again. This does not qualify the remaining
 fortress branches, final Sigma/endings, or other individual deferred checks.
+
+### Locked Lab 1 arena margins (2026-10-27)
+
+The Lab 1 end room exposed its neighboring corridor on the left and unbacked
+map space on the right at very wide aspects. Its original locked bounds
+`1600/0600/0600/1600/1600`, mode 1 and maps `$50/$58` now reuse the existing
+Sigma wall-edge compositor and BG2 containment. The approach keeps its normal
+streaming until the original room lock completes. No guest state is changed.
+
+Paired native256, hybrid342 and interpreter684 runs plus the actual 360-frame
+door approach preserve every native-view pixel, all 128 KiB WRAM and 64 KiB
+VRAM in 48 samples. Byte420, factory360, Kaiser120, hub120 and native rematch
+entry120 preserve complete output and WRAM against the preceding build.
+Refreshed Kaiser and all-clear hub states each replay 120 frames identically
+after current-build save/load. This qualifies presentation; alternate branch
+selection, full Lab 1 combat and its following transition remain separate.
