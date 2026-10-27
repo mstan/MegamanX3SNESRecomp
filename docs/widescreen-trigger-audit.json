@@ -2251,12 +2251,98 @@
       "assists": "Stage/counter teleport and explicit camera/player positioning for STATIC shaft-art inspection only. Not an independent original escape sequence validation."
     },
     "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\chamber-anchor-qualification.json",
-    "owner_acceptance": "Owner accepts no duplicate head and actual charged-shot Kaiser finishing hit. Only new chamber camera visual is pending; no repeat accepted fight/doors/Byte/factory/X2."
+    "owner_acceptance": "Owner accepts camera anchor at16:9, actual Kaiser charged-shot hit and no duplicate head. Focused handoff complete; no repeat."
   },
   "kaiser_owner_finishing_hit": {
     "owner_confirmed": true,
     "date": "2026-10-27T23:13:51.165148+00:00",
     "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
     "message": "Yes, the charged shot finished him"
+  },
+  "intro_capture_rescue_followup": {
+    "date": "2026-10-27T23:31:22.647426+00:00",
+    "passed": true,
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+    "game_code": "3a0e9bd79f9577734c8da2c16afd6d7cbd62f47b",
+    "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-intro-capture-rescue-qualification.json",
+    "variants": {
+      "256": {
+        "execution": "default hybrid",
+        "capture_pulses": 39,
+        "rescue_pulses": 16,
+        "mac_real_hit": true,
+        "restraint_real_hit": true,
+        "zero_control_save_replay": {
+          "case": "x3-intro-qualified-256-zero-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "x_control_save_replay": {
+          "case": "x3-intro-qualified-256-x-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      },
+      "342": {
+        "execution": "default hybrid",
+        "capture_pulses": 39,
+        "rescue_pulses": 16,
+        "mac_real_hit": true,
+        "restraint_real_hit": true,
+        "zero_control_save_replay": {
+          "case": "intro-342-zero-after-mobility",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "x_control_save_replay": {
+          "case": "x3-intro-qualified-342-x-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      },
+      "684": {
+        "execution": "pure interpreter",
+        "capture_pulses": 40,
+        "rescue_pulses": 16,
+        "mac_real_hit": true,
+        "restraint_real_hit": true,
+        "zero_control_save_replay": {
+          "case": "x3-intro-qualified-684-zero-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "x_control_save_replay": {
+          "case": "x3-intro-qualified-684-x-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      }
+    },
+    "scope": "Fresh original opening and original Mac capture/Zero control, real Mac/restraint hits, X rescue/control at native256,342 and684. Ordinary travel between scripted encounters is explicitly bypassed by the saved original-route setups; final intro boss/clear and other stages require separate checks.",
+    "assists": "Player position/health during upstream travel and live fights, main enemy/restraint HP1 before idle and real shots. Controller-only capture and rescue scripts; no AI, camera, control, current outcome or progression writes. No natural-traversal, natural-collection or unassisted-combat claim.",
+    "equality": "Each current-build Zero/X control save/load replay preserves all presented pixels and128KiB WRAM. Exact cross-width timing/RAM or whole-output equality is not asserted.",
+    "setup_corrections": [
+      "Native Mac primary04 retirement can finish after Zero control returns; live capture actor is gone before movement completes. The initial immediate-deallocation assertion is excluded as a QA sequencing mistake.",
+      "The342 Zero movement reaches a raised floor rail after31 pixels. Actual left/right input and jump cross it; a flat-ground distance assumption is excluded as a QA setup mistake. Controller mobility, native retirement and current-state replay are verified."
+    ],
+    "limits": [
+      "Upstream connecting travel is explicitly bypassed by original-route approach snapshots. No complete natural traversal, original-audio or exhaustive visual certification.",
+      "Current capture/rescue mechanics and per-width state replay pass; cross-width byte-identical timing/WRAM/full output is not asserted."
+    ],
+    "camera_owner_accepted": true,
+    "owner_playtest_untouched": true
+  },
+  "camera_owner_acceptance": {
+    "date": "2026-10-27T23:27:20.318565+00:00",
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "message": "x3 is good on camera anchor",
+    "passed": true
   }
 }

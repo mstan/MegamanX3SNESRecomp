@@ -515,3 +515,22 @@ The owner subsequently confirms that a normal charged shot finished the live
 1HP Kaiser in build10994. This actual finishing-hit gate is now passed, along
 with the no-duplicate-head check. No repeat combat handoff is required; the
 new chamber camera visual and the other independent audit gaps remain open.
+
+### Opening capture and rescue matrix (2026-10-27)
+
+Buildd897f993 passes the fresh controller-only opening, original Mac
+capture/Zero control, actual Mac and restraint finishing hits, and original
+X rescue/control at256/default,342/default and684/interpreter. Capture takes
+39/39/40 dialogue pulses and rescue16 at each width. All six current-build
+Zero/X save-load replays preserve full output and128KiB WRAM. Original Mac
+is32HP and restraints5HP before the separate HP1/idle/real-shot assists.
+
+Connecting travel uses saved original-route approaches. Player aiming/health
+and live target HP1 assists are explicit; capture/rescue scripts run only on
+controller edges. No camera, AI, character, result or progression flags are
+supplied. This is sequence qualification, not complete natural stage travel
+or cross-width byte-identical timing. The initial retirement/flat-ground
+assertion mistakes are retained separately from product results.
+
+The owner also accepts the16:9 entrance camera anchor. The focused human
+handoff is complete; do not repeat camera, Kaiser, doors, Byte, factory or X2.
