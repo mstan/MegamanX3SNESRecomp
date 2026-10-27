@@ -8,9 +8,9 @@
     ],
     "unverified": [
       "Bit human floor/exit follow-up (automatic checks pass)",
-      "Kaiser final hit, lava escape and endings",
-      "Remaining fortress branches/full content inventory/independent audio",
-      "Broader other-consumer follow-up; current X2/X3 new-base output/state/audio/startup/memory/runtime gates passed without a speed claim"
+      "Real Kaiser finishing hit; uninterrupted normal escape/ledge approach; alternate Doppler-rescue ending",
+      "Four individual pending owner visual checks; skipped traversal/content inventory and independent original-game audio",
+      "Broader other-consumer follow-up; current X2/X3 new-base qualification remains passed without a speed claim"
     ],
     "next_cross_title_priority": "Four focused selector segments remain: Serges front, Ostrich entrance and X2/X3 final-arena visuals plus optional Kaiser hit. Accepted scenes are not repeated.",
     "shared_engine_regression": {
@@ -1451,5 +1451,293 @@
       "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-experiment-label-corrections.json"
     ],
     "owner": "No owner games opened, accepted scenes repeated or new review segments added. Current four-segment handoff and owner settings/saves/notes are preserved."
+  },
+  "epilogue_and_aftermath_followup": {
+    "date": "2026-10-27T18:26:16.152209+00:00",
+    "game_code": "87f198ec0687af99b68a0cdf3ac867cf165c21c8",
+    "engine": "0095609940bc3a304da8c70f2dcab79264bbb8ab",
+    "compiled_engine": "e772aca74d06cef9435df2f34cda1689329b19c4",
+    "engine_tree": "396f26717c1bf151b0e110950c5fd5f179c1823a",
+    "executable": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ending-framing-x3\\MegaManX3SNESRecomp.exe",
+    "sha256": "3435c01797d24e26591b6ee093b2b444f54cf5e59b12472bc63a8fe1fe6d6d4a",
+    "baseline_sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+    "compiled_title_base": "750e42929a7ffd6cd4dd6b81fd986ad205bc0a72",
+    "compiled_source": {
+      "path": "src/x3_rtl.c",
+      "sha256": "ed6d3bbaffc4763194506cad3e0a67c2111c7982d7b3af837436dfc7065616a6",
+      "equivalence": "The compiled working C source is unchanged at game code87f198e. Generator/emitted code, core engine, build definitions and mod logic are unchanged.",
+      "patch": "Tested working C source subsequently committed as87f198e"
+    },
+    "defect": "The original fixed256px opening epilogue repeats its sun/factory outside the authored composition at wide widths.",
+    "change": "Use the existing native framing only in original ending mode6/phase0. Original scrolling cast phase2 and all gameplay remain adaptive.",
+    "ending_comparison": {
+      "342": {
+        "passed": true,
+        "samples": 20,
+        "execution": "default hybrid",
+        "current_build_save_load": [
+          {
+            "case": "x3-ending-framing-342-epilogue",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          {
+            "case": "x3-ending-framing-342-cast",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        ],
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-342.json"
+      },
+      "684": {
+        "passed": true,
+        "samples": 20,
+        "execution": "pure interpreter",
+        "current_build_save_load": [
+          {
+            "case": "x3-ending-framing-684-epilogue",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          {
+            "case": "x3-ending-framing-684-cast",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        ],
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-684.json"
+      }
+    },
+    "actual_entry_lifecycle": {
+      "passed": true,
+      "rows": [
+        {
+          "elapsed": 0,
+          "mode": "02040a02",
+          "size": [
+            342,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 100,
+          "mode": "02040a04",
+          "size": [
+            342,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 200,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 300,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 400,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 500,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 600,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 700,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 800,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 900,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 1000,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 1100,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 1200,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        }
+      ],
+      "scope": "Actual original stage-clear to ending transition, with no input or RAM writes after loading the genuinely reached clear snapshot. Full output before the epilogue and native pixels within it agree; all128KiB WRAM agree."
+    },
+    "gameplay": {
+      "byte": {
+        "passed": true,
+        "samples": 28,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-gameplay-byte.json"
+      },
+      "factory": {
+        "passed": true,
+        "samples": 24,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-gameplay-factory.json"
+      },
+      "kaiser": {
+        "passed": true,
+        "samples": 8,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-gameplay-kaiser.json"
+      },
+      "hub": {
+        "passed": true,
+        "samples": 20,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-gameplay-hub.json"
+      }
+    },
+    "portable_cli": {
+      "returncode": 0,
+      "stdout": "[{\"case\": \"epilogue-native-frame\", \"mode\": [6, 0], \"size\": [256, 224], \"expected_width\": 256, \"passed\": true}, {\"case\": \"cast-wide-frame\", \"mode\": [6, 2], \"size\": [684, 224], \"expected_width\": 684, \"passed\": true}]\n",
+      "stderr": ""
+    },
+    "current_owner_save_load": {
+      "case": "x3-ending-framing-owner-kaiser",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "current_owner_capture": {
+      "passed": true,
+      "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-capture-check\\review-captures\\x3-ending-framing-owner-kaiser-20261027-112129-928216.png",
+      "metadata_errors": {},
+      "replay": {
+        "case": "x3-ending-framing-owner-kaiser-capture",
+        "ram_difference": 0,
+        "pixel_difference": 0,
+        "passed": true
+      },
+      "progress": {
+        "format": "codex-review-progress-v1",
+        "slot": 1,
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ending-framing-x3\\saves\\save1.sav",
+        "sha256": "e4894c08622ccf7a1aa7807566bbaecae5a09971d11f904eb08fa792d9ff8d52",
+        "frame": 11506,
+        "tag": {
+          "segment": "x3-ending-framing-owner-kaiser",
+          "binary_sha256": "3435c01797d24e26591b6ee093b2b444f54cf5e59b12472bc63a8fe1fe6d6d4a",
+          "engine": "e772aca74d06cef9435df2f34cda1689329b19c4"
+        },
+        "utc": "2026-10-27T18:21:29.928216+00:00"
+      }
+    },
+    "prepared_owner_state": {
+      "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ending-framing-owner-states\\x3-kaiser-hit.sav",
+      "sha256": "d09f5c0f68f9ff6b9eeea0ebb614c83e5ecddea6627c3ad53eb96ff82eeb5653",
+      "note": "Exactly one live primary02 Kaiser at1HP. No result writes; current120frame save/load and Pause/Capture/restart exact."
+    },
+    "aftermath": {
+      "binary": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+      "passed": [
+        "Original virus creation, rising lava and upward camera movement after declared defeat bypass",
+        "Original virus contact takes control; two real B/release pulses restore control",
+        "Original upper corridor cue and Zero rescue/dialogue after declared ledge correction",
+        "Original fortresscounter3->5 and ending mode6 at342/default and684/interpreter; both ending states replay exactly",
+        "At342,24000 subsequent no-input/no-RAM frames reach Thanks for playing / Presented by CAPCOM"
+      ],
+      "bypasses": [
+        "Kaiser main HP1->0 supplies the unverified final-hit prerequisite; this is not a real combat win",
+        "Player-only shaft positioning bypasses wall-jump traversal",
+        "The first upper entry was below a raised ledge. A one-time position(2080,1679) supplies the missing physical approach; original movement resumes without changing movement state"
+      ],
+      "setup_failure": "The same prepared low entry stalls at native256 and342, and raising X to the ledge lets the original walk continue. This is excluded as a demonstrated widescreen defect; it does not certify an uninterrupted normal escape route or prove a fresh native whole-stage control.",
+      "original_control": "The first broad positioning run continued after control takeover and is limited to camera/actor observations. The following run stops at original control takeover and lets real dialogue input restore control.",
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-assisted-finale-width-matrix.json",
+      "ending_follow": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-assisted-ending-follow.json",
+      "terminal_picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3\\x3-assisted-ending-follow-24000.png",
+      "no_outcome_writes": "No camera, AI, progression/result, escape or ending flags written. The deliberate HP0 prerequisite and physical traversal assists remain explicit.",
+      "remaining": [
+        "Real Kaiser weakpoint finishing hit",
+        "Uninterrupted physical escape/ledge approach",
+        "Alternate Doppler-rescue ending"
+      ]
+    },
+    "provenance": "Aftermath/terminal traversal ran on preceding current engine-matched c3d2 binary. New3435 ending presentation is compared against it through actual clear entry,6000frames/mode and the cast transition; gameplay/currentsave/capture are separately exact. No new all-boss sweep or full terminal replay is claimed for3435.",
+    "promotion": "One current executable per owner title; only X3 epilogue presentation and its disposable current-build Kaiser snapshot replaced. No merge/release.",
+    "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-publication.json"
   }
 }

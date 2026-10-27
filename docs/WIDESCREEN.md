@@ -402,3 +402,29 @@ pixels and128KiB WRAM. Captures now include actual generated-CPU
 registers. Kaiser finishing hit, escape and endings remain unverified;
 the existing optional human segment remains available. See
 `native_final_qualification` in the audit JSON for assists and evidence.
+
+### Fixed epilogue and assisted aftermath (2026-10-27)
+
+The opening ending scene repeats its sun and factory at wide widths.
+Code87f198e retains the authored256px composition only for ending
+mode6/phase0, reusing the existing frame-width hook. The scrolling
+cast returns to adaptive widescreen in phase2. Gameplay is unchanged.
+
+New3435c017 at342/default and684/interpreter preserves every native
+epilogue pixel and128KiB WRAM across20 samples/6000frames per mode.
+The cast restores full width and identical whole output. Actual clear
+entry, four current-state replays, the portable debug-host regression,
+Byte/factory/Kaiser/hub samples and current Kaiser Save/Pause/Capture
+also pass. Source generator/core/package settings are unchanged.
+
+The preceding c3d2 audit now exercises original virus creation, rising
+lava/camera, contact/recovery, upper corridor, Zero rescue/dialogue and
+counter3->5/ending mode6 at342 and684. A further24000 no-input/no-RAM
+frames at342 reach Thanks for playing / Presented by CAPCOM. Kaiser
+HP0 deliberately bypasses the unverified finishing hit. Position assists
+bypass wall-jump traversal and correct an entry below a raised ledge;
+no camera, AI, progression, escape or ending flags are written. The
+same low prepared entry stalls natively too, so it is excluded as a
+demonstrated widescreen defect. Real finishing hit, uninterrupted
+physical escape and alternate rescue ending remain unverified. Exact
+binary identities and caveats are in `epilogue_and_aftermath_followup`.
