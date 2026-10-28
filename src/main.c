@@ -25,7 +25,8 @@
   "# windows are adapted for 16:9. See docs/WIDESCREEN.md.\n"
 
 #define MmxDisplayViewport X3DisplayViewport
-#define MmxDisplay_ComputeFrameWidth X3Display_ComputeFrameWidth
+#define MmxDisplay_ComputeFrameWidth(dw, dh, wide) \
+  X3Display_ComputeFrameWidth(dw, dh, (wide) && !X3UseNativeFrame())
 #define MmxDisplay_ComputeViewport X3Display_ComputeViewport
 #define MmxDisplay_GetWindowBaseWidth X3Display_GetWindowBaseWidth
 #define MmxDisplay_GetWindowBaseHeight X3Display_GetWindowBaseHeight

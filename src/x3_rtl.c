@@ -23,12 +23,14 @@
 #include "cpu_state.h"
 #include "cpu_trace.h"
 #include "snes/cart.h"
+#include "snes/cx4.h"
 #include "snes/interp_bridge.h"
 #include "snes/snes.h"
 #include "snes/dma.h"
 #include "snes/ppu.h"
 #include "snes/saveload.h"
 #include "snes/ws_shadow.h"
+#include "snes/mmx23_background.h"
 #include "types.h"
 #include "widescreen.h"
 
@@ -46,6 +48,54 @@ static unsigned s_lle_host_frames = 0;
 static bool s_lle_extra_loaded = false;
 static bool s_execution_loaded;
 static void x3_patch_ws_interp_obj_windows(void);
+static void x3_patch_hunter_landing(void);
+
+/* The original HG51B program computes signed screen X, then writes its low
+ * byte at02:80E6. Retain that value for presentation, and attach it only when
+ * DMA actually commits the corresponding XY word to PPU OAM. Neither the
+ * microcode nor guest OAM/camera/collision/progression is changed. */
+static int16_t s_cx4_oam_x[128];
+static uint8_t s_cx4_oam_valid[16];
+static bool s_cx4_oam_supported;
+
+static void x3_cx4_ram_written(void *context, uint32_t instruction,
+                              uint16_t address, unsigned byte, uint32_t value) {
+  (void)context;
+  if (address >= 512 || (address & 3)) return;
+  const unsigned slot = address >> 2;
+  s_cx4_oam_valid[slot >> 3] &= ~(1u << (slot & 7));
+  if (instruction == 0x0280e6 && byte == 0) {
+    int x = (int)(value & 0xffff);
+    if (x >= 32768) x -= 65536;
+    s_cx4_oam_x[slot] = (int16_t)x;
+    s_cx4_oam_valid[slot >> 3] |= 1u << (slot & 7);
+  }
+}
+
+static void x3_oam_xy_uploaded(uint8_t bank, uint16_t y_address, uint8_t slot) {
+  if (!g_snes || !g_snes->cart || !s_cx4_oam_supported ||
+      !cart_is_cx4_window(g_snes->cart, bank, y_address)) return;
+  /* Accept both RAM mirrors, but never IO, a shifted byte pair, or a source
+   * whose current byte no longer matches the captured full coordinate. */
+  const unsigned offset = y_address & 0xfff;
+  if (offset >= 512 || (offset & 3) != 1) return;
+  const unsigned source_slot = offset >> 2;
+  if (!(s_cx4_oam_valid[source_slot >> 3] & (1u << (source_slot & 7)))) return;
+  const int16_t x = s_cx4_oam_x[source_slot];
+  if ((g_ppu->oam[slot * 2] & 255) == (x & 255))
+    PpuWsSetOamFullX(g_ppu, slot, x);
+}
+
+static void x3_install_oam_observers(void) {
+  static const uint8_t signature[] = {0x60,0x80,0x68,0x80,0x66,0xe0,0x0c,0xe0,0x00,0xec};
+  Cart *cart = g_snes ? g_snes->cart : NULL;
+  s_cx4_oam_supported = cart && cart->cx4 && cart->romSize >= 0x100e8 &&
+      !memcmp(cart->rom + 0x100de, signature, sizeof(signature));
+  if (cart && cart->cx4)
+    cx4_set_ram_write_observer(cart->cx4,
+        s_cx4_oam_supported ? x3_cx4_ram_written : NULL, NULL);
+  dma_set_oam_xy_notify_hook(s_cx4_oam_supported ? x3_oam_xy_uploaded : NULL);
+}
 
 /* Read a 16-bit CPU vector out of bank $00's vector table. */
 static uint32_t x3_read_vector_pc24(uint16_t vec_addr) {
@@ -92,10 +142,12 @@ static int x3_boot_log_enabled(void) {
 }
 
 void RunOneFrameOfGame(void) {
+  x3_install_oam_observers();
   /* Generated bodies route viewport constants through X3WsObjWin*.
    * Interpreter fallbacks fetch the original ROM bytes, so mirror those
    * dynamic constants into the private runtime ROM copy each frame. */
   x3_patch_ws_interp_obj_windows();
+  x3_patch_hunter_landing();
 
   if (!s_lle_did_reset) {
     cpu_state_init(&g_cpu, g_ram);
@@ -210,8 +262,7 @@ void RunOneFrameOfGame(void) {
  * sides move by the same margin and stay symmetric at any width.
  */
 enum {
-  kX3HudSlotFirst = 0,        /* HP / weapon / boss all live in 0..23 */
-  kX3HudSlotCount = 24,       /* slot 24 onward is actors            */
+  kX3HudSlotFirst = 0,        /* HP / weapon occupy 0..15 */
   kX3HudBandHeight = 96,      /* measured HUD Y extent is 0..80       */
   kX3HudLeftEnd = 64,         /* HP X=8 and weapon X=24 are below this */
   kX3HudRightStart = 192,     /* boss X=232 is at/above this          */
@@ -256,256 +307,234 @@ static int x3_ws_hud_present(void) {
   return frame_slots >= 4u;
 }
 
+static bool x3_ws_boss_hud_present(void) {
+  unsigned matches=0;
+  for (unsigned slot=16; slot<23; ++slot) {
+    unsigned w=slot*2;
+    unsigned x=g_ppu->oam[w]&255, y=g_ppu->oam[w]>>8;
+    unsigned attr=g_ppu->oam[w+1]>>8;
+    unsigned xhi=(g_ppu->highOam[slot>>2]>>((slot&3)*2))&1;
+    matches += x==232 && !xhi && attr==0x34 && y<kX3HudBandHeight;
+  }
+  return matches>=4;
+}
+
 /* Call once per frame from the host's frame-prep, after g_ws_extra is known. */
+static void x3_configure_chamber_view(void) {
+  /* The final-stage entrance starts at world256. Its left neighbour is
+   * unused map data, not room art. Reuse X1's presentation anchor to spend
+   * the widescreen allowance inside this authored room. Leave the guest's
+   * camera, scroll limits, OAM and sequence comparisons untouched.
+   * Locked boss/escape views keep their separate arena policies. */
+  if (!g_ws_active || (g_ws_extra > 128 && !s_cx4_oam_supported) || g_ram[0xd1] != 4 ||
+      g_ram[0x1fae] != 13 || (g_ppu->bgmode & 7) != 1 ||
+      g_ppu->bgXsc[0] != 0x51 || g_ppu->bgXsc[1] != 0x59)
+    return;
+  const int camera = g_ram[0x1e5d] | g_ram[0x1e5e] << 8;
+  const int left_bound = g_ram[0x1e6e] | g_ram[0x1e6f] << 8;
+  const int right_bound = g_ram[0x1e68] | g_ram[0x1e69] << 8;
+  const int top = g_ram[0x1e6a] | g_ram[0x1e6b] << 8;
+  if (left_bound != 256 || right_bound != 1536 || top != 3584 ||
+      camera < left_bound - 16 || camera > right_bound + 16)
+    return;
+  const int cx = camera < left_bound ? left_bound :
+                 camera > right_bound ? right_bound : camera;
+  int left_available = cx - left_bound;
+  /* BG2 starts at map phase0 in this chamber and advances at half speed.
+   * Spending BG1's entire left allowance exposes BG2's unused predecessor
+   * cells while moving away from the entrance. Slide within both layers'
+   * authored art. The accepted <=512 policy retains its existing origin. */
+  const int bg2_left_available = g_ppu->hScroll[1] & 1023;
+  if (g_ws_extra > 128 && left_available > bg2_left_available)
+    left_available = bg2_left_available;
+  int left = left_available;
+  if (left > g_ws_extra) left = g_ws_extra;
+  int right = right_bound - cx;
+  if (right > 2 * g_ws_extra - left) right = 2 * g_ws_extra - left;
+  left = left_available;
+  if (left > 2 * g_ws_extra - right) left = 2 * g_ws_extra - right;
+  PpuSetWidescreenViewAnchor(g_ppu, true);
+  PpuWsEnableOamFullX(g_ppu, g_ws_extra > 128);
+  PpuSetExtraSideSpace(g_ppu, left, right, 0);
+  /* Dialogue is authored in screen coordinates. Keep its complete native
+   * sheet at the physical centre while only the world view slides. */
+  const int shift = g_ws_extra - g_ppu->extraFrameLeft;
+  const PpuWsElasticSeg dialogue = {shift, shift + 256, 0, 256};
+  PpuSetWidescreenLayerElasticBand(g_ppu, 2, 0, 224, &dialogue, 1);
+}
+
 void X3ConfigureWsHud(void) {
   extern bool g_ws_active;
   if (!g_ppu) return;
+  x3_install_oam_observers();
+  x3_configure_chamber_view();
   /* X3's HUD is OAM-only; BG3 is gameplay dialogue and must stay centered. */
   PpuSetWidescreenHudSplit(g_ppu, 0, 0, 0);
   if (!g_ws_active || !x3_ws_hud_present()) {
+    PpuSetWsHudOamShiftRange2(g_ppu, 0, 0);
     PpuSetWsHudOamShiftRange(g_ppu, 0, 0);   /* off = authentic placement */
     return;
   }
   PpuSetWsHudOamBand(g_ppu, kX3HudBandHeight,
                      kX3HudLeftEnd, kX3HudRightStart);
-  PpuSetWsHudOamShiftRange(g_ppu, kX3HudSlotFirst,
-                           kX3HudSlotCount);
+  PpuSetWsHudOamShiftRange(g_ppu, kX3HudSlotFirst, 16);
+  PpuSetWsHudOamShiftRange2(g_ppu, 16, x3_ws_boss_hud_present() ? 7 : 0);
 }
 
-/* ── 16:9 BG margins: exact fill from X3's level structures ──────────────
- *
- * X3 retained X2's two-layer column streamer. The corresponding X3 routines
- * are $00:B91B (composer), $00:BC60 (address/layout derivation), and
- * $00:BC9E/$00:BCD5 (BG1/BG2 source setup). Their external data layout is
- * unchanged:
- *
- *          layout     screenDefs   metatile ptr    world anchor
- *   BG1    $7E:E800   $7E:2800     24-bit [$09C5]  $1E5D / $1E60
- *   BG2    $7E:EC00   $7E:A600     24-bit [$09C8]  $1E9D / $1EA0
- *
- * Live validation on save slot 0 reproduced all sampled native VRAM entries
- * on both layers before this provider was enabled. As in X2, the native view
- * is never modified; only gutter lookups are replaced, and only after a
- * per-frame native-view self-check proves that the scene uses this layout.
- */
-typedef struct X3BgStream {
-  uint16_t layoutBase;
-  uint16_t screenDefs;
-  uint16_t mtPtrAddr;
-  uint16_t worldXAddr;
-  uint16_t worldYAddr;
-  uint8_t bgsc;
-  uint16_t mapBaseWord;
-} X3BgStream;
-
-static const X3BgStream kX3BgStreams[2] = {
-    {0xE800, 0x2800, 0x09C5, 0x1E5D, 0x1E60, 0x51, 0x5000},
-    {0xEC00, 0xA600, 0x09C8, 0x1E9D, 0x1EA0, 0x59, 0x5800},
-};
-
-static uint16_t x3_wram16(uint32_t addr) {
-  return (uint16_t)(g_ram[addr] | (g_ram[addr + 1] << 8));
+/* Maoh paints BG2 characters0x300..0x3ff over a reused circular map. Other
+ * characters outside the native view are stale level tiles, not boss art.
+ * Filter the renderer's live tile so moving/destructible body pieces retain
+ * their exact map attributes and never depend on cached terrain history. */
+static uint16_t x3_maoh_margin_tile(void *context, uint16_t address,
+                                   uint16_t tile) {
+  (void)context;
+  (void)address;
+  return (tile & 0x3ff) >= 0x300 ? tile : 0;
 }
 
-static uint16_t x3_bg_world_tile(const X3BgStream *s, uint32_t px,
-                                 uint32_t py) {
-  uint32_t li = (((py >> 8) & 0x1F) << 5) | ((px >> 8) & 0x1F);
-  uint8_t sid = g_ram[s->layoutBase + li];
-  uint16_t ba = (uint16_t)(s->screenDefs + sid * 512u +
-                           ((py >> 4) & 0xF) * 0x20u +
-                           ((px >> 4) & 0xF) * 2u);
-  uint16_t block =
-      (uint16_t)(g_ram[ba] | (g_ram[(uint16_t)(ba + 1)] << 8));
-  uint16_t mt_addr = x3_wram16(s->mtPtrAddr);
-  uint8_t mt_bank = g_ram[s->mtPtrAddr + 2];
-  /* Match the guest's fixed-bank, 16-bit pointer wrap at $00:B9C0. */
-  uint16_t a =
-      (uint16_t)(mt_addr + block * 8u + (((py >> 3) & 1u) << 2) +
-                 (((px >> 3) & 1u) << 1));
-  return (uint16_t)(cart_read(g_snes->cart, mt_bank, a) |
-                    (cart_read(g_snes->cart, mt_bank,
-                               (uint16_t)(a + 1)) << 8));
-}
-
-static uint16_t x3_bg_vram_word(const X3BgStream *s, uint32_t px,
-                                uint32_t py) {
-  uint32_t tx = px >> 3, ty = py >> 3;
-  return (uint16_t)(s->mapBaseWord + ((tx >> 5) & 1u) * 0x400u +
-                    (ty & 0x1F) * 0x20u + (tx & 0x1F));
-}
-
-static bool x3_bg_stream_valid(const X3BgStream *s, int32_t wx, int32_t wy) {
-  if (wx < 0 || wy < 0)
-    return false;
-  /* Boot/menu frames can already have the gameplay BG mode/map bases while
-   * the stream-source cluster is still zero. Reject before cart_read so an
-   * uninitialized pointer cannot create a false off-rails diagnostic. */
-  if (x3_wram16(s->mtPtrAddr) < 0x8000)
-    return false;
-  int miss = 0, modal = 0;
-  uint16_t modal_tile = 0;
-  uint16_t got_v[12];
-  for (int i = 0; i < 12; i++) {
-    uint32_t px = (uint32_t)wx + 10u + (uint32_t)i * 20u;
-    uint32_t py = (uint32_t)wy + 12u + (uint32_t)(i % 6) * 36u;
-    uint16_t want = x3_bg_world_tile(s, px, py);
-    uint16_t got = g_ppu->vram[x3_bg_vram_word(s, px, py) & 0x7FFF];
-    got_v[i] = got;
-    if (want != got)
-      miss++;
-  }
-  if (miss > 1)
-    return false;
-  /* A near-uniform sample cannot prove that a layer is level data. It may
-   * instead be a dynamic object layer, which authentic map wrap preserves. */
-  for (int i = 0; i < 12; i++) {
-    int same = 0;
-    for (int j = 0; j < 12; j++)
-      same += (got_v[j] == got_v[i]);
-    if (same > modal) {
-      modal = same;
-      modal_tile = got_v[i];
-    }
-  }
-  if (modal <= 9)
-    return true;
-
-  /*
-   * A sparse level screen can legitimately make the quick sample almost
-   * uniform.  This happens throughout the slot-8 vertical fall: BG1 is
-   * mostly transparent until the terrain scrolls up, so the old diversity
-   * gate disabled exact gutters for roughly 35 frames and exposed wrapped
-   * stale rows at the right edge.
-   *
-   * Preserve the object-layer safeguard by looking for positive evidence,
-   * rather than merely accepting a uniform match.  Scan the native view for
-   * six source tiles that differ from the modal native entry and require
-   * each one to reproduce VRAM.  A repurposed object layer whose level
-   * source is blank finds no proof; one whose live objects disagree with
-   * that source fails the comparisons.  A genuine sparse level map proves
-   * itself as soon as its off-air terrain entries agree.
-   */
-  int proof = 0, proof_miss = 0;
-  for (uint32_t y = 4; y < 224; y += 8) {
-    for (uint32_t x = 4; x < 256; x += 8) {
-      uint32_t px = (uint32_t)wx + x;
-      uint32_t py = (uint32_t)wy + y;
-      uint16_t want = x3_bg_world_tile(s, px, py);
-      if (want == modal_tile)
-        continue;
-      uint16_t got =
-          g_ppu->vram[x3_bg_vram_word(s, px, py) & 0x7FFF];
-      if (want == got) {
-        if (++proof >= 6)
-          return true;
-      } else if (++proof_miss > 1) {
-        return false;
-      }
-    }
-  }
-  return false;
-}
-
-void X3ConfigureWsBgMargins(void) {
-  static int s_enabled = -1, s_debug = -1;
-  static bool s_was_active;
-  if (s_enabled < 0) {
-    const char *e = getenv("SNESRECOMP_WS_BG_MARGINS");
-    s_enabled = (e && e[0] == '0') ? 0 : 1;
-    e = getenv("SNESRECOMP_WS_BG_MARGINS_DEBUG");
-    s_debug = (e && e[0] && e[0] != '0') ? 1 : 0;
-  }
-
-  bool scene_ok = s_enabled && g_ws_active && g_ppu &&
-                  (g_ppu->bgmode & 0x37) == 1 &&
-                  g_ppu->bgXsc[0] == kX3BgStreams[0].bgsc &&
-                  g_ppu->bgXsc[1] == kX3BgStreams[1].bgsc;
-  if (s_debug) {
-    static unsigned s_calls;
-    if ((s_calls++ % 120) == 0) {
-      fprintf(stderr,
-              "[x3_ws_bg] call=%u en=%d ws=%d bgmode=%u bgXsc=%02X/%02X "
-              "scene_ok=%d extra=%d\n",
-              s_calls, s_enabled, (int)g_ws_active,
-              g_ppu ? g_ppu->bgmode : 0xFF,
-              g_ppu ? g_ppu->bgXsc[0] : 0xFF,
-              g_ppu ? g_ppu->bgXsc[1] : 0xFF,
-              (int)scene_ok, g_ws_extra);
-    }
-  }
-
-  bool ok[2] = {false, false};
-  int32_t wxp[2] = {0, 0}, wyp[2] = {0, 0};
-  bool any = false;
-  if (scene_ok) {
-    for (int l = 0; l < 2; l++) {
-      const X3BgStream *s = &kX3BgStreams[l];
-      uint16_t h = (uint16_t)(g_ppu->hScroll[l] & 0x3FF);
-      uint16_t v = (uint16_t)(g_ppu->vScroll[l] & 0x3FF);
-      int32_t wx = (int32_t)x3_wram16(s->worldXAddr);
-      int32_t wy = (int32_t)x3_wram16(s->worldYAddr);
-      int32_t dh = (int32_t)((uint16_t)(h - wx) & 0x3FF);
-      int32_t dv = (int32_t)((uint16_t)(v - wy) & 0x3FF);
-      if (dh >= 512) dh -= 1024;
-      if (dv >= 512) dv -= 1024;
-      wx += dh;
-      wy += dv;
-      if (!x3_bg_stream_valid(s, wx, wy)) {
-        if (s_debug) {
-          static unsigned s_fail[2];
-          if ((s_fail[l]++ % 120) == 0)
-            fprintf(stderr,
-                    "[x3_ws_bg] L%d validation fail #%u wx=%d wy=%d "
-                    "h=%u v=%u anchor=(%u,%u)\n",
-                    l, s_fail[l], wx, wy, h, v,
-                    x3_wram16(s->worldXAddr),
-                    x3_wram16(s->worldYAddr));
-        }
-        continue;
-      }
-      ok[l] = true;
-      any = true;
-      wxp[l] = wx;
-      wyp[l] = wy;
-      WsShadowSetWorld(l, (uint32_t)wx, (uint32_t)wy);
-      WsShadowSetBlankTile(l, -1);
-      WsShadowSetRespectGameWrites(l, 60);
-    }
-  }
-
-  if (!any) {
-    if (s_was_active)
-      WsShadowReset();
-    s_was_active = false;
-    WsShadowFrame(g_ppu);
+static void x3_configure_fortress_travel(void) {
+  if (!g_ws_active || !g_ppu || g_ram[0xd1] != 4 || g_ram[0x1fae] != 13 ||
+      (g_ppu->bgmode & 7) != 1 || g_ppu->bgXsc[0] != 0x51 ||
+      g_ppu->bgXsc[1] != 0x59)
     return;
+  const int camera_y = g_ram[0x1e60] | g_ram[0x1e61] << 8;
+  const int left = g_ram[0x1e6e] | g_ram[0x1e6f] << 8;
+  const int right = g_ram[0x1e68] | g_ram[0x1e69] << 8;
+  const int top = g_ram[0x1e6a] | g_ram[0x1e6b] << 8;
+  const int bottom = g_ram[0x1e6c] | g_ram[0x1e6d] << 8;
+  /* The entrance anchor and closed boss arenas already own their framing.
+   * Verify the loaded fortress layout before interpreting screen0 as void. */
+  if (camera_y < 2560 || camera_y > 3584 ||
+      (left == 256 && right == 1536 && top == 3584) ||
+      (left == right && top == bottom) ||
+      g_ram[0xe800 + 10 * 32 + 7] != 10 ||
+      g_ram[0xe800 + 14 * 32 + 1] != 17)
+    return;
+  const int camera_x = g_ram[0x1e5d] | g_ram[0x1e5e] << 8;
+  int dx = (g_ppu->hScroll[0] - camera_x) & 511;
+  int dy = (g_ppu->vScroll[0] - camera_y) & 255;
+  if (dx >= 256) dx -= 512;
+  if (dy >= 128) dy -= 256;
+  const int world_x = camera_x + dx, world_y = camera_y + dy;
+  /* At most two256px source rows intersect the native224px frame. Their
+   * nonzero screen spans describe the authored canvas, including intentional
+   * transparent holes inside it. Never infer room bounds from opaque pixels.
+   * Continue only the outermost wall pixel, avoiding reflected doors/actors.
+   * BG2 remains its live circular canvas (its logical Y may be negative). */
+  for (unsigned slot = 0; slot < 2; ++slot) {
+    const int row = (world_y >> 8) + slot;
+    if (row < 10 || row > 14) continue;
+    int y0 = row * 256 - world_y, y1 = y0 + 256;
+    if (y0 < 0) y0 = 0;
+    if (y1 > 224) y1 = 224;
+    if (y0 >= y1) continue;
+    int first = 32, last = -1;
+    for (int x = 0; x < 32; ++x) {
+      if (!g_ram[0xe800 + row * 32 + x]) continue;
+      if (first == 32) first = x;
+      last = x;
+    }
+    if (last < first) continue;
+    int a = first * 256 - world_x + g_ppu->hScroll[0];
+    int b = (last + 1) * 256 - world_x + g_ppu->hScroll[0];
+    /* Keep authentic quake/scroll overhang. World policies use the hardware
+     * phase; a distant negative bound is outside the widest supported view. */
+    if (a > g_ppu->hScroll[0]) a = g_ppu->hScroll[0];
+    if (a < 0) a = 0;
+    if (b < g_ppu->hScroll[0] + 256) b = g_ppu->hScroll[0] + 256;
+    PpuSetWidescreenLayerWorldRepeatBandSlot(g_ppu,slot,0,y0,y1,a,b,1);
+    PpuSetWidescreenLayerWorldClipBandSlot(g_ppu,slot,1,y0,y1,0,a,b);
+    PpuSetWidescreenLayerWorldClipBandSlot(g_ppu,slot,4,y0,y1,0,a,b);
   }
-  s_was_active = true;
-  WsShadowFrame(g_ppu);
+}
 
-  int margin = (g_ws_extra + 7) & ~7;
-  for (int l = 0; l < 2; l++) {
-    if (!ok[l])
-      continue;
-    const X3BgStream *s = &kX3BgStreams[l];
-    const int32_t tx_rng[2][2] = {
-        {(wxp[l] - margin) >> 3, (wxp[l] - 1) >> 3},
-        {(wxp[l] + 256) >> 3, (wxp[l] + 255 + margin) >> 3},
-    };
-    int32_t ty0 = (wyp[l] - 256) >> 3;
-    int32_t ty1 = (wyp[l] + 491) >> 3;
-    if (ty0 < 0)
-      ty0 = 0;
-    for (int r = 0; r < 2; r++) {
-      for (int32_t tx = tx_rng[r][0]; tx <= tx_rng[r][1]; tx++) {
-        if (tx < 0)
-          continue;
-        for (int32_t ty = ty0; ty <= ty1; ty++) {
-          WsShadowForceTile(l, (uint32_t)tx, (uint32_t)ty,
-                            x3_bg_world_tile(s, (uint32_t)tx << 3,
-                                             (uint32_t)ty << 3));
-        }
-      }
+/* Exact background source for the widescreen margins. */
+void X3ConfigureWsBgMargins(void) {
+  Mmx23ConfigureWsBgMargins(g_snes, g_ppu, g_ram, g_ws_active);
+  x3_configure_fortress_travel();
+  /* Keep Maoh's genuine offscreen body inside its512px canvas while BG1
+   * supplies the roof. Never reflect the boss or expose stale map
+   * cells beside it. Enter the policy when the original camera reaches the
+   * combat roof, including the introduction before the left bound locks. */
+  static const uint8_t maoh_vertical_bounds[4] = {0x00,0x01,0x00,0x01};
+  const unsigned camera_x = g_ram[0x1e5d] | g_ram[0x1e5e] << 8;
+  const unsigned min_x = g_ram[0x1e6e] | g_ram[0x1e6f] << 8;
+  if (g_ws_active && g_ppu && g_ram[0xd1] == 4 && g_ram[0x1fae] == 0 &&
+      !memcmp(g_ram+0x1e6a,maoh_vertical_bounds,sizeof maoh_vertical_bounds) &&
+      g_ram[0x1e70] == 0x00 && g_ram[0x1e71] == 0x1b &&
+      min_x >= 6656 && min_x <= 6784 && camera_x >= 6784 && camera_x <= 6912 &&
+      (g_ppu->bgmode & 7) == 1 && g_ppu->bgXsc[0] == 0x51 &&
+      g_ppu->bgXsc[1] == 0x59) {
+    WsShadowUseFilteredVram(1,g_ppu,x3_maoh_margin_tile,NULL);
+    PpuSetWidescreenLayerWorldClipBand(g_ppu,1,0,224,1,512,1024);
+    /* This scene uses BG3 for its complete repeating skyline rather than
+     * the normal dialogue sheet. Its loaded map supplies the distant city. */
+    PpuSetWidescreenBg3Widen(g_ppu,1);
+    /* The roof ends at world7168. Its combat section starts at6784;
+     * reflecting the preceding entrance would invent another boss door.
+     * Repeat the32px edge strips only outside the authored roof. Reflecting
+     * the whole combat area would copy Maoh's real floor damage as well. */
+    PpuSetWidescreenLayerWorldRepeatBand(g_ppu,0,0,224,640,1024,32);
+  }
+  /* Keep authored fortress arenas' native pixels intact and continue their wall
+   * edges into the gutters. The BG2 Kaiser head is a circular object canvas,
+   * so it must stay within the room rather than echo beyond the side walls.
+   * These presentation fields reset each frame; the escape shaft keeps its
+   * normal streaming policy as soon as the original bounds unlock. */
+  static const struct {
+    uint8_t stage;
+    uint8_t checkpoint; /* 255 = any */
+    uint8_t bounds[10];
+    bool moving_top;
+    uint16_t world_left, world_right; /* BG1's unwrapped PPU map phase */
+  } fixed_arenas[] = {
+      {10,255,{0x00,0x16,0x00,0x06,0x00,0x06,0x00,0x16,0x00,0x16},false,0,0}, /* Press */
+      {10,255,{0x00,0x16,0x00,0x07,0x00,0x07,0x00,0x16,0x00,0x16},false,0,0}, /* Godkarmachine */
+      {12,255,{0x00,0x0a,0x00,0x04,0x00,0x04,0x00,0x0a,0x00,0x0a},false,0,0}, /* Doppler */
+      {13,255,{0x00,0x07,0x00,0x0a,0x00,0x0a,0x00,0x07,0x00,0x07},false,0,0}, /* Sigma */
+      /* Lab2's water room is512px wide and its ceiling scrolls during the
+       * introduction/fight. Preserve real room art in the gutters; reflect
+       * only beyond world4352..4864, whose PPU map phase is256..768. */
+      {11,2,{0x00,0x12,0x00,0x00,0x00,0x02,0x00,0x11,0x00,0x12},true,256,768},
+  };
+  int arena = -1;
+  for (size_t i = 0; i < sizeof(fixed_arenas)/sizeof(fixed_arenas[0]); ++i) {
+    if (g_ram[0x1fae] == fixed_arenas[i].stage &&
+        (fixed_arenas[i].checkpoint == 255 ||
+         g_ram[0x1fb5] == fixed_arenas[i].checkpoint) &&
+        !memcmp(g_ram+0x1e68,fixed_arenas[i].bounds,2) &&
+        !memcmp(g_ram+0x1e6c,fixed_arenas[i].bounds+4,6) &&
+        (fixed_arenas[i].moving_top ||
+         !memcmp(g_ram+0x1e6a,fixed_arenas[i].bounds+2,2))) {
+      arena = (int)i;
+      break;
+    }
+  }
+  if (g_ws_active && g_ppu && arena >= 0 &&
+      g_ram[0xd1] == 4 && (g_ppu->bgmode & 7) == 1 &&
+      (g_ppu->bgXsc[0] & 0xfc) == 0x50 && (g_ppu->bgXsc[1] & 0xfc) == 0x58) {
+    if (fixed_arenas[arena].world_right > fixed_arenas[arena].world_left) {
+      int left = fixed_arenas[arena].world_left;
+      int right = fixed_arenas[arena].world_right;
+      const int scroll = g_ppu->hScroll[0];
+      /* An entirely in-room viewport already has genuine art everywhere. */
+      if (scroll-(int)g_ppu->extraLeftCur >= left &&
+          scroll+256+(int)g_ppu->extraRightCur <= right)
+        return;
+      /* BG2 contains the boss on a circular canvas. Keep the legitimate body
+       * in the room's offscreen columns, but reject its wrapped copies. */
+      PpuSetWidescreenLayerWorldClipBand(g_ppu,1,0,224,0,
+                                        (uint16_t)left,(uint16_t)right);
+      /* A native camera shake may briefly expose a few columns beyond the
+       * authored wall. Retain that authentic view; only synthesize overflow.
+       * Use the actual PPU scroll, including its raster/quake phase. */
+      if (left > scroll) left = scroll;
+      if (right < scroll+256) right = scroll+256;
+      PpuSetWidescreenLayerWorldMirrorBand(g_ppu,0,0,224,
+                                          (uint16_t)left,(uint16_t)right);
+    } else {
+      PpuSetWidescreenLayerElasticSplitBandSlot(g_ppu,0,0,0,224,0,1,255,256);
+      PpuSetWidescreenLayerClamp(g_ppu,2);
     }
   }
 }
@@ -514,6 +543,19 @@ void X3ConfigureWsBgMargins(void) {
  * $02: $D58A activation, $D611 visibility, and $D636 draw. Generated-code
  * overrides route only structurally confirmed camera-X add/limit pairs (and
  * camera-X/dp$05 triggers) through these helpers. Y windows are untouched. */
+/* Boss Rush stores unrelated arenas beside each other. Match X2's native
+ * framing for isolated rematches; the hub retains its complete wide layout.
+ * Hub teleports select checkpoints 3..8. Checkpoint 2 is the ordinary
+ * corridor after the hub and keeps its scrolling widescreen presentation. */
+bool X3UseNativeFrame(void) {
+  /* The opening epilogue is an authored256px composition. Its background
+   * canvases repeat the sun and factory when extended. The subsequent
+   * scrolling cast (ending phase2) keeps adaptive widescreen. */
+  return (g_ram[0xd1] == 6 && g_ram[0xd2] == 0) ||
+         (g_ram[0x1fae] == 12 && g_ram[0xd1] == 4 &&
+          g_ram[0x1fb5] >= 3 && g_ram[0x1fb5] <= 8);
+}
+
 static int x3_ws_spawn_margin(void) {
   static int s_enabled = -1;
   if (s_enabled < 0) {
@@ -525,12 +567,88 @@ static int x3_ws_spawn_margin(void) {
   return g_ws_extra + 32;
 }
 
+/* Resident type $04 owns parallax/scroll configuration, not enemy AI.
+ * Its native cull window also owns its lifetime: keeping a previous room's
+ * controller alive lets its Y-only crossing overwrite the current room.
+ * In the factory lift this changes BG2 mode $10 to $02 at $03:F854. */
+static bool x3_ws_native_controller(uint16_t dp) {
+  return dp >= 0x1818 && dp < 0x1e18 &&
+         ((dp - 0x1818) & 0x1f) == 0 && g_ram[dp + 0x0a] == 0x04;
+}
+
 uint16 X3WsObjWinAdd(uint16 base) {
-  return (uint16)(base + x3_ws_spawn_margin());
+  return (uint16)(base + (x3_ws_native_controller(g_cpu.D) ? 0 : x3_ws_spawn_margin()));
 }
 
 uint16 X3WsObjWinLimit(uint16 base) {
-  return (uint16)(base + 2 * x3_ws_spawn_margin());
+  return (uint16)(base + 2 * (x3_ws_native_controller(g_cpu.D) ? 0 : x3_ws_spawn_margin()));
+}
+
+/* Bit/Byte delay terrain collision until cameraY+$98/$78. A vertical
+ * approach can leave the camera below the authored room origin, so that
+ * first collision check happens after their feet have passed through the
+ * floor. Use the original spawn record's world Y for that threshold. Keep
+ * the original falling physics, terrain collision and encounter flags. */
+uint16 X3HunterLandingCameraY(uint16 camera) {
+  uint16_t dp = g_cpu.D;
+  if (dp < 0xd18 || dp >= 0x1518 || ((dp - 0xd18) & 63)) return camera;
+  uint8_t id = g_ram[dp + 10];
+  if (id != 0x46 && id != 0x47) return camera;
+  uint32_t first = g_ram[0xf800] | (g_ram[0xf801] << 8);
+  uint32_t end = g_ram[0xfa00] | (g_ram[0xfa01] << 8);
+  if (first != 0xfa02 || end < first || (end-first)%5) return camera;
+  for (uint32_t p = first; p + 4 < end; p += 5) {
+    uint16_t addr = g_ram[p+3] | (g_ram[p+4] << 8);
+    if (addr < 0x8000 || addr > 0xfff9) continue;
+    if ((cart_read(g_snes->cart,0x3c,addr) & 15) != 3 ||
+        cart_read(g_snes->cart,0x3c,addr+3) != id) continue;
+    uint16_t y = g_ram[p+1] | (g_ram[p+2] << 8);
+    uint16_t x = cart_read(g_snes->cart,0x3c,addr+5) |
+                 ((cart_read(g_snes->cart,0x3c,addr+6) & 31) << 8);
+    uint16_t object_x = g_ram[dp+5] | (g_ram[dp+6] << 8);
+    /* Both hunters must begin checking by recordY-8 (40px above the
+     * authored floor). Bit's stock $98 gate is 32px later than Byte's $78
+     * gate, so compensate that operand too; collision chooses the landing. */
+    unsigned bias = id == 0x46 ? 160 : 128;
+    if (abs((int)x-(int)object_x) <= 512 && y >= bias) return y - bias;
+  }
+  return camera;
+}
+
+static uint8_t *s_hunter_landing[2];
+static bool s_hunter_landing_scanned;
+static void x3_hunter_landing_hook(CpuState *cpu, uint32_t pc24) {
+  unsigned index = pc24 == 0x07907d ? 0 : 1;
+  if (!s_hunter_landing[index] || cpu->m_flag) return;
+  uint16_t camera = cpu_read16(cpu,cpu->DB,0x1e60);
+  uint16_t origin = X3HunterLandingCameraY(camera);
+  /* Complete the proven 16-bit LDA absolute with the substituted operand.
+   * Preserve its five slow-bus cycles, flags and original WRAM read. Keeping
+   * ROM unchanged also avoids mutable instruction operands across state loads. */
+  cpu_write_a_m(cpu,origin);
+  cpu->_flag_Z = origin == 0;
+  cpu->_flag_N = (origin & 0x8000) != 0;
+  cpu_mirrors_to_p(cpu);
+  cpu->cycles += 5;
+  cpu->master_cycles += 5 * 8; /* Both signature sites are slow LoROM banks. */
+  interp_bridge_pre_opcode_redirect(pc24 + 3);
+}
+static void x3_patch_hunter_landing(void) {
+  static const uint32_t pcs[2] = {0x07907d,0x3cc588};
+  if (!s_hunter_landing_scanned && g_snes && g_snes->cart && g_snes->cart->rom) {
+    s_hunter_landing_scanned = true;
+    for (unsigned i=0;i<2;i++) {
+      uint32_t offset = ((pcs[i] >> 16) * 0x8000) + (pcs[i] & 0x7fff);
+      if (offset < 2 || offset + 6 > g_snes->cart->romSize) continue;
+      uint8_t *p = g_snes->cart->rom + offset;
+      uint16_t add = i ? 0x78 : 0x98;
+      if (p[-2]==0xc2 && p[-1]==0x21 && p[0]==0xad && p[1]==0x60 &&
+          p[2]==0x1e && p[3]==0x69 && p[4]==add && p[5]==0) {
+        s_hunter_landing[i] = p;
+        interp_bridge_add_pre_opcode_hook(pcs[i],x3_hunter_landing_hook);
+      } else fprintf(stderr,"[x3] hunter landing signature mismatch at $%06X\n",pcs[i]);
+    }
+  }
 }
 
 /* $00:DE3A streams scripted level records, not just ordinary actors. Widening
@@ -848,6 +966,23 @@ static void x3_scan_ws_rom_imms(void) {
   }
 }
 
+/* Match the generated helpers when the shared activation/cull routine is
+ * interpreted. Only its two X immediates change; the original guest body,
+ * stack, flags, Y checks and record deletion still execute normally. */
+static void x3_ws_activation_hook(CpuState *cpu, uint32_t pc24) {
+  (void)pc24;
+  if (!s_x3_ws_rom_valid) return;
+  unsigned margin = x3_ws_native_controller(cpu->D) ? 0 : x3_ws_spawn_margin();
+  for (int i = 0; i < s_x3_ws_rom_imm_count; ++i) {
+    X3WsRomImm *site = &s_x3_ws_rom_imms[i];
+    size_t offset = (size_t)(site->operand - g_snes->cart->rom);
+    if (offset < 0x1558a || offset >= 0x15611) continue;
+    uint16_t value = (uint16_t)(site->base + site->margin_scale * margin);
+    site->operand[0] = (uint8_t)value;
+    site->operand[1] = (uint8_t)(value >> 8);
+  }
+}
+
 static void x3_patch_ws_interp_obj_windows(void) {
   if (!s_x3_ws_rom_scanned)
     x3_scan_ws_rom_imms();
@@ -860,6 +995,12 @@ static void x3_patch_ws_interp_obj_windows(void) {
       site->operand[0] = (uint8_t)value;
       site->operand[1] = (uint8_t)(value >> 8);
     }
+  }
+  if (s_x3_ws_rom_valid) {
+    interp_bridge_add_pre_opcode_hook(0x02d58a, x3_ws_activation_hook);
+    /* Also restore the correct operand context for a snapshot resumed inside
+     * the helper; such a resume need not cross its entry hook again. */
+    x3_ws_activation_hook(&g_cpu, 0x02d58a);
   }
   x3_patch_ws_interp_spawn_stream();
 }
@@ -896,7 +1037,7 @@ typedef struct X3LleSaveChunk {
 void X3StateSaveExtra(SaveLoadInfo *sli) {
   X3LleSaveChunk c;
   memset(&c, 0, sizeof(c));
-  c.magic = kX3LleSaveMagic + 1;
+  c.magic = kX3LleSaveMagic + 2;
   c.resume_pc24 = s_lle_resume_pc;
   c.A = g_cpu.A; c.X = g_cpu.X; c.Y = g_cpu.Y; c.S = g_cpu.S; c.D = g_cpu.D;
   c.DB = g_cpu.DB; c.PB = g_cpu.PB; c.P = g_cpu.P;
@@ -910,6 +1051,10 @@ void X3StateSaveExtra(SaveLoadInfo *sli) {
   c.host_frames = (uint32_t)s_lle_host_frames;
   sli->func(sli, &c, sizeof(c));
   RtlSaveExecutionState(sli);
+  sli->func(sli, s_cx4_oam_x, sizeof(s_cx4_oam_x));
+  sli->func(sli, s_cx4_oam_valid, sizeof(s_cx4_oam_valid));
+  sli->func(sli, g_ppu->wsOamFullX, sizeof(g_ppu->wsOamFullX));
+  sli->func(sli, g_ppu->wsOamFullXValid, sizeof(g_ppu->wsOamFullXValid));
 }
 
 void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
@@ -918,7 +1063,7 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
   memset(&c, 0, sizeof(c));
   sli->func(sli, &c, sizeof(c));
   s_execution_loaded = false;
-  if (c.magic != kX3LleSaveMagic && c.magic != kX3LleSaveMagic + 1) {
+  if (c.magic < kX3LleSaveMagic || c.magic > kX3LleSaveMagic + 2) {
     fprintf(stderr,
             "[x3_rtl] save extra: bad magic $%08X — ignoring LLE chunk\n",
             (unsigned)c.magic);
@@ -939,8 +1084,16 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
   s_lle_resume_pc = c.resume_pc24 & 0xFFFFFFu;
   s_lle_host_frames = c.host_frames ? c.host_frames : 1u;
   s_lle_extra_loaded = true;
-  if (c.magic == kX3LleSaveMagic + 1)
+  if (c.magic >= kX3LleSaveMagic + 1)
     s_execution_loaded = RtlLoadExecutionState(sli);
+  memset(s_cx4_oam_valid, 0, sizeof(s_cx4_oam_valid));
+  memset(g_ppu->wsOamFullXValid, 0, sizeof(g_ppu->wsOamFullXValid));
+  if (c.magic == kX3LleSaveMagic + 2) {
+    sli->func(sli, s_cx4_oam_x, sizeof(s_cx4_oam_x));
+    sli->func(sli, s_cx4_oam_valid, sizeof(s_cx4_oam_valid));
+    sli->func(sli, g_ppu->wsOamFullX, sizeof(g_ppu->wsOamFullX));
+    sli->func(sli, g_ppu->wsOamFullXValid, sizeof(g_ppu->wsOamFullXValid));
+  }
   fprintf(stderr, "[x3_rtl] LLE load extra resume=$%06X master=%llu\n",
           (unsigned)s_lle_resume_pc,
           (unsigned long long)g_cpu.master_cycles);
@@ -948,6 +1101,8 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
 
 void X3OnStateLoaded(uint32_t version) {
   (void)version;
+  /* Renderer history belongs to the abandoned timeline, not this snapshot. */
+  WsShadowReset();
   if (s_execution_loaded) RtlApplyExecutionState();
   s_execution_loaded = false;
   if (s_lle_extra_loaded) {

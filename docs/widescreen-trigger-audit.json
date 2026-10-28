@@ -1,0 +1,2983 @@
+{
+  "date": "2026-10-26",
+  "current_status": {
+    "accepted": [
+      "Byte floor/grab/recovery/exit",
+      "single doors and opening/closing animation",
+      "factory background/pickup/lift/forms/escape",
+      "Kaiser no duplicate head and actual charged-shot finishing hit",
+      "16:9 final-stage entrance camera anchor",
+      "Bit corrected floor appearance"
+    ],
+    "unverified": [
+      "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
+      "Broader shared-engine consumer qualification and final merge handoff."
+    ],
+    "next_cross_title_priority": "Publish frozen X3 v0.0.7; no further stage audit. Uncovered content/audio and broader shared-engine integration remain separate follow-up work.",
+    "shared_engine_regression": {
+      "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
+      "cases": [
+        "factory right+jump60 then up300",
+        "Byte entry right420"
+      ],
+      "result": "Full342px presented images and128KiB WRAM identical to prior accepted candidate throughout sampled replays. No owner repeat handoff.",
+      "right_boundary_update": {
+        "engine": "7106efd183f9781000a4e3c2b2ab7b42f55a921e",
+        "result": "X3 retains the default-zero room option. Byte right420 replay has identical complete presented pixels and128KiB WRAM versus the accepted owner build. Owner acceptance remains valid."
+      },
+      "canvas_policy_update": {
+        "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+        "result": "X3 retains default-off source-canvas and VRAM selection options. All sampled342px presented pixels and128KiB WRAM match the accepted owner build in Byte right420 and factory right+jump60/up300. Accepted owner checks remain complete."
+      },
+      "final_combined_current_title": {
+        "passed": true,
+        "game": "x3",
+        "title_code": "8a71e90abc20da46cb71bc6c6512a4d3e9c1f4dc",
+        "baseline_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+        "candidate_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+        "baseline_sha256": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+        "candidate_sha256": "d0d3cd444e65038b3ccd8daa817dbe70aa402b9c5fca88439a6602c137504260",
+        "comparison": "Complete presented output and128KiB WRAM at15-frame samples; specified controller input and health only. Corrected hub exit actually crosses door at all three widths.",
+        "cases": {
+          "byte": {
+            "passed": true,
+            "samples": 28
+          },
+          "factory": {
+            "passed": true,
+            "samples": 24
+          },
+          "god": {
+            "passed": true,
+            "samples": 8
+          },
+          "doppler": {
+            "passed": true,
+            "samples": 8
+          },
+          "press": {
+            "passed": true,
+            "samples": 8
+          },
+          "kaiser": {
+            "passed": true,
+            "samples": 8
+          },
+          "hub-exit": {
+            "passed": true,
+            "samples": 20
+          },
+          "hub-exit-256": {
+            "passed": true,
+            "samples": 20
+          },
+          "hub-exit-684": {
+            "passed": true,
+            "samples": 20
+          }
+        },
+        "performance": "Separate gate; compiler definitions establish both trace builds use AUDIO_TRACE_HISTORY=2 (FULL), despite earlier cache-based mismatch inference."
+      }
+    },
+    "pending_visual": [],
+    "bossrush": "Historical all8 native pad transfers/real defeats/returns and cumulativeFF retain their ca0/684 identity. Original hub-door crossing and normal fortress handoff pass in native_context_fortress_progress; later packages preserve sampled framing and guest state. No complete currentd897 all8 replay is claimed.",
+    "next_priority": "Very-wide chamber anchoring, uncovered content/exit/audio and broader shared-engine consumer qualification.",
+    "current_owner_build": {
+      "sha256": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+      "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+      "game_code": "3a0e9bd79f9577734c8da2c16afd6d7cbd62f47b",
+      "source": "final_entry_camera_followup",
+      "owner_camera_accepted": true
+    },
+    "new_main_automated_gate": "Earlier frozen-main X2/X3 gate passed with its recorded binary identities: full images/WRAM, scalar/native PCM+SPC, current save/Capture and matched runtime/startup/memory. Current camera/intro/finale milestones add their explicitly scoped evidence; independent original audio and broader-consumer gates remain open.",
+    "latest_native_final": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-qualification.json",
+    "current_package": {
+      "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+      "compiled_engine": "952705a04c670d6be7bff2baf17001e8c84ff459",
+      "game_code": "3a0e9bd79f9577734c8da2c16afd6d7cbd62f47b",
+      "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\chamber-anchor-qualification.json",
+      "additional_qualification": [
+        "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-intro-capture-rescue-qualification.json",
+        "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-qualification.json",
+        "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\bit-current-qualification-milestone.json"
+      ]
+    },
+    "status_policy": "Authoritative current burndown. Earlier remaining/unverified lists in identity-specific followups are historical and superseded by these current milestones.",
+    "previous_maoh_package": {
+      "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440",
+      "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-qualification.json",
+      "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-publication.json"
+    },
+    "current_earned_loss_finale": "All three current-binary fresh routes pass with real upper-ledge wall jumps; connecting travel/ascent and Kaiser finishing hit are explicitly bypassed.",
+    "ultrawide_producer_followup": {
+      "date": "2026-10-28T01:29:57.860042+00:00",
+      "passed": true,
+      "engine": "9a0c96eba07493e4e128cdf349332e6d094b5393",
+      "title_base": "47f4d91b5e6c7dbf8606d0041b82fe01b035867e",
+      "candidate_binary": "53e9944f471fa24747b6454e8d76dc7711f0678264b2aafdf83b7e59a70f5c61",
+      "compiled_engine_base": "b94e0a43c65da718449bd3f7abe927cb38ab694c",
+      "source": "Committed engine observer/DMA/PPU changes plus the accompanying X3 producer policy; title submodule pin/docs are bookkeeping after qualification.",
+      "runtime": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\cx4-coordinate-runtime-qualification.json",
+      "runtime_samples": 46,
+      "current_state_replays": 3,
+      "ppu_fixtures": 9,
+      "synthetic_observer_test": "cx4_ram_observer_test: PASS",
+      "microcode_replay": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\cx4-coordinate-trace\\proof.json",
+      "signed_coordinate_cases": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\cx4-coordinate-trace\\signed-coordinate-proof.json",
+      "read_only_inspection": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\cx4-inspection-command-proof.json",
+      "cost": {
+        "candidate": "53e9944f471fa24747b6454e8d76dc7711f0678264b2aafdf83b7e59a70f5c61",
+        "baseline": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+        "width": 342,
+        "frames": 240,
+        "warmup": 60,
+        "samples": [
+          {
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "candidate": {
+              "seconds": 0.8911516999360174,
+              "fps": 269.31441640882406
+            },
+            "baseline": {
+              "seconds": 0.8570100000360981,
+              "fps": 280.04340671624715
+            },
+            "candidate_time_change_percent": 3.9838158129404944
+          },
+          {
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "baseline": {
+              "seconds": 0.8319208000320941,
+              "fps": 288.4890003841005
+            },
+            "candidate": {
+              "seconds": 0.8739230999490246,
+              "fps": 274.6237054656171
+            },
+            "candidate_time_change_percent": 5.048833965361865
+          },
+          {
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "candidate": {
+              "seconds": 0.8426415999419987,
+              "fps": 284.8185990538799
+            },
+            "baseline": {
+              "seconds": 0.8654665000503883,
+              "fps": 277.30709390372357
+            },
+            "candidate_time_change_percent": -2.6372944657084507
+          },
+          {
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "baseline": {
+              "seconds": 0.8236906999954954,
+              "fps": 291.3715063206523
+            },
+            "candidate": {
+              "seconds": 0.842620600014925,
+              "fps": 284.8256973491379
+            },
+            "candidate_time_change_percent": 2.2981806179835695
+          }
+        ],
+        "median_time_change_percent": 3.140998215462032,
+        "range_percent": [
+          -2.6372944657084507,
+          5.048833965361865
+        ],
+        "classification": "Shared-host matched diagnostic workload; small mixed results are neutral/inconclusive, no speed claim",
+        "settings": "Software/dummy audio and video, default hybrid, same current state, serial alternating order, coverage disabled, TRACE+REVERSE_DEBUG build"
+      },
+      "scope": "Full image equality at256/342 in entry/Byte/factory/Kaiser scenes. Full WRAM/VRAM/OAM equality at256/342/684/800. Matched native world pixels below HUD at684/800. Actual800px output fixes an existing uint8 budget wrap whose baseline produces288px. Three current-build full-image/WRAM save/load replays. Original CX4 program replay matches all3072 RAM bytes; signed coordinate cases cover -600 through900. Both renderers pass the synthetic full-position pixel sweep.",
+      "assist_limits": "Prepared approaches bypass earlier travel/prerequisites; controller-only sampled replays do not establish whole-stage trigger/content or independent original audio coverage.",
+      "owner_runtime_unchanged": true,
+      "owner_binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+      "open": [
+        "Full ultra-wide chamber traversal/transition qualification before any new human handoff.",
+        "Uncovered stage/sublevel/branch/exit travel and independent original-game music/SFX.",
+        "Broader engine consumers and final merge handoff."
+      ],
+      "excluded_qa": [
+        "The original00:D7B1 breakpoint addresses were copied to7E:26E1 at runtime; corrected capture uses the observed WRAM sites.",
+        "An initial probe used an unrecognized execution environment name; its breakpoint timeout is a setup failure, not a product defect.",
+        "The inspection executable hash was initially typed with65 characters; the proof was repeated with a computed64-character hash.",
+        "A prototype added redundant PPU residue fields, then was simplified to serialize presentation metadata through the title extension already used by rollback.",
+        "get_ppu_state after host presentation observes reset per-frame policies; actual presented images and guest state comparisons are the gate."
+      ],
+      "title_source_sha256": "3d958452513ed4088fe201f2ee9a49989dd0dc30b39679d0c07b75d601c6d478",
+      "source_pin_build": "Final53e9 candidate uses engine9a0c96e and the matching X3 submodule/framework pin. The measured source files are retained by hash; committing their unchanged contents does not require another build.",
+      "parallax_followup": "Actual684/800 image inspection found a61px unused BG2 strip after camera motion. Anchor now respects the slower BG2 layer left allowance. Repeated46samples/three replays pass; measured left backdrop row changes132/115/107 ->8/16/8. Both images inspected. Accepted <=512 policy unchanged."
+    },
+    "native_obj_quota_followup": {
+      "date": "2026-10-28T02:43:16.696704+00:00",
+      "issue": "beads-8wg.2.159",
+      "implemented": true,
+      "component_qualified": true,
+      "whole_x3_ready": false,
+      "compiled_engine_base": "9a0c96eba07493e4e128cdf349332e6d094b5393",
+      "compiled_working_patch_sha256": "2cc96e2a248b8fba33f5d0743d7fe354fdee8631d9963f2dc308ee5005b569db",
+      "title_code": "ffd0637d0dcc225909ff14f58d41ab3e93d0d5ea",
+      "candidate_binary": "3368da39e6a8ae5b6219545af0bc49e911d58e21bf4b01a2bb916cfb413d8d3d",
+      "baseline_binary": "53e9944f471fa24747b6454e8d76dc7711f0678264b2aafdf83b7e59a70f5c61",
+      "synthetic": {
+        "negative_control_exit": 1,
+        "negative_assertions": 8,
+        "positive_ppu_fixtures": 9,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultrawide-anchor-tests\\results.json"
+      },
+      "original_real_case": {
+        "native_missing_pixels": 3,
+        "before_flags": 3,
+        "native_flags": 0,
+        "after_missing_pixels": 0,
+        "raw_before": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\chamber-obj-quota-probe-before.jsonl"
+      },
+      "twelve_native_references": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-native-quota-reference.json",
+      "standard": {
+        "samples": 38,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\native-quota-standard-qualification.json",
+        "scope": "Current build native256 and accepted342 presentation regression, full output/128KiB WRAM/64KiB VRAM/OAM. Two current-state replays; separate800px full32HP Kaiser replay. Prepared approaches bypass earlier travel; not full-stage coverage or new human acceptance."
+      },
+      "current_state_replays": [
+        {
+          "case": "native-quota-native-current",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        {
+          "case": "native-quota-byte-current",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        {
+          "case": "ultra-chamber800-kaiser-full32-current",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      ],
+      "route": [
+        {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-horizontal-final.json",
+          "samples": 13
+        },
+        {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-ladder-approach.json",
+          "samples": 2
+        },
+        {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-ladder1.json",
+          "samples": 14
+        },
+        {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-ladder2.json",
+          "samples": 16
+        },
+        {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-sigma-shaft.json",
+          "samples": 17
+        },
+        {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-sigma-intro.json",
+          "samples": 22
+        },
+        {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-kaiser-intro.json",
+          "samples": 35
+        }
+      ],
+      "real_sigma_hit": {
+        "candidate": true,
+        "baseline": true,
+        "main_hp_assist": 1,
+        "idle_survives": true,
+        "cycles": 6,
+        "finishing_damage": "actual controller Buster projectile"
+      },
+      "kaiser": "Original full32HP intro reached, paired full WRAM/VRAM/OAM and native world pixels agree. Actual Kaiser finishing hit remains separately owner-qualified; no new automated finishing-hit claim.",
+      "producer_coverage": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-producer-coverage.json",
+      "costs": {
+        "candidate": "3368da39e6a8ae5b6219545af0bc49e911d58e21bf4b01a2bb916cfb413d8d3d",
+        "baseline": "53e9944f471fa24747b6454e8d76dc7711f0678264b2aafdf83b7e59a70f5c61",
+        "fixture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-chamber800-horizontal-final-ppu-input-120.sav",
+        "cases": {
+          "256": {
+            "width": 256,
+            "samples": [
+              {
+                "order": [
+                  "candidate",
+                  "baseline"
+                ],
+                "candidate": {
+                  "seconds": 0.839136999915354,
+                  "fps": 286.0081250430019
+                },
+                "baseline": {
+                  "seconds": 0.8029985000612214,
+                  "fps": 298.8797612719104
+                },
+                "time_change_percent": 4.500444253803382
+              },
+              {
+                "order": [
+                  "baseline",
+                  "candidate"
+                ],
+                "baseline": {
+                  "seconds": 0.8250705000245944,
+                  "fps": 290.88423352046385
+                },
+                "candidate": {
+                  "seconds": 0.7940487000159919,
+                  "fps": 302.2484640994519
+                },
+                "time_change_percent": -3.759896882469771
+              },
+              {
+                "order": [
+                  "candidate",
+                  "baseline"
+                ],
+                "candidate": {
+                  "seconds": 0.8095782999880612,
+                  "fps": 296.4506336243687
+                },
+                "baseline": {
+                  "seconds": 0.7791185000678524,
+                  "fps": 308.04043284699145
+                },
+                "time_change_percent": 3.909520813272449
+              },
+              {
+                "order": [
+                  "baseline",
+                  "candidate"
+                ],
+                "baseline": {
+                  "seconds": 0.8171895999694243,
+                  "fps": 293.6894938567252
+                },
+                "candidate": {
+                  "seconds": 0.7836314999731258,
+                  "fps": 306.2664020119542
+                },
+                "time_change_percent": -4.106525584460952
+              }
+            ],
+            "median_percent": 0.07481196540133905,
+            "range_percent": [
+              -4.106525584460952,
+              4.500444253803382
+            ],
+            "extra_required_pixels": false,
+            "scope": "Matched shared-host diagnostic software/dummy-audio workload, four serial alternating pairs. Width800 now renders required margin sprites previously discarded; do not aggregate widths or claim an optimization win."
+          },
+          "342": {
+            "width": 342,
+            "samples": [
+              {
+                "order": [
+                  "candidate",
+                  "baseline"
+                ],
+                "candidate": {
+                  "seconds": 0.8871251000091434,
+                  "fps": 270.53681605618686
+                },
+                "baseline": {
+                  "seconds": 0.8393530999310315,
+                  "fps": 285.9344893343701
+                },
+                "time_change_percent": 5.691526019506843
+              },
+              {
+                "order": [
+                  "baseline",
+                  "candidate"
+                ],
+                "baseline": {
+                  "seconds": 0.8527871000114828,
+                  "fps": 281.43014827120203
+                },
+                "candidate": {
+                  "seconds": 0.8535340001108125,
+                  "fps": 281.183877817218
+                },
+                "time_change_percent": 0.08758341904089306
+              },
+              {
+                "order": [
+                  "candidate",
+                  "baseline"
+                ],
+                "candidate": {
+                  "seconds": 0.8655765999574214,
+                  "fps": 277.2718209015884
+                },
+                "baseline": {
+                  "seconds": 0.8324201999930665,
+                  "fps": 288.3159250604431
+                },
+                "time_change_percent": 3.9831325530820916
+              },
+              {
+                "order": [
+                  "baseline",
+                  "candidate"
+                ],
+                "baseline": {
+                  "seconds": 0.8481509999837726,
+                  "fps": 282.9684808537534
+                },
+                "candidate": {
+                  "seconds": 0.8825752000557259,
+                  "fps": 271.93150225028575
+                },
+                "time_change_percent": 4.058734832902622
+              }
+            ],
+            "median_percent": 4.020933692992356,
+            "range_percent": [
+              0.08758341904089306,
+              5.691526019506843
+            ],
+            "extra_required_pixels": true,
+            "scope": "Matched shared-host diagnostic software/dummy-audio workload, four serial alternating pairs. Width800 now renders required margin sprites previously discarded; do not aggregate widths or claim an optimization win."
+          },
+          "800": {
+            "width": 800,
+            "samples": [
+              {
+                "order": [
+                  "candidate",
+                  "baseline"
+                ],
+                "candidate": {
+                  "seconds": 1.412044099997729,
+                  "fps": 169.96636294885263
+                },
+                "baseline": {
+                  "seconds": 1.4261314000468701,
+                  "fps": 168.2874383048521
+                },
+                "time_change_percent": -0.9877981824590654
+              },
+              {
+                "order": [
+                  "baseline",
+                  "candidate"
+                ],
+                "baseline": {
+                  "seconds": 1.4011675000656396,
+                  "fps": 171.2857313552854
+                },
+                "candidate": {
+                  "seconds": 1.394343400024809,
+                  "fps": 172.12402625904764
+                },
+                "time_change_percent": -0.4870295693063853
+              },
+              {
+                "order": [
+                  "candidate",
+                  "baseline"
+                ],
+                "candidate": {
+                  "seconds": 1.3760040999623016,
+                  "fps": 174.4180849508917
+                },
+                "baseline": {
+                  "seconds": 1.4106234000064433,
+                  "fps": 170.13754344278124
+                },
+                "time_change_percent": -2.4541844438411786
+              },
+              {
+                "order": [
+                  "baseline",
+                  "candidate"
+                ],
+                "baseline": {
+                  "seconds": 1.3968166999984533,
+                  "fps": 171.81925158846238
+                },
+                "candidate": {
+                  "seconds": 1.3152291999431327,
+                  "fps": 182.47770047256935
+                },
+                "time_change_percent": -5.840959666032841
+              }
+            ],
+            "median_percent": -1.720991313150122,
+            "range_percent": [
+              -5.840959666032841,
+              -0.4870295693063853
+            ],
+            "extra_required_pixels": true,
+            "scope": "Matched shared-host diagnostic software/dummy-audio workload, four serial alternating pairs. Width800 now renders required margin sprites previously discarded; do not aggregate widths or claim an optimization win."
+          }
+        }
+      },
+      "cost_assessment": "Native256 neutral within variation. Busy342 workload measured median+4.02% / +0.003..+0.199ms per frame while drawing required sprites the old quota discarded; do not call that a speed win or offset it with800 results. All observed candidate throughput at least170fps.800 results are shared-host observations, not an optimization claim. Broader consumer qualification remains separate.",
+      "assistance": "Earlier native Zero-loss fixture and original stage13/counter3/checkpoint0 loader bypass fortress eligibility. Position/protection/health assists bypass corridor/platforming and the long shaft. Both ladders then use original controller inputs, with one X-position correction before the second ladder. B dialogue edges run original Sigma/Kaiser introductions. SigmaHP1 precedes idle survival and a real Buster defeat. No camera, AI, control, unavailable, current encounter result or later progression writes.",
+      "excluded_qa": [
+        "Initial regular-record descriptor-bank6 guess rejected; bank3C uniquely matches all31 loaded records.",
+        "Initial slot-save snapshots were one frame later than the image; a live before/after calibration established phase. Final12 source OAM/VRAM blobs match their images byte-for-byte."
+      ],
+      "open_visual_issue": {
+        "id": "beads-8wg.19.5",
+        "scope": "Unused backdrop and out-of-room projectiles beside bounded fortress travel rooms, also reproduced at342. Mechanics passing does not clear this visual gap.",
+        "before": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\cx4-coordinate-probe2\\fortress-shaft342-before.png",
+        "layout": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ultra-fortress-shaft-layout-observations.json"
+      },
+      "owner_runtime_unchanged": true,
+      "owner_binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+      "private_probes": "stopped",
+      "no_new_human_handoff": true,
+      "engine_commit": "3e2e56737c2494bc7cce8e765948973068d8b2d7"
+    },
+    "fortress_travel_canvas": {
+      "passed": true,
+      "bead": "beads-8wg.19.5",
+      "candidate": "be7d1f8e58613050fab7621377502175ad1fcea59337e7a2ad0454e644fac857",
+      "evidence": "fortress-travel-qualification.json",
+      "scope": "Assisted connecting-route presentation/trigger regression, not exhaustive natural stage traversal or independent original-game audio. Broader shared-engine consumers/final integration still open."
+    },
+    "release_closeout": {
+      "version": "0.0.7",
+      "owner_authorized": true,
+      "gameplay_frozen_at": "efa5839bef8a4fc9caf8c4ae16c137f807c42460",
+      "engine": "633cf3418ce7443cbcea2421746929dea6d753e8",
+      "additional_runtime_validation": "Skipped at owner request; reuse existing accepted visual/automated evidence. Production compilation and package-integrity checks only.",
+      "follow_up": [
+        "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
+        "Broader shared-engine consumer qualification and final merge handoff."
+      ],
+      "no_new_human_checks": true
+    }
+  },
+  "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
+  "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
+  "release_framework_pin": "f68aa0fe8edae75cbc7d4b9473c71687b45ce702",
+  "framework_provenance": "Checkout tree identical to release pin",
+  "rom_sha256": "65b03268afac296330e8ff8d60dd0825879e13ed658b37713c034a3bd074f1d7",
+  "presentation": [
+    342,
+    224
+  ],
+  "diagnostic_change": "Expose the existing instruction debugger behind an explicit default-OFF CMake option, allowing the native original full-graphics checkpoint loader to run before breakpoint-qualified checkpoint selection. Normal builds remain uninstrumented.",
+  "qualified_checks": [
+    {
+      "sequence": "All eight main Maverick boss rooms",
+      "result": "Original full room loader, live AI, real projectile damage after health reduction, native weapon progression and postfight states observed. Stages 1-2: x3-late/sequence-results.json; stages 3-8: x3-cleanse-rdb/sequence-results.json."
+    },
+    {
+      "sequence": "Bit and Byte in Neon Tiger stage",
+      "result": "Prior weapon prerequisites supplied, encounter outcome bits untouched. Dialogue completed, AI/damage/departure observed, native 1FD8 bits 01 and 04 respectively set by the game, and the right exit opened/advanced the camera."
+    },
+    {
+      "sequence": "Powered factory elevator",
+      "result": "Volt Catfish prerequisite supplied before native room setup. Riding/jumping on the elevator and native up input carried X from Y about 1696 to 887 without editing lift state."
+    },
+    {
+      "sequence": "Godkarmachine, Press Disposer and Doppler combat/aftermath",
+      "result": "Live32HP originals, real projectile defeats after HP assistance, native1FAF0->1 or2->3. Separate checkpoint/position/prerequisite bypasses retain their recorded identities; original normal fortress transitions are qualified in native_context_fortress_progress."
+    },
+    {
+      "sequence": "Current earned-Zero-loss fresh final-stage propagation",
+      "result": "All three widths pass; exact scope, explicit bypasses and per-build state replay recorded in earned_loss_current_fresh_followup."
+    },
+    {
+      "sequence": "Current Bit landing, actual hit and exit",
+      "result": "Original landing, real assisted hit, native departure/result, right-door crossing and normal control return pass automation. Owner also accepts corrected floor appearance."
+    }
+  ],
+  "partial_checks": [],
+  "unverified": [
+    "Very-wide final-entry camera anchoring: widths above512 retain the prior centred policy.",
+    "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
+    "Broader shared-engine consumer qualification and final merge handoff."
+  ],
+  "assists": [
+    "Disposable profiles; dummy audio/video during unattended work",
+    "Stage/checkpoint teleport using original full graphics loader; intro and traversal prerequisites bypassed explicitly",
+    "Player health refill, position assists, reduced boss health followed by real projectile damage",
+    "Bit/Byte eligibility supplied by prior Maverick weapon flags; their own result flags never written"
+  ],
+  "findings": "Factory parallax, HUD classification, single-face doors and hunter landings repaired. Corrected checkpoint graphics prerequisites restore moving-door art. Owner accepts factory checks, Byte floor/grab/recovery/exit and door animation. Bit automated landing/combat passes; individual human gaps remain separate.",
+  "prepared_review": "Six-segment local review selector with current-build full states, normal window/audio, pause/restart, health assist and individually persisted Pass/Fail/Deferred notes; factory lift, Bit and Byte segments cover X3.",
+  "private_evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026",
+  "tracking": "beads-8wg.19.4",
+  "visual_followup": {
+    "framework_head": "0ecd2fe07a31119c00371bc1ddbdd0f12d0647af",
+    "capture_fix": "Forward-slash paths avoid invalid debug-response JSON; verified PNG plus OAM/VRAM/RAM/state diagnostics. UI now shows preview/errors and captures the loaded segment.",
+    "remaining": [
+      "Bit/Byte floor clipping remains unresolved; before-door entry is verified, not floor correctness.",
+      "X2 Serges duplicate doors, incomplete machine art/void, and rocket ascent/boss margins remain open.",
+      "Factory outer-left empty-source strip remains a known caveat; owner background/pickup passes are accepted.",
+      "Serges full exit, final Sigma/endings and independent audio qualification remain unverified."
+    ],
+    "owner_notes_preserved": true,
+    "scope": "Previous passes accepted individually; this is not full campaign/ending certification.",
+    "owner_feedback": {
+      "x3-vile": {
+        "title": "3 \u00b7 X3 \u2014 powered factory lift \u2192 Vile / escape",
+        "checks": {
+          "lift": "Pass",
+          "forms": "Pass",
+          "escape": "Pass"
+        },
+        "notes": "background  does all sounds of weird things. wrong color, wrong movement.  a mediu menergy flickersi n and out of place where it doesn't belong .",
+        "updated_utc": "2026-10-26T19:05:38.383085+00:00"
+      },
+      "x3-bit": {
+        "title": "Optional \u00b7 X3 \u2014 Bit dialogue / ring / exit",
+        "checks": {
+          "dialogue": "Pass",
+          "capture": "Pass",
+          "exit": "Deferred"
+        },
+        "notes": "bit shows up below the ground.",
+        "updated_utc": "2026-10-26T19:07:19.289269+00:00"
+      },
+      "x3-byte": {
+        "title": "Optional \u00b7 X3 \u2014 Byte magnet / grab / exit",
+        "checks": {
+          "dialogue": "Unreviewed",
+          "grab": "Unreviewed",
+          "exit": "Unreviewed"
+        },
+        "notes": "byte also clips through the ground.",
+        "updated_utc": "2026-10-26T19:07:57.618486+00:00"
+      }
+    },
+    "changes": [
+      "Resident type04 parallax controllers retain their native cull lifetime. Previous-room controller no longer switches factory BG2 mode10 to02.",
+      "Generated object-window helpers and interpreter entry hook apply the same class guard, including resumes inside the helper.",
+      "HUD signature and exact margin source repairs shared with X2."
+    ],
+    "validated": [
+      "Factory: native342 and pure interpreter684 preserve BG2 mode10 after60 right+jump and600 up frames.",
+      "Fixed BG2 tilemap matches original-ROM Snes9x reference byte-for-byte; main view excluding relocated HUD matches native control.",
+      "Current-build save/load and repeat rendering/RAM checked in private evidence.",
+      "Corrected near-door files: no hunter at load, clear outcome flags, walking right reaches the intended Bit/Byte dialogue. Private feedback2/before-room-verification.json records both reloads. Floor correctness is not claimed."
+    ],
+    "owner_feedback_round2": {
+      "x3-vile": {
+        "title": "3 \u00b7 X3 \u2014 factory background and pickup",
+        "checks": {
+          "lift": "Pass",
+          "forms": "Pass",
+          "escape": "Pass",
+          "background": "Pass",
+          "pickup": "Pass"
+        },
+        "notes": "background  does all sounds of weird things. wrong color, wrong movement.  a mediu menergy flickersi n and out of place where it doesn't belong .\n\nas a conenience, adding a damage modifier to this testing harness would help accelerate things a lot.",
+        "updated_utc": "2026-10-26T21:11:46.455479+00:00"
+      },
+      "x3-bit": {
+        "title": "4 \u00b7 X3 \u2014 Bit floor: natural approach",
+        "checks": {
+          "dialogue": "Pass",
+          "capture": "Pass",
+          "exit": "Deferred",
+          "floor": "Unreviewed"
+        },
+        "notes": "bit shows up below the ground.",
+        "updated_utc": "2026-10-26T21:12:32.770677+00:00"
+      },
+      "x3-byte": {
+        "title": "5 \u00b7 X3 \u2014 Byte floor: natural approach",
+        "checks": {
+          "dialogue": "Unreviewed",
+          "grab": "Deferred",
+          "exit": "Deferred",
+          "floor": "Deferred"
+        },
+        "notes": "byte also clips through the ground. i can't test. the save is after the fight. same for bit.",
+        "updated_utc": "2026-10-26T21:13:12.849701+00:00"
+      }
+    }
+  },
+  "owner_feedback_round3": {
+    "notes": {
+      "x3-vile": {
+        "title": "3 \u00b7 X3 \u2014 factory background and pickup",
+        "checks": {
+          "lift": "Pass",
+          "forms": "Pass",
+          "escape": "Pass",
+          "background": "Pass",
+          "pickup": "Pass"
+        },
+        "notes": "background  does all sounds of weird things. wrong color, wrong movement.  a mediu menergy flickersi n and out of place where it doesn't belong .\n\nas a conenience, adding a damage modifier to this testing harness would help accelerate things a lot.",
+        "updated_utc": "2026-10-26T21:11:46.455479+00:00"
+      },
+      "x3-bit": {
+        "title": "4 \u00b7 X3 \u2014 Bit floor: natural approach",
+        "checks": {
+          "dialogue": "Pass",
+          "capture": "Pass",
+          "exit": "Deferred",
+          "floor": "Unreviewed"
+        },
+        "notes": "bit shows up below the ground.",
+        "updated_utc": "2026-10-26T21:12:32.770677+00:00"
+      },
+      "x3-byte": {
+        "title": "Before room \u00b7 X3 \u2014 Byte",
+        "checks": {
+          "dialogue": "Unreviewed",
+          "grab": "Unreviewed",
+          "exit": "Deferred",
+          "floor": "Fail"
+        },
+        "notes": "byte still clips through the ground. the double doors are still there and now they garble when you us them. they're fine at rest though.",
+        "updated_utc": "2026-10-26T21:47:04.929653+00:00"
+      }
+    },
+    "engine_pin": "e862e62",
+    "changes": [
+      "X1 room-facing door policy; hidden face overrides dynamic uploads",
+      "reset unsaved renderer history on state loads"
+    ],
+    "validation": "X2 door crossing continuous/load: zero WRAM/pixel differences. X3 opening/crossing/closing: 100 matched native comparison frames, zero unexplained pixel differences. This compared two modes of the same renderer with a shared invalid graphics setup; it does not establish original animation correctness.",
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\feedback3",
+    "owner_acceptance": "Pending; existing failures and caveats remain intact.",
+    "hunter_fix": "Begin native terrain collision from authored recordY-8; Byte695->663, Bit727->679, feet703/floor704. Hybrid342/pure684/native256 initial drop and active combat pass. No actor coordinate, camera or result writes."
+  },
+  "owner_feedback_round4": {
+    "owner_message": "byte now stands on the floor. there is now single doors. the doors themseelves still garble when opening/closing, but are fine at rest.",
+    "accepted": [
+      "Byte floor",
+      "Byte grab/recovery and exit from saved notes",
+      "single door face"
+    ],
+    "animation_root_cause": "Prepared stage-8 checkpoint omitted resident door graphics asset56. Original initializer cached tilebase0/attrs20 and used X CHR. Unmodified original ROM reproduces this with the same incomplete setup.",
+    "preparation_fix": "Original cooperative graphics job 00:B1FC: group1 then group4 before room-door initialization; no result flags set.",
+    "guards": "Verify fixed asset baseF0/attrs2F AND every resident room door cached baseF0/attrs2F. Old missing-asset and stale-cache snapshots both rejected.",
+    "reference": "Original-ROM Snes9x1.63: door CHR FE00:10000 agrees in all512 bytes, correct mechanical door opening/closing observed.",
+    "qualification": "Prior native-width pixel comparison only proves agreement between widths, not original art correctness.",
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\feedback4",
+    "owner_animation_acceptance": "Pass: owner explicitly accepted Byte and doors; no repeat handoff.",
+    "validation": "Both exact prepared approach files replayed for 440 consecutive frames each at native256, hybrid342 and pure-interpreter684 (2640 frames). Correct cached asset fields and original-reference door CHR verified every frame; distinct moving-door poses retained. Fresh hybrid342 hunter landing/active-combat checks pass for both.",
+    "owner_acceptance_message": "ok we're good. byte passes. doors pass. we're good on this front. what's left/next?"
+  },
+  "fixed_arena_followup": {
+    "date": "2026-10-27",
+    "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+    "source_content_sha256": "39e9d34f8339e62b3cf4eb46e4977e621a57116195174c2b3ad356bd8c395aa7",
+    "binary_sha256": "8ad4bc2b43b29065124e39c0c6d007cf2832ffcf2e343b19a941fe1a9ea233d1",
+    "change": "Reuse the existing elastic compositor to continue only the outer BG1 wall-edge pixels; preserve the native room1:1 and contain BG2 object canvases within it. No actor, camera, physics, timing or outcome writes.",
+    "selection": "Only the authored fixed Sigma arena bounds, in its normal mode1 background maps. Bounds rather than live scroll retain the policy through camera shake; X2 retains it through final-clear fade. Ordinary scenes reset the frame-local policy.",
+    "validation": {
+      "cases": [
+        "x3-first-arena-342",
+        "x3-first-arena-684",
+        "x3-kaiser-arena-342",
+        "x3-kaiser-arena-684"
+      ],
+      "samples": "30 samples over360 frames per form/width at342 and interpreter684; all native pixels,128KiB WRAM and64KiB VRAM match the prior owner runtime",
+      "save_load": "All4 form/width cases: zero pixel and WRAM differences",
+      "lifecycle": "X2 original final clear and ending handoff: native pixels/WRAM match; ending full output matches. X3 accepted factory scene after arena: full output and WRAM match at684.",
+      "shake": "X2 genuine cameraX3587 while locked bounds remain3584 was rendered and inspected; no camera values injected."
+    },
+    "runtime": {
+      "status": "neutral/inconclusive",
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-arena-runtime.json",
+      "limit": "Short matched serial diagnostic headroom samples are mixed under host/disk load. They establish neither an optimization win nor a reproducible regression; current-main built-runtime gate remains ahead."
+    },
+    "owner_visual_acceptance": "Pending only these new final-arena visuals; prior accepted checks remain accepted.",
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown"
+  },
+  "final_route_followup": {
+    "date": "2026-10-27",
+    "route_presentation": "342px hybrid; the separate arena pixel/AI comparisons also cover684px pure interpreter",
+    "passed": [
+      "Native dash/jump approach reaches original Zero dialogue;17 B press/release pulses complete it and restore control",
+      "Original ladder/camera transitions and position-assisted shaft reach Sigma through its room initialization",
+      "Sigma intro/AI and real projectile defeat after HP1 assist create Kaiser; its introduction and live AI/parts initialize correctly"
+    ],
+    "unverified": [
+      "Kaiser finishing hit",
+      "Lava escape and both ending branches"
+    ],
+    "automation_limit": "Normal aiming, charged aiming and a loadout/forehead reassessment did not finish Kaiser. X.Buster selected in original menu; boss remains alive at1HP. This is not evidence of a game defect.",
+    "prepared": "x3-kaiser-hit.sav starts before the finishing hit with a live1HP original Kaiser, original result flags untouched. Pause/save progress plus Capture retain a full current-build restart snapshot.",
+    "checkpoint_inventory": {
+      "table": "06:a8e4",
+      "slots": 15,
+      "records": 53,
+      "scope": "Directory includes intro/ending entries; this is an inventory, not completed coverage."
+    },
+    "assists": [
+      "Earlier Maverick weapon eligibility",
+      "Original full stage/checkpoint loader",
+      "Player health/position for shaft",
+      "Boss HP reduction before real damage; no target success writes"
+    ],
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown"
+  },
+  "native_bossrush_followup": {
+    "date": "2026-10-27",
+    "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+    "native_mask": [
+      0,
+      2,
+      6,
+      7,
+      15,
+      31,
+      63,
+      127,
+      255
+    ],
+    "cases": [
+      {
+        "boss_id": 82,
+        "before": 0,
+        "after": 2,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-1.json"
+      },
+      {
+        "boss_id": 87,
+        "before": 2,
+        "after": 6,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-2.json"
+      },
+      {
+        "boss_id": 83,
+        "before": 6,
+        "after": 7,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-3.json"
+      },
+      {
+        "boss_id": 86,
+        "before": 7,
+        "after": 15,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-4.json"
+      },
+      {
+        "boss_id": 88,
+        "before": 15,
+        "after": 31,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-5.json"
+      },
+      {
+        "boss_id": 89,
+        "before": 31,
+        "after": 63,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-6.json"
+      },
+      {
+        "boss_id": 85,
+        "before": 63,
+        "after": 127,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-7.json"
+      },
+      {
+        "boss_id": 84,
+        "before": 127,
+        "after": 255,
+        "passed": true,
+        "hp_assist_idle_verified": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-8.json"
+      }
+    ],
+    "passed": [
+      "All8 native hub-pad transfers initialize a live original32HP Maverick",
+      "Each accepts real projectile damage after explicitHP1 assist; native defeat/return adds exactly one1FDA bit",
+      "Actual cumulative1FDA reachesFF; no rematch result/control/camera writes",
+      "After framing fix, isolated rooms present256px and native returns restore684px hub"
+    ],
+    "setup_findings": [
+      "Direct checkpoint8 is a Neon Tiger rematch, not Doppler; normal-loader warps omit native mode0E initialization and are excluded",
+      "Upper capsule caps are solid. Position assists target inside the cylinder rather than above its cap",
+      "Checkpoint2 is the scrolling corridor after the hub, not a packed rematch; native framing starts at3"
+    ],
+    "presentation_fix": "Reuse X2 native-frame policy only for stage12 isolated rematches3..8. Hub1, ordinary corridor2 and other stages keep adaptive width; eliminates unrelated adjacent arenas.",
+    "native_view": {
+      "non_hud_pixels": 0,
+      "player_camera_progression_differences": 0,
+      "maximum_full_wram_differences": 6,
+      "caveat": "Transient noncritical WRAM differences are retained; no full-WRAM equality claim for cross-width comparison",
+      "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-native-view.json"
+    },
+    "exact_default_resets": {
+      "x3-framing-hub-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-hub-reset.json",
+      "x3-framing-kaiser-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-kaiser-reset.json",
+      "x3-framing-corridor-reset": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-framing-corridor-reset.json"
+    },
+    "assists": [
+      "Initial original checkpoint1 hub setup with earlier weapon/progression eligibility supplied",
+      "Player position/HP, controller button edges and explicit bossHP1 before actual projectile hits"
+    ],
+    "remaining": [
+      "Boss Rush exit/next-stage handoff: automated approach is unresolved in matched native256 and wide684; not a confirmed widescreen defect",
+      "Kaiser final hit/lava escape/ending, remaining fortress branches/content/audio and final integration/runtime gate"
+    ],
+    "initial_current_main_cases": [
+      {
+        "boss_id": 82,
+        "before": 0,
+        "after": 2,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rematch-gravity-real-defeat.json"
+      },
+      {
+        "boss_id": 87,
+        "before": 2,
+        "after": 6,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-upper-inner-right.json"
+      },
+      {
+        "boss_id": 83,
+        "before": 6,
+        "after": 7,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-upper-outer-left-fixed-y.json"
+      },
+      {
+        "boss_id": 86,
+        "before": 7,
+        "after": 15,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-upper-outer-right-fixed-y.json"
+      },
+      {
+        "boss_id": 88,
+        "before": 15,
+        "after": 31,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-lower-outer-left.json"
+      },
+      {
+        "boss_id": 89,
+        "before": 31,
+        "after": 63,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-lower-inner-left.json"
+      },
+      {
+        "boss_id": 85,
+        "before": 63,
+        "after": 127,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-lower-inner-right.json"
+      },
+      {
+        "boss_id": 84,
+        "before": 127,
+        "after": 255,
+        "passed": true,
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-rush-lower-outer-right.json"
+      }
+    ],
+    "initial_current_main_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+    "final_owner_replay": {
+      "identity": {
+        "executable_sha256": "ca0c6437beb75ca29af8cd7d2c12450408c7a63e77cb1503030e594652b0c415",
+        "game_code": "49744236771845450ee42d20ad14294d4682fad6",
+        "runtime_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+        "generation_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+        "window": "2560x720",
+        "pure_interpreter": true
+      },
+      "cases": [
+        {
+          "boss_id": 82,
+          "before": 0,
+          "after": 2,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-1.json"
+        },
+        {
+          "boss_id": 87,
+          "before": 2,
+          "after": 6,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-2.json"
+        },
+        {
+          "boss_id": 83,
+          "before": 6,
+          "after": 7,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-3.json"
+        },
+        {
+          "boss_id": 86,
+          "before": 7,
+          "after": 15,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-4.json"
+        },
+        {
+          "boss_id": 88,
+          "before": 15,
+          "after": 31,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-5.json"
+        },
+        {
+          "boss_id": 89,
+          "before": 31,
+          "after": 63,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-6.json"
+        },
+        {
+          "boss_id": 85,
+          "before": 63,
+          "after": 127,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-7.json"
+        },
+        {
+          "boss_id": 84,
+          "before": 127,
+          "after": 255,
+          "passed": true,
+          "hp_assist_idle_verified": true,
+          "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-final-pure684-rematch-8.json"
+        }
+      ],
+      "native_mask": [
+        0,
+        2,
+        6,
+        7,
+        15,
+        31,
+        63,
+        127,
+        255
+      ],
+      "interpretation": "One final owner executable in pure interpreter mode at2560x720 throughout all8 real hub transfers, live32HP encounters, reduced-HP actual projectile defeats and native returns. No result/control/camera writes.",
+      "causal_check": "Each assisted boss remains alive at1HP for3 no-shooting frames before actual controller fire."
+    },
+    "historical_pilot": "Initial current-main pilot changed width/build after the first2 rematches; final owner replay above repeats all8 in one executable/configuration.",
+    "owner_pin_followup": {
+      "game_code": "49744236771845450ee42d20ad14294d4682fad6",
+      "runtime_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+      "generation_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+      "sha256": "ca0c6437beb75ca29af8cd7d2c12450408c7a63e77cb1503030e594652b0c415",
+      "previous_sha256": "8ad4bc2b43b29065124e39c0c6d007cf2832ffcf2e343b19a941fe1a9ea233d1",
+      "passed": [
+        "Native256 rematches with adaptive342/684 hub and ordinary corridor",
+        "Accepted Byte420/factory360 and Kaiser120 whole images/all128KiB WRAM unchanged",
+        "Current-build hub/rematch save-load has0pixel/WRAM differences"
+      ],
+      "states": {
+        "x3-kaiser-hit": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\rematch-owner-states\\x3-kaiser-hit.sav",
+          "sha256": "558e9ef6f64639cfd6d22438adad9b6a5ff9d7c5064c6c96d297818678bc9b93",
+          "info": {
+            "frame": 11489,
+            "mode": "020404000000000e",
+            "stage": "000d0300000000020001",
+            "player": "000200023e410780",
+            "x": 1857,
+            "y": 2735,
+            "hp": 16,
+            "camera": [
+              1792,
+              2560
+            ],
+            "bounds": "0007000a000a00070007f8ff00000000000a0007",
+            "event": "00000000000000000000000000000000000000000000000003000103000000580d0000040000000000000000000000001811000000000000000100000000000000000000480033010200010090000000"
+          },
+          "actors": [
+            {
+              "dp": 3352,
+              "state": "01020000",
+              "id": 2,
+              "sub": 5,
+              "x": 1920,
+              "y": 2624,
+              "hp": 0
+            },
+            {
+              "dp": 3416,
+              "state": "01020006",
+              "id": 95,
+              "sub": 8,
+              "x": 1970,
+              "y": 2623,
+              "hp": 1
+            },
+            {
+              "dp": 3480,
+              "state": "01020000",
+              "id": 68,
+              "sub": 4,
+              "x": 1970,
+              "y": 2623,
+              "hp": 127
+            },
+            {
+              "dp": 3544,
+              "state": "01020000",
+              "id": 68,
+              "sub": 0,
+              "x": 1970,
+              "y": 2623,
+              "hp": 127
+            },
+            {
+              "dp": 3608,
+              "state": "01020000",
+              "id": 68,
+              "sub": 2,
+              "x": 1970,
+              "y": 2623,
+              "hp": 127
+            },
+            {
+              "dp": 4888,
+              "state": "41020000",
+              "id": 45,
+              "sub": 0,
+              "x": 1996,
+              "y": 2716,
+              "hp": 8
+            }
+          ]
+        },
+        "x3-bossrush-exit": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\rematch-owner-states\\x3-bossrush-exit.sav",
+          "sha256": "d5bdae1ae862836d266b0c363f462f3e2f732fe94e6cf25fc7413ec1132997e8",
+          "info": {
+            "frame": 18070,
+            "mode": "0204040000000004",
+            "stage": "000c0200000000020101",
+            "player": "0002000200700300",
+            "x": 880,
+            "y": 1103,
+            "hp": 16,
+            "camera": [
+              752,
+              1024
+            ],
+            "bounds": "00040004000500020004f8ff000000000004f002",
+            "event": "0000000000000000000000000000000000000000000000000100000300000000000000040000000000000000000000000000000000000000000100000000000000000000000000000000000000000000"
+          },
+          "actors": [
+            {
+              "dp": 3352,
+              "state": "01020000",
+              "id": 101,
+              "sub": 0,
+              "x": 880,
+              "y": 1151,
+              "hp": 64
+            }
+          ]
+        }
+      },
+      "launch": "Left closed; normal window/audio and existing controller settings, owner notes and native saves preserved"
+    }
+  },
+  "lab1_margin_followup": {
+    "game_code": "fbff2b9ab7ee18c952683fb2968bf80c7b72a15d",
+    "runtime_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+    "generation_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+    "sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+    "policy": "Original locked stage10 bounds1600/0600/0600/1600/1600 and mode1 maps50/58 reuse fixed-Sigma BG1 wall edges/BG2 containment; approach/other stages retain existing policy.",
+    "matrix": [
+      {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-margins-native256.json",
+        "width": 256,
+        "samples": 8
+      },
+      {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-margins-hybrid342.json",
+        "width": 342,
+        "samples": 8
+      },
+      {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-margins-pure684.json",
+        "width": 684,
+        "samples": 8
+      }
+    ],
+    "entry": {
+      "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-door-approach.json",
+      "frames": 360,
+      "samples": 24
+    },
+    "proved": "All48 Lab1 samples preserve every native-view pixel,128KiB WRAM and64KiB VRAM. Native256 complete output is identical. Native actual door approach/lock is retained.",
+    "regressions": [
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-byte.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-factory.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-kaiser.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-hub.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-lab1-reset-rematch.json"
+    ],
+    "states": {
+      "x3-kaiser-hit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\lab1-owner-states\\x3-kaiser-hit.sav",
+        "sha256": "0757d3b6b86c74fb4d7dcbe38ea1e00efcc249ba5ef0c190d15721cb297ca5b1",
+        "current_build_replay": {
+          "frames": 120,
+          "pixel_differences": 0,
+          "ram_differences": 0
+        }
+      },
+      "x3-bossrush-exit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\lab1-owner-states\\x3-bossrush-exit.sav",
+        "sha256": "9eb453d1fa61919c2bfa78d71dc24cf74aac127a67156d69f28488437410364d",
+        "current_build_replay": {
+          "frames": 120,
+          "pixel_differences": 0,
+          "ram_differences": 0
+        }
+      }
+    },
+    "bossrush_provenance": "All8 actual fights/returns were qualified on the preceding ca0 executable. Its stage12 policy is unchanged; current executable replays actual native rematch entry, all-clear hub and Kaiser with exact whole output/WRAM. No new all8-binary claim.",
+    "remaining": [
+      "Lab1 alternate branch selection/combat completion and subsequent stage transition remain unverified in this replay; earlier Godkarmachine-labelled result is historical evidence only.",
+      "Providing prior1FD8=0F did not establish a distinct encounter; it is not alternate-branch coverage.",
+      "Kaiser finishing hit/lava escape/ending, all-clear hub exit, other branches/content/audio and final integration/runtime gate remain open."
+    ],
+    "instrumentation": "128KiB TCP read occasionally returned short data; current paired Lab1 proof uses bounded32KiB reads with an unchanged-frame assertion. Failed attempts were not accepted.",
+    "remote_tracking": "Two normal central Beads pushes failed at their own remote-transfer deadlines. Local issue comments remain durable; no shared server interruption or timeout bypass.",
+    "owner_notes_preserved": true,
+    "previous_sha256": "ca0c6437beb75ca29af8cd7d2c12450408c7a63e77cb1503030e594652b0c415"
+  },
+  "fortress_branch_followup": {
+    "game_code": "8a71e90abc20da46cb71bc6c6512a4d3e9c1f4dc",
+    "runtime_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+    "generation_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+    "sha256": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+    "previous_sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+    "mechanics": [
+      {
+        "case": "god",
+        "enemy": 93,
+        "executable_sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-god-current-clear.json",
+        "passed": true
+      },
+      {
+        "case": "press",
+        "enemy": 90,
+        "executable_sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-press-current-clear.json",
+        "passed": true
+      },
+      {
+        "case": "doppler",
+        "enemy": 72,
+        "executable_sha256": "28f17ee1382d3b70d3aa56e15fe694845309bdf836ca474c647d837a185ae5ef",
+        "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-doppler-current-clear.json",
+        "passed": true
+      }
+    ],
+    "margin_matrix": [
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-god-native256.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-god-hybrid342.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-god-pure684.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-doppler-native256.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-doppler-hybrid342.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-doppler-pure684.json"
+    ],
+    "presentation": "Four explicit original locked-room descriptors share the existing Sigma BG1 wall-edge/BG2 containment policy: Press, Godkarmachine, Doppler and Sigma. No guest simulation or result changes.",
+    "presentation_evidence": "God/Doppler native256, hybrid342 and pure684:48 samples, each with exact native-view pixels,128KiB WRAM and64KiB VRAM. Native entire output unchanged.",
+    "regressions": [
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-byte.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-factory.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-kaiser.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-hub.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-rematch.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-reset-press.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-fortress-password-reset.json"
+    ],
+    "lifecycle": "Native post-Doppler clear reaches the password screen after900frames; complete output and WRAM match the preceding executable.",
+    "states": {
+      "x3-kaiser-hit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\fortress-owner-states\\x3-kaiser-hit.sav",
+        "sha256": "1b4289e6feea678379a165f3eafdb54ddf70c8b876fb8f5873e30d3ab37b89fc",
+        "current_build_replay": {
+          "frames": 120,
+          "pixel_differences": 0,
+          "ram_differences": 0
+        }
+      },
+      "x3-bossrush-exit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\fortress-owner-states\\x3-bossrush-exit.sav",
+        "sha256": "d1d8e51af2afe8fa3eb87ba5c117769b0b1455dfcf4b967e3e467ccbe4233939",
+        "current_build_replay": {
+          "frames": 120,
+          "pixel_differences": 0,
+          "ram_differences": 0
+        }
+      }
+    },
+    "scope": "Full real-hit boss mechanics were replayed on preceding28f17ee; new33949e75 changes only room presentation. Current package has the paired scene, default/reset and current-build save/load checks above, not a falsely relabelled full-combat run.",
+    "remaining": [
+      "Original Lab1 branch selection is bypassed by separate checkpoint2/3 setups; complete combat/aftermath passes separately.",
+      "Natural hub door and normal fortress next-stage selection remain unverified. Repeated Start after the password loads stage0; restoring native1EBF=FF alone did not repair setup. No port defect asserted and no speculative marker repair adopted.",
+      "Use an authentically completed intro/normal selection baseline before further handoff claims; Lab2 alternate encounters, Kaiser hit/lava escape/ending, content/audio and final integration/runtime gate remain open."
+    ],
+    "owner_notes_preserved": true
+  },
+  "native_context_fortress_progress": {
+    "date": "2026-10-27",
+    "game_code": "8a71e90abc20da46cb71bc6c6512a4d3e9c1f4dc",
+    "engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+    "executable_sha256": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+    "clean_context": "Native controller password and original stage select; no result/gear RAM writes",
+    "passed": [
+      "Reference password stage-select at342 and interpreter256; independent Snes9x64KiB VRAM matches",
+      "Current339 Press native32HP, idle survival after main/trunkHP1, actual shot defeats, nativecounter0->1",
+      "Original password -> stage select -> Lab2 stage14/counter1 without progression writes",
+      "Lab2 checkpoint2 first door/descent/second door, armor99 and on-foot Vile97/sub2 intro/AI/real defeats",
+      "Both Lab2 main forms start32HP and surviveHP1 idle before real damage",
+      "23 postfight B edges; original stage-clear/counter1->2 and password",
+      "Native Lab2 password/stage select enters stage12/counter2",
+      "All-clear prerequisite before original hub initialization clears cached door gate; actual right door opens into corridor",
+      "Doppler original door/intro, native32HP, causalHP1 idle check, real defeat and54 postfight B edges",
+      "Nativecounter2->3/password/stage select enters final stage13 with no new stage/counter/main-weapon writes",
+      "Player-assisted final approach triggers original Zero dialogue;18 B edges restore control"
+    ],
+    "bypasses": [
+      "Password supplies earlier progress/equipment",
+      "Original checkpoint3 for Press and checkpoint2 for Lab2 bypass preceding traversal/branch approach",
+      "Player immunity/health/aiming position and bossHP1; no result/control/camera writes",
+      "Earlier eight rematch results supplied before hub loader; earlier ca0 actual8-rematch proof remains separate",
+      "Player-only flight to upper hub door platform and through ordinary corridor obstacles"
+    ],
+    "limits": [
+      "Lab2 other branch remains unverified",
+      "These new combat runs are hybrid342; no new native256/684 combat claim",
+      "Raw early filenames say Volt; final aggregate corrects the branch to Vile",
+      "Native menus retain mode020001 while awaiting input; provisional hang diagnosis was disproved"
+    ],
+    "evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown",
+    "files": [
+      "x3-native-password-control-result.json",
+      "x3-native-context-press-clear.json",
+      "x3-native-context-lab2-clear.json",
+      "x3-native-context-hub-exit.json",
+      "x3-native-context-doppler-clear.json",
+      "x3-native-context-final-zero.json"
+    ],
+    "setup_correction": "39:A2D0 caches1FDA==FF into1F5F bit0 during hub init. LateFF leaves gate locked; correct prerequisite order naturally unlocks it. Door approach lands atY1119, not inside the platform. Optional human hub check retired; notes unchanged."
+  },
+  "final_combined_engine_followup": {
+    "functional": {
+      "passed": true,
+      "game": "x3",
+      "title_code": "8a71e90abc20da46cb71bc6c6512a4d3e9c1f4dc",
+      "baseline_engine": "a4e30664c078a2ee33ef61625cc73f5f1d546841",
+      "candidate_engine": "2cb5d796d11ff5273db89266af0d7734d36f8b18",
+      "baseline_sha256": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+      "candidate_sha256": "d0d3cd444e65038b3ccd8daa817dbe70aa402b9c5fca88439a6602c137504260",
+      "comparison": "Complete presented output and128KiB WRAM at15-frame samples; specified controller input and health only. Corrected hub exit actually crosses door at all three widths.",
+      "cases": {
+        "byte": {
+          "passed": true,
+          "samples": 28
+        },
+        "factory": {
+          "passed": true,
+          "samples": 24
+        },
+        "god": {
+          "passed": true,
+          "samples": 8
+        },
+        "doppler": {
+          "passed": true,
+          "samples": 8
+        },
+        "press": {
+          "passed": true,
+          "samples": 8
+        },
+        "kaiser": {
+          "passed": true,
+          "samples": 8
+        },
+        "hub-exit": {
+          "passed": true,
+          "samples": 20
+        },
+        "hub-exit-256": {
+          "passed": true,
+          "samples": 20
+        },
+        "hub-exit-684": {
+          "passed": true,
+          "samples": 20
+        }
+      },
+      "performance": "Separate gate; compiler definitions establish both trace builds use AUDIO_TRACE_HISTORY=2 (FULL), despite earlier cache-based mismatch inference."
+    },
+    "current_build_save_load": {
+      "case": "integration-final-x3-current-save",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "runtime": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\integration-final-x3-runtime-coverage-off.json",
+      "workload": "Original live Press Disposer",
+      "samples": 6,
+      "timed_frames_per_sample": 360,
+      "median_time_change_percent": -3.704280523257192,
+      "paired_range_percent": [
+        -10.308538282390245,
+        21.9702987485229
+      ],
+      "median_fps": {
+        "baseline": 190.02016941775696,
+        "candidate": 196.69173766437532
+      },
+      "assessment": "Neutral/inconclusive: mixed paired results within large host variation; no proven improvement or reproducible regression.",
+      "qualification": "Pure interpreter342/software/dummy output, audio emulation, traceFULL, optional coverage recordingOFF in both. One workload per game; separate earlier coverageON samples are not pooled."
+    },
+    "host": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\integration-final-runtime-host.json",
+    "remaining": [
+      "Pending individual owner visuals and optional Kaiser hit/escape/endings",
+      "Other Lab2 branch and skipped traversal/content/audio",
+      "Representative other-consumer/startup/memory gate"
+    ],
+    "promotion": "One current canonical owner binary per game remains unchanged on enginea4. No merge or release. Selector closed with four focused segments; optional hub assistance retired."
+  },
+  "lab2_alternate_world_clip_followup": {
+    "engine": "0e45123d068a082316b3db0d9007d30cb3015104",
+    "branch": "qa/widescreen-triggers-20261026",
+    "executable": "758756b94511a17ee55b825b39f150f2307a2fe137f6c332f431860e0c7ae5c4",
+    "baseline": "33949e75f0a39e2fa058021cc7b63b3f9de32666410affd4d2f72240f77c2fc7",
+    "stage": 11,
+    "checkpoint": 2,
+    "actor": 74,
+    "native_prerequisites": "Earlier Vile prerequisite supplied before original menu selection; native stage/counter are preserved. Original checkpoint2 skips prior traversal.",
+    "mechanics": {
+      "passed": true,
+      "original_intro_frames": 780,
+      "evidence": "x3-lab2-world-clip-final-mechanics-684.json",
+      "native_counter": "1->2 after main-only HP1 idle survival and a real shot; other part HP/results/camera/control untouched"
+    },
+    "width_mechanics": {
+      "evidence": "x3-lab2-alternate-width-matrix.json",
+      "scope": "Previous339: native256 and interpreter684 have identical28-sample critical entrance timeline, actual shot and native counter transition. Final758 repeats the684 mechanics."
+    },
+    "presentation": {
+      "passed": true,
+      "cases": 9,
+      "samples": 72,
+      "widths": [
+        256,
+        342,
+        684
+      ],
+      "evidence": "x3-lab2-world-clip-final-matrix.json",
+      "preserved": "All native and authored512px room pixels,128KiB WRAM,64KiB VRAM; changes only beyond room walls"
+    },
+    "door": {
+      "passed": true,
+      "frames": 900,
+      "samples": 150,
+      "last_door_visible_frame": 456,
+      "first_rendered_change_frame": 618,
+      "overlap_frames": [],
+      "evidence": "lab2-world-clip-door-overlap.json",
+      "method": "Actual presented output; ephemeral policy fields at frame boundary are not used as activation evidence"
+    },
+    "regressions": {
+      "passed": true,
+      "cases": 8,
+      "samples": 112,
+      "evidence": "x3-world-clip-regressions.json",
+      "preserved": "Full presented output and128KiB WRAM"
+    },
+    "current_build_save_load": {
+      "case": "x3-lab2-world-clip-final",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "engine_tests": "Five production PPU C fixtures and3 provider/extra-object Python tests pass. Rendered clip coverage includes4bpp/2bpp, large tiles, mosaic, changed reference phase, native camera shake, reset and invalid reference.",
+    "first_experiment": "BG1 reflection alone left a wrapped BG2 boss at edge pans; rejected. Source/status and raw plane diagnosis retained separately.",
+    "remaining": [
+      "Kaiser finishing hit, escape and endings",
+      "Skipped traversal/content inventory and independent audio",
+      "Four focused human visual checks",
+      "Combined/other-consumer qualification"
+    ],
+    "promotion": "First-correct758 was never promoted: its measured runtime cost led to the direct-renderer follow-up. Current owner2833 is the verified direct build; see direct_renderer_followup.",
+    "first_correct_build_promotion": "First-correct758 was held after a runtime cost was demonstrated. The direct renderer follow-up supersedes it for owner delivery.",
+    "direct_renderer_followup": {
+      "passed": true,
+      "executable": "2833b6b55bca185cb5db6e553e06840a6249cabb5e6e27aa4f5532570fb01dd1",
+      "engine": "d0968ccfc328fd471a2bd851c35cab6fd8c41c8d",
+      "title_repository_head": "929a88dea72982636d5af5743fbca549c62f208e",
+      "title_c_code": "a0142c8e13f1f2e4c526784955654356faecbe92",
+      "combined_engine": "95ad5c108b2c6ad806485b59321df433ad28c4de",
+      "campaign": "beads-2wy8.1",
+      "owning_engine_issue": "beads-8wg.2.151",
+      "scope": "Correctness feature plus direct draw for contiguous non-mosaic BG room clips. Disjoint rooms, mosaic and anchors retain the working isolated fallback. Portable C; no CPU/OS-specific dependency.",
+      "exact_output": {
+        "evidence": "world-clip-direct-final-matrix.json",
+        "widths": [
+          256,
+          342,
+          684
+        ],
+        "samples": 72,
+        "result": "Full presented picture and128KiB WRAM identical to first-correct758 through camera pans. First-correct758 separately preserves all native/authored512px-room pixels and64KiB VRAM against339."
+      },
+      "real_mechanics": {
+        "evidence": "x3-lab2-direct-final-mechanics-684.json",
+        "result": "Original780-frame full-health entrance, main-only1HP idle survival, actual shot and native counter1->2. Critical28-sample timeline matches first-correct758; no current success/camera/control writes."
+      },
+      "combined": {
+        "x2": "fb2eb8f2e8600eab8ef195276c3412f9f28a7e9f6f64efa0cf1eeefed69a80ba",
+        "x3": "2bd74ffd01fa60b61d5dfdb5cd35bd7f585e4a9b890b2db9ee9d84c1e32ff4e3",
+        "result": "X2 rocket/Serges/Ostrich full output and WRAM match. X3 sequential24-sample684 pans match full output/128KiB WRAM/64KiB VRAM. Both current-save/load checks pass."
+      },
+      "current_kaiser_and_capture": "New2833 state has exactly one active primary02 actor95 at1HP. Full current-build Save/Pause/Capture restart replays120frames with identical image/WRAM and error-free capture metadata.",
+      "runtime": {
+        "x2": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\world-clip-direct-x2-runtime.json",
+          "pairs": 6,
+          "package": "Engine direct clipd0968cc on combined95ad5c1 versus identical-correctness combined29500a1/0e45123; title739 unchanged, clip disabled. Optimization campaign2wy8.1, owner8wg.2.151.",
+          "configuration": "Matched240-frame original AI workloads, pure interpreter, software/dummy video/audio, unthrottled diagnostic builds; serial alternating order; no input/cheat writes during timed intervals",
+          "median_time_change_percent": 1.1398076654342004,
+          "paired_range_percent": [
+            -1.5263196626484787,
+            3.825718874880857
+          ],
+          "candidate_minimum_fps": 132.04383723221306,
+          "assessment": "Neutral/inconclusive: small mixed changes within host variation; no proven win or reproducible regression"
+        },
+        "x3": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\world-clip-direct-final-runtime-684.json",
+          "pairs": 6,
+          "package": "Direct window-span crop versus first-correct isolated clip0e45123; same titlea0142c8, preserved output and guest RAM. Engine optimization issue8wg.2.151, campaign2wy8.1.",
+          "configuration": "Matched240-frame live Lab2 boss AI at right camera stop; default hybrid684/software/dummy video/audio, coverageOFF, traceFULL; serial alternating order; same correctness and no input/cheat writes in timed interval.",
+          "median_time_change_percent": -12.349196992515687,
+          "paired_range_percent": [
+            -23.7186808940441,
+            -5.983616998463526
+          ],
+          "candidate_minimum_fps": 114.65903317413894,
+          "assessment": "Workload-local positive: all6 paired times lower; no broader/release claim"
+        }
+      },
+      "host_caveat": "Other owner PSX compiler jobs were observed. Retain paired results/variation; do not claim isolated release throughput or pool games.",
+      "remaining": [
+        "Four focused owner visuals, optional Kaiser finishing hit/escape/ending",
+        "Skipped traversal/content and independent audio",
+        "Representative other-consumer/startup/memory qualification"
+      ],
+      "promotion": "Qualified for the existing X3 owner QA replacement; no shared-engine merge, release or campaign completion.",
+      "publication": {
+        "owner_sha256": "2833b6b55bca185cb5db6e553e06840a6249cabb5e6e27aa4f5532570fb01dd1",
+        "engine": "d0968ccfc328fd471a2bd851c35cab6fd8c41c8d",
+        "title_code": "929a88dea72982636d5af5743fbca549c62f208e",
+        "current_state": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\handoff-states\\x3-kaiser-hit.sav",
+          "sha256": "9c7cd61cff1589160ed8736fb4071eb7120d623d018f6ee1b15032def4c5a58d",
+          "kaiser": "Exactly one active primary02 actor95 atHP1, alive before the optional real finishing hit"
+        },
+        "capture": "Current-build Pause/Capture produced full restart state, PNG/RAM/VRAM/OAM/L3 and error-free metadata; full captured state replays120frames with identical output and WRAM.",
+        "owner_notes_settings_saves_preserved": true,
+        "selector": "Closed; four existing focused segments; accepted checks not repeated",
+        "runtime_assessment": "Direct-window optimization versus the identical-correctness isolated clip: workload-local X3 positive, X2 small mixed neutral/inconclusive. Per-game data is separate; protocol headroom is not a release benchmark. Broader consumer/startup/memory qualification stays open.",
+        "promotion": "Verified X3 direct-clip replacement and current-build Kaiser state published; X2 remains the exact634 accepted-scene build. Four selector segments, normal windows/audio/input settings and owner notes preserved. Selector remains closed.",
+        "raw_evidence": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\world-clip-publication.json"
+      }
+    }
+  },
+  "new_main_qualification": {
+    "status": "automated X2/X3 gate passed",
+    "compiled_engine": "e772aca74d06cef9435df2f34cda1689329b19c4",
+    "reviewed_engine": "0095609940bc3a304da8c70f2dcab79264bbb8ab",
+    "integration": "a99e2fc0b9ff192d3a7302d02409c64e32f7cf24",
+    "base": "5ac4b98e065b668ed77b65fa6342ec296b8b9e23",
+    "exact_source_tree": "396f26717c1bf151b0e110950c5fd5f179c1823a",
+    "source_equivalence": "Compilede772, rebased PR0095609 and integrationa99e2fc have identical complete tracked trees; git diff--exit-code and tree hashes verified. Rebased push guarded with the reviewed908346c remote head.",
+    "components": "Five production PPU fixtures plus native raster ownership/readback, APU scalar/native and CRC byte/slice contracts pass on the new combined source.",
+    "reuse": "Existing beads-8wg.2.154/current5ac qualification for MMX, SMW, Super Metroid and F-Zero is retained separately. No fresh combined all-consumer run is claimed.",
+    "limits": [
+      "Single shared Windows x64 host; muted software/debug protocol costs, not isolated release frame-time benchmarks",
+      "Matched scalar game audio is not independent original-game soundtrack/SFX coverage",
+      "Earlier actual combat/fortress proofs retain their original binary identities; these comparisons do not relabel them"
+    ],
+    "remaining": [
+      "Four focused human visuals and optional Kaiser finishing hit",
+      "Kaiser escape/ending, skipped traversal/content and independent audio",
+      "Broader consumer follow-up using existing campaign evidence"
+    ],
+    "promotion": "One verified current executable per owner title, normal untouched window/audio/input configuration. No merge/release or repeated accepted human handoff.",
+    "game": {
+      "executable": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\integration-build-x3\\MegaManX3SNESRecomp.exe",
+      "sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+      "title_code": "a0142c8e13f1f2e4c526784955654356faecbe92",
+      "compiled_title_repository_head": "49f2e6983f5cdab4225f6cb0ef888b0deebc0e89",
+      "package": "Standard title renderer with shared native APU time and SLICE8 CRC; HLE desktop frame staging. These games do not receive the MMX/SM custom native raster consumer package.",
+      "actual_defines": {
+        "APU_NATIVE": 1,
+        "CRC32_SLICES": 8,
+        "AUDIO_TRACE_HISTORY": 2
+      },
+      "functional": {
+        "passed": true,
+        "cases": {
+          "byte": 28,
+          "factory": 24,
+          "god": 8,
+          "press": 8,
+          "doppler": 8,
+          "kaiser": 8,
+          "hub": 20,
+          "vile": 8,
+          "lab2-684": 24,
+          "hub-256": 20
+        },
+        "samples": 156,
+        "preserved": "Complete presented image and128KiB WRAM at15-frame samples; original controlled input/health only."
+      },
+      "default_functional": null,
+      "audio": {
+        "pure": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-press-audio.json",
+          "sample_frames": 128161,
+          "rate": 32040,
+          "pcm_sha256": "48ba2e6267cbd2d55122a8175389c3ead4f763122664cf066b94ab7b27afb9b3",
+          "peak": 20079,
+          "spc_before_after_identical": true,
+          "apu_time_implementation": "NATIVE",
+          "actual_guest_sync_cycles": 0
+        },
+        "default": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-default-audio.json",
+          "sample_frames": 128246,
+          "rate": 32040,
+          "pcm_sha256": "ff1666749dffbcffa8620a0887336941ea5f53e4b96205b77a63b63132670545",
+          "peak": 20152,
+          "spc_before_after_identical": true,
+          "apu_time_implementation": "NATIVE",
+          "actual_guest_sync_cycles": 64241
+        }
+      },
+      "current_build_save_load": {
+        "case": "incoming-main-x3-current",
+        "ram_difference": 0,
+        "pixel_difference": 0,
+        "passed": true
+      },
+      "current_build_capture": {
+        "passed": true,
+        "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-capture-check\\review-captures\\incoming-main-x3-kaiser-20261027-091351-672441.png",
+        "metadata_errors": {},
+        "replay": {
+          "case": "incoming-main-x3-kaiser-capture",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "progress": {
+          "format": "codex-review-progress-v1",
+          "slot": 1,
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3\\saves\\save1.sav",
+          "sha256": "b7d89b261a8c3de4635dfa0a9a43eb02d8eb223b7d5811122623ae30d051a1dc",
+          "frame": 11500,
+          "tag": {
+            "segment": "incoming-main-x3-kaiser",
+            "binary_sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+            "engine": "e772aca74d06cef9435df2f34cda1689329b19c4"
+          },
+          "utc": "2026-10-27T16:13:51.672441+00:00"
+        }
+      },
+      "runtime": {
+        "pure": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-runtime.json",
+          "pairs": 6,
+          "package": "New main5ac/e772: native APU time +SLICE8 CRC, standard title renderer; previous95ad scalar APU +byte CRC. Both HLE desktop frame staging, FULL trace, coverageOFF, pure342 software/dummy video/audio with host volume0.",
+          "configuration": "Matched240-frame original AI workloads, pure interpreter, software/dummy video/audio, unthrottled diagnostic builds; serial alternating order; no input/cheat writes during timed intervals",
+          "median_time_change_percent": 1.261672882034004,
+          "range_percent": [
+            -4.970448511301051,
+            5.753582020656167
+          ],
+          "minimum_candidate_fps": 164.7577988306318,
+          "assessment": "Neutral/inconclusive: mixed changes within shared-host variation; no proven win or reproducible regression. Profiles and games are not pooled."
+        },
+        "default": {
+          "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-default-runtime.json",
+          "pairs": 6,
+          "package": "Candidate e772/main5ac native APU time +SLICE8 CRC with standard title renderer; baseline95ad scalar APU +byte CRC, same title and frame staging. Separate from pure-interpreter samples.",
+          "configuration": "Matched240-frame original AI, default hybrid execution, widescreen342, HLE frame staging, FULL trace, optional coverageOFF, software/dummy output with audio emulation and volume0; serial alternating order; no input/cheat writes in timed interval.",
+          "median_time_change_percent": -3.4252673903568285,
+          "range_percent": [
+            -5.279625640247065,
+            1.1514821542149445
+          ],
+          "minimum_candidate_fps": 204.13771845626232,
+          "assessment": "Neutral/inconclusive: mixed changes within shared-host variation; no proven win or reproducible regression. Profiles and games are not pooled."
+        }
+      },
+      "resource_costs": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3-launch-costs.json",
+        "identities": {
+          "candidate": {
+            "sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+            "executable_bytes": 140517235
+          },
+          "baseline": {
+            "sha256": "2bd74ffd01fa60b61d5dfdb5cd35bd7f585e4a9b890b2db9ee9d84c1e32ff4e3",
+            "executable_bytes": 140505366
+          }
+        },
+        "medians": {
+          "baseline": {
+            "startup_seconds": 0.6562637999886647,
+            "rss": 127254528,
+            "private": 3837022208
+          },
+          "candidate": {
+            "startup_seconds": 0.66311309998855,
+            "rss": 124940288,
+            "private": 3837026304
+          }
+        },
+        "assessment": "Warm debug startup/RSS/private costs effectively unchanged. Approximately3.57GiB private commitment is shared by both diagnostic builds; not a release footprint claim.",
+        "scope": "Startup until first debug-ready frame; protocol/polling overhead included. RSS/private are observed costs, not an isolated cold-start or release benchmark."
+      }
+    },
+    "states": {
+      "x3-kaiser-hit": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-owner-states\\x3-kaiser-hit.sav",
+        "sha256": "8af5876fcb9cb66b565a4d7f697e927a1d1cf54f8a3abb6b418fc0a9c96fc2fc",
+        "binary": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+        "info": {
+          "frame": 11502,
+          "mode": "020404000000000e",
+          "stage": "000d0300000000020001",
+          "player": "000200023e410780",
+          "x": 1857,
+          "y": 2735,
+          "hp": 16,
+          "camera": [
+            1792,
+            2560
+          ],
+          "bounds": "0007000a000a00070007f8ff00000000000a0007",
+          "event": "00000000000000000000000000000000000000000000000003000103000000580d0000040000000000000000000000001811000000000000000100000000000000000000480033010200010090000000"
+        },
+        "current_build_replay": {
+          "case": "incoming-handoff-x3-kaiser-hit",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      }
+    }
+  },
+  "native_final_qualification": {
+    "date": "2026-10-27T17:38:20.735565+00:00",
+    "binary": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+    "title_code": "a0142c8e13f1f2e4c526784955654356faecbe92",
+    "reviewed_engine": "0095609940bc3a304da8c70f2dcab79264bbb8ab",
+    "compiled_engine": "e772aca74d06cef9435df2f34cda1689329b19c4",
+    "prior_context": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-context-progress-summary.json",
+    "passed": [
+      "First ladder catches with actual Up+B; original climb/camera transition works.",
+      "X-only alignment to the second ladder, long Up+B then Up reaches its top; actual right input traverses connector and opens native shaft camera bounds.",
+      "Player-only upper-shaft flight crosses the authored room cue, starts original actor02/sub5, camera lock and Sigma introduction.",
+      "Native32HP Sigma returns control, survives main-only HP1 idle assist, then a real shot gives same actor slot/id HP0/primary04.",
+      "Original post-Sigma script allocates32HP Kaiser and all parts, completes dialogue/introduction and returns control.",
+      "Native256/default and684/pure-interpreter repeats pass original entry,32HP Sigma, real defeat and32HP Kaiser/control return.",
+      "Current342 Kaiser full-state replay and Pause/Capture/restart have zero full-image/128KiB WRAM differences; capture includes actual get_v2_cpu registers.",
+      "Optional current342 Kaiser main-only HP1 survives idle and full-state120frame replay exactly."
+    ],
+    "bypasses": [
+      "Earlier password/equipment and eight-rematch eligibility supplied before native initialization; prior actual eight-fight proof is separate.",
+      "Position-only alignment and flight bypass shaft wall-jump/ordinary traversal; physical upper-door traversal is not claimed.",
+      "Player health/immunity/aiming position and Sigma main HP1; no camera, AI, encounter-control, progression or result flags written."
+    ],
+    "widths": {
+      "256": {
+        "execution": "default hybrid",
+        "sigma_intro_pulses": 22,
+        "kaiser_intro_pulses": 36,
+        "real_sigma_defeat": true
+      },
+      "684": {
+        "execution": "pure interpreter",
+        "sigma_intro_pulses": 22,
+        "kaiser_intro_pulses": 36,
+        "real_sigma_defeat": true
+      }
+    },
+    "timing_scope": "Both width repeats need22 original-intro B pulses and36 post-defeat Kaiser pulses. Combat damage lands on different fire cycles; no exact combat timing, full cross-width RAM or image equality claim.",
+    "identity_correction": {
+      "original_reported_passed": false,
+      "reason": "Mutable parameter byte changed0->8 on real hit; same actor slot/id has HP0/nativeprimary04.",
+      "after": {
+        "dp": 3416,
+        "state": "01040000",
+        "id": 94,
+        "sub": 8,
+        "x": 2000,
+        "y": 2720,
+        "hp": 0
+      },
+      "original_record": "x3-native-final-sigma-real-hit-legacy-parameter-check.json"
+    },
+    "current_states": {
+      "x3-native-final-before-upper-door.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-before-upper-door.sav",
+        "sha256": "800d195488bb730f043d249703c1ec887ed37e405cbda2ceac3a70c88b28dcb7"
+      },
+      "x3-native-final-sigma-live32.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-sigma-live32.sav",
+        "sha256": "a568d13e4260663edf571877f7ceef37835c803d6313c813ffc806390bb3392e"
+      },
+      "x3-native-final-sigma-actual-hit.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-sigma-actual-hit.sav",
+        "sha256": "d52703dfad34052fa058c5cb6aa5a75e51f5b77159ec14c94240c900d79d9571"
+      },
+      "x3-native-final-kaiser-live32.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-kaiser-live32.sav",
+        "sha256": "2f73aaf8d160e71374afadf91ab281c060a319f2ef3a7dca3a819812fe4968f0"
+      },
+      "x3-native-final-kaiser-live1.sav": {
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-kaiser-live1.sav",
+        "sha256": "ef429e4acc562a2491b43b2ef4e632d101e9052ec6add890185d1485af122e87"
+      }
+    },
+    "current_build_capture": {
+      "passed": true,
+      "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-capture-check\\review-captures\\x3-native-final-kaiser-live32-20261027-103417-801277.png",
+      "metadata_errors": {},
+      "replay": {
+        "case": "x3-native-final-kaiser-live32-capture",
+        "ram_difference": 0,
+        "pixel_difference": 0,
+        "passed": true
+      },
+      "progress": {
+        "format": "codex-review-progress-v1",
+        "slot": 1,
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3\\saves\\save1.sav",
+        "sha256": "8f6b52331bb97ec312a7908560083e89b024b10e73409459a4297cf8cf0014ab",
+        "frame": 40583,
+        "tag": {
+          "segment": "x3-native-final-kaiser-live32",
+          "binary_sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+          "engine": "e772aca74d06cef9435df2f34cda1689329b19c4"
+        },
+        "utc": "2026-10-27T17:34:17.799720+00:00"
+      }
+    },
+    "current_build_live1_replay": {
+      "case": "x3-native-final-kaiser-live1",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "remaining": [
+      "Kaiser finishing hit, lava escape and endings",
+      "Four individual pending human visuals; Bit human floor/exit is separately deferred",
+      "Skipped traversal/content inventory and independent original-game audio",
+      "Broader consumer follow-up; requested X2/X3 new-main qualification is passed"
+    ],
+    "raw": [
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-sigma-intro.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-sigma-real-hit.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-kaiser-intro.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-width-matrix.json",
+      "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-experiment-label-corrections.json"
+    ],
+    "owner": "No owner games opened, accepted scenes repeated or new review segments added. Current four-segment handoff and owner settings/saves/notes are preserved."
+  },
+  "epilogue_and_aftermath_followup": {
+    "date": "2026-10-27T18:26:16.152209+00:00",
+    "game_code": "87f198ec0687af99b68a0cdf3ac867cf165c21c8",
+    "engine": "0095609940bc3a304da8c70f2dcab79264bbb8ab",
+    "compiled_engine": "e772aca74d06cef9435df2f34cda1689329b19c4",
+    "engine_tree": "396f26717c1bf151b0e110950c5fd5f179c1823a",
+    "executable": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ending-framing-x3\\MegaManX3SNESRecomp.exe",
+    "sha256": "3435c01797d24e26591b6ee093b2b444f54cf5e59b12472bc63a8fe1fe6d6d4a",
+    "baseline_sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+    "compiled_title_base": "750e42929a7ffd6cd4dd6b81fd986ad205bc0a72",
+    "compiled_source": {
+      "path": "src/x3_rtl.c",
+      "sha256": "ed6d3bbaffc4763194506cad3e0a67c2111c7982d7b3af837436dfc7065616a6",
+      "equivalence": "The compiled working C source is unchanged at game code87f198e. Generator/emitted code, core engine, build definitions and mod logic are unchanged.",
+      "patch": "Tested working C source subsequently committed as87f198e"
+    },
+    "defect": "The original fixed256px opening epilogue repeats its sun/factory outside the authored composition at wide widths.",
+    "change": "Use the existing native framing only in original ending mode6/phase0. Original scrolling cast phase2 and all gameplay remain adaptive.",
+    "ending_comparison": {
+      "342": {
+        "passed": true,
+        "samples": 20,
+        "execution": "default hybrid",
+        "current_build_save_load": [
+          {
+            "case": "x3-ending-framing-342-epilogue",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          {
+            "case": "x3-ending-framing-342-cast",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        ],
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-342.json"
+      },
+      "684": {
+        "passed": true,
+        "samples": 20,
+        "execution": "pure interpreter",
+        "current_build_save_load": [
+          {
+            "case": "x3-ending-framing-684-epilogue",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          {
+            "case": "x3-ending-framing-684-cast",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        ],
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-684.json"
+      }
+    },
+    "actual_entry_lifecycle": {
+      "passed": true,
+      "rows": [
+        {
+          "elapsed": 0,
+          "mode": "02040a02",
+          "size": [
+            342,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 100,
+          "mode": "02040a04",
+          "size": [
+            342,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 200,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 300,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 400,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 500,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 600,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 700,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 800,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 900,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 1000,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 1100,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        },
+        {
+          "elapsed": 1200,
+          "mode": "02060002",
+          "size": [
+            256,
+            224
+          ],
+          "pixels_equal": true,
+          "wram_equal": true
+        }
+      ],
+      "scope": "Actual original stage-clear to ending transition, with no input or RAM writes after loading the genuinely reached clear snapshot. Full output before the epilogue and native pixels within it agree; all128KiB WRAM agree."
+    },
+    "gameplay": {
+      "byte": {
+        "passed": true,
+        "samples": 28,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-gameplay-byte.json"
+      },
+      "factory": {
+        "passed": true,
+        "samples": 24,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-gameplay-factory.json"
+      },
+      "kaiser": {
+        "passed": true,
+        "samples": 8,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-gameplay-kaiser.json"
+      },
+      "hub": {
+        "passed": true,
+        "samples": 20,
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-gameplay-hub.json"
+      }
+    },
+    "portable_cli": {
+      "returncode": 0,
+      "stdout": "[{\"case\": \"epilogue-native-frame\", \"mode\": [6, 0], \"size\": [256, 224], \"expected_width\": 256, \"passed\": true}, {\"case\": \"cast-wide-frame\", \"mode\": [6, 2], \"size\": [684, 224], \"expected_width\": 684, \"passed\": true}]\n",
+      "stderr": ""
+    },
+    "current_owner_save_load": {
+      "case": "x3-ending-framing-owner-kaiser",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "current_owner_capture": {
+      "passed": true,
+      "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-capture-check\\review-captures\\x3-ending-framing-owner-kaiser-20261027-112129-928216.png",
+      "metadata_errors": {},
+      "replay": {
+        "case": "x3-ending-framing-owner-kaiser-capture",
+        "ram_difference": 0,
+        "pixel_difference": 0,
+        "passed": true
+      },
+      "progress": {
+        "format": "codex-review-progress-v1",
+        "slot": 1,
+        "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ending-framing-x3\\saves\\save1.sav",
+        "sha256": "e4894c08622ccf7a1aa7807566bbaecae5a09971d11f904eb08fa792d9ff8d52",
+        "frame": 11506,
+        "tag": {
+          "segment": "x3-ending-framing-owner-kaiser",
+          "binary_sha256": "3435c01797d24e26591b6ee093b2b444f54cf5e59b12472bc63a8fe1fe6d6d4a",
+          "engine": "e772aca74d06cef9435df2f34cda1689329b19c4"
+        },
+        "utc": "2026-10-27T18:21:29.928216+00:00"
+      }
+    },
+    "prepared_owner_state": {
+      "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\ending-framing-owner-states\\x3-kaiser-hit.sav",
+      "sha256": "d09f5c0f68f9ff6b9eeea0ebb614c83e5ecddea6627c3ad53eb96ff82eeb5653",
+      "note": "Exactly one live primary02 Kaiser at1HP. No result writes; current120frame save/load and Pause/Capture/restart exact."
+    },
+    "aftermath": {
+      "binary": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
+      "passed": [
+        "Original virus creation, rising lava and upward camera movement after declared defeat bypass",
+        "Original virus contact takes control; two real B/release pulses restore control",
+        "Original upper corridor cue and Zero rescue/dialogue after declared ledge correction",
+        "Original fortresscounter3->5 and ending mode6 at342/default and684/interpreter; both ending states replay exactly",
+        "At342,24000 subsequent no-input/no-RAM frames reach Thanks for playing / Presented by CAPCOM"
+      ],
+      "bypasses": [
+        "Kaiser main HP1->0 supplies the unverified final-hit prerequisite; this is not a real combat win",
+        "Player-only shaft positioning bypasses wall-jump traversal",
+        "The first upper entry was below a raised ledge. A one-time position(2080,1679) supplies the missing physical approach; original movement resumes without changing movement state"
+      ],
+      "setup_failure": "The same prepared low entry stalls at native256 and342, and raising X to the ledge lets the original walk continue. This is excluded as a demonstrated widescreen defect; it does not certify an uninterrupted normal escape route or prove a fresh native whole-stage control.",
+      "original_control": "The first broad positioning run continued after control takeover and is limited to camera/actor observations. The following run stops at original control takeover and lets real dialogue input restore control.",
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-assisted-finale-width-matrix.json",
+      "ending_follow": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-assisted-ending-follow.json",
+      "terminal_picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\incoming-main-x3\\x3-assisted-ending-follow-24000.png",
+      "no_outcome_writes": "No camera, AI, progression/result, escape or ending flags written. The deliberate HP0 prerequisite and physical traversal assists remain explicit.",
+      "remaining": [
+        "Real Kaiser weakpoint finishing hit",
+        "Uninterrupted physical escape/ledge approach",
+        "Alternate Doppler-rescue ending"
+      ]
+    },
+    "provenance": "Aftermath/terminal traversal ran on preceding current engine-matched c3d2 binary. New3435 ending presentation is compared against it through actual clear entry,6000frames/mode and the cast transition; gameplay/currentsave/capture are separately exact. No new all-boss sweep or full terminal replay is claimed for3435.",
+    "promotion": "One current executable per owner title; only X3 epilogue presentation and its disposable current-build Kaiser snapshot replaced. No merge/release.",
+    "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-ending-framing-publication.json"
+  },
+  "alternate_rescue_followup": {
+    "date": "2026-10-27T18:54:09.582010+00:00",
+    "passed": true,
+    "binary": "3435c01797d24e26591b6ee093b2b444f54cf5e59b12472bc63a8fe1fe6d6d4a",
+    "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-alternate-rescue-qualification.json",
+    "original_script": "03:A827+12 ->03:B53D;03:B5E3 tests earlier Zero-unavailable bit1FB2.40 and selects alternate appearance at03:B5F9. Native loss handler00:9D02..18 sets that bit.",
+    "variants": {
+      "256": {
+        "controller_pulses": 83,
+        "native_clear": "020408000000da01",
+        "native_counter": 5,
+        "ending": "020600020c000000",
+        "save_replay": {
+          "case": "x3-alternate-rescue-256-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      },
+      "684": {
+        "controller_pulses": 81,
+        "native_clear": "020408000000b601",
+        "native_counter": 5,
+        "ending": "020600020c000000",
+        "save_replay": {
+          "case": "x3-alternate-rescue-684-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      }
+    },
+    "observed": "Original walk target reached without a post-control position correction; alternate rescue dialogue and native counter3->5/stage-clear08/ending mode6. Current-build ending save/load replays match.",
+    "assists": "Upstream Kaiser HP1->0 bypasses the real finishing hit. Player position/health bypass escape traversal, with the player moved above the raised ledge before the native upper-corridor cue; no correction after original control takeover. The earlier Zero-unavailable bit is supplied before final-script allocation. Controller B edges/health during rescue only; no camera, AI, current result, progression, escape or ending writes. No input/RAM writes after native clear.",
+    "limitations": "Assisted script/trigger qualification, not a real Kaiser finishing hit, ordinary wall-jump escape, earlier Zero-loss validation, full fresh-stage loading validation or exhaustive visual certification. Cross-width exact RAM/image equality is not asserted.",
+    "prepared_fixture": {
+      "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-zero-unavailable-before-final-script.sav",
+      "sha256": "0574cd02b2088f8e70fb1198f7d8a646968e6bcbdeb09c40331dd182f38e6a31"
+    },
+    "owner_data_unchanged": true,
+    "owner_visual_review": "Same four segments pending; no new owner game launch or replay request",
+    "implementation": "No code, engine, generated files, binaries or prepared owner states changed"
+  },
+  "maoh_object_canvas_followup": {
+    "date": "2026-10-27T21:24:18.738050+00:00",
+    "passed": true,
+    "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440",
+    "compiled_engine": "162783ecfbbb3db6e19e4ad240efe8b8a9e3deac",
+    "engine_tree": "a4cf0a18ebcf70a8f83299a06648f128db533519",
+    "game_code": "e5e5f15abebdde2515159ed139bcdfe073fc6c9d",
+    "x2_pin_commit": "83eee195ac258adf44a631265910de8d53a6145d",
+    "x2_title_code": "73936500f792d99cea5eeb1e27d2238797b1c00d",
+    "ui": "0546fbcb0126bb14bf88d2128b4fe8a4229570a3",
+    "compiled_source": {
+      "path": "src/x3_rtl.c",
+      "sha256": "101d0fd66208b721bbb53f0c05b865cbb8bdee5eb58a2ac6dd8fe02bf7b01be1",
+      "note": "Compiled working source is byte-identical to committed game codee5e5f15; later docs do not change it."
+    },
+    "identities": {
+      "x2": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+      "x3": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1"
+    },
+    "binaries": {
+      "x2": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-filter-x2\\MegaManX2SNESRecomp.exe",
+      "x3": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-clamp-x3\\MegaManX3SNESRecomp.exe"
+    },
+    "baseline": {
+      "x3": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+      "old3": "3435c01797d24e26591b6ee093b2b444f54cf5e59b12472bc63a8fe1fe6d6d4a",
+      "x2": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+      "old2": "58982242f20e1a761fa78aae07eecc0937890788c9e727cfe9ebf147dbd82cb2"
+    },
+    "defect": "Maoh exposes stale BG2 map cells and a truncated skyline/roof at very wide widths. Whole-roof reflection also copies live destroyed floor beyond the combat room.",
+    "change": "Scoped original stage0 introduction/fight: exact live BG2 boss-character filter plus existing world clip, genuine BG3 skyline, BG1 world-edge32px strip continuation. Native and authored room pixels/damage stay intact; no duplicate door/boss/pit outside the arena. No guest writes.",
+    "maoh": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-maoh-package-qualification.json",
+      "widths": {
+        "256": {
+          "passed": true,
+          "pure_interpreter": false,
+          "entry_samples": 15,
+          "fight_samples": 16,
+          "real_hit": true,
+          "clear_pulses": 40,
+          "next_stage": "00020000000000020001",
+          "live_save_replay": {
+            "case": "maoh-package-256-live",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "stage_select_save_replay": {
+            "case": "maoh-package-256-stage-select",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        },
+        "342": {
+          "passed": true,
+          "pure_interpreter": false,
+          "entry_samples": 15,
+          "fight_samples": 16,
+          "real_hit": true,
+          "clear_pulses": 40,
+          "next_stage": "00020000000000020001",
+          "live_save_replay": {
+            "case": "maoh-package-342-live",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "stage_select_save_replay": {
+            "case": "maoh-package-342-stage-select",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        },
+        "684": {
+          "passed": true,
+          "pure_interpreter": true,
+          "entry_samples": 15,
+          "fight_samples": 16,
+          "real_hit": true,
+          "clear_pulses": 40,
+          "next_stage": "00020000000000020001",
+          "live_save_replay": {
+            "case": "maoh-package-684-live",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "stage_select_save_replay": {
+            "case": "maoh-package-684-stage-select",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          }
+        }
+      },
+      "scope": "Fresh opening, original Maoh introduction/full32HP, real assisted finishing hit, authentic clear/stage-select and controller next-Maverick loading at256/default,342/default,684/interpreter. Saved travel setup bypassed; not whole-stage natural traversal or a full-game audit.",
+      "assists": "Fresh controller-only opening. Original-route saved travel setup and one pre-door Y alignment bypass connecting traversal. MainHP1 before idle survival/real fire and player position/health while aiming only. No RAM writes after real hit through clear/selection/next stage; no camera/AI/control/current-result/progression writes."
+    },
+    "regression": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-regressions.json",
+      "cases": {
+        "x3-byte": {
+          "passed": true,
+          "samples": 28
+        },
+        "x3-factory": {
+          "passed": true,
+          "samples": 24
+        },
+        "x3-press": {
+          "passed": true,
+          "samples": 8
+        },
+        "x3-kaiser": {
+          "passed": true,
+          "samples": 8
+        },
+        "x3-hub-exit": {
+          "passed": true,
+          "samples": 20
+        },
+        "x3-epilogue": {
+          "passed": true,
+          "samples": 20
+        },
+        "x2-serges": {
+          "passed": true,
+          "samples": 16
+        },
+        "x2-rocket": {
+          "passed": true,
+          "samples": 16
+        },
+        "x2-sigma": {
+          "passed": true,
+          "samples": 8
+        },
+        "x3-lab2": {
+          "passed": true,
+          "samples": 24
+        },
+        "x2-ostrich": {
+          "passed": true,
+          "samples": 16
+        }
+      },
+      "samples": 188,
+      "scope": "Whole output/128KiB WRAM match current frozen owner builds in representative accepted and pending scenes; declared health/control only. No new owner visual acceptance or full-stage traversal claim."
+    },
+    "current_handoff": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-handoff-verification.json",
+      "states": {
+        "x2-serges": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-owner-states\\x2-serges.sav",
+          "sha256": "a55fbea975cfecdf623f37c090f68f37836d4b310e91a136bfe1b3ab10a5c8d0",
+          "binary": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+          "replay": {
+            "case": "maoh-package-owner-x2-serges",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "capture": {
+            "passed": true,
+            "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-capture-check\\review-captures\\maoh-package-owner-x2-serges-20261027-141512-141881.png",
+            "metadata_errors": {},
+            "replay": {
+              "case": "maoh-package-owner-x2-serges-capture",
+              "ram_difference": 0,
+              "pixel_difference": 0,
+              "passed": true
+            },
+            "progress": {
+              "format": "codex-review-progress-v1",
+              "slot": 1,
+              "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-filter-x2\\saves\\save1.sav",
+              "sha256": "0978fd6461b2c6dd7a0fb4eca59d3f3f5a0e85521981f697bd557e647c8ff0be",
+              "frame": 3097,
+              "tag": {
+                "segment": "maoh-package-owner-x2-serges",
+                "binary_sha256": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+                "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440"
+              },
+              "utc": "2026-10-27T21:15:12.140326+00:00"
+            }
+          }
+        },
+        "x2-ostrich-entry": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-owner-states\\x2-ostrich-entry.sav",
+          "sha256": "8d7fca6bca3eb6a4216a43b818ad56e44d0e6f304bbaaf205864aa3aa49fd13a",
+          "binary": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+          "replay": {
+            "case": "maoh-package-owner-x2-ostrich-entry",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "capture": {
+            "passed": true,
+            "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-capture-check\\review-captures\\maoh-package-owner-x2-ostrich-entry-20261027-141516-229073.png",
+            "metadata_errors": {},
+            "replay": {
+              "case": "maoh-package-owner-x2-ostrich-entry-capture",
+              "ram_difference": 0,
+              "pixel_difference": 0,
+              "passed": true
+            },
+            "progress": {
+              "format": "codex-review-progress-v1",
+              "slot": 1,
+              "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-filter-x2\\saves\\save1.sav",
+              "sha256": "db5198151aa02d447f80ec9ec6a3abba2cf0b4d35460cb046593d18b3768a98e",
+              "frame": 4917,
+              "tag": {
+                "segment": "maoh-package-owner-x2-ostrich-entry",
+                "binary_sha256": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+                "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440"
+              },
+              "utc": "2026-10-27T21:15:16.228031+00:00"
+            }
+          }
+        },
+        "x2-sigma-walls": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-owner-states\\x2-sigma-walls.sav",
+          "sha256": "997deda0df99ba0af2d6c8cc1dbead64446f7081999b6aea3d7c92c7d89be8aa",
+          "binary": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+          "replay": {
+            "case": "maoh-package-owner-x2-sigma-walls",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "capture": {
+            "passed": true,
+            "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-capture-check\\review-captures\\maoh-package-owner-x2-sigma-walls-20261027-141520-284226.png",
+            "metadata_errors": {},
+            "replay": {
+              "case": "maoh-package-owner-x2-sigma-walls-capture",
+              "ram_difference": 0,
+              "pixel_difference": 0,
+              "passed": true
+            },
+            "progress": {
+              "format": "codex-review-progress-v1",
+              "slot": 1,
+              "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-filter-x2\\saves\\save1.sav",
+              "sha256": "508aca6258ad656406271a1096540fd362e6ef3c076f2c8b7e8fd33367b7bebc",
+              "frame": 30235,
+              "tag": {
+                "segment": "maoh-package-owner-x2-sigma-walls",
+                "binary_sha256": "209813aa5459bf95355882f991b09bab1821e856c67a6619bc335cc0c4cd4169",
+                "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440"
+              },
+              "utc": "2026-10-27T21:15:20.283707+00:00"
+            }
+          }
+        },
+        "x3-kaiser-hit": {
+          "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-owner-states\\x3-kaiser-hit.sav",
+          "sha256": "2bdd00a5b92773114694df7bd4cf8a1f27b9502af33e53327a63d4aed248cea1",
+          "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+          "replay": {
+            "case": "maoh-package-owner-x3-kaiser-hit",
+            "ram_difference": 0,
+            "pixel_difference": 0,
+            "passed": true
+          },
+          "capture": {
+            "passed": true,
+            "picture": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-capture-check\\review-captures\\maoh-package-owner-x3-kaiser-hit-20261027-141524-305988.png",
+            "metadata_errors": {},
+            "replay": {
+              "case": "maoh-package-owner-x3-kaiser-hit-capture",
+              "ram_difference": 0,
+              "pixel_difference": 0,
+              "passed": true
+            },
+            "progress": {
+              "format": "codex-review-progress-v1",
+              "slot": 1,
+              "path": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-clamp-x3\\saves\\save1.sav",
+              "sha256": "ee60bc714330fe882cf705702da712cea16aa381cc1026b9359ab3185b00806a",
+              "frame": 11509,
+              "tag": {
+                "segment": "maoh-package-owner-x3-kaiser-hit",
+                "binary_sha256": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+                "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440"
+              },
+              "utc": "2026-10-27T21:15:24.305468+00:00"
+            }
+          }
+        }
+      },
+      "scope": "Same four existing segments; player health/current full snapshots only. Kaiser remains alive1HP. No outcome writes or owner launch."
+    },
+    "audio": {
+      "x2": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-audio-x2.json",
+        "passed": true,
+        "scope": "Actual non-silent PCM, full SPC/ARAM/DSP/APU and WRAM match the current frozen owner engine009/NATIVE-APU package. New engine057 changes presentation only. Not independent original-game music/SFX correctness."
+      },
+      "x3": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-audio-x3.json",
+        "passed": true,
+        "scope": "Actual non-silent PCM, full SPC/ARAM/DSP/APU and WRAM match the current frozen owner engine009/NATIVE-APU package. New engine057 changes presentation only. Not independent original-game music/SFX correctness."
+      }
+    },
+    "runtime": {
+      "x2-default": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-cost-x2-default.json",
+        "median_time_change_percent": 1.5533253805994907,
+        "range_percent": [
+          -2.323784461839007,
+          4.358531713722669
+        ],
+        "classification": "neutral/inconclusive: small mixed samples on a busy shared host, not a proven win/regression",
+        "minimum_candidate_fps": 221.35067444226442
+      },
+      "x3-default": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-cost-x3-default.json",
+        "median_time_change_percent": 3.0261839572331417,
+        "range_percent": [
+          -0.8720543983877005,
+          4.370754555707768
+        ],
+        "classification": "neutral/inconclusive: small mixed samples on a busy shared host, not a proven win/regression",
+        "minimum_candidate_fps": 194.69049807919438
+      },
+      "x3-maoh-684": {
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-cost-x3-maoh-684.json",
+        "median_time_change_percent": 1.558962903296135,
+        "range_percent": [
+          -8.390596924800187,
+          11.370765520505199
+        ],
+        "classification": "neutral/inconclusive: small mixed samples on a busy shared host, not a proven win/regression",
+        "minimum_candidate_fps": 146.89372110919726
+      }
+    },
+    "settings": "Release software/dummy QA, native APU time,SLICE8 CRC,coverageOFF. FULL audio trace is the actual compiler value2 forced by TRACE=1; SMALL cache request is not the effective profile. Default342 plus forced-interpreter684 checks. Owner normal audio/window settings are preserved.",
+    "unit_tests": [
+      "Live filtered-VRAM provider/native/fine-scroll/8-16px/history/lifecycle",
+      "World mirror/clip/edge-repeat production pixels,8-16px/mosaic/2-4bpp/684/native/shake/damage/reset/source limits",
+      "Elastic bands",
+      "Raster journal",
+      "Sprite limits",
+      "HD Mode7"
+    ],
+    "storage": "One private candidate per game and frozen former owner baselines outside delivery folders; small full states/PNG/RAM/JSON/PCM/SPC and unit/build evidence retained. Duplicate private BMP cleanup follows.",
+    "promotion": "One current executable per owner title, verified replacement/current-build states; settings/native saves/notes/acceptance preserved. Frozen previous binaries remain private evidence. No merge/release.",
+    "remaining": [
+      "Four individual owner visuals/optional actual Kaiser hit",
+      "Bit human floor/exit deferred; automated checks pass",
+      "Full capture/rescue width matrix, remaining stage/branch/exit coverage, independent original-game music/SFX",
+      "Ordinary physical escape and earlier actual Zero loss/fresh-stage rescue branch",
+      "Broader engine consumer follow-up; old and new package measurements retain exact identities"
+    ],
+    "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-publication.json"
+  },
+  "actual_zero_loss_followup": {
+    "date": "2026-10-27T22:28:13.031128+00:00",
+    "passed": true,
+    "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+    "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualification.json",
+    "variants": {
+      "256": {
+        "execution": "default hybrid",
+        "contact_pulses": 4,
+        "retreat_pulses": 30,
+        "save_replay": {
+          "case": "zero-loss-qualified-256-x-return",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "result_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-256-x-return.sav",
+        "result_sha256": "27dbbaca591eff10425fcadcef36682ee23e0341239357121ccf2292ac2392f3"
+      },
+      "342": {
+        "execution": "default hybrid",
+        "contact_pulses": 4,
+        "retreat_pulses": 30,
+        "save_replay": {
+          "case": "zero-loss-qualified-342-x-return",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "result_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-342-x-return.sav",
+        "result_sha256": "8fe7ee863e8ff88d1fd007638b772111ac0a3a8701b7bbec16479a8c5b9342d1"
+      },
+      "684": {
+        "execution": "pure interpreter",
+        "contact_pulses": 4,
+        "retreat_pulses": 30,
+        "save_replay": {
+          "case": "zero-loss-qualified-684-x-return",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "result_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-684-x-return.sav",
+        "result_sha256": "b8e73886aeabf290e023fb8ad3c5c4a8eb15d3f798827f3cd6dd4ed4f030a2e2"
+      }
+    },
+    "observed": "Original communication/Start selects live Zero,HP1 survives idle,actual controller movement/enemy contact gives HP0/death,original native retreat sets1FB2.40,then X returns with16HP and normal control. Current-build X-return save/load replays match full output/128KiB WRAM.",
+    "assists": "Saved current-build ready character menu bypasses prior travel. Only Zero HP1 is written before live idle survival. All selection, movement, damage, retreat and X return use original execution/controller input; no position, AI,camera,character/current result/progression/unavailable flag writes.",
+    "remaining": "Earlier actual loss retains its10994 binary identity. The later earned_loss_current_fresh_followup qualifies fresh-stage propagation through the alternate rescue and ending on currentd897 at256,342 and684. Ordinary connecting travel remains assisted.",
+    "fresh_loader": {
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-fresh-final-first-load.json",
+      "scope": "Earned unavailable bit survives the original fresh stage13/counter3/checkpoint0 loader. Stage/counter selection bypassed prior fortress eligibility; this alone is not final alternate-rescue validation. Wrong checkpoint1 probe dies in unused geometry and is excluded as setup failure, not a product/branch failure."
+    }
+  },
+  "final_entry_camera_followup": {
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+    "compiled_engine": "952705a04c670d6be7bff2baf17001e8c84ff459",
+    "engine_tree": "f8c6ebfd0472b1f5580b7aeab768d420a5452afd",
+    "source_sha256": "456ccf4fb89cb98afa45d2e43dcafd2680abdb5affb2c51aca0b4ae985cb8304",
+    "passed": true,
+    "scope": "Final-stage entry chamber camera presentation at342. No guest camera, AI, OAM or progression writes are introduced by the fix.",
+    "native_image_samples": 25,
+    "unchanged_scene_samples": 68,
+    "regressions": {
+      "escape": {
+        "passed": true,
+        "samples": 8
+      },
+      "kaiser": {
+        "passed": true,
+        "samples": 8
+      },
+      "byte": {
+        "passed": true,
+        "samples": 28
+      },
+      "factory": {
+        "passed": true,
+        "samples": 24
+      }
+    },
+    "width_limits": [
+      "The anchor is enabled only for the demonstrated entry chamber and widths up to512;684 keeps previous centred presentation because the ordinary one-sided OBJ span is limited. Wider anchoring and other rooms are not certified.",
+      "Owner confirms no duplicate head and actual charged-shot Kaiser hit. Ordinary escape, alternate fresh-stage rescue, Bit and broader audit remain open."
+    ],
+    "current_save_replay": {
+      "case": "chamber-anchor-entry-current",
+      "ram_difference": 0,
+      "pixel_difference": 0,
+      "passed": true
+    },
+    "capture_passed": true,
+    "reference": {
+      "directory": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\original-x3-chamber-shaft-layout",
+      "core": "Unmodified snes9x_libretro",
+      "observation": "Original fresh stage13/checkpoint0 renders the same chamber. Original shaft BG1 contains the pipe walls, including above the lava line in the recomp native escape view.",
+      "assists": "Stage/counter teleport and explicit camera/player positioning for STATIC shaft-art inspection only. Not an independent original escape sequence validation."
+    },
+    "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\chamber-anchor-qualification.json",
+    "owner_acceptance": "Owner accepts camera anchor at16:9, actual Kaiser charged-shot hit and no duplicate head. Focused handoff complete; no repeat."
+  },
+  "kaiser_owner_finishing_hit": {
+    "owner_confirmed": true,
+    "date": "2026-10-27T23:13:51.165148+00:00",
+    "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
+    "message": "Yes, the charged shot finished him"
+  },
+  "intro_capture_rescue_followup": {
+    "date": "2026-10-27T23:31:22.647426+00:00",
+    "passed": true,
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+    "game_code": "3a0e9bd79f9577734c8da2c16afd6d7cbd62f47b",
+    "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-intro-capture-rescue-qualification.json",
+    "variants": {
+      "256": {
+        "execution": "default hybrid",
+        "capture_pulses": 39,
+        "rescue_pulses": 16,
+        "mac_real_hit": true,
+        "restraint_real_hit": true,
+        "zero_control_save_replay": {
+          "case": "x3-intro-qualified-256-zero-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "x_control_save_replay": {
+          "case": "x3-intro-qualified-256-x-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      },
+      "342": {
+        "execution": "default hybrid",
+        "capture_pulses": 39,
+        "rescue_pulses": 16,
+        "mac_real_hit": true,
+        "restraint_real_hit": true,
+        "zero_control_save_replay": {
+          "case": "intro-342-zero-after-mobility",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "x_control_save_replay": {
+          "case": "x3-intro-qualified-342-x-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      },
+      "684": {
+        "execution": "pure interpreter",
+        "capture_pulses": 40,
+        "rescue_pulses": 16,
+        "mac_real_hit": true,
+        "restraint_real_hit": true,
+        "zero_control_save_replay": {
+          "case": "x3-intro-qualified-684-zero-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "x_control_save_replay": {
+          "case": "x3-intro-qualified-684-x-control",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        }
+      }
+    },
+    "scope": "Fresh original opening and original Mac capture/Zero control, real Mac/restraint hits, X rescue/control at native256,342 and684. Ordinary travel between scripted encounters is explicitly bypassed by the saved original-route setups; final intro boss/clear and other stages require separate checks.",
+    "assists": "Player position/health during upstream travel and live fights, main enemy/restraint HP1 before idle and real shots. Controller-only capture and rescue scripts; no AI, camera, control, current outcome or progression writes. No natural-traversal, natural-collection or unassisted-combat claim.",
+    "equality": "Each current-build Zero/X control save/load replay preserves all presented pixels and128KiB WRAM. Exact cross-width timing/RAM or whole-output equality is not asserted.",
+    "setup_corrections": [
+      "Native Mac primary04 retirement can finish after Zero control returns; live capture actor is gone before movement completes. The initial immediate-deallocation assertion is excluded as a QA sequencing mistake.",
+      "The342 Zero movement reaches a raised floor rail after31 pixels. Actual left/right input and jump cross it; a flat-ground distance assumption is excluded as a QA setup mistake. Controller mobility, native retirement and current-state replay are verified."
+    ],
+    "limits": [
+      "Upstream connecting travel is explicitly bypassed by original-route approach snapshots. No complete natural traversal, original-audio or exhaustive visual certification.",
+      "Current capture/rescue mechanics and per-width state replay pass; cross-width byte-identical timing/WRAM/full output is not asserted."
+    ],
+    "camera_owner_accepted": true,
+    "owner_playtest_untouched": true
+  },
+  "camera_owner_acceptance": {
+    "date": "2026-10-27T23:27:20.318565+00:00",
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "message": "x3 is good on camera anchor",
+    "passed": true
+  },
+  "earned_loss_current_fresh_followup": {
+    "date": "2026-10-28T00:04:12.180364+00:00",
+    "passed": true,
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+    "game_code": "3a0e9bd79f9577734c8da2c16afd6d7cbd62f47b",
+    "variants": {
+      "256": {
+        "execution": "default hybrid",
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-256.json",
+        "raw_sha256": "f6c09c37ac1e511ef6f8d9a18cc4f5f9b301d14aa4c1896de97606ae41929803",
+        "earlier_loss_fixture": {
+          "info": {
+            "frame": 27472,
+            "mode": "0204040000000003",
+            "stage": "00020000004000020001",
+            "player": "0002000200800100",
+            "x": 384,
+            "y": 927,
+            "hp": 16,
+            "camera": [
+              256,
+              768
+            ],
+            "bounds": "000a000300030001000af8ff0000000000030001",
+            "event": "0000000000000000000000000000000000000000000000000000000300000000000000040000000000000000000000000000000000000000000100000000000000000000000000000000000000000000"
+          },
+          "source": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-256-x-return.sav",
+          "sha256": "27dbbaca591eff10425fcadcef36682ee23e0341239357121ccf2292ac2392f3",
+          "proof": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualification.json",
+          "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1"
+        },
+        "sigma_real_hit": true,
+        "virus_contact_hp": 15,
+        "controller_ledge_frames": 108,
+        "final_pulses": 81,
+        "native_clear": "020408000000b701",
+        "native_counter": 5,
+        "ending": "0206000202003800",
+        "save_replay": {
+          "case": "earned-loss-fresh-finale-256-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "ending_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-256-ending.sav"
+      },
+      "342": {
+        "execution": "default hybrid",
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-342.json",
+        "raw_sha256": "c4200cbabed5015120a82f0dd7da6abb8355b11149c66e24a9b3396a9aba7515",
+        "earlier_loss_fixture": {
+          "info": {
+            "frame": 27472,
+            "mode": "0204040000000003",
+            "stage": "00020000004000020001",
+            "player": "0002000200800100",
+            "x": 384,
+            "y": 927,
+            "hp": 16,
+            "camera": [
+              256,
+              768
+            ],
+            "bounds": "000a000300030001000af8ff0000000000030001",
+            "event": "0000000000000000000000000000000000000000000000000000000300000000000000040000000000000000000000000000000000000000000100000000000000000000000000000000000000000000"
+          },
+          "source": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-342-x-return.sav",
+          "sha256": "8fe7ee863e8ff88d1fd007638b772111ac0a3a8701b7bbec16479a8c5b9342d1",
+          "proof": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualification.json",
+          "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1"
+        },
+        "sigma_real_hit": true,
+        "virus_contact_hp": 15,
+        "controller_ledge_frames": 108,
+        "final_pulses": 81,
+        "native_clear": "020408000000c401",
+        "native_counter": 5,
+        "ending": "0206000202003800",
+        "save_replay": {
+          "case": "earned-loss-fresh-finale-342-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "ending_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-342-ending.sav"
+      },
+      "684": {
+        "execution": "pure interpreter",
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-684.json",
+        "raw_sha256": "55826ae2a0e95bf7a380e7e58d487f8f419e25e93e2af24de5392a9c84fefa2a",
+        "earlier_loss_fixture": {
+          "info": {
+            "frame": 27472,
+            "mode": "0204040000000003",
+            "stage": "00020000004000020001",
+            "player": "0002000200800100",
+            "x": 384,
+            "y": 927,
+            "hp": 16,
+            "camera": [
+              256,
+              768
+            ],
+            "bounds": "000a000300030001000af8ff0000000000030001",
+            "event": "0000000000000000000000000000000000000000000000000000000300000000000000040000000000000000000000000000000000000000000100000000000000000000000000000000000000000000"
+          },
+          "source": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-684-x-return.sav",
+          "sha256": "b8e73886aeabf290e023fb8ad3c5c4a8eb15d3f798827f3cd6dd4ed4f030a2e2",
+          "proof": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualification.json",
+          "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1"
+        },
+        "sigma_real_hit": true,
+        "virus_contact_hp": 15,
+        "controller_ledge_frames": 108,
+        "final_pulses": 80,
+        "native_clear": "020408000000c701",
+        "native_counter": 5,
+        "ending": "0206000202003800",
+        "save_replay": {
+          "case": "earned-loss-fresh-finale-684-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "ending_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-684-ending.sav"
+      }
+    },
+    "helper": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned_loss_fresh_finale.py",
+    "helper_sha256": "bde61665b2facf4ace7413d67d3ea2419787928c33af8b9aae545900ec531cd5",
+    "scope": "Naturally earned earlier Zero loss survives original fresh stage13/counter3/checkpoint0 loading. Current binary executes the Sigma real hit, full Kaiser intro, actual virus contact, original shaft camera, real upper-ledge wall jumps/control takeover, alternate rescue, clear and ending at all three widths.",
+    "assists": "Load the earlier naturally earned Zero-loss fixture. Select stage13/counter3/checkpoint0 before the original loader, explicitly bypassing earlier fortress eligibility. Player position/health/protection bypass connecting travel and shaft ascent; SigmaHP1 precedes an actual shot; KaiserHP0 explicitly bypasses the separately owner-qualified finishing hit. At the top camera, only right/jump input and health cross the native ledge and run the alternate rescue. No unavailable, camera, AI, character, current encounter outcome or later progression writes. No guest writes after original stage clear.",
+    "limits": "Assisted sequence qualification, not ordinary whole-stage traversal or an automated real Kaiser hit. The earlier actual-loss fixture retains its original10994 binary identity. Fresh loader, Sigma/Kaiser introduction, real virus damage, native top camera/wall jump/control takeover, alternate rescue, clear and ending run on this current binary.",
+    "cross_width_equality": "Not asserted. Each ending replay separately preserves all presented pixels and128KiB WRAM.",
+    "owner_playtest_untouched": true
+  },
+  "bit_current_followup": {
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "passed_automation": true,
+    "human_floor": "passed",
+    "floor_raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-bit-current-floor-qualification.json",
+    "exit_raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-bit-current-real-exit.json",
+    "scope": "Before-room setup has valid original door graphics and no live hunter/result. Original Bit lands atY679, feet703/floor704, with cameraY559. Full32HP introduction, HP1 idle/real Buster hit, original result01/deallocation, right-door crossing and normal control return pass.",
+    "assists": "Current-build before-room state re-save; earlier Maverick eligibility comes from the original prepared snapshot. Only controller right/B dialogue edges and player health; no hunter position,AI,HP,collision,floor,camera or result writes. Main BitHP1 before live idle and real Buster input, player aiming/health only. Original result01/deallocation, actual right door crossing/camera advance and control return; no result,door,AI,camera or control writes.",
+    "human_scope": "Owner accepted corrected Bit floor appearance; the focused handoff is complete.",
+    "owner_acceptance": {
+      "at": "2026-10-28T00:26:25.521088+00:00",
+      "message": "what other issues do I need to check? bit looks good",
+      "accepted": [
+        "Bit corrected floor appearance"
+      ],
+      "binary_sha256": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+      "scope": "Owner confirms the prepared before-room Bit floor check. Prior automated original landing, actual hit, departure, exit and control return remain passed. No repeat accepted visual checks."
+    }
+  }
+}
