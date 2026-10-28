@@ -593,3 +593,35 @@ Image inspection also exposed a moving61px BG2 strip outside its slower
 parallax canvas. Very-wide anchoring now stays within both BG layers. The
 repeated46samples and three current-state replays pass;<=512 placement
 retains its accepted behavior. No new owner check is prepared.
+
+### Native OBJ quotas and the connecting fortress route (2026-10-27)
+
+Busy wide margins were consuming the native32-object/34-sliver quotas. The
+private3368 build keeps margin work outside those quotas while retaining
+authentic native overflow, OAM order and the explicit NoSpriteLimits option.
+The old evaluator fails eight synthetic assertions across both renderers; all
+nine PPU fixtures now pass. Twelve exact corridor inputs match zero-extra
+native OBJ pixels and overflow flags below the HUD. The observed missing
+native pixels (3,10,3 in three samples) are repaired.
+
+Thirty-eight paired samples retain whole images and full WRAM/VRAM/OAM at
+256/342 in entry, Byte, factory and Kaiser scenes. Three current-build image/
+WRAM replays pass, including full32HP Kaiser at800. The assisted800 route
+now crosses the corridor, both ladder transitions and the long shaft into
+full32HP Sigma, an actual HP1-assisted Buster defeat, and full32HP Kaiser.
+All119 sampled route states retain paired WRAM/VRAM/OAM equality. Traversal
+positions, health and protection are assists; ladders/dialogue/boss damage run
+on original controller input. No camera, AI, control or result flags are set.
+
+Matched diagnostic cost samples retain neutral native256 throughput. The busy
+342 workload measures median+4.02% (+0.003..+0.199ms/frame) while rendering
+required sprites the old quotas discarded.800 measures-1.72% on the shared
+host; it does not offset the342 cost or establish an optimization win. Slowest
+observed candidate throughput is170fps. Broader consumers remain a separate
+gate. Raw evidence: `native-quota-qualification.json`.
+
+The connecting route exposes a separate unresolved issue: unused background
+space and out-of-room projectiles beside the vertical travel rooms, including
+the full43px right gutter at342. `beads-8wg.19.5` owns that fix. Trigger
+progress does not clear this visual failure. The owner build remainsd897,
+all prepared human checks stay accepted, and no release/handoff is made.
