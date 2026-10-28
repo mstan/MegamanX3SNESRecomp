@@ -10,11 +10,10 @@
       "Bit corrected floor appearance"
     ],
     "unverified": [
-      "Bounded final-fortress travel-room presentation (beads-8wg.19.5): blank shaft gutters/out-of-room projectiles reproduce at342 and800. Assisted800 corridor/ladders/shaft, full Sigma intro/real assisted hit and full Kaiser intro pass; this does not clear the visual gap.",
       "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
       "Broader shared-engine consumer qualification and final merge handoff."
     ],
-    "next_cross_title_priority": "Fix final-fortress travel-room canvas (19.5), then uncovered content/audio and broader engine qualification. Existing owner checks stay complete.",
+    "next_cross_title_priority": "Uncovered content/audio and broader engine qualification. Prepared human checks complete; fortress travel canvas fixed/automatically qualified.",
     "shared_engine_regression": {
       "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
       "cases": [
@@ -554,6 +553,13 @@
       "private_probes": "stopped",
       "no_new_human_handoff": true,
       "engine_commit": "3e2e56737c2494bc7cce8e765948973068d8b2d7"
+    },
+    "fortress_travel_canvas": {
+      "passed": true,
+      "bead": "beads-8wg.19.5",
+      "candidate": "be7d1f8e58613050fab7621377502175ad1fcea59337e7a2ad0454e644fac857",
+      "evidence": "fortress-travel-qualification.json",
+      "scope": "Assisted connecting-route presentation/trigger regression, not exhaustive natural stage traversal or independent original-game audio. Broader shared-engine consumers/final integration still open."
     }
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",

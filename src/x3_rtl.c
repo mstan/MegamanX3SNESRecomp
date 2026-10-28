@@ -392,9 +392,66 @@ static uint16_t x3_maoh_margin_tile(void *context, uint16_t address,
   return (tile & 0x3ff) >= 0x300 ? tile : 0;
 }
 
+static void x3_configure_fortress_travel(void) {
+  if (!g_ws_active || !g_ppu || g_ram[0xd1] != 4 || g_ram[0x1fae] != 13 ||
+      (g_ppu->bgmode & 7) != 1 || g_ppu->bgXsc[0] != 0x51 ||
+      g_ppu->bgXsc[1] != 0x59)
+    return;
+  const int camera_y = g_ram[0x1e60] | g_ram[0x1e61] << 8;
+  const int left = g_ram[0x1e6e] | g_ram[0x1e6f] << 8;
+  const int right = g_ram[0x1e68] | g_ram[0x1e69] << 8;
+  const int top = g_ram[0x1e6a] | g_ram[0x1e6b] << 8;
+  const int bottom = g_ram[0x1e6c] | g_ram[0x1e6d] << 8;
+  /* The entrance anchor and closed boss arenas already own their framing.
+   * Verify the loaded fortress layout before interpreting screen0 as void. */
+  if (camera_y < 2560 || camera_y > 3584 ||
+      (left == 256 && right == 1536 && top == 3584) ||
+      (left == right && top == bottom) ||
+      g_ram[0xe800 + 10 * 32 + 7] != 10 ||
+      g_ram[0xe800 + 14 * 32 + 1] != 17)
+    return;
+  const int camera_x = g_ram[0x1e5d] | g_ram[0x1e5e] << 8;
+  int dx = (g_ppu->hScroll[0] - camera_x) & 511;
+  int dy = (g_ppu->vScroll[0] - camera_y) & 255;
+  if (dx >= 256) dx -= 512;
+  if (dy >= 128) dy -= 256;
+  const int world_x = camera_x + dx, world_y = camera_y + dy;
+  /* At most two256px source rows intersect the native224px frame. Their
+   * nonzero screen spans describe the authored canvas, including intentional
+   * transparent holes inside it. Never infer room bounds from opaque pixels.
+   * Continue only the outermost wall pixel, avoiding reflected doors/actors.
+   * BG2 remains its live circular canvas (its logical Y may be negative). */
+  for (unsigned slot = 0; slot < 2; ++slot) {
+    const int row = (world_y >> 8) + slot;
+    if (row < 10 || row > 14) continue;
+    int y0 = row * 256 - world_y, y1 = y0 + 256;
+    if (y0 < 0) y0 = 0;
+    if (y1 > 224) y1 = 224;
+    if (y0 >= y1) continue;
+    int first = 32, last = -1;
+    for (int x = 0; x < 32; ++x) {
+      if (!g_ram[0xe800 + row * 32 + x]) continue;
+      if (first == 32) first = x;
+      last = x;
+    }
+    if (last < first) continue;
+    int a = first * 256 - world_x + g_ppu->hScroll[0];
+    int b = (last + 1) * 256 - world_x + g_ppu->hScroll[0];
+    /* Keep authentic quake/scroll overhang. World policies use the hardware
+     * phase; a distant negative bound is outside the widest supported view. */
+    if (a > g_ppu->hScroll[0]) a = g_ppu->hScroll[0];
+    if (a < 0) a = 0;
+    if (b < g_ppu->hScroll[0] + 256) b = g_ppu->hScroll[0] + 256;
+    PpuSetWidescreenLayerWorldRepeatBandSlot(g_ppu,slot,0,y0,y1,a,b,1);
+    PpuSetWidescreenLayerWorldClipBandSlot(g_ppu,slot,1,y0,y1,0,a,b);
+    PpuSetWidescreenLayerWorldClipBandSlot(g_ppu,slot,4,y0,y1,0,a,b);
+  }
+}
+
 /* Exact background source for the widescreen margins. */
 void X3ConfigureWsBgMargins(void) {
   Mmx23ConfigureWsBgMargins(g_snes, g_ppu, g_ram, g_ws_active);
+  x3_configure_fortress_travel();
   /* Keep Maoh's genuine offscreen body inside its512px canvas while BG1
    * supplies the roof. Never reflect the boss or expose stale map
    * cells beside it. Enter the policy when the original camera reaches the

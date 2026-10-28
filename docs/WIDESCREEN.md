@@ -625,3 +625,29 @@ space and out-of-room projectiles beside the vertical travel rooms, including
 the full43px right gutter at342. `beads-8wg.19.5` owns that fix. Trigger
 progress does not clear this visual failure. The owner build remainsd897,
 all prepared human checks stay accepted, and no release/handoff is made.
+
+### Bounded final-fortress travel canvas (2026-10-27)
+
+The connecting shafts now continue their authored outer wall pixel into
+overflow gutters. Bounds come from the loaded BG1 screen rows, preserving
+intentional transparent cells and genuine offscreen terrain. The two visible
+source rows can have different spans. BG2 retains its live circular canvas,
+including negative logical Y; BG2 and guest OAM are clipped outside the room.
+Configured HUD slots and native OBJ quotas remain intact. The accepted
+entrance anchor and closed boss policies retain ownership. No camera, AI,
+collision, encounter-result or progression value is replaced.
+
+Native256/342/684/800 static comparisons and moving342/684/800 ladder/shaft
+routes preserve native pixels and full WRAM/VRAM/OAM. Bit, Byte, factory and
+the entrance retain their full342px output in automated regression; all three
+current-build shaft save/load replays pass. Nine PPU fixtures pass; the new
+guest-OAM clipping assertions fail on the preceding engine, across both
+renderers. Before/after images show the342px brown gutter and stray projectile
+replaced by wall continuation, including the wider source-row transitions.
+
+This resolves the demonstrated canvas gap in `beads-8wg.19.5`; it does not
+qualify skipped stage/sublevel/branch/exit travel or independent original
+music/SFX. Raw qualification and matched diagnostic cost samples are retained
+in `fortress-travel-qualification.json`. This is a correctness change, not an
+optimization claim. The owner runtime remainsd897, all prepared checks remain
+accepted, and broader engine consumer/final merge qualification stays open.
