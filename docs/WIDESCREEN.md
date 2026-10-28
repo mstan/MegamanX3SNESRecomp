@@ -564,3 +564,32 @@ Very-wide entrance anchoring above 512, uncovered stage/sublevel/branch/exit
 travel, independent original-game music/SFX and broader shared-engine consumer
 qualification remain open. Machine-readable current_status is authoritative;
 older identity-specific remaining lists describe their historical milestone.
+
+### Producer coordinates for very-wide entrance views (2026-10-27)
+
+The private candidate now anchors the final-stage entrance at684 and800px.
+It observes full signed X at the original CX4 microcode write02:80E6 and
+binds it to the actual OAM XY upload. An exact microcode signature guards
+the policy; guest camera, OAM, collision, AI and progression stay untouched.
+Pending and uploaded positions travel through the title save/rollback extension.
+The shared desktop host also retains the16-bit budget: casting272 to eight
+bits previously collapsed800px output to288px.
+
+All nine PPU fixtures and the synthetic original-instruction observer pass.
+Forty-six runtime samples retain full WRAM/VRAM/OAM equality;256/342px full
+images match the accepted build in entry, Byte, factory and Kaiser workloads.
+At684/800 the corresponding native world pixels below the HUD match; actual
+800px output replaces the baseline288px wrap. Current-build full-image/WRAM
+save/load replays pass at342,684 and800. Matched342px runtime samples are
+inconclusive on the shared host (median+3.14%, range-2.64%..+5.05%);
+this is not a speed claim. Raw evidence is `cx4-coordinate-qualification.json`
+in the retained audit workspace.
+
+The current owner build remainsd897 and all prepared human checks are accepted.
+Full very-wide chamber travel/transitions, uncovered
+content/audio and broader engine qualification remain before release.
+
+Image inspection also exposed a moving61px BG2 strip outside its slower
+parallax canvas. Very-wide anchoring now stays within both BG layers. The
+repeated46samples and three current-state replays pass;<=512 placement
+retains its accepted behavior. No new owner check is prepared.

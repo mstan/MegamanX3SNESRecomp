@@ -10,11 +10,11 @@
       "Bit corrected floor appearance"
     ],
     "unverified": [
-      "Very-wide final-entry camera anchoring: widths above512 retain the prior centred policy.",
+      "The private684/800 entrance anchor now passes presentation automation; full chamber traversal/transition qualification remain before any new handoff. Current owner build staysd897.",
       "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
       "Broader shared-engine consumer qualification and final merge handoff."
     ],
-    "next_cross_title_priority": "X2 released; continue X3 very-wide anchoring and uncovered content/audio. Accepted owner checks stay complete.",
+    "next_cross_title_priority": "Continue full ultra-wide chamber travel/transitions, uncovered content/audio and broader engine qualification. All prepared owner checks are accepted.",
     "shared_engine_regression": {
       "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
       "cases": [
@@ -111,7 +111,119 @@
       "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-qualification.json",
       "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-publication.json"
     },
-    "current_earned_loss_finale": "All three current-binary fresh routes pass with real upper-ledge wall jumps; connecting travel/ascent and Kaiser finishing hit are explicitly bypassed."
+    "current_earned_loss_finale": "All three current-binary fresh routes pass with real upper-ledge wall jumps; connecting travel/ascent and Kaiser finishing hit are explicitly bypassed.",
+    "ultrawide_producer_followup": {
+      "date": "2026-10-28T01:29:57.860042+00:00",
+      "passed": true,
+      "engine": "9a0c96eba07493e4e128cdf349332e6d094b5393",
+      "title_base": "47f4d91b5e6c7dbf8606d0041b82fe01b035867e",
+      "candidate_binary": "53e9944f471fa24747b6454e8d76dc7711f0678264b2aafdf83b7e59a70f5c61",
+      "compiled_engine_base": "b94e0a43c65da718449bd3f7abe927cb38ab694c",
+      "source": "Committed engine observer/DMA/PPU changes plus the accompanying X3 producer policy; title submodule pin/docs are bookkeeping after qualification.",
+      "runtime": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\cx4-coordinate-runtime-qualification.json",
+      "runtime_samples": 46,
+      "current_state_replays": 3,
+      "ppu_fixtures": 9,
+      "synthetic_observer_test": "cx4_ram_observer_test: PASS",
+      "microcode_replay": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\cx4-coordinate-trace\\proof.json",
+      "signed_coordinate_cases": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\cx4-coordinate-trace\\signed-coordinate-proof.json",
+      "read_only_inspection": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\cx4-inspection-command-proof.json",
+      "cost": {
+        "candidate": "53e9944f471fa24747b6454e8d76dc7711f0678264b2aafdf83b7e59a70f5c61",
+        "baseline": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+        "width": 342,
+        "frames": 240,
+        "warmup": 60,
+        "samples": [
+          {
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "candidate": {
+              "seconds": 0.8911516999360174,
+              "fps": 269.31441640882406
+            },
+            "baseline": {
+              "seconds": 0.8570100000360981,
+              "fps": 280.04340671624715
+            },
+            "candidate_time_change_percent": 3.9838158129404944
+          },
+          {
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "baseline": {
+              "seconds": 0.8319208000320941,
+              "fps": 288.4890003841005
+            },
+            "candidate": {
+              "seconds": 0.8739230999490246,
+              "fps": 274.6237054656171
+            },
+            "candidate_time_change_percent": 5.048833965361865
+          },
+          {
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "candidate": {
+              "seconds": 0.8426415999419987,
+              "fps": 284.8185990538799
+            },
+            "baseline": {
+              "seconds": 0.8654665000503883,
+              "fps": 277.30709390372357
+            },
+            "candidate_time_change_percent": -2.6372944657084507
+          },
+          {
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "baseline": {
+              "seconds": 0.8236906999954954,
+              "fps": 291.3715063206523
+            },
+            "candidate": {
+              "seconds": 0.842620600014925,
+              "fps": 284.8256973491379
+            },
+            "candidate_time_change_percent": 2.2981806179835695
+          }
+        ],
+        "median_time_change_percent": 3.140998215462032,
+        "range_percent": [
+          -2.6372944657084507,
+          5.048833965361865
+        ],
+        "classification": "Shared-host matched diagnostic workload; small mixed results are neutral/inconclusive, no speed claim",
+        "settings": "Software/dummy audio and video, default hybrid, same current state, serial alternating order, coverage disabled, TRACE+REVERSE_DEBUG build"
+      },
+      "scope": "Full image equality at256/342 in entry/Byte/factory/Kaiser scenes. Full WRAM/VRAM/OAM equality at256/342/684/800. Matched native world pixels below HUD at684/800. Actual800px output fixes an existing uint8 budget wrap whose baseline produces288px. Three current-build full-image/WRAM save/load replays. Original CX4 program replay matches all3072 RAM bytes; signed coordinate cases cover -600 through900. Both renderers pass the synthetic full-position pixel sweep.",
+      "assist_limits": "Prepared approaches bypass earlier travel/prerequisites; controller-only sampled replays do not establish whole-stage trigger/content or independent original audio coverage.",
+      "owner_runtime_unchanged": true,
+      "owner_binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+      "open": [
+        "Full ultra-wide chamber traversal/transition qualification before any new human handoff.",
+        "Uncovered stage/sublevel/branch/exit travel and independent original-game music/SFX.",
+        "Broader engine consumers and final merge handoff."
+      ],
+      "excluded_qa": [
+        "The original00:D7B1 breakpoint addresses were copied to7E:26E1 at runtime; corrected capture uses the observed WRAM sites.",
+        "An initial probe used an unrecognized execution environment name; its breakpoint timeout is a setup failure, not a product defect.",
+        "The inspection executable hash was initially typed with65 characters; the proof was repeated with a computed64-character hash.",
+        "A prototype added redundant PPU residue fields, then was simplified to serialize presentation metadata through the title extension already used by rollback.",
+        "get_ppu_state after host presentation observes reset per-frame policies; actual presented images and guest state comparisons are the gate."
+      ],
+      "title_source_sha256": "3d958452513ed4088fe201f2ee9a49989dd0dc30b39679d0c07b75d601c6d478",
+      "source_pin_build": "Final53e9 candidate uses engine9a0c96e and the matching X3 submodule/framework pin. The measured source files are retained by hash; committing their unchanged contents does not require another build.",
+      "parallax_followup": "Actual684/800 image inspection found a61px unused BG2 strip after camera motion. Anchor now respects the slower BG2 layer left allowance. Repeated46samples/three replays pass; measured left backdrop row changes132/115/107 ->8/16/8. Both images inspected. Accepted <=512 policy unchanged."
+    }
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",

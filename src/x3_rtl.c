@@ -23,6 +23,7 @@
 #include "cpu_state.h"
 #include "cpu_trace.h"
 #include "snes/cart.h"
+#include "snes/cx4.h"
 #include "snes/interp_bridge.h"
 #include "snes/snes.h"
 #include "snes/dma.h"
@@ -48,6 +49,53 @@ static bool s_lle_extra_loaded = false;
 static bool s_execution_loaded;
 static void x3_patch_ws_interp_obj_windows(void);
 static void x3_patch_hunter_landing(void);
+
+/* The original HG51B program computes signed screen X, then writes its low
+ * byte at02:80E6. Retain that value for presentation, and attach it only when
+ * DMA actually commits the corresponding XY word to PPU OAM. Neither the
+ * microcode nor guest OAM/camera/collision/progression is changed. */
+static int16_t s_cx4_oam_x[128];
+static uint8_t s_cx4_oam_valid[16];
+static bool s_cx4_oam_supported;
+
+static void x3_cx4_ram_written(void *context, uint32_t instruction,
+                              uint16_t address, unsigned byte, uint32_t value) {
+  (void)context;
+  if (address >= 512 || (address & 3)) return;
+  const unsigned slot = address >> 2;
+  s_cx4_oam_valid[slot >> 3] &= ~(1u << (slot & 7));
+  if (instruction == 0x0280e6 && byte == 0) {
+    int x = (int)(value & 0xffff);
+    if (x >= 32768) x -= 65536;
+    s_cx4_oam_x[slot] = (int16_t)x;
+    s_cx4_oam_valid[slot >> 3] |= 1u << (slot & 7);
+  }
+}
+
+static void x3_oam_xy_uploaded(uint8_t bank, uint16_t y_address, uint8_t slot) {
+  if (!g_snes || !g_snes->cart || !s_cx4_oam_supported ||
+      !cart_is_cx4_window(g_snes->cart, bank, y_address)) return;
+  /* Accept both RAM mirrors, but never IO, a shifted byte pair, or a source
+   * whose current byte no longer matches the captured full coordinate. */
+  const unsigned offset = y_address & 0xfff;
+  if (offset >= 512 || (offset & 3) != 1) return;
+  const unsigned source_slot = offset >> 2;
+  if (!(s_cx4_oam_valid[source_slot >> 3] & (1u << (source_slot & 7)))) return;
+  const int16_t x = s_cx4_oam_x[source_slot];
+  if ((g_ppu->oam[slot * 2] & 255) == (x & 255))
+    PpuWsSetOamFullX(g_ppu, slot, x);
+}
+
+static void x3_install_oam_observers(void) {
+  static const uint8_t signature[] = {0x60,0x80,0x68,0x80,0x66,0xe0,0x0c,0xe0,0x00,0xec};
+  Cart *cart = g_snes ? g_snes->cart : NULL;
+  s_cx4_oam_supported = cart && cart->cx4 && cart->romSize >= 0x100e8 &&
+      !memcmp(cart->rom + 0x100de, signature, sizeof(signature));
+  if (cart && cart->cx4)
+    cx4_set_ram_write_observer(cart->cx4,
+        s_cx4_oam_supported ? x3_cx4_ram_written : NULL, NULL);
+  dma_set_oam_xy_notify_hook(s_cx4_oam_supported ? x3_oam_xy_uploaded : NULL);
+}
 
 /* Read a 16-bit CPU vector out of bank $00's vector table. */
 static uint32_t x3_read_vector_pc24(uint16_t vec_addr) {
@@ -94,6 +142,7 @@ static int x3_boot_log_enabled(void) {
 }
 
 void RunOneFrameOfGame(void) {
+  x3_install_oam_observers();
   /* Generated bodies route viewport constants through X3WsObjWin*.
    * Interpreter fallbacks fetch the original ROM bytes, so mirror those
    * dynamic constants into the private runtime ROM copy each frame. */
@@ -277,7 +326,7 @@ static void x3_configure_chamber_view(void) {
    * the widescreen allowance inside this authored room. Leave the guest's
    * camera, scroll limits, OAM and sequence comparisons untouched.
    * Locked boss/escape views keep their separate arena policies. */
-  if (!g_ws_active || g_ws_extra > 128 || g_ram[0xd1] != 4 ||
+  if (!g_ws_active || (g_ws_extra > 128 && !s_cx4_oam_supported) || g_ram[0xd1] != 4 ||
       g_ram[0x1fae] != 13 || (g_ppu->bgmode & 7) != 1 ||
       g_ppu->bgXsc[0] != 0x51 || g_ppu->bgXsc[1] != 0x59)
     return;
@@ -290,13 +339,22 @@ static void x3_configure_chamber_view(void) {
     return;
   const int cx = camera < left_bound ? left_bound :
                  camera > right_bound ? right_bound : camera;
-  int left = cx - left_bound;
+  int left_available = cx - left_bound;
+  /* BG2 starts at map phase0 in this chamber and advances at half speed.
+   * Spending BG1's entire left allowance exposes BG2's unused predecessor
+   * cells while moving away from the entrance. Slide within both layers'
+   * authored art. The accepted <=512 policy retains its existing origin. */
+  const int bg2_left_available = g_ppu->hScroll[1] & 1023;
+  if (g_ws_extra > 128 && left_available > bg2_left_available)
+    left_available = bg2_left_available;
+  int left = left_available;
   if (left > g_ws_extra) left = g_ws_extra;
   int right = right_bound - cx;
   if (right > 2 * g_ws_extra - left) right = 2 * g_ws_extra - left;
-  left = cx - left_bound;
+  left = left_available;
   if (left > 2 * g_ws_extra - right) left = 2 * g_ws_extra - right;
   PpuSetWidescreenViewAnchor(g_ppu, true);
+  PpuWsEnableOamFullX(g_ppu, g_ws_extra > 128);
   PpuSetExtraSideSpace(g_ppu, left, right, 0);
   /* Dialogue is authored in screen coordinates. Keep its complete native
    * sheet at the physical centre while only the world view slides. */
@@ -308,6 +366,7 @@ static void x3_configure_chamber_view(void) {
 void X3ConfigureWsHud(void) {
   extern bool g_ws_active;
   if (!g_ppu) return;
+  x3_install_oam_observers();
   x3_configure_chamber_view();
   /* X3's HUD is OAM-only; BG3 is gameplay dialogue and must stay centered. */
   PpuSetWidescreenHudSplit(g_ppu, 0, 0, 0);
@@ -921,7 +980,7 @@ typedef struct X3LleSaveChunk {
 void X3StateSaveExtra(SaveLoadInfo *sli) {
   X3LleSaveChunk c;
   memset(&c, 0, sizeof(c));
-  c.magic = kX3LleSaveMagic + 1;
+  c.magic = kX3LleSaveMagic + 2;
   c.resume_pc24 = s_lle_resume_pc;
   c.A = g_cpu.A; c.X = g_cpu.X; c.Y = g_cpu.Y; c.S = g_cpu.S; c.D = g_cpu.D;
   c.DB = g_cpu.DB; c.PB = g_cpu.PB; c.P = g_cpu.P;
@@ -935,6 +994,10 @@ void X3StateSaveExtra(SaveLoadInfo *sli) {
   c.host_frames = (uint32_t)s_lle_host_frames;
   sli->func(sli, &c, sizeof(c));
   RtlSaveExecutionState(sli);
+  sli->func(sli, s_cx4_oam_x, sizeof(s_cx4_oam_x));
+  sli->func(sli, s_cx4_oam_valid, sizeof(s_cx4_oam_valid));
+  sli->func(sli, g_ppu->wsOamFullX, sizeof(g_ppu->wsOamFullX));
+  sli->func(sli, g_ppu->wsOamFullXValid, sizeof(g_ppu->wsOamFullXValid));
 }
 
 void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
@@ -943,7 +1006,7 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
   memset(&c, 0, sizeof(c));
   sli->func(sli, &c, sizeof(c));
   s_execution_loaded = false;
-  if (c.magic != kX3LleSaveMagic && c.magic != kX3LleSaveMagic + 1) {
+  if (c.magic < kX3LleSaveMagic || c.magic > kX3LleSaveMagic + 2) {
     fprintf(stderr,
             "[x3_rtl] save extra: bad magic $%08X — ignoring LLE chunk\n",
             (unsigned)c.magic);
@@ -964,8 +1027,16 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
   s_lle_resume_pc = c.resume_pc24 & 0xFFFFFFu;
   s_lle_host_frames = c.host_frames ? c.host_frames : 1u;
   s_lle_extra_loaded = true;
-  if (c.magic == kX3LleSaveMagic + 1)
+  if (c.magic >= kX3LleSaveMagic + 1)
     s_execution_loaded = RtlLoadExecutionState(sli);
+  memset(s_cx4_oam_valid, 0, sizeof(s_cx4_oam_valid));
+  memset(g_ppu->wsOamFullXValid, 0, sizeof(g_ppu->wsOamFullXValid));
+  if (c.magic == kX3LleSaveMagic + 2) {
+    sli->func(sli, s_cx4_oam_x, sizeof(s_cx4_oam_x));
+    sli->func(sli, s_cx4_oam_valid, sizeof(s_cx4_oam_valid));
+    sli->func(sli, g_ppu->wsOamFullX, sizeof(g_ppu->wsOamFullX));
+    sli->func(sli, g_ppu->wsOamFullXValid, sizeof(g_ppu->wsOamFullXValid));
+  }
   fprintf(stderr, "[x3_rtl] LLE load extra resume=$%06X master=%llu\n",
           (unsigned)s_lle_resume_pc,
           (unsigned long long)g_cpu.master_cycles);
