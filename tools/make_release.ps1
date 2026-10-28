@@ -37,7 +37,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$build = Join-Path $root $BuildDir
+$build = if ([IO.Path]::IsPathRooted($BuildDir)) {
+  [IO.Path]::GetFullPath($BuildDir)
+} else {
+  Join-Path $root $BuildDir
+}
 $exeName = 'MegaManX3SNESRecomp.exe'
 $exe = Join-Path $build $exeName
 $assets = Join-Path $build 'assets'
@@ -78,10 +82,10 @@ if (-not $stageFull.StartsWith($outFull, [StringComparison]::OrdinalIgnoreCase) 
 }
 
 if (Test-Path -LiteralPath $stage) {
-  Remove-Item -LiteralPath $stage -Recurse -Force
+  Remove-Item -LiteralPath $stage -Recurse
 }
 if (Test-Path -LiteralPath $zip) {
-  Remove-Item -LiteralPath $zip -Force
+  Remove-Item -LiteralPath $zip
 }
 New-Item -ItemType Directory -Path $stage -Force | Out-Null
 
@@ -90,6 +94,9 @@ Copy-Item -LiteralPath (Join-Path $root 'README.md') -Destination $stage
 Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination $stage
 New-Item -ItemType Directory -Path (Join-Path $stage 'docs') -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'docs\COVERAGE_2026-10-18.md') -Destination (Join-Path $stage 'docs')
+foreach ($doc in @('WIDESCREEN.md', 'SAVE_STATES.md', 'CX4.md')) {
+  Copy-Item -LiteralPath (Join-Path $root "docs\$doc") -Destination (Join-Path $stage 'docs')
+}
 Copy-Item -LiteralPath $assets -Destination $stage -Recurse
 # Release-owned mod catalog, when the build stages one. Ships as a nested
 # directory tree, which is exactly what made portable ZIP entry names matter
@@ -106,7 +113,7 @@ if (Test-Path -LiteralPath $mods) {
 $stageMods = Join-Path $stage 'mods'
 if (Test-Path -LiteralPath $stageMods) {
   Get-ChildItem -LiteralPath $stageMods -Recurse -File -Filter 'state.toml*' |
-    ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force }
+    ForEach-Object { Remove-Item -LiteralPath $_.FullName }
 }
 # Never publish an unattended diagnostic build.
 $cache = Join-Path $build 'CMakeCache.txt'

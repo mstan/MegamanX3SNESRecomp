@@ -651,3 +651,12 @@ music/SFX. Raw qualification and matched diagnostic cost samples are retained
 in `fortress-travel-qualification.json`. This is a correctness change, not an
 optimization claim. The owner runtime remainsd897, all prepared checks remain
 accepted, and broader engine consumer/final merge qualification stays open.
+
+### v0.0.7 closeout (2026-10-27)
+
+The owner accepts all prepared visual checks and authorizes releasing the
+frozen fixes without another production gameplay/save-load pass. Existing
+qualified runtime evidence is reused. Production packaging verifies the
+diagnostics-disabled build, DLL closure, archive contents and checksums.
+Uncovered routes/audio and broader shared-engine consumers remain follow-up
+work; this release does not claim exhaustive full-game validation.

@@ -13,7 +13,7 @@
       "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
       "Broader shared-engine consumer qualification and final merge handoff."
     ],
-    "next_cross_title_priority": "Uncovered content/audio and broader engine qualification. Prepared human checks complete; fortress travel canvas fixed/automatically qualified.",
+    "next_cross_title_priority": "Publish frozen X3 v0.0.7; no further stage audit. Uncovered content/audio and broader shared-engine integration remain separate follow-up work.",
     "shared_engine_regression": {
       "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
       "cases": [
@@ -560,6 +560,18 @@
       "candidate": "be7d1f8e58613050fab7621377502175ad1fcea59337e7a2ad0454e644fac857",
       "evidence": "fortress-travel-qualification.json",
       "scope": "Assisted connecting-route presentation/trigger regression, not exhaustive natural stage traversal or independent original-game audio. Broader shared-engine consumers/final integration still open."
+    },
+    "release_closeout": {
+      "version": "0.0.7",
+      "owner_authorized": true,
+      "gameplay_frozen_at": "efa5839bef8a4fc9caf8c4ae16c137f807c42460",
+      "engine": "633cf3418ce7443cbcea2421746929dea6d753e8",
+      "additional_runtime_validation": "Skipped at owner request; reuse existing accepted visual/automated evidence. Production compilation and package-integrity checks only.",
+      "follow_up": [
+        "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
+        "Broader shared-engine consumer qualification and final merge handoff."
+      ],
+      "no_new_human_checks": true
     }
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
