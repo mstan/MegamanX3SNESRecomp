@@ -534,3 +534,33 @@ assertion mistakes are retained separately from product results.
 
 The owner also accepts the16:9 entrance camera anchor. The focused human
 handoff is complete; do not repeat camera, Kaiser, doors, Byte, factory or X2.
+
+### Earned Zero-loss finale and current Bit follow-up (2026-10-27)
+
+Build d897f993 passes the fresh final-stage route at 256/default, 342/default
+and 684/interpreter using the earlier naturally earned Zero-loss fixtures.
+The original loader preserves that result; real Sigma damage, full Kaiser
+introduction, actual virus damage, original top-camera arrival, controller
+wall jumps over the raised ledge, alternate rescue, native counter 3->5/clear
+and ending all execute. All three ending save/load replays preserve the
+complete output and 128 KiB WRAM. Cross-width timing equality is not asserted.
+
+Earlier fortress eligibility and connecting travel/shaft ascent are assisted.
+Kaiser HP=0 explicitly bypasses the finishing hit, which the owner has already
+qualified separately. After selecting earlier fortress eligibility, no
+unavailable, camera, AI, current encounter outcome or later progression flags
+are supplied; no writes occur after the native clear.
+The earlier actual-loss fixture retains its 10994 identity. This closes fresh
+loss-result propagation, not ordinary whole-stage traversal.
+
+Current Bit also passes original floor contact at Y=679 (feet=703, floor=704,
+camera Y=559), full 32 HP introduction, a real assisted Buster finishing hit,
+native departure/result 01, right-door crossing and normal control return.
+The before-room floor-only owner setup includes original resident door art.
+Only Bit floor appearance awaits human confirmation; no accepted Byte,
+door, camera, Kaiser, factory or X2 check needs repeating.
+
+Very-wide entrance anchoring above 512, uncovered stage/sublevel/branch/exit
+travel, independent original-game music/SFX and broader shared-engine consumer
+qualification remain open. Machine-readable current_status is authoritative;
+older identity-specific remaining lists describe their historical milestone.

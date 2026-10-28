@@ -3,16 +3,18 @@
   "current_status": {
     "accepted": [
       "Byte floor/grab/recovery/exit",
-      "door face and opening/closing animation",
-      "factory background/pickup/lift/forms/escape"
+      "single doors and opening/closing animation",
+      "factory background/pickup/lift/forms/escape",
+      "Kaiser no duplicate head and actual charged-shot finishing hit",
+      "16:9 final-stage entrance camera anchor"
     ],
     "unverified": [
-      "Bit human floor/exit follow-up (automatic checks pass)",
-      "Real Kaiser finishing hit; uninterrupted normal escape/ledge approach",
-      "Four individual pending owner visual checks; skipped traversal/content inventory and independent original-game audio",
-      "Broader other-consumer follow-up; current X2/X3 new-base qualification remains passed without a speed claim"
+      "Very-wide final-entry camera anchoring: widths above512 retain the prior centred policy.",
+      "Bit floor-only human confirmation; current landing, actual hit/departure, door crossing and control-return automation pass.",
+      "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
+      "Broader shared-engine consumer qualification and final merge handoff."
     ],
-    "next_cross_title_priority": "Four focused selector segments remain: Serges front, Ostrich entrance and X2/X3 final-arena visuals plus optional Kaiser hit. Accepted scenes are not repeated.",
+    "next_cross_title_priority": "X2 released; continue X3 very-wide anchoring and uncovered content/audio. Accepted owner checks stay complete.",
     "shared_engine_regression": {
       "engine": "5e88adcb8eae370254c2ed0f6daad82763e02711",
       "cases": [
@@ -79,28 +81,39 @@
       }
     },
     "pending_visual": [
-      "New final Sigma arena wall extension/head-wrap correction"
+      "Bit corrected floor appearance only"
     ],
-    "bossrush": "All8 transfers/real defeats/returns and cumulativeFF qualified on the retained ca0 build in pure684, with causalHP1 checks. Current339 preserves framing and sampled native rematch/hub output; no complete339 all8 replay is claimed. Exit/handoff remains separate.",
-    "next_priority": "Kaiser finishing hit/escape/ending, skipped traversal/content/audio and broader consumer/startup/memory qualification. Both Lab2 branches now have actual entrance/death/native-counter evidence.",
+    "bossrush": "Historical all8 native pad transfers/real defeats/returns and cumulativeFF retain their ca0/684 identity. Original hub-door crossing and normal fortress handoff pass in native_context_fortress_progress; later packages preserve sampled framing and guest state. No complete currentd897 all8 replay is claimed.",
+    "next_priority": "Very-wide chamber anchoring, uncovered content/exit/audio and broader shared-engine consumer qualification.",
     "current_owner_build": {
-      "sha256": "c3d20fc68615c8a265160c72c111c391044b7952db66baa7f425ff1f7cec9bdc",
-      "engine": "0095609940bc3a304da8c70f2dcab79264bbb8ab",
-      "compiled_engine": "e772aca74d06cef9435df2f34cda1689329b19c4",
-      "source_tree": "396f26717c1bf151b0e110950c5fd5f179c1823a",
-      "title_pin": "e0fb303780fe8b0ec938d579409c3d7d521b7ac6",
-      "title_code": "a0142c8e13f1f2e4c526784955654356faecbe92",
-      "source": "new_main_qualification",
-      "owner_data_unchanged": true
+      "sha256": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+      "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+      "game_code": "3a0e9bd79f9577734c8da2c16afd6d7cbd62f47b",
+      "source": "final_entry_camera_followup",
+      "owner_camera_accepted": true
     },
-    "new_main_automated_gate": "Passed for current X2/X3: full images/WRAM, scalar/native game PCM+SPC, current save/Capture and matched runtime/startup/memory. Human/content/ending and broader-consumer caveats remain.",
+    "new_main_automated_gate": "Earlier frozen-main X2/X3 gate passed with its recorded binary identities: full images/WRAM, scalar/native PCM+SPC, current save/Capture and matched runtime/startup/memory. Current camera/intro/finale milestones add their explicitly scoped evidence; independent original audio and broader-consumer gates remain open.",
     "latest_native_final": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-native-final-qualification.json",
     "current_package": {
+      "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+      "compiled_engine": "952705a04c670d6be7bff2baf17001e8c84ff459",
+      "game_code": "3a0e9bd79f9577734c8da2c16afd6d7cbd62f47b",
+      "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+      "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\chamber-anchor-qualification.json",
+      "additional_qualification": [
+        "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-intro-capture-rescue-qualification.json",
+        "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-qualification.json",
+        "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\bit-current-qualification-milestone.json"
+      ]
+    },
+    "status_policy": "Authoritative current burndown. Earlier remaining/unverified lists in identity-specific followups are historical and superseded by these current milestones.",
+    "previous_maoh_package": {
       "engine": "05786e50bca11dff1f09f76c0e7ac9d48072c440",
       "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1",
       "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-qualification.json",
       "publication": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\maoh-package-publication.json"
-    }
+    },
+    "current_earned_loss_finale": "All three current-binary fresh routes pass with real upper-ledge wall jumps; connecting travel/ascent and Kaiser finishing hit are explicitly bypassed."
   },
   "base_title_head": "371c3e83b97c258ac553430742b2f79d7e93ebe9",
   "framework_head": "b4a4e00fbf37782deb57066fb4c54f8aa587f527",
@@ -127,14 +140,23 @@
     },
     {
       "sequence": "Godkarmachine, Press Disposer and Doppler combat/aftermath",
-      "result": "Live32HP originals, real projectile defeats after HP assistance, native1FAF0->1 or2->3. Separate checkpoint/position/prerequisite bypasses and unresolved normal next-stage selection are recorded in fortress_branch_followup."
+      "result": "Live32HP originals, real projectile defeats after HP assistance, native1FAF0->1 or2->3. Separate checkpoint/position/prerequisite bypasses retain their recorded identities; original normal fortress transitions are qualified in native_context_fortress_progress."
+    },
+    {
+      "sequence": "Current earned-Zero-loss fresh final-stage propagation",
+      "result": "All three widths pass; exact scope, explicit bypasses and per-build state replay recorded in earned_loss_current_fresh_followup."
+    },
+    {
+      "sequence": "Current Bit landing, actual hit and exit",
+      "result": "Original floor contact, real assisted finishing hit, native departure/result, right-door crossing and normal control return pass. Human check is floor appearance only."
     }
   ],
   "partial_checks": [],
   "unverified": [
-    "Bit corrected floor human confirmation and exit (automated landing/combat/exit checks pass; human exit deferred)",
-    "Remaining fortress branches, final Sigma/endings, complete stage/sublevel/exit coverage",
-    "Independent music/SFX qualification"
+    "Very-wide final-entry camera anchoring: widths above512 retain the prior centred policy.",
+    "Bit floor-only human confirmation; current landing, actual hit/departure, door crossing and control-return automation pass.",
+    "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
+    "Broader shared-engine consumer qualification and final merge handoff."
   ],
   "assists": [
     "Disposable profiles; dummy audio/video during unattended work",
@@ -2199,7 +2221,7 @@
     },
     "observed": "Original communication/Start selects live Zero,HP1 survives idle,actual controller movement/enemy contact gives HP0/death,original native retreat sets1FB2.40,then X returns with16HP and normal control. Current-build X-return save/load replays match full output/128KiB WRAM.",
     "assists": "Saved current-build ready character menu bypasses prior travel. Only Zero HP1 is written before live idle survival. All selection, movement, damage, retreat and X return use original execution/controller input; no position, AI,camera,character/current result/progression/unavailable flag writes.",
-    "remaining": "Actual earlier loss is now qualified; fresh fortress-stage loading and alternate-rescue propagation of this naturally earned result still require their own test. Kaiser finishing hit and ordinary physical escape remain separate.",
+    "remaining": "Earlier actual loss retains its10994 binary identity. The later earned_loss_current_fresh_followup qualifies fresh-stage propagation through the alternate rescue and ending on currentd897 at256,342 and684. Ordinary connecting travel remains assisted.",
     "fresh_loader": {
       "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-fresh-final-first-load.json",
       "scope": "Earned unavailable bit survives the original fresh stage13/counter3/checkpoint0 loader. Stage/counter selection bypassed prior fortress eligibility; this alone is not final alternate-rescue validation. Wrong checkpoint1 probe dies in unused geometry and is excluded as setup failure, not a product/branch failure."
@@ -2344,5 +2366,151 @@
     "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
     "message": "x3 is good on camera anchor",
     "passed": true
+  },
+  "earned_loss_current_fresh_followup": {
+    "date": "2026-10-28T00:04:12.180364+00:00",
+    "passed": true,
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "engine": "819e2e1174335dc1c751e3bc6f0623e1438a42a2",
+    "game_code": "3a0e9bd79f9577734c8da2c16afd6d7cbd62f47b",
+    "variants": {
+      "256": {
+        "execution": "default hybrid",
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-256.json",
+        "raw_sha256": "f6c09c37ac1e511ef6f8d9a18cc4f5f9b301d14aa4c1896de97606ae41929803",
+        "earlier_loss_fixture": {
+          "info": {
+            "frame": 27472,
+            "mode": "0204040000000003",
+            "stage": "00020000004000020001",
+            "player": "0002000200800100",
+            "x": 384,
+            "y": 927,
+            "hp": 16,
+            "camera": [
+              256,
+              768
+            ],
+            "bounds": "000a000300030001000af8ff0000000000030001",
+            "event": "0000000000000000000000000000000000000000000000000000000300000000000000040000000000000000000000000000000000000000000100000000000000000000000000000000000000000000"
+          },
+          "source": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-256-x-return.sav",
+          "sha256": "27dbbaca591eff10425fcadcef36682ee23e0341239357121ccf2292ac2392f3",
+          "proof": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualification.json",
+          "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1"
+        },
+        "sigma_real_hit": true,
+        "virus_contact_hp": 15,
+        "controller_ledge_frames": 108,
+        "final_pulses": 81,
+        "native_clear": "020408000000b701",
+        "native_counter": 5,
+        "ending": "0206000202003800",
+        "save_replay": {
+          "case": "earned-loss-fresh-finale-256-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "ending_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-256-ending.sav"
+      },
+      "342": {
+        "execution": "default hybrid",
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-342.json",
+        "raw_sha256": "c4200cbabed5015120a82f0dd7da6abb8355b11149c66e24a9b3396a9aba7515",
+        "earlier_loss_fixture": {
+          "info": {
+            "frame": 27472,
+            "mode": "0204040000000003",
+            "stage": "00020000004000020001",
+            "player": "0002000200800100",
+            "x": 384,
+            "y": 927,
+            "hp": 16,
+            "camera": [
+              256,
+              768
+            ],
+            "bounds": "000a000300030001000af8ff0000000000030001",
+            "event": "0000000000000000000000000000000000000000000000000000000300000000000000040000000000000000000000000000000000000000000100000000000000000000000000000000000000000000"
+          },
+          "source": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-342-x-return.sav",
+          "sha256": "8fe7ee863e8ff88d1fd007638b772111ac0a3a8701b7bbec16479a8c5b9342d1",
+          "proof": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualification.json",
+          "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1"
+        },
+        "sigma_real_hit": true,
+        "virus_contact_hp": 15,
+        "controller_ledge_frames": 108,
+        "final_pulses": 81,
+        "native_clear": "020408000000c401",
+        "native_counter": 5,
+        "ending": "0206000202003800",
+        "save_replay": {
+          "case": "earned-loss-fresh-finale-342-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "ending_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-342-ending.sav"
+      },
+      "684": {
+        "execution": "pure interpreter",
+        "raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-684.json",
+        "raw_sha256": "55826ae2a0e95bf7a380e7e58d487f8f419e25e93e2af24de5392a9c84fefa2a",
+        "earlier_loss_fixture": {
+          "info": {
+            "frame": 27472,
+            "mode": "0204040000000003",
+            "stage": "00020000004000020001",
+            "player": "0002000200800100",
+            "x": 384,
+            "y": 927,
+            "hp": 16,
+            "camera": [
+              256,
+              768
+            ],
+            "bounds": "000a000300030001000af8ff0000000000030001",
+            "event": "0000000000000000000000000000000000000000000000000000000300000000000000040000000000000000000000000000000000000000000100000000000000000000000000000000000000000000"
+          },
+          "source": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualified-684-x-return.sav",
+          "sha256": "b8e73886aeabf290e023fb8ad3c5c4a8eb15d3f798827f3cd6dd4ed4f030a2e2",
+          "proof": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\zero-loss-qualification.json",
+          "binary": "10994be18c6ac7dcb5dc1794d499dd751af71973528be9fdd93d9c4b6d3abbd1"
+        },
+        "sigma_real_hit": true,
+        "virus_contact_hp": 15,
+        "controller_ledge_frames": 108,
+        "final_pulses": 80,
+        "native_clear": "020408000000c701",
+        "native_counter": 5,
+        "ending": "0206000202003800",
+        "save_replay": {
+          "case": "earned-loss-fresh-finale-684-ending",
+          "ram_difference": 0,
+          "pixel_difference": 0,
+          "passed": true
+        },
+        "ending_state": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned-loss-fresh-finale-684-ending.sav"
+      }
+    },
+    "helper": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\earned_loss_fresh_finale.py",
+    "helper_sha256": "bde61665b2facf4ace7413d67d3ea2419787928c33af8b9aae545900ec531cd5",
+    "scope": "Naturally earned earlier Zero loss survives original fresh stage13/counter3/checkpoint0 loading. Current binary executes the Sigma real hit, full Kaiser intro, actual virus contact, original shaft camera, real upper-ledge wall jumps/control takeover, alternate rescue, clear and ending at all three widths.",
+    "assists": "Load the earlier naturally earned Zero-loss fixture. Select stage13/counter3/checkpoint0 before the original loader, explicitly bypassing earlier fortress eligibility. Player position/health/protection bypass connecting travel and shaft ascent; SigmaHP1 precedes an actual shot; KaiserHP0 explicitly bypasses the separately owner-qualified finishing hit. At the top camera, only right/jump input and health cross the native ledge and run the alternate rescue. No unavailable, camera, AI, character, current encounter outcome or later progression writes. No guest writes after original stage clear.",
+    "limits": "Assisted sequence qualification, not ordinary whole-stage traversal or an automated real Kaiser hit. The earlier actual-loss fixture retains its original10994 binary identity. Fresh loader, Sigma/Kaiser introduction, real virus damage, native top camera/wall jump/control takeover, alternate rescue, clear and ending run on this current binary.",
+    "cross_width_equality": "Not asserted. Each ending replay separately preserves all presented pixels and128KiB WRAM.",
+    "owner_playtest_untouched": true
+  },
+  "bit_current_followup": {
+    "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+    "passed_automation": true,
+    "human_floor": "pending",
+    "floor_raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-bit-current-floor-qualification.json",
+    "exit_raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-bit-current-real-exit.json",
+    "scope": "Before-room setup has valid original door graphics and no live hunter/result. Original Bit lands atY679, feet703/floor704, with cameraY559. Full32HP introduction, HP1 idle/real Buster hit, original result01/deallocation, right-door crossing and normal control return pass.",
+    "assists": "Current-build before-room state re-save; earlier Maverick eligibility comes from the original prepared snapshot. Only controller right/B dialogue edges and player health; no hunter position,AI,HP,collision,floor,camera or result writes. Main BitHP1 before live idle and real Buster input, player aiming/health only. Original result01/deallocation, actual right door crossing/camera advance and control return; no result,door,AI,camera or control writes.",
+    "human_scope": "Only corrected floor appearance; prior Byte/door acceptance remains complete. No human fight or exit repeat required."
   }
 }
