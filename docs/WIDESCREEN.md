@@ -557,8 +557,8 @@ Current Bit also passes original floor contact at Y=679 (feet=703, floor=704,
 camera Y=559), full 32 HP introduction, a real assisted Buster finishing hit,
 native departure/result 01, right-door crossing and normal control return.
 The before-room floor-only owner setup includes original resident door art.
-Only Bit floor appearance awaits human confirmation; no accepted Byte,
-door, camera, Kaiser, factory or X2 check needs repeating.
+The owner subsequently accepts Bit's corrected floor appearance. All prepared
+human checks are complete; accepted scenes do not need repeating.
 
 Very-wide entrance anchoring above 512, uncovered stage/sublevel/branch/exit
 travel, independent original-game music/SFX and broader shared-engine consumer

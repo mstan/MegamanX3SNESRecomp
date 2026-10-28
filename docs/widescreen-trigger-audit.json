@@ -6,11 +6,11 @@
       "single doors and opening/closing animation",
       "factory background/pickup/lift/forms/escape",
       "Kaiser no duplicate head and actual charged-shot finishing hit",
-      "16:9 final-stage entrance camera anchor"
+      "16:9 final-stage entrance camera anchor",
+      "Bit corrected floor appearance"
     ],
     "unverified": [
       "Very-wide final-entry camera anchoring: widths above512 retain the prior centred policy.",
-      "Bit floor-only human confirmation; current landing, actual hit/departure, door crossing and control-return automation pass.",
       "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
       "Broader shared-engine consumer qualification and final merge handoff."
     ],
@@ -80,9 +80,7 @@
         "performance": "Separate gate; compiler definitions establish both trace builds use AUDIO_TRACE_HISTORY=2 (FULL), despite earlier cache-based mismatch inference."
       }
     },
-    "pending_visual": [
-      "Bit corrected floor appearance only"
-    ],
+    "pending_visual": [],
     "bossrush": "Historical all8 native pad transfers/real defeats/returns and cumulativeFF retain their ca0/684 identity. Original hub-door crossing and normal fortress handoff pass in native_context_fortress_progress; later packages preserve sampled framing and guest state. No complete currentd897 all8 replay is claimed.",
     "next_priority": "Very-wide chamber anchoring, uncovered content/exit/audio and broader shared-engine consumer qualification.",
     "current_owner_build": {
@@ -148,13 +146,12 @@
     },
     {
       "sequence": "Current Bit landing, actual hit and exit",
-      "result": "Original floor contact, real assisted finishing hit, native departure/result, right-door crossing and normal control return pass. Human check is floor appearance only."
+      "result": "Original landing, real assisted hit, native departure/result, right-door crossing and normal control return pass automation. Owner also accepts corrected floor appearance."
     }
   ],
   "partial_checks": [],
   "unverified": [
     "Very-wide final-entry camera anchoring: widths above512 retain the prior centred policy.",
-    "Bit floor-only human confirmation; current landing, actual hit/departure, door crossing and control-return automation pass.",
     "Remaining stage/sublevel/branch/exit coverage, including skipped connecting travel, and independent original-game music/SFX.",
     "Broader shared-engine consumer qualification and final merge handoff."
   ],
@@ -2506,11 +2503,20 @@
   "bit_current_followup": {
     "binary": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
     "passed_automation": true,
-    "human_floor": "pending",
+    "human_floor": "passed",
     "floor_raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-bit-current-floor-qualification.json",
     "exit_raw": "G:\\Temp\\Codex\\mmx23-trigger-audit-20261026\\burndown\\x3-bit-current-real-exit.json",
     "scope": "Before-room setup has valid original door graphics and no live hunter/result. Original Bit lands atY679, feet703/floor704, with cameraY559. Full32HP introduction, HP1 idle/real Buster hit, original result01/deallocation, right-door crossing and normal control return pass.",
     "assists": "Current-build before-room state re-save; earlier Maverick eligibility comes from the original prepared snapshot. Only controller right/B dialogue edges and player health; no hunter position,AI,HP,collision,floor,camera or result writes. Main BitHP1 before live idle and real Buster input, player aiming/health only. Original result01/deallocation, actual right door crossing/camera advance and control return; no result,door,AI,camera or control writes.",
-    "human_scope": "Only corrected floor appearance; prior Byte/door acceptance remains complete. No human fight or exit repeat required."
+    "human_scope": "Owner accepted corrected Bit floor appearance; the focused handoff is complete.",
+    "owner_acceptance": {
+      "at": "2026-10-28T00:26:25.521088+00:00",
+      "message": "what other issues do I need to check? bit looks good",
+      "accepted": [
+        "Bit corrected floor appearance"
+      ],
+      "binary_sha256": "d897f99300a6fcd187f85775bd4cbb4029c470c92a028ea04affed1963a62c64",
+      "scope": "Owner confirms the prepared before-room Bit floor check. Prior automated original landing, actual hit, departure, exit and control return remain passed. No repeat accepted visual checks."
+    }
   }
 }
