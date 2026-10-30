@@ -1083,7 +1083,7 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
   g_cpu.master_cycles = c.master_cycles;
   g_cpu.ram = g_ram;
   s_lle_resume_pc = c.resume_pc24 & 0xFFFFFFu;
-  s_lle_host_frames = c.host_frames ? c.host_frames : 1u;
+  s_lle_host_frames = c.host_frames;
   s_lle_extra_loaded = true;
   if (c.magic >= kX3LleSaveMagic + 1)
     s_execution_loaded = RtlLoadExecutionState(sli);
@@ -1108,7 +1108,9 @@ void X3OnStateLoaded(uint32_t version) {
   if (s_execution_loaded) RtlApplyExecutionState();
   s_execution_loaded = false;
   if (s_lle_extra_loaded) {
-    s_lle_did_reset = true; /* resume mid-game, skip cold RESET */
+    /* Frame-zero captures precede the first RESET. Keep that cold cursor
+     * distinct from a machine that has executed a guest frame. */
+    s_lle_did_reset = s_lle_host_frames != 0;
   } else {
     /* Snapshot carries WRAM/PPU but no LLE cursor — cold boot rather than
      * splice mid-game WRAM onto a RESET PC. */
