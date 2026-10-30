@@ -38,4 +38,6 @@
 #define MmxConfigureWsBgMargins X3ConfigureWsBgMargins
 #define kMmxGameInfo kX3GameInfo
 
+#include "mmx_diagnostics_host.h"
+#define snesrecomp_desktop_main MmxDiagnosticDesktopMain
 #include "desktop/mmx23_host_main.inc"

@@ -90,11 +90,14 @@ if (Test-Path -LiteralPath $zip) {
 New-Item -ItemType Directory -Path $stage -Force | Out-Null
 
 Copy-Item -LiteralPath $exe -Destination $stage
+Copy-Item -LiteralPath (Join-Path $root 'logging.ini') -Destination $stage
+New-Item -ItemType Directory -Path (Join-Path $stage 'tools') -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $root 'tools\replay_diagnostic.py') -Destination (Join-Path $stage 'tools')
 Copy-Item -LiteralPath (Join-Path $root 'README.md') -Destination $stage
 Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination $stage
 New-Item -ItemType Directory -Path (Join-Path $stage 'docs') -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'docs\COVERAGE_2026-10-18.md') -Destination (Join-Path $stage 'docs')
-foreach ($doc in @('WIDESCREEN.md', 'SAVE_STATES.md', 'CX4.md')) {
+foreach ($doc in @('DIAGNOSTICS.md', 'WIDESCREEN.md', 'SAVE_STATES.md', 'CX4.md')) {
   Copy-Item -LiteralPath (Join-Path $root "docs\$doc") -Destination (Join-Path $stage 'docs')
 }
 Copy-Item -LiteralPath $assets -Destination $stage -Recurse

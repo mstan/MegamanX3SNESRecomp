@@ -17,7 +17,7 @@ include(${SNESRECOMP_ROOT}/runner/runner.cmake)
 add_executable(MegaManX3SNESRecomp
     ${SNESRECOMP_RUNNER_SOURCES}
     src/main.c src/gen_stubs.c src/x3_display.c src/x3_cpu_infra.c
-    src/x3_rtl.c src/x3_spc_player.c src/mods/x3_widescreen_plugin.c)
+    src/x3_rtl.c src/x3_spc_player.c src/mmx_replay.c src/mmx_startup.c src/mods/x3_widescreen_plugin.c)
 target_include_directories(MegaManX3SNESRecomp PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/recomp ${SNESRECOMP_RUNNER_INCLUDE_DIRS})
@@ -25,7 +25,7 @@ target_compile_definitions(MegaManX3SNESRecomp PRIVATE
     SMW_DISABLE_LM=1 SYSTEM_VOLUME_MIXER_AVAILABLE=0
     SNESRECOMP_TRACE=$<BOOL:${SNESRECOMP_ENABLE_TRACE}>
     SNESRECOMP_REVERSE_DEBUG=$<BOOL:${SNESRECOMP_REVERSE_DEBUG}>)
-set_property(SOURCE src/main.c APPEND PROPERTY COMPILE_DEFINITIONS
+set_property(SOURCE src/main.c src/mmx_replay.c APPEND PROPERTY COMPILE_DEFINITIONS
     SNESRECOMP_BUILD_VERSION="${SNESRECOMP_BUILD_VERSION}")
 if(NOT MSVC)
     target_compile_options(MegaManX3SNESRecomp PRIVATE
@@ -44,3 +44,30 @@ recomp_target_launcher_ui(MegaManX3SNESRecomp CONSOLE snes
 
 include(${SNESRECOMP_ROOT}/runner/cmake/mmx_state_tests.cmake)
 snesrecomp_target_mmx_state_tests(MegaManX3SNESRecomp ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c)
+if(TARGET mmx_state_tests)
+    get_target_property(_state_sources mmx_state_tests SOURCES)
+    list(REMOVE_ITEM _state_sources "${SNESRECOMP_RUNNER_ROOT}/tests/mmx_state_runtime.c")
+    list(APPEND _state_sources tests/mmx_state_runtime.c)
+    set_property(TARGET mmx_state_tests PROPERTY SOURCES "${_state_sources}")
+endif()
+
+# Keep capture identities tied to the exact game and engine source revisions.
+find_package(Git REQUIRED)
+execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE MMX_REPLAY_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+    WORKING_DIRECTORY ${SNESRECOMP_ROOT}
+    OUTPUT_VARIABLE MMX_REPLAY_ENGINE OUTPUT_STRIP_TRAILING_WHITESPACE)
+set_property(SOURCE src/mmx_replay.c APPEND PROPERTY COMPILE_DEFINITIONS
+    MMX_REPLAY_REVISION="${MMX_REPLAY_REVISION}" MMX_REPLAY_ENGINE="${MMX_REPLAY_ENGINE}")
+if(WIN32)
+    set_target_properties(MegaManX3SNESRecomp PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
+if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/logging.ini")
+    configure_file(logging.ini logging.ini COPYONLY)
+endif()
+include(CTest)
+if(BUILD_TESTING)
+    add_subdirectory(${SNESRECOMP_ROOT}/runner/tests/diagnostics diagnostic-writer-tests)
+endif()

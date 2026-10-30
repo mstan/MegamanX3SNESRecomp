@@ -132,3 +132,9 @@ Save-state and rewind controls, compatibility and focused verification: [SAVE_ST
 ## Coverage survey and regeneration
 
 Game-owned generation policy is in `recomp/generate.toml`; the shared framework runs the same hooks for `tools/regen.sh` and launcher rebuilds. See the [2026-10-18 coverage survey](docs/COVERAGE_2026-10-18.md) for verified ROM identity, observed scenes, corrections, and remaining validation limits.
+
+## Reporting gameplay problems
+
+Diagnostics are enabled by default. After a problem, close the game and send
+the complete `logs` folder with your issue list, approximate times, and any
+video. See [diagnostic recording and replay](docs/DIAGNOSTICS.md).

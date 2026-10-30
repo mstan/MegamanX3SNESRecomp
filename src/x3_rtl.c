@@ -12,6 +12,7 @@
  * finding and must not be assumed for this title.
  */
 #include "x3_rtl.h"
+#include "mmx_replay.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -1100,6 +1101,7 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
 }
 
 void X3OnStateLoaded(uint32_t version) {
+  MmxReplayStateLoaded();
   (void)version;
   /* Renderer history belongs to the abandoned timeline, not this snapshot. */
   WsShadowReset();
