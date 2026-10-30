@@ -10,6 +10,7 @@
 #include "snes/cart.h"
 #include "desktop/host_main.h"
 #include "snes_runahead.h"
+#include "widescreen.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -295,12 +296,17 @@ static uint32_t playback_begin(uint32_t inputs) {
 
   }
   if(!playback_checkpointed || sscanf(line,"I %u %x %x %d %d",&frame,&word,&flags,&width,&peer)!=5 || (flags&~45u) ||
-      width<256 || width>1024 || (width&1) || peer!=0) {
+      width<256 || width>256+2*kWsExtraMax || (width&1) || peer!=0) {
     error("invalid input record"); return inputs;
   }
   if(frame!=(unsigned)snes_frame_counter) {
     error("frame discontinuity has no machine checkpoint"); return inputs;
   }
+  /* Object spawn/cull bounds read these host globals before rasterization.
+   * A resized window or a checkpoint from another aspect must take effect at
+   * this input boundary, rather than waiting for the next presented frame. */
+  g_ws_extra=(width-256)/2; g_ws_active=g_ws_extra!=0;
+  PpuSetExtraSpace(g_ppu,(uint8_t)g_ws_extra);
   snesrecomp_desktop_set_widescreen((flags&1)!=0);
   snesrecomp_desktop_set_new_renderer((flags&4)!=0);
   g_config.no_sprite_limits=(flags&8)!=0;

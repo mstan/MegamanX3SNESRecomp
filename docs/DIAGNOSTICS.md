@@ -52,5 +52,5 @@ python tests/test_diagnostic_replay.py --exe build-diagnostics/MegaManX3SNESReco
 
 This uses isolated disposable saves, SDL dummy video/audio, fresh-process
 replay, the shared current-build save/load/rewind checks, default capture,
-widescreen settings, reset/renderer changes, malformed reports, opt-out,
+widescreen settings, adaptive window widths, reset/renderer changes, malformed reports, opt-out,
 storage failure and bounded retention. It never edits an owner profile.
