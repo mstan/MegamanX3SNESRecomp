@@ -95,6 +95,7 @@ New-Item -ItemType Directory -Path (Join-Path $stage 'tools') -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'tools\replay_diagnostic.py') -Destination (Join-Path $stage 'tools')
 Copy-Item -LiteralPath (Join-Path $root 'README.md') -Destination $stage
 Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination $stage
+Copy-Item -LiteralPath (Join-Path $root 'PERMISSIONS.md') -Destination $stage
 New-Item -ItemType Directory -Path (Join-Path $stage 'docs') -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'docs\COVERAGE_2026-10-18.md') -Destination (Join-Path $stage 'docs')
 foreach ($doc in @('DIAGNOSTICS.md', 'WIDESCREEN.md', 'SAVE_STATES.md', 'CX4.md')) {
