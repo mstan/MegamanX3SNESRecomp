@@ -29,6 +29,15 @@ static NativePass draw;
  * for that call; canonical camera/scene ownership stays at state.anchor. */
 typedef struct WorldTarget {uint16_t slot,s;uint8_t active,seat;} WorldTarget;
 static WorldTarget target;
+enum { SHARED_SUPPORTS=31 };
+static uint8_t riders[SHARED_SUPPORTS];
+typedef struct SolidPass {
+  NativePass native;
+  uint16_t pc;
+  uint8_t seat,restore,repeat;
+  uint8_t entry_scratch[24],result_scratch[24];
+} SolidPass;
+static SolidPass solid;
 static unsigned object_end(unsigned pc) {
   switch(pc) {
     case 0xda7f:return 0xda9f; /* Three native armor objects. */
@@ -88,7 +97,7 @@ static void settle_deaths(void) {
 static void team_death_decision(CpuState *cpu,uint32_t pc) {
   (void)cpu;(void)pc;
   if(controller.pass || terrain.pass || contact.native.pass || objects.native.pass ||
-     draw.pass || target.active)return;
+     draw.pass || target.active || solid.native.pass)return;
   settle_deaths();
 }
 static bool partner_ready(void) {
@@ -102,13 +111,18 @@ static bool hostile_projectile(unsigned d) {
 static bool enemy_actor(unsigned d) {
   return (d>=0x0d18 && d<0x10d8 && !((d-0x0d18)%64)) || hostile_projectile(d);
 }
+static int support_slot(unsigned d) {
+  if(d>=0xd18 && d<0x10d8 && !((d-0xd18)%64))return (int)((d-0xd18)/64);
+  if(d>=0x1518 && d<0x1818 && !((d-0x1518)%48))return 15+(int)((d-0x1518)/48);
+  return -1;
+}
 static void target_boundary(CpuState *cpu,uint32_t pc) {
   if(!enabled || !state.initialized)return;
   unsigned at=pc&0xffff,d=cpu->D;
   if(at==0xdd1a || at==0xdcb3) {
     if(state.wipe || target.active || !enemy_actor(d) || !g_ram[d] || !(g_ram[d+0x27]&127) ||
        g_ram[0x1f22] || g_ram[0x1f24] || controller.pass || terrain.pass ||
-       contact.native.pass || objects.native.pass || draw.pass || state.current!=state.anchor)return;
+       contact.native.pass || objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
     unsigned seat=X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
     if(seat==state.anchor)return;
     target=(WorldTarget){(uint16_t)d,cpu->S,1,(uint8_t)seat};
@@ -137,6 +151,57 @@ static void target_query(CpuState *cpu,uint32_t pc) {
   cpu->_flag_Z=cpu->A==0;cpu->_flag_N=(cpu->A&32768)!=0;cpu_mirrors_to_p(cpu);
   interp_bridge_pre_opcode_redirect((pc&0xff0000)|((pc+3)&65535));
 }
+static void solid_boundary(CpuState *cpu,uint32_t pc) {
+  if(!enabled || !state.initialized)return;
+  unsigned at=pc&65535,d=cpu->D;
+  int slot=support_slot(d);if(slot<0)return;
+  if((pc&0x7fffff)==0x00dd1a || (pc&0x7fffff)==0x00dafa) {
+    /* The native initializer owns slot reuse. A new actor cannot inherit
+     * a previous platform's classified rider bits, even with the same class. */
+    if(!g_ram[d] || !g_ram[d+1])riders[slot]=0;
+    return;
+  }
+  NativePass *p=&solid.native;
+  if(at==0xc021) {
+    if(p->pass && solid.pc==0xbfae && p->entry.d==d)
+      riders[slot]|=(uint8_t)(1u<<state.current);
+    return;
+  }
+  if(state.wipe)return;
+  if(at==0xbfae || at==0xc07f) {
+    if(p->pass || !g_ram[d] || controller.pass || terrain.pass || contact.native.pass ||
+       objects.native.pass || draw.pass)return;
+    unsigned first=state.current;
+    bool repeat=partner_ready();
+    if(at==0xc07f) {
+      if(!(riders[slot]&128))return; /* Unknown script: retain native ownership. */
+      unsigned mask=riders[slot]&3;
+      for(unsigned seat=0;seat<2;++seat)
+        if(state.players[seat].life!=X3_COOP_ALIVE || !(state.players[seat].body[0x27]&127))mask&=~(1u<<seat);
+      if(!mask) {interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xc09d);return;}
+      if(!(mask&(1u<<first)))first^=1;
+      repeat=(mask&(1u<<(first^1)))!=0;
+    } else riders[slot]=128;
+    solid.pc=(uint16_t)at;solid.restore=state.current;solid.seat=(uint8_t)first;
+    solid.repeat=(uint8_t)repeat;p->entry=regs(cpu);p->pass=1;
+    memcpy(solid.entry_scratch,g_ram,24);
+    if(first!=state.current)X3CoopProject(&state,g_ram,first);
+    return;
+  }
+  if(!p->pass || cpu->S!=p->entry.s || d!=p->entry.d ||
+     (solid.pc==0xbfae?at!=0xbfce && at!=0xc07e:at!=0xc09d))return;
+  if(p->pass==1 && solid.repeat && state.players[solid.seat^1].life==X3_COOP_ALIVE) {
+    p->result=regs(cpu);memcpy(solid.result_scratch,g_ram,24);
+    X3CoopProject(&state,g_ram,solid.seat^1);
+    restore(cpu,&p->entry);memcpy(g_ram,solid.entry_scratch,24);p->pass=2;
+    interp_bridge_pre_opcode_redirect((pc&0xff0000)|solid.pc);return;
+  }
+  unsigned pass=p->pass;
+  X3CoopCapture(&state,g_ram);
+  if(state.players[solid.restore].life==X3_COOP_ALIVE)X3CoopProject(&state,g_ram,solid.restore);
+  if(pass==2) {restore(cpu,&p->result);memcpy(g_ram,solid.result_scratch,24);}
+  p->pass=0;settle_deaths();
+}
 static bool owned_object(unsigned d) {
   return (d>=X3_COOP_AUX && d<X3_COOP_AUX+X3_COOP_AUX_BYTES && !((d-X3_COOP_AUX)%32)) ||
       (d>=X3_COOP_SHOTS && d<X3_COOP_SHOTS+X3_COOP_SHOT_BYTES && !((d-X3_COOP_SHOTS)%64));
@@ -158,7 +223,7 @@ static void draw_boundary(CpuState *cpu,uint32_t pc) {
       interp_bridge_pre_opcode_redirect((pc&0xff0000)|0x8fe1);return;
     }
     if(draw.pass || controller.pass || terrain.pass || objects.native.pass ||
-       contact.native.pass || state.current!=state.anchor) {enabled=false;return;}
+       contact.native.pass || solid.native.pass || state.current!=state.anchor) {enabled=false;return;}
     draw.entry=regs(cpu);draw.pass=(uint8_t)(seat==state.anchor?1:2);
     X3CoopProject(&state,g_ram,seat);
   } else if(pc==0x038fe1 && draw.pass && cpu->S==draw.entry.s && cpu->D==draw.entry.d) {
@@ -174,7 +239,7 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
      * retain their native owner until their specific contracts are mapped. */
     if(!enemy_actor(d) || !g_ram[d] || !partner_ready())return;
     if(!p->pass && (state.current==state.anchor || target.active) && !controller.pass &&
-       !terrain.pass && !objects.native.pass && !draw.pass) {
+       !terrain.pass && !objects.native.pass && !draw.pass && !solid.native.pass) {
       p->entry=regs(cpu);contact.pc=(uint16_t)at;contact.seat=state.current;p->pass=1;
       memcpy(contact.entry_scratch,g_ram,24);
     }
@@ -209,7 +274,7 @@ static void object_boundary(CpuState *cpu,uint32_t pc) {
   if(!enabled || !state.initialized || state.wipe)return;
   if(end) {
     if(!p->pass && partner_ready() && state.current==state.anchor &&
-       !controller.pass && !terrain.pass && !contact.native.pass && !draw.pass) {
+       !controller.pass && !terrain.pass && !contact.native.pass && !draw.pass && !solid.native.pass) {
       p->entry=regs(cpu);p->pass=1;objects.pc=(uint16_t)at;objects.end=(uint16_t)end;
     }
     return;
@@ -349,6 +414,7 @@ void X3CoopRuntimeReset(void) {
   memset(&contact,0,sizeof(contact));memset(&objects,0,sizeof(objects));
   memset(&draw,0,sizeof(draw));
   memset(&target,0,sizeof(target));
+  memset(&solid,0,sizeof(solid));memset(riders,0,sizeof(riders));
 }
 void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
@@ -379,6 +445,10 @@ void X3CoopRuntimeFrame(void) {
   static const uint32_t target_queries[]={0x02e142,0x02daa7,0x02dac6};
   for(unsigned i=0;i<sizeof(target_queries)/sizeof(*target_queries);++i)
     if(!interp_bridge_add_pre_opcode_hook(target_queries[i],target_query))enabled=false;
+  static const uint32_t solid_pcs[]={0x04bfae,0x04bfce,0x04c021,0x04c07e,
+      0x04c07f,0x04c09d,0x00dd1a,0x00dafa};
+  for(unsigned i=0;i<sizeof(solid_pcs)/sizeof(*solid_pcs);++i)
+    if(!interp_bridge_add_pre_opcode_hook(solid_pcs[i],solid_boundary))enabled=false;
 }
 void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   uint8_t bytes[4096]={0};
@@ -391,50 +461,58 @@ void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   sli->func(sli,&objects,sizeof(objects));
   sli->func(sli,&draw,sizeof(draw));
   sli->func(sli,&target,sizeof(target));
+  sli->func(sli,&solid,sizeof(solid));sli->func(sli,riders,sizeof(riders));
 }
 static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePass *t,
                          const ContactPass *hit,const ObjectPass *obj,const NativePass *art,
-                         const WorldTarget *world) {
-  unsigned a=c->pass,b=t->pass,h=hit->native.pass,o=obj->native.pass,v=art->pass;
-  if(a>2 || b>2 || h>2 || o>2 || v>2 || (a!=0)+(b!=0)+(h!=0)+(o!=0)+(v!=0)>1)return false;
+                         const WorldTarget *world,const SolidPass *support,const uint8_t *rider_bits) {
+  unsigned a=c->pass,b=t->pass,h=hit->native.pass,o=obj->native.pass,v=art->pass,q=support->native.pass;
+  if(a>2 || b>2 || h>2 || o>2 || v>2 || q>2 || (a!=0)+(b!=0)+(h!=0)+(o!=0)+(v!=0)+(q!=0)>1)return false;
+  for(unsigned i=0;i<SHARED_SUPPORTS;++i)
+    if(rider_bits[i] && (rider_bits[i]&252)!=128)return false;
   if(world->active>1 || world->seat>1)return false;
-  if(!s->initialized)return !(a || b || h || o || v || world->active);
+  if(!s->initialized)return !(a || b || h || o || v || q || world->active);
   if(world->active && (!enemy_actor(world->slot) || a || b || o || v))return false;
-  const NativePass *active=a?c:b?t:h?&hit->native:o?&obj->native:v?art:NULL;
-  unsigned base=h?hit->seat:s->anchor;
+  const NativePass *active=a?c:b?t:h?&hit->native:o?&obj->native:v?art:q?&support->native:NULL;
+  unsigned base=h?hit->seat:q?support->seat:s->anchor;
   if(active && (base>1 || s->wipe || s->current!=(base^(active->pass==2)) ||
      s->players[s->current].life!=X3_COOP_ALIVE))return false;
   if(world->active) {
     unsigned seat=s->players[world->seat].life==X3_COOP_ALIVE?world->seat:s->anchor;
-    if(h?hit->seat!=world->seat:!s->wipe && s->current!=seat)return false;
+    if(h?hit->seat!=seat:q?support->restore!=seat:!s->wipe && s->current!=seat)return false;
   }
   if((a && c->entry.d!=X3_COOP_BODY) || (b && t->entry.d!=X3_COOP_BODY))return false;
   if(h && ((hit->pc!=0xcb31 && hit->pc!=0xcb74) || !enemy_actor(hit->native.entry.d)))return false;
   if(o && (!object_end(obj->pc) || object_end(obj->pc)!=obj->end))return false;
   if(v && (art->entry.d || !owned_object(art->entry.x)))return false;
+  if(q && ((support->pc!=0xbfae && support->pc!=0xc07f) || support->restore>1 ||
+      support->repeat>1 || support_slot(support->native.entry.d)<0))return false;
   return true;
 }
 bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   uint8_t bytes[4096];X3CoopState loaded;
-  NativePass c,t,art;ContactPass hit;ObjectPass obj;WorldTarget world;
+  NativePass c,t,art;ContactPass hit;ObjectPass obj;WorldTarget world;SolidPass support;uint8_t rider_bits[SHARED_SUPPORTS];
   sli->func(sli,bytes,X3CoopEncodedSize());
   sli->func(sli,&c,sizeof(c));sli->func(sli,&t,sizeof(t));
   sli->func(sli,&hit,sizeof(hit));sli->func(sli,&obj,sizeof(obj));
   sli->func(sli,&art,sizeof(art));
   sli->func(sli,&world,sizeof(world));
-  if(!X3CoopDecode(&loaded,bytes,X3CoopEncodedSize()) || !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world))return false;
-  state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;target=world;return true;
+  sli->func(sli,&support,sizeof(support));sli->func(sli,rider_bits,sizeof(rider_bits));
+  if(!X3CoopDecode(&loaded,bytes,X3CoopEncodedSize()) || !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world,&support,rider_bits))return false;
+  state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;target=world;solid=support;
+  memcpy(riders,rider_bits,sizeof(riders));return true;
 }
 bool X3CoopRuntimePreflight(const void *data,size_t size) {
-  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target);
+  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target)+sizeof(solid)+sizeof(riders);
   if(!data || size<tail)return false;
   X3CoopState decoded;
   const uint8_t *p=(const uint8_t *)data+size-tail;
   if(!X3CoopDecode(&decoded,p,payload))return false;
   /* Validate before the common loader changes WRAM, CPU or either pass. */
-  NativePass c,t,art;ContactPass hit;ObjectPass obj;WorldTarget world;p+=payload;
+  NativePass c,t,art;ContactPass hit;ObjectPass obj;WorldTarget world;SolidPass support;p+=payload;
   memcpy(&c,p,sizeof(c));p+=sizeof(c);memcpy(&t,p,sizeof(t));p+=sizeof(t);
   memcpy(&hit,p,sizeof(hit));p+=sizeof(hit);memcpy(&obj,p,sizeof(obj));p+=sizeof(obj);
-  memcpy(&art,p,sizeof(art));p+=sizeof(art);memcpy(&world,p,sizeof(world));
-  return passes_valid(&decoded,&c,&t,&hit,&obj,&art,&world);
+  memcpy(&art,p,sizeof(art));p+=sizeof(art);memcpy(&world,p,sizeof(world));p+=sizeof(world);
+  memcpy(&support,p,sizeof(support));p+=sizeof(support);
+  return passes_valid(&decoded,&c,&t,&hit,&obj,&art,&world,&support,p);
 }

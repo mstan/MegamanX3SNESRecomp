@@ -9,6 +9,7 @@ static unsigned coop_x(unsigned seat) {
 }
 #include "x3_coop_contact_test.inc"
 #include "x3_coop_target_test.inc"
+#include "x3_coop_support_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -31,6 +32,7 @@ int main(int argc,char **argv) {
       check(X3CoopRuntimeState()->initialized,"fixture contains enrolled actors");
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_contact_checks(saved,size,after,cap);
+      native_support_checks(saved,size,after,damaged,cap);
       unsigned x=coop_x(0),zero=coop_x(1);
       for(int i=0;i<30;++i)frame(SNES_PAD_RIGHT<<12);
       check(coop_x(0)==x && coop_x(1)>zero,"native partner movement leaves X in place");
@@ -48,6 +50,13 @@ int main(int argc,char **argv) {
       check(RtlLoadSnapshot(fixture),"authored native enemy fixture loads");
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_target_checks(saved,size,after,cap);
+    }
+    fixture=getenv("X3_COOP_PLATFORM_STATE");
+    if(fixture && *fixture) {
+      X3CoopRuntimeEnable(true);
+      check(RtlLoadSnapshot(fixture),"authored support stage fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      authored_support_checks(saved,size,after,cap);
     }
     fixture=getenv("X3_COOP_SURVIVOR_STATE");
     if(fixture && *fixture) {

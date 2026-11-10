@@ -41,7 +41,7 @@ campaign or co-op gameplay acceptance.
 | Team wipe | Zero-then-X stage-1 route passes; other cases open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | Component checks only | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | Not implemented | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | Terrain pass prepared | Both riders retain support, momentum and crush behavior while each platform advances once. |
+| Supports/hazards | Shared rider contracts and stage5 class26 case pass; broader families open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | Native contact and class08 targeting probes pass; broader AI/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | Not implemented | Either/both door policies and native scripts complete with either survivor. |
@@ -187,3 +187,44 @@ with its disposable slot8 fixture. This checkpoint's binary SHA256 is
 `444a65fca7e5e7c67818b9b950c54b6044ce7956dd6c67919e98c548f56437d5`.
 Captors, scene admission, all platform types and separate-region activation
 still need their own native ownership contracts and authored checks.
+
+### Shared supports and an authored moving-platform case
+
+Native BFAE contact and C07F carry now retain separate rider bits for the15
+enemy slots and16 item/script slots. Both calls keep their actual entry
+registers/scratch and balanced guest returns. A carry runs only for that
+support's living riders; one actor leaving does not clear the other rider.
+Native initialization clears histories on slot reuse. Continuations and
+rider histories are serialized, and invalid rider bits fail preflight without
+changing the machine. Shared actors still update once; owned weapon supports,
+vehicles, specialized crush and custom-height helpers remain separate work.
+
+ROM-backed isolated checks pass equal carry for two riders, independent
+movement on two supports, releasing one rider, current-build history restore
+and transactional malformed-history rejection. The geometry uses the actual
+class37 table06:C5D4, rather than an assumed player-sized support.
+
+The authored moving case uses native stage5 event3C:E12C: enemy class26,
+variant2 at1224,1464. A QA teleport and the original event-column spawner
+prepare its real room; this explicitly bypasses camera admission, normal
+activation frontiers and background-stream preparation. It does not set the
+support's movement or rider result flags. With normal native updates, X and
+Zero land and ride at their own standing heights. Over45 frames, all64 support
+bytes match a single-seat native reference, including movement1464→1434;
+both runs advance the world45 times. X can then jump off while Zero keeps
+riding. A separate P2-first setup starts/moves the support while X remains
+outside its native contact width; its rider mask contains only Zero.
+
+The initial class37 candidate in this stage is stationary in the tested native
+state. It is not used as evidence of automatic movement. Inspected class26
+captures show both riders and the P2-only setup; background content after the
+QA teleport is not accepted as streamed-world visual coverage.
+Use `tests/scenarios/coop_platform.script` for disposable entry slot6 and
+`X3_COOP_PLATFORM_STATE` for the native test. Optional output paths
+`X3_COOP_PLATFORM_OUTPUT`/`X3_COOP_PLATFORM_P2_OUTPUT` save both-rider and
+P2-only visual fixtures (local slots5/4). Current combined results are in
+`build-coop/qa-state/native-combined-result.log`, with source build identity
+recorded in the private issue. These narrow checks support P01/P02/P04 and
+R01; all15 rollups and the full180-point campaign suite remain open.
+The standard regeneration recipe passes its complete-tree byte comparison
+after these hooks, including the refreshed generated build identity.
