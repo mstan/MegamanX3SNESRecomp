@@ -3,6 +3,7 @@
 #include MMX_SHARED_STATE_TEST
 #undef main
 #include "../src/x3_coop_runtime.h"
+#include "../src/x3_coop_view.h"
 static unsigned coop_x(unsigned seat) {
   const uint8_t *body=X3CoopRuntimeState()->players[seat].body;
   return body[5]|body[6]<<8;
@@ -16,6 +17,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_pickup_test.inc"
 #include "x3_coop_scene_test.inc"
 #include "x3_coop_acquisition_test.inc"
+#include "x3_coop_capsule_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -111,6 +113,12 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       for(unsigned reversed=0;reversed<2;++reversed)native_persistent_pickup_checks(saved,size,after,damaged,cap,5,2944,1912,0x20,reversed);
       authored_support_checks(saved,size,after,cap);
+    }
+    fixture=getenv("X3_COOP_CAPSULE_STATE");
+    if(fixture && *fixture){
+      X3CoopRuntimeEnable(true);check(RtlLoadSnapshot(fixture),"authored native capsule stage fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      for(unsigned reversed=0;reversed<2;++reversed)native_capsule_checks(saved,size,after,damaged,cap,reversed);
     }
     fixture=getenv("X3_COOP_SURVIVOR_STATE");
     if(fixture && *fixture) {

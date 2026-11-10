@@ -1,0 +1,29 @@
+# Disposable stage-8 entry, using the original stage initialization. The
+# native allocator and capsule enforce their own acquisition requirements.
+wait 600
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+wait 240
+poke 1fae 08
+poke 1faf 00
+poke 1fb3 00
+poke 1fb5 00
+poke 1fb6 00
+poke 1ebf 01
+poke 00d1 02
+poke 00d2 04
+poke 00d3 00
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+until 1f22 == 00 1800
+wait 120
+dump capsule-arms-stage-entry
+savestate 13
+quit

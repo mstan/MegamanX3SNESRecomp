@@ -9,7 +9,7 @@ static void door_install_player(const X3CoopState *setup){
   g_ram[0x1f1e]=world->shot_command;g_ram[0x1fd2]=world->maximum_health;g_ram[0xa1]=1;
 }
 static size_t door_scene_chunk(const uint8_t *bytes,size_t size){
-  for(size_t i=0;i+12<=size;++i)if(!memcmp(bytes+i,"X3S1",4))return i;
+  for(size_t i=0;i+16<=size;++i)if(!memcmp(bytes+i,"X3S2",4))return i;
   check(0,"door scene chunk exists");return 0;
 }
 static unsigned door_approach(uint8_t *original,size_t size,uint8_t *work,size_t capacity,unsigned character){

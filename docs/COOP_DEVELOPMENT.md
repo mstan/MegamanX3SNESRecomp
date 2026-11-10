@@ -45,7 +45,7 @@ campaign or co-op gameplay acceptance.
 | Supports/hazards | Shared rider contracts and stage5 class26 case pass; broader families open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | Native contact and class08 targeting probes pass; broader AI/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
-| Doors/scripts | Authored stage1 entrance/transport passes both rosters and lifecycle API probes; other scenes open | Either/both door policies and native scripts complete with either survivor. |
+| Doors/scripts | Stage1 entrance/transport and stage5/stage8 capsule tasks pass focused both-roster/API-retirement checks; visuals, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Not qualified | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | Native pickup/refill and authored heart/subtank probes pass narrowly; paired menus/spending open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Not qualified | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. Unchanged X3 reaches a rendered scene; early black captures were startup transients. |
@@ -719,3 +719,70 @@ M09/M10/R01/V06 evidence, not completed persistent-upgrade/menu/campaign
 qualification. Capsules/demos, shared menu spending and public rejoin remain
 open; all15 final rollups and the full180-point final suite remain open. No
 release archive was replaced.
+
+### Native capsule ownership and recorded demonstrations checkpoint
+
+Native class4D capsules now borrow X before their constructor evaluates health,
+armor and character requirements, including an uninitialized object with zero
+object HP. A constructor probe reproduced the previous Zero-owned evaluation;
+the corrected native entry observes X's own HP/max and character in both seats.
+Stateful capsule contact is excluded from generic paired hostile retries.
+Opening and pod admission adopt X's view before committing the native script.
+
+The saved scene now distinguishes doors, capsule dialogue and acquisition. Its
+explicit16-byteX3S2 chunk retains both seats' raw input history. Shared text uses
+X's seat, or the survivor's after X retires. Native recorded input and temporary
+mapping own X's actions throughout the demonstration; conflicting physical
+left/jump/fire input cannot replace them. Old disposable snapshots are rejected;
+current states are412627B. No native save migration is involved.
+
+Stage5's authored capsule3C:E11D awards native armor bit04; stage8's arms capsule
+awards bit02 and exercises the longer follow-on demonstration. Both use the
+retail allocator and constructor, with coordinates/indices read from06:CCBE,
+06:CCFA and06:BBFD. Teleports and prepared camera bands bypass route prerequisites;
+they do not set admission, award or completion flags. Single-X reference updates
+and both co-op roster orders agree. The recorded-body traces match exactly:
+stage5 has81 frames/hashcc33dfad0d9e1d88; arms has411/hashca29beaa17538dc6.
+Native locks clear and participant arrival finishes after the actual script.
+
+Six lifecycle API interruptions per roster cover either participant withdrawing
+or falling during dialogue/acquisition, including the recorded demonstration.
+Already admitted X-only tasks finish with physical zero HP and no retired-player
+controller pass. Their script-owned body/auxiliary/palette writes are retained
+without importing that temporary zero HP or changing the stored life state.
+The arms-only extra demonstration is omitted for retired X after the award.
+Earned armor survives; an opening alone awards nothing. The survivor retains HP,
+brightness and actual native movement afterward; fallen rejoin is refused.
+These are API retirement probes, not authored fatal-contact/wipe qualification.
+
+Pending dialogue and acquisition replay to the identical full machine; interrupted
+native borrows pass runtime-extension preflight/load. Malformed scene owner,
+phase, kind and raw-history fields reject transactionally. Retired-NPC constructor
+ownership and preservation of the survivor's caption input fix two additional
+interruption failures found while exercising these cases.
+
+The private resource resolver now retains the capsule/hologram's native40-tile
+layout bias and the hologram's fixedE4 palette. Actual split host captures under
+`build-coop/qa-door/host-capsule-s2-*` and `host-capsule-arms-*` cover pod art,
+caption, completed awards and retired participants. **Hologram presentation is
+still unqualified:** it was not visible in the inspected caption captures.
+A matched native/private diagnostic also differs in this prepared room; its
+`capsule-hologram-reference-result.log` is a failing diagnostic, not passed QA.
+Do not accept S08/S09/V12/V14 from these static captures. General safe arrival,
+Unified capsule activation, other upgrades/prerequisites, scene deaths/wipes
+and moving-clip/native presentation checks remain open.
+
+Strict regeneration is byte-identical with56 routed variants. Both X3 CTests,
+`native-capsule-final-combined-result.log`, `native-capsule-arms-result.log`,
+`native-capsule-arms-aligned-result.log`,
+`native-capsule-support-retry-result.log` and `native-capsule-aligned-result.log`
+under `build-coop/qa-state` pass. The combined check includes contacts, resources,
+doors, supports, separated views, both contact-death survivors and native retry.
+Its fresh independent support fixture now explicitly matches private cameras to
+the test teleport before native allocation; its original spawn/riding assertions
+are retained. Production executable SHA256:
+`98657b71ace14555d38bcd71eb391cdbdfb966aa5304c6c7240d5568f51cbd6a`.
+The current test executable after the camera-preparation adjustment is
+`d4dea53a4a2dcaf4d45359f616b6b41315e9a03ebdedc0ac66e3bfe2cdb53afd`.
+All15 final QA rollups and the full180-point final suite remain open. The current
+delivery ZIP is unchanged.

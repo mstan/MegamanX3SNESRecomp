@@ -183,17 +183,28 @@ static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],Obj
   unsigned target,palette,offset;
   if(!rom_read(a+1,2,&target) || target>=32768 || !rom_read(a+3,2,&palette) || !rom_read(a+5,1,&offset))return false;
   out->tile=(target>>4)&255;out->attributes=(target>>12)|(offset>>3)|0x20;
+  if(draw->address>=0xd18 && draw->address<0x10d8 && (b[10]==0x4d || b[10]==0x5c)){
+    /* Capsule13:C075 and hologram05:C863 use A0/80, forty tiles before
+     * their file88/89 uploads at E0/C0. Their layouts include that40 bias;
+     * applying the common constructor's tile base makes every piece miss
+     * the file's upload segments. Keep their native priority/palette too. */
+    out->tile=(out->tile-0x40)&255;out->attributes=(target>>12)|(b[0x11]&62);
+  }
   /* Unlike ordinary resource actors, native01:DB03 keeps the common pickup
    * palette and the body's priority, borrowing only file8C's tile bank. */
   if(draw->address>=0x1518 && b[10]==5)out->attributes=(target>>12)|(b[0x11]&62);
   /* Preserve native animation, flashing and uploaded art when the completed
    * local cache already has this file's actual placement and palette. */
-  if(phase==frame.ram[0x1f18] && b[0x18]==out->tile && (b[0x11]&63)==out->attributes)return false;
+  bool hologram=draw->address>=0xd18 && draw->address<0x10d8 && b[10]==0x5c;
+  if(!hologram && phase==frame.ram[0x1f18] && b[0x18]==out->tile && (b[0x11]&63)==out->attributes)return false;
   if(!file_ready[key]){
     file_ready[key]=X3ResourceDecode(frame.rom,frame.size,key,files[key],sizeof(files[key]),&file_length[key])?1:2;
   }
   if(file_ready[key]!=1 || !X3ResourceLayout(frame.rom,frame.size,key,target,out->segments,&out->count) ||
      !X3ResourcePalette(frame.rom,frame.size,palette,offset,colors))return false;
+  /* Native05:C846 loads the hologram's fixed E4 palette into OBJ palette0.
+   * It must not borrow a surviving Zero's current body colors. */
+  if(hologram && !X3ResourcePalette(frame.rom,frame.size,0xe4,0,colors))return false;
   /* Native DMA rounds some uploads beyond the meaningful decoded file
    * (door56:352 bytes in a384-byte upload). Keep real tiles available and
    * leave padding transparent, with every pixel read bounded to file data. */

@@ -79,6 +79,21 @@ static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modif
     unsigned value=i<2?1096:1280;
     g_ram[camera_addresses[i]]=(uint8_t)value;g_ram[camera_addresses[i]+1]=(uint8_t)(value>>8);
   }
+  /* A current independent fixture retains its original private room. Match
+   * those cameras to this explicit teleport before asking the union allocator
+   * to admit a different room's authored support. */
+  if(X3CoopViewsIndependent()){
+    X3CoopViewState views=*X3CoopViewsState();
+    views.valid=views.camera_valid=3;
+    for(unsigned seat=0;seat<2;++seat){
+      views.camera[seat][0]=1096;views.camera[seat][1]=1280;
+      views.limits[seat][0]=views.current[seat][0]=0;
+      views.limits[seat][1]=views.current[seat][1]=8192;
+      views.limits[seat][2]=views.current[seat][2]=1280;
+      views.limits[seat][3]=views.current[seat][3]=1280;
+    }
+    X3CoopViewsSetState(&views);
+  }
   g_ram[0]=0xc0;g_ram[1]=4; /* native spawn column1216 */
   g_ram[2]=0xe0;g_ram[3]=4;g_ram[4]=0x40;g_ram[5]=1; /* top1248,height320 */
   cpu_mirrors_to_p(&g_cpu);CpuState resume=g_cpu;
