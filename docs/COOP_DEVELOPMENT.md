@@ -516,3 +516,16 @@ still open. Game SHA256:
 `62d934a73bf832e5ba2c736002f83a604375cee6069aa4e1c2b24dfdf8c7f52a`.
 Persistent acquisitions, simultaneous resource tasks, paired menus, public
 settings and the full180-point acceptance remain open;0/15 final rollups pass.
+
+Competing-refill risk was evaluated without changing the runtime. Native
+00:DAAF checks1F28 after each item and switches to the frozen pool path; it
+does not admit a second refiller in that pass. Two differently sized health
+drops and a mixed X-energy/Zero-health pair pass in both slot orders and both
+rosters. Each original collector receives the intended amount once, the next
+item waits for cleanup, and96-frame full-machine replay agrees. No premature
+freeze release or stale freeze was observed. Evidence:
+`build-coop/qa-state/native-competing-result.log` (exit0), same game binary
+`62d934a73bf832e5ba2c736002f83a604375cee6069aa4e1c2b24dfdf8c7f52a`.
+These are dropped-controller fixtures with prepared cameras/positions, not
+authored drop/RNG or campaign qualification. No new refill arbitration was
+needed. The full feature and180-point acceptance contract remains open.

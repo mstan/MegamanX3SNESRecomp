@@ -303,6 +303,69 @@ static void native_weapon_pickup_checks(uint8_t *original,size_t size,uint8_t *w
   same(expected,complete,work,repeated,"remote weapon-energy refill replays to the identical complete machine");
   check(RtlLoadSnapshotFromMemory(original,size),"native weapon-energy probes restore their starting machine");
 }
+/* Two actual native drop controllers in one pool pass, with different refill
+ * lengths. Drop allocation and route traversal are explicit QA preconditions. */
+static void competing_pickup_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity,unsigned mode){
+  bool weapon=mode>=2,reverse=mode&1;
+  unsigned zero=health_pickup_approach(original,size,work,20),x=zero^1,slots[2]={0};
+  X3CoopState setup=*X3CoopRuntimeState();size_t offset=contact_context_offset(original,size);
+  for(unsigned s=0;s<2;++s){
+    unsigned px=s==x?1816:1848;
+    setup.players[s].body[5]=(uint8_t)px;setup.players[s].body[6]=(uint8_t)(px>>8);
+    setup.players[s].body[8]=0x5a;setup.players[s].body[9]=5; /*1370, clear of both items*/
+  }
+  setup.players[x].body[0x27]=8;
+  setup.players[x].body[0x33]=(uint8_t)(weapon?2:0);
+  memcpy(work,original,size);
+  check(X3CoopEncode(&setup,work+offset,X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,size),
+        "two-collector damaged-body approach restores");
+  memcpy(g_ram+X3_COOP_BODY,setup.players[x].body,X3_COOP_BODY_BYTES);
+  X3CoopViewsConfigure(true);X3CoopViewState views={0};views.independent=views.initialized=1;views.stage=1;
+  views.valid=views.camera_valid=3;
+  for(unsigned s=0;s<2;++s){views.camera[s][0]=1720;views.camera[s][1]=1280;
+    views.limits[s][1]=views.current[s][1]=8192;views.limits[s][2]=views.current[s][2]=1280;
+    views.limits[s][3]=views.current[s][3]=1280;}
+  X3CoopViewsSetState(&views);
+  view_word(0x1e5d,1720);view_word(0x1e7a,1720);view_word(0x1e60,1280);view_word(0x1e7c,1280);
+  view_word(0x1e66,0);view_word(0x1e68,8192);view_word(0x1e6a,1280);view_word(0x1e6c,1280);
+  view_word(0x1e6e,0);view_word(0x1e70,8192);view_word(0x1e78,1280);view_word(0x1e7e,1280);
+  for(unsigned d=0x1518,n=0;d<0x1818 && n<2;d+=48)if(!g_ram[d])slots[n++]=d;
+  check(slots[0] && slots[1],"competing native drops have two unused item slots");
+  memset(g_ram+0x1fbb,0,18);if(weapon)g_ram[0x1fbc]=0x48;
+  for(unsigned i=0;i<2;++i){unsigned d=slots[i],which=i^reverse;
+    memset(g_ram+d,0,48);g_ram[d]=1;g_ram[d+10]=(uint8_t)(weapon && !which?1:2);
+    g_ram[d+11]=(uint8_t)(which?128:129);view_word(d+5,which?1848:1816);view_word(d+8,1448);}
+  for(unsigned i=0;i<12 && (g_ram[slots[0]+2]!=2 || g_ram[slots[1]+2]!=2);++i)pickup_native_items(0x00daa0);
+  check(g_ram[slots[0]+2]==2 && g_ram[slots[1]+2]==2 && !g_ram[0x1f28],
+        "both native drops finish landing before either collector touches them");
+  setup=*X3CoopRuntimeState();
+  for(unsigned s=0;s<2;++s){setup.players[s].body[8]=0x9b;setup.players[s].body[9]=5;}
+  size_t prepared=RtlSaveSnapshotToMemory(work,capacity);
+  check(X3CoopEncode(&setup,work+offset,X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,prepared),
+        "both native collectors reach their separate drops in the same pool pass");
+  memcpy(g_ram+X3_COOP_BODY,setup.players[x].body,X3_COOP_BODY_BYTES);
+  pickup_native_items(0x00daa0);
+  unsigned simultaneous=(g_ram[slots[0]+2]==6)+(g_ram[slots[1]+2]==6);
+  size_t pending=RtlSaveSnapshotToMemory(work,capacity);
+  bool premature=false;
+  for(unsigned i=0;i<96;++i){frame(0);
+    for(unsigned k=0;k<2;++k)if(g_ram[slots[k]] && g_ram[slots[k]+1]==2 &&
+        g_ram[slots[k]+2]==6 && g_ram[slots[k]+3]==2 && !g_ram[0x1f28])premature=true;}
+  fprintf(stderr,"competing pickup mode%u: claims=%u premature=%u HP=%u/%u energy=%02x states=%u/%u,%u/%u freeze=%u\n",
+      mode,simultaneous,premature,contact_hp(x),contact_hp(zero),g_ram[0x1fbc],g_ram[slots[0]+1],g_ram[slots[0]+2],
+      g_ram[slots[1]+1],g_ram[slots[1]+2],g_ram[0x1f28]);
+  check(simultaneous==1 && !premature,"one native refill owns the shared freeze until its cleanup finishes");
+  check(contact_hp(x)==(weapon?8:10) && contact_hp(zero)==28 && g_ram[0x1fbc]==(weapon?0xca:0),
+        "two distinct native resource drops refill each original collector exactly once");
+  bool released=true;for(unsigned a=0x1f25;a<=0x1f2b;++a)released=released && !g_ram[a];
+  check(released && !g_ram[0x1f4f],"both differently sized refills finish without a stale shared freeze");
+  size_t complete=RtlSaveSnapshotToMemory(expected,capacity);
+  check(RtlLoadSnapshotFromMemory(work,pending),"pending competing-item sequence restores");
+  for(unsigned i=0;i<96;++i)frame(0);
+  size_t repeated=RtlSaveSnapshotToMemory(work,capacity);
+  same(expected,complete,work,repeated,"queued native resource pickups replay to the identical complete machine");
+  check(RtlLoadSnapshotFromMemory(original,size),"competing native pickup probes restore their starting machine");
+}
 static void authored_health_pickup_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
   unsigned seat=health_pickup_approach(original,size,work,20),other=seat^1;
   size_t offset=contact_context_offset(original,size);X3CoopState setup;
