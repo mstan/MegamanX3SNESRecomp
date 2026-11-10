@@ -786,3 +786,47 @@ The current test executable after the camera-preparation adjustment is
 `d4dea53a4a2dcaf4d45359f616b6b41315e9a03ebdedc0ac66e3bfe2cdb53afd`.
 All15 final QA rollups and the full180-point final suite remain open. The current
 delivery ZIP is unchanged.
+
+### Native stage-entry ownership repair
+
+Fresh native stage construction now suspends personal-context capture, paired
+world/contact passes and private rendering until the ordinary gameplay caller
+has completed the original arrival. Living actors bind to the native new-stage
+body and their own character initialization. Fallen and voluntarily absent
+actors retain their personal contexts and life state; the living world owner
+does not change. Scripted reconstruction calls are excluded from this boundary.
+
+The existing16-byteX3S2 scene payload records pending arrival without changing
+snapshot length. Saving during arrival must not capture the temporary native X
+into the retained actor. Malformed scene fields, a stage mismatch and overlapping
+controller, terrain, contact, owned-object, draw or world-target continuations
+are rejected before machine mutation.
+
+`tests/x3_coop_stage_test.inc` exercises the real stage5 loader in12 API-prepared
+roster/owner/lifecycle cases: both living, either fallen and either absent, in
+both seat assignments. Pending and completed immediate restore, full pending
+replay, native character/HP/max, entry coordinates, standing heights, brightness
+and subsequent native movement pass. Each malformed borrowed continuation is
+independently valid without the pending stage, so rejection tests the actual
+cross-state invariant. This preparation bypasses previous travel and stage-end
+triggers; API retirement is not authored death coverage.
+
+The original natural-X-death/Zero-survivor loader route also passes unchanged:
+X stays fallen with stored rawHP128/max16; Zero remains nativeB6=2 withHP/max28
+at384,2711 after the stage5 load. The former result incorrectly changed Zero to
+nativeX and16HP. Slot16 wraps to0 in the host as before.
+
+Evidence under`build-coop/qa-state`: `native-stage-regression-before.log` retains
+the pending-save counterexample; `native-stage-regression-final.log`,
+`native-stage-survivor-validated.log`, `native-stage-combined-result.log` and
+`native-stage-arms-result.log` pass. The combined run includes the existing
+roster, doors, resources, independent views, contacts, supports, capsule,
+survivor and retry cases; the separate arms run covers its longer native demo.
+Both X3 CTests pass. No generated boundaries changed. GUI SHA256:
+`3ead286e3bc5fd1b085e9e65cc3361bbb18925474445077e6e4ffb2c7f61b654`;
+test SHA256:`47db70eb31c6e6a500bbcaa6ab5c2396fb1146c25b7af9db77de8d7af9d3bf2d`.
+
+These are prerequisite F04/R05/R09 implementation checks. Actual stage exits,
+campaign rewards, safe public rejoin, native scene visuals, menus and online
+qualification remain open. All15 final rollups and the180-point suite remain
+open; the delivery archive is unchanged.

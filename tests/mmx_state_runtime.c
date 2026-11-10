@@ -18,6 +18,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_scene_test.inc"
 #include "x3_coop_acquisition_test.inc"
 #include "x3_coop_capsule_test.inc"
+#include "x3_coop_stage_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -74,6 +75,12 @@ int main(int argc,char **argv) {
       for(int i=0;i<30;++i)frame(SNES_PAD_RIGHT<<12);
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
+    }
+    fixture=getenv("X3_COOP_STAGE_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"native stage handoff fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_stage_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_REVERSED_STATE");
     if(fixture && *fixture){

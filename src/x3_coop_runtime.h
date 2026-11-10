@@ -5,6 +5,7 @@ struct SaveLoadInfo;
 /* Native actors, world borrowing and saved scene continuations. */
 void X3CoopRuntimeEnable(bool enabled);
 bool X3CoopRuntimeEnabled(void);
+bool X3CoopRuntimeReady(void);
 void X3CoopRuntimeSetP1Character(unsigned character);
 void X3CoopRuntimeSetDoorPolicy(bool both_present);
 bool X3CoopRuntimeSceneActive(void);

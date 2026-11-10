@@ -57,7 +57,7 @@ static bool draw_pose(unsigned seat,const uint8_t *body) {
 }
 const PpuExtraObject *X3CoopRenderPlayer(unsigned seat,int camera_x,int camera_y) {
   const X3CoopState *s=&X3CoopPresentationVisible()->players;
-  if(seat>1 || !g_snes || !g_ppu || !X3CoopRuntimeEnabled() || !s->initialized || s->players[seat].life!=X3_COOP_ALIVE)return NULL;
+  if(seat>1 || !g_snes || !g_ppu || !X3CoopRuntimeReady() || !s->initialized || s->players[seat].life!=X3_COOP_ALIVE)return NULL;
   const uint8_t *body=s->players[seat].body;
   if(!body[0xe] || !draw_pose(seat,body))return NULL;
   objects[seat]=(PpuExtraObject){
@@ -72,7 +72,7 @@ void X3CoopRender(void) {
   const X3CoopPresentedFrame *frame=X3CoopPresentationVisible();
   const X3CoopState *s=&frame->players;
   palette_borrowed=false;
-  if(X3CoopRuntimeEnabled() && s->initialized) {
+  if(X3CoopRuntimeReady() && s->initialized) {
     /* NMI can land inside a borrowed actor pass. Draw with the anchor's
      * personal ramps, then restore the exact emulated CGRAM after rendering.
      * Presentation never becomes a simulation write or a rollback input. */
@@ -82,7 +82,7 @@ void X3CoopRender(void) {
     palette_borrowed=true;
   }
   unsigned partner=s->anchor^1;
-  if(!X3CoopRuntimeEnabled() || !s->initialized || s->players[partner].life!=X3_COOP_ALIVE)return;
+  if(!X3CoopRuntimeReady() || !s->initialized || s->players[partner].life!=X3_COOP_ALIVE)return;
   const PpuExtraObject *object=X3CoopRenderPlayer(partner,frame->camera[0],frame->camera[1]);
   if(object)PpuSetExtraObjects(g_ppu,object,1);
 }
