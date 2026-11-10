@@ -50,6 +50,7 @@ static bool stage_pending(void){return scene.phase && scene.kind==SCENE_STAGE_EN
 static void scene_tick(void);
 static void participation_tick(void);
 static void stock_tick(void);
+static void shared_catchup_tick(void);
 static bool scene_parked(unsigned seat){return scene.phase && seat!=scene.owner;}
 enum { SHARED_SUPPORTS=31 };
 static uint8_t riders[SHARED_SUPPORTS];
@@ -145,6 +146,7 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
       X3CoopViewsEndFrame(g_ram,&state,view_scene(),false);
     }
     if(enabled && state.initialized)participation_tick();
+    if(enabled && state.initialized)shared_catchup_tick();
     return;
   }
   /* The native refill owns a shared freeze until its cleanup runs. Removing
@@ -216,26 +218,39 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
   else if(at!=0x02d58a && at!=0x02d5ab && inside)next=0xd65b;
   interp_bridge_pre_opcode_redirect((pc&0xff0000)|next);
 }
+#include "x3_coop_shared_camera.inc"
 static void view_bounds_boundary(CpuState *cpu,uint32_t pc) {
-  if(!view_ready() || cpu->D!=0x1e58)return;
+  if(cpu->D!=0x1e58)return;
   if((pc&65535)==0xe2a2 && !view_bounds.native.pass) {
-    if(state.current!=state.anchor || !partner_ready())return;
+    if((!view_ready() && !shared_camera_ready()) || state.current!=state.anchor || !partner_ready())return;
+    /* For a shared view both bodies see the same pre-clamp candidate.
+     * These scratch bytes are replaced by the original result at return. */
+    if(!X3CoopViewsIndependent()){
+      putword(view_bounds.scratch,word(g_ram+0x1e5d));
+      putword(view_bounds.scratch+2,word(g_ram+0x1e60));
+    }
     view_bounds.native.entry=regs(cpu);view_bounds.native.pass=1;return;
   }
   if((pc&65535)!=0xe316 || !view_bounds.native.pass)return;
   if(cpu->S!=view_bounds.native.entry.s){enabled=false;return;}
   if(view_bounds.native.pass==1) {
     view_bounds.native.result=regs(cpu);
+    unsigned shared_x=word(view_bounds.scratch),shared_y=word(view_bounds.scratch+2);
     memcpy(view_bounds.camera,g_ram+0x1e58,64);memcpy(view_bounds.scratch,g_ram,24);
     unsigned partner=state.anchor^1;
     X3CoopCapture(&state,g_ram);
-    X3CoopViewsUpdate(g_ram,&state,false,false);
-    X3CoopView v=X3CoopViewsFollowPlayer(g_ram,&state,partner);
-    const X3CoopViewState *views=X3CoopViewsState();
-    X3CoopProject(&state,g_ram,partner);
-    for(unsigned i=0;i<4;++i)putword(g_ram+0x1e66+i*2,
-        views->camera_valid&(1u<<partner)?views->current[partner][i]:views->limits[partner][i]);
-    putword(g_ram+0x1e5d,(unsigned)v.x);putword(g_ram+0x1e60,(unsigned)v.y);
+    if(X3CoopViewsIndependent()){
+      X3CoopViewsUpdate(g_ram,&state,false,false);
+      X3CoopView v=X3CoopViewsFollowPlayer(g_ram,&state,partner);
+      const X3CoopViewState *views=X3CoopViewsState();
+      X3CoopProject(&state,g_ram,partner);
+      for(unsigned i=0;i<4;++i)putword(g_ram+0x1e66+i*2,
+          views->camera_valid&(1u<<partner)?views->current[partner][i]:views->limits[partner][i]);
+      putword(g_ram+0x1e5d,(unsigned)v.x);putword(g_ram+0x1e60,(unsigned)v.y);
+    }else{
+      X3CoopProject(&state,g_ram,partner);
+      putword(g_ram+0x1e5d,shared_x);putword(g_ram+0x1e60,shared_y);
+    }
     restore(cpu,&view_bounds.native.entry);view_bounds.native.pass=2;
     interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xe2a2);
   } else {
@@ -473,10 +488,8 @@ bool X3CoopRuntimeZeroAvailable(void){
   return action!=0x2c && action!=0x76 && stage && stage!=9 && stage!=12 && stage!=13 &&
       !(g_ram[0x1f5d]&0x80) && !(g_ram[0x1fe1]&1) && !(g_ram[0x1fb2]&0x40);
 }
-static bool rejoin_player(unsigned seat){
-  if(seat>1 || !X3CoopRuntimeReady() || state.wipe || state.players[seat].life!=X3_COOP_ABSENT ||
-     !(state.players[seat].body[0x27]&127) || state.players[seat].body[2]==12)return false;
-  const uint8_t *owner=g_ram+X3_COOP_BODY;
+typedef struct SafeLanding {uint16_t shape,x,y;} SafeLanding;
+static bool find_landing(unsigned seat,const uint8_t *owner,X3CoopView view,SafeLanding *landing){
   unsigned shape=state.players[seat].character==X3_COOP_ZERO?0xb40e:0xb404;
   size_t at=0x30000+(shape&32767);
   if(at+9>g_snes->cart->romImageSize)return false;
@@ -486,26 +499,54 @@ static bool rejoin_player(unsigned seat){
   if(address<32768 || owner_at+9>g_snes->cart->romImageSize)return false;
   const uint8_t *own_rect=g_snes->cart->rom+owner_at;
   int px=word(owner+5),py=word(owner+8)+(int8_t)own_rect[6]+own_rect[8]+1;
-  X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,state.anchor,false);
   const int gaps[]={32,-32,48,-48,64,-64,16,-16,0};
   for(unsigned i=0;i<sizeof(gaps)/sizeof(*gaps);++i){int x=px+gaps[i];
     if(x-12<view.x || x+12>=view.x+256)continue;
     for(int offset=-16;offset<=24;++offset){int floor=py+offset;
       if(floor-(int)height<view.y || floor>=view.y+224 || !landing_clear(x,floor,height,px,word(owner+8)))continue;
-      X3CoopCapture(&state,g_ram);scene_cancel_transients(seat);
-      uint8_t *b=state.players[seat].body;
-      putword(b+0x20,shape);putword(b+5,(unsigned)x);putword(b+8,(unsigned)(floor-(int8_t)rect[6]-rect[8]-1));
-      b[4]=b[7]=0;memcpy(b+0x22,b+5,2);memcpy(b+0x24,b+8,2);memset(b+0x1a,0,6);
-      b[1]=2;b[2]=b[3]=0;b[0x0e]=1;b[0x26]=32;
-      b[0x64]=b[0x6a]=b[0x6d]=b[0x6e]=b[0xa3]=0;b[0xa5]&=127;
-      memset(b+0x36,0,6);
-      if(!X3CoopRejoin(&state,seat))return false;
-      restore_x_armor(seat);
-      X3CoopViewsAdoptPlayer(g_ram,&state,state.anchor,false);X3CoopViewsCommitNative(g_ram,&state);
+      *landing=(SafeLanding){(uint16_t)shape,(uint16_t)x,(uint16_t)(floor-(int8_t)rect[6]-rect[8]-1)};
       return true;
     }
   }
   return false;
+}
+static void land_player(unsigned seat,const SafeLanding *landing){
+  scene_cancel_transients(seat);uint8_t *b=state.players[seat].body;
+  putword(b+0x20,landing->shape);putword(b+5,landing->x);putword(b+8,landing->y);
+  b[4]=b[7]=0;memcpy(b+0x22,b+5,2);memcpy(b+0x24,b+8,2);memset(b+0x1a,0,6);
+  b[1]=2;b[2]=b[3]=0;b[0x0e]=1;b[0x26]=32;
+  b[0x64]=b[0x6a]=b[0x6d]=b[0x6e]=b[0xa3]=0;b[0xa5]&=127;
+  memset(b+0x36,0,6);
+}
+static bool rejoin_player(unsigned seat){
+  if(seat>1 || !X3CoopRuntimeReady() || state.wipe || state.players[seat].life!=X3_COOP_ABSENT ||
+     !(state.players[seat].body[0x27]&127) || state.players[seat].body[2]==12)return false;
+  SafeLanding landing;X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,state.anchor,false);
+  if(!find_landing(seat,g_ram+X3_COOP_BODY,view,&landing))return false;
+  X3CoopCapture(&state,g_ram);land_player(seat,&landing);
+  if(!X3CoopRejoin(&state,seat))return false;
+  restore_x_armor(seat);
+  X3CoopViewsAdoptPlayer(g_ram,&state,state.anchor,false);X3CoopViewsCommitNative(g_ram,&state);
+  return true;
+}
+static void shared_catchup_tick(void){
+  if(!shared_camera_ready() || !participation_ready())return;
+  const uint8_t *a=g_ram+X3_COOP_BODY,*b=state.players[state.anchor^1].body;
+  if(shared_beyond_pit(a) || shared_beyond_pit(b))return;
+  int dx=(int16_t)word(a+5)-(int16_t)word(b+5),dy=(int16_t)word(a+8)-(int16_t)word(b+8);
+  if(dx<0)dx=-dx;if(dy<0)dy=-dy;
+  unsigned axis=dx>SHARED_GAP_X?5:dy>SHARED_GAP_Y?8:0;
+  if(!axis)return;
+  unsigned lead=shared_leader(axis),lag=lead^1;
+  const uint8_t *owner=lead==state.current?g_ram+X3_COOP_BODY:state.players[lead].body;
+  X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,lead,false);SafeLanding landing;
+  if(!find_landing(lag,owner,view,&landing))return;
+  /* Borrow the leader only if necessary to edit the stored lagging body.
+   * Catch-up changes neither participant's life, health nor weapon choice. */
+  X3CoopCapture(&state,g_ram);
+  if(state.current==lag)X3CoopProject(&state,g_ram,lead);
+  land_player(lag,&landing);restore_x_armor(lag);
+  X3CoopProject(&state,g_ram,state.anchor);
 }
 bool X3CoopRuntimeRejoin(unsigned seat){
   if(seat>1 || !participation_ready())return false;
@@ -1272,6 +1313,9 @@ void X3CoopRuntimeFrame(void) {
     if(!interp_bridge_add_pre_opcode_hook(view_pcs[i],view_world_boundary))enabled=false;
   if(!interp_bridge_add_pre_opcode_hook(0x00e2a2,view_bounds_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x00e316,view_bounds_boundary))enabled=false;
+  static const uint32_t shared_pcs[]={0x00e08b,0x00e096,0x00e0aa,0x00e0b5,0x00e2e2,0x00e2f1};
+  for(unsigned i=0;i<sizeof(shared_pcs)/sizeof(*shared_pcs);++i)
+    if(!interp_bridge_add_pre_opcode_hook(shared_pcs[i],shared_camera_boundary))enabled=false;
   static const uint32_t presentation_pcs[]={0x038dd7,0x038df0,0x038f70};
   for(unsigned i=0;i<sizeof(presentation_pcs)/sizeof(*presentation_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(presentation_pcs[i],presentation_boundary))enabled=false;

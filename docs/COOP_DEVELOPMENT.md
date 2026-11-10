@@ -1110,3 +1110,47 @@ is`build-coop/qa-public/paired-menu-final-split.png`; the current-build resume
 copy was loaded and consumed. The runtime observations and panel capture cover
 an isolated native-resolution profile, not adaptive widescreen or a human
 controller handoff. No final QA rollup or release is closed by this component.
+
+## Unified tracking and safe catch-up
+
+The shared camera feeds both living positions to the original00:E088/E0A7
+tracking helpers. The midpoint rounds toward the world owner; original
+dead zones, movement and authored camera clamps still run. During excessive
+separation the camera keeps the leading actor in view. At a balanced world
+boundary, the trailing living actor can land beside that leader only on
+clear native terrain with room for the body and an unobstructed corridor.
+Both life states, HP and weapon choice survive. Unsafe airborne arrivals
+wait. This uses the same landing checks as voluntary return and does not
+run during pause, forced scenes, or Independent camera policy.
+
+Both bodies run the original camera bounds helper with a balanced guest
+return. The shared pit threshold uses the real lower room bound, including
+the current native pan, and the original signed16-bit coordinate comparison.
+Being below the viewport or wrapping above map Y0 cannot manufacture a death.
+A body beyond the real pit threshold cannot use catch-up; original04:D06A
+applies the native pit damage.
+
+Both actual roster fixtures pass native midpoint tests in both axes and both
+directions, just-before/at-threshold and negative-Y bounds checks, and full
+replay. On the real stage5 ledge atx928..1183/y2720, either seat walks into
+the authored1184..1263 opening. Both reachx1216 in38 movement updates; native
+damage fires once atY2818 or2821. The other actor stays alive, bright and
+controllable. The setup positions bodies on the real ledge; it does not
+claim the earlier route or a complete pit matrix. Safe ground catch-up and
+airborne refusal pass for either leader with the exact retained HP and replay.
+
+Strict regeneration is byte-identical with58 routed variants. Final state
+SHA256 `24eabf7f3cebdf5eec7c4434857aeada12a04be881206c0a6feed39953221c6d`
+passes the camera, authored pits, catch-up, Independent view, voluntary return,
+stock Zero and authored support checks on SERVER in
+`build-coop/qa-state/native-shared-camera-server-final-result.log`. Both X3
+CTests pass. Final GUI SHA256
+`d55f864b265d71da6c1f97e96575e87ff5485b39e2e56292d347d28589449769`.
+
+The earlier prototype-free Unified GUI pilot
+(`d91c1195b0e73bce10f2f3e9822bca9ec0d323ed73864302413109e705cb967d`)
+observes X stationary at384 while Zero reaches437 and the camera moves from
+256 to282. After the longer real walk, catch-up moves X forward to529 beside
+Zero at622, with both living and camera447. This is native-resolution gameplay
+evidence, not a matched performance or widescreen result. Learner mode,
+remaining authored routes, netplay and all15 final rollups remain open.
