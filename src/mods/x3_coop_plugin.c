@@ -2,6 +2,7 @@
 #include "x3_coop_settings.h"
 #include "x3_coop_runtime.h"
 #include "x3_coop_view.h"
+#include "x3_coop_hud.h"
 #include "x3_display.h"
 #include <stdlib.h>
 #include <string.h>
@@ -63,12 +64,14 @@ void X3CoopSettingsPresentation(void){
   bool on=selected();
   X3Display_SetLocalSplit(on && !strcmp(view,"split"));
   X3Display_SetPresentationSeat(on && !strcmp(view,"p1")?0:on && !strcmp(view,"p2")?1:-1);
+  X3CoopHudSetLayout(option_is("view","hud","horizontal")?X3_COOP_HUD_HORIZONTAL:X3_COOP_HUD_COMPACT);
   view_loaded=true;
 }
 static void reset(void){
   profile_loaded=view_loaded=false;
   enabled=independent=false;player1=X3_COOP_X;
   X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
+  X3CoopHudSetLayout(X3_COOP_HUD_COMPACT);
 }
 static void activate_coop(void){resolve_profile();}
 static void activate_view(void){X3CoopSettingsPresentation();}

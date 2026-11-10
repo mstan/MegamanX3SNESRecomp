@@ -13,6 +13,7 @@
  */
 #include "x3_rtl.h"
 #include "x3_coop_runtime.h"
+#include "x3_coop_hud.h"
 #include "x3_coop_settings.h"
 #include "x3_coop_render.h"
 #include "x3_coop_view.h"
@@ -1028,6 +1029,7 @@ void X3DrawPpuFrame(void) {
 
   bool split=X3Display_LocalSplit();
   bool private_frame=split?X3Display_BeginLocalSplitFrame(g_ppu):X3Display_BeginIndependentFrame(g_ppu);
+  if(!private_frame)X3CoopHudNativeBegin(g_ppu);
   for (int line = 0; line <= 224; line++) {
     if(private_frame) {
       ppu_runLineState(g_ppu,line);

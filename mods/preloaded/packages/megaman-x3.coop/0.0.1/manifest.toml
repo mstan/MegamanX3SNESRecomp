@@ -96,6 +96,20 @@ label = "Leader view"
 feature = "coop"
 id = "megaman-x3.coop"
 
+[[option]]
+feature = "view"
+id = "hud"
+label = "Shared HUD"
+description = "Stack X and Zero's meters or place them side by side. Player views show their own meters."
+type = "choice"
+default = "compact"
+[[option.choice]]
+value = "compact"
+label = "Compact"
+[[option.choice]]
+value = "horizontal"
+label = "Side by side"
+
 [[plugin]]
 feature = "view"
 id = "megaman-x3.coop-view"

@@ -13,6 +13,7 @@ typedef struct X3CoopPresentedFrame {
   uint8_t body_chr[2][X3_COOP_BODY_CHR_BYTES];
   uint8_t count;
   X3CoopWorldDraw actors[X3_COOP_WORLD_DRAWS];
+  uint8_t weapon_energy[18],hud_palette[64];
 } X3CoopPresentedFrame;
 
 void X3CoopPresentationReset(void);

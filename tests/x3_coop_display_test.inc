@@ -1,5 +1,6 @@
 #include "../src/x3_display.h"
 #include "../src/x3_native_resources.h"
+#include "../src/x3_coop_hud.h"
 static void native_resource_checks(uint8_t *original,size_t size,uint8_t *bytes,size_t capacity){
   check(RtlLoadSnapshotFromMemory(original,size),"native resource fixture restores");
   const unsigned keys[]={0,2,40};
@@ -96,6 +97,9 @@ static void remote_resource_checks(uint8_t *original,size_t size,uint8_t *work,s
   check(RtlLoadSnapshotFromMemory(original,size),"remote resource probes restore");(void)capacity;
 }
 static void native_display_checks(const char *tag,uint8_t *original,size_t size,uint8_t *native,uint8_t *private,size_t capacity){
+  /* Compare the original native HUD with the private owning meter. Shared
+   * two-player layouts have separate composition/ownership checks. */
+  unsigned hud=X3CoopHudLayout();X3CoopHudSetLayout(X3_COOP_HUD_NATIVE_REFERENCE);
   bool wide=g_config.widescreen;g_config.widescreen=false;
   X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
   frame(0);frame(0);
@@ -122,7 +126,7 @@ static void native_display_checks(const char *tag,uint8_t *original,size_t size,
   }
   check(nonblack>1000,"display comparison contains actual native stage content");
   check(!differences,"private primary view matches the native world, body and health HUD pixels");
-  X3Display_SetPresentationSeat(-1);g_config.widescreen=wide;
+  X3Display_SetPresentationSeat(-1);g_config.widescreen=wide;X3CoopHudSetLayout(hud);
   check(RtlLoadSnapshotFromMemory(original,size),"display probes restore their starting machine");
   (void)capacity;
 }

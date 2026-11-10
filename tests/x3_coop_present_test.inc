@@ -49,7 +49,7 @@ static void native_presentation_checks(uint8_t *original,size_t size,uint8_t *wo
   after_size=RtlSaveSnapshotToMemory(expected,capacity);
   same(work,prepared,expected,after_size,"presentation pipeline immediate restore");
   size_t marker=0;
-  for(size_t i=0;i+4<prepared;++i)if(!memcmp(work+i,"X3P3",4)){marker=i;break;}
+  for(size_t i=0;i+4<prepared;++i)if(!memcmp(work+i,"X3P4",4)){marker=i;break;}
   check(marker!=0,"presentation codec chunk is present");
   work[marker+6]=2;
   check(!RtlLoadSnapshotFromMemory(work,prepared),"malformed visible/queued actor identity fails preflight");

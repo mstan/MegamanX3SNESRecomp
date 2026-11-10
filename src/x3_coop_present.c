@@ -40,6 +40,8 @@ void X3CoopPresentationEnroll(const X3CoopState *players,const uint16_t *vram,co
 }
 void X3CoopPresentationBegin(const X3CoopState *p,const uint8_t *ram,unsigned x,unsigned y){
   memset(&queued,0,sizeof(queued));queued.players=*p;X3CoopCapture(&queued.players,ram);
+  memcpy(queued.weapon_energy,ram+0x1fbb,sizeof(queued.weapon_energy));
+  memcpy(queued.hud_palette,ram+0x440,sizeof(queued.hud_palette));
   X3CoopRuntimeScenePresentation(&queued.players);
   memcpy(queued.body_chr,body_chr,sizeof(body_chr));
   queued.camera[0]=(uint16_t)x;queued.camera[1]=(uint16_t)y;
@@ -64,10 +66,10 @@ void X3CoopPresentationSubmit(const X3CoopState *p,const uint8_t *ram,unsigned a
 void X3CoopPresentationComplete(void){completed=queued;}
 void X3CoopPresentationUpload(void){visible=completed;}
 const X3CoopPresentedFrame *X3CoopPresentationVisible(void){return &visible;}
-static size_t frame_size(void){return X3CoopEncodedSize()+12+1+X3_COOP_WORLD_DRAWS*35+sizeof(body_chr);}
+static size_t frame_size(void){return X3CoopEncodedSize()+12+1+X3_COOP_WORLD_DRAWS*35+sizeof(body_chr)+18+64;}
 size_t X3CoopPresentationEncodedSize(void){return sizeof(body_chr)+frame_size()*3;}
 static void encode_frame(const X3CoopPresentedFrame *frame,uint8_t *bytes){
-  X3CoopEncode(&frame->players,bytes,X3CoopEncodedSize());memcpy(bytes,"X3P3",4);bytes+=X3CoopEncodedSize();
+  X3CoopEncode(&frame->players,bytes,X3CoopEncodedSize());memcpy(bytes,"X3P4",4);bytes+=X3CoopEncodedSize();
   for(unsigned i=0;i<2;++i){putword(bytes,frame->camera[i]);bytes+=2;}
   for(unsigned seat=0;seat<2;++seat)for(unsigned i=0;i<2;++i){putword(bytes,frame->views[seat][i]);bytes+=2;}
   *bytes++=frame->count;
@@ -75,12 +77,14 @@ static void encode_frame(const X3CoopPresentedFrame *frame,uint8_t *bytes){
     const X3CoopWorldDraw *draw=&frame->actors[i];putword(bytes,draw->address);bytes+=2;*bytes++=draw->owner;
     memcpy(bytes,draw->body,32);bytes+=32;
   }
-  memcpy(bytes,frame->body_chr,sizeof(frame->body_chr));
+  memcpy(bytes,frame->body_chr,sizeof(frame->body_chr));bytes+=sizeof(frame->body_chr);
+  memcpy(bytes,frame->weapon_energy,sizeof(frame->weapon_energy));bytes+=sizeof(frame->weapon_energy);
+  memcpy(bytes,frame->hud_palette,sizeof(frame->hud_palette));
 }
 static bool decode_frame(X3CoopPresentedFrame *frame,const uint8_t *bytes){
   memset(frame,0,sizeof(*frame));
   uint8_t context[4096];
-  if(memcmp(bytes,"X3P3",4))return false;
+  if(memcmp(bytes,"X3P4",4))return false;
   memcpy(context,bytes,X3CoopEncodedSize());memcpy(context,"X3C4",4);
   if(!X3CoopDecode(&frame->players,context,X3CoopEncodedSize()))return false;
   bytes+=X3CoopEncodedSize();
@@ -94,7 +98,9 @@ static bool decode_frame(X3CoopPresentedFrame *frame,const uint8_t *bytes){
     if(draw->address>0x1fe0 || draw->owner>2)return false;
     memcpy(draw->body,bytes,32);bytes+=32;
   }
-  memcpy(frame->body_chr,bytes,sizeof(frame->body_chr));
+  memcpy(frame->body_chr,bytes,sizeof(frame->body_chr));bytes+=sizeof(frame->body_chr);
+  memcpy(frame->weapon_energy,bytes,sizeof(frame->weapon_energy));bytes+=sizeof(frame->weapon_energy);
+  memcpy(frame->hud_palette,bytes,sizeof(frame->hud_palette));
   return true;
 }
 void X3CoopPresentationSave(SaveLoadInfo *io){

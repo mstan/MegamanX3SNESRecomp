@@ -4,6 +4,7 @@
 #include "x3_coop_render.h"
 #include "x3_coop_runtime.h"
 #include "x3_coop_present.h"
+#include "x3_coop_hud.h"
 #include "snes/ppu.h"
 #include "snes/snes.h"
 #include "snes/cart.h"
@@ -87,6 +88,7 @@ void X3CoopRender(void) {
   if(object)PpuSetExtraObjects(g_ppu,object,1);
 }
 void X3CoopRenderRestorePalette(void) {
+  X3CoopHudNativeRestore(g_ppu);
   if(palette_borrowed)memcpy(g_ppu->cgram+0x80,guest_palette,sizeof(guest_palette));
   palette_borrowed=false;
 }

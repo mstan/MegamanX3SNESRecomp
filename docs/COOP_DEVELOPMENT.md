@@ -26,11 +26,13 @@ This is an incomplete development implementation, not a co-op release.
   snapshot preflight before the common loader changes guest memory.
 
 The launcher catalog now offers X / Zero Co-op, with roster and camera policy
-choices and a separate local-view feature. Diagnostic environment overrides
+choices and a separate local-view feature with compact or side-by-side shared
+HUDs. Private views show their actor's native health, X's applicable weapon
+energy/icon and personal charge indicator. Diagnostic environment overrides
 remain available. Holding Select withdraws a living actor; release and hold
 again to return beside the partner when clear native ground is available.
 Full-campaign scenes/lifecycle, the stock restriction option,
-paired menus, shared HUDs, assists, widescreen co-op fields and online session
+paired menus, assists, widescreen co-op fields and online session
 qualification still require work. This is not a release qualification.
 
 ## QA burndown
@@ -897,3 +899,50 @@ assists, online play or the final180-point suite. All15 final rollups remain
 open and the delivered archive is unchanged. Old fixture copies under
 `qa-state/pre-x3j1-fixtures` remain temporary reference data for ongoing scene
 analysis; remove obsolete copies after retaining the needed evidence.
+
+## Shared layouts and owning weapon/charge HUDs
+
+The presentation-only launcher feature offers compact character-based stacking
+or seat-based side-by-side meters. Zero's compact frame is reflected with its
+symbol upright. Private views retain their own upright health meter. X's
+acquired selection uses the original04:DCC5 energy strips and06:97AD DMA-list
+icon; Zero receives no special-weapon bar. Small badge indicators use each
+actor's native published charge level and submitted palette.
+
+Presentation frames now retain the18 native weapon bytes and64 HUD palette
+bytes from the submitted world update. X3P4 replaces X3P3 in all three lists;
+current full snapshots are412881 bytes. Old disposable snapshots are rejected.
+Live RAM/PPU changes cannot recolor or drain an already submitted HUD frame.
+Shared composition removes original HUD pixels after native OBJ evaluation,
+preserving OAM, hardware sprite quotas/flags and boss meter slots. Borrowed
+overlay bindings are restored after each draw.
+
+`tests/x3_coop_hud_test.inc`, selected with X3_COOP_HUD_STATE and the real
+X3_COOP_HUD_REVERSED_STATE fixture, exercises native weapon cycling, unequal HP,
+actual Zero charging, private ownership, frozen colors/energy and current-build
+visible-state restore. Both real roster assignments match all native owner-view
+pixels with0 differences, including the acquired weapon bar/icon. Compact,
+horizontal and native-reference rendering preserve identical complete machine
+snapshots on both legacy and new PPU renderers. The native-reference selection
+is internal test instrumentation; the launcher exposes only the two layouts.
+
+Evidence under`build-coop/qa-state`: `native-hud-backend-result.log`,
+`native-hud-base-result.log`, `native-hud-combined-result.log` and
+`native-hud-arms-result.log` have child exit0. The combined run includes both
+natural-contact survivors and actual team retry using regenerated X3P4 fixtures,
+plus the existing stage/door/resource/support/capsule/view/return gates. Both
+X3 CTests pass. Launcher-selected fresh startup with every prototype override
+cleared passes both HUD choices; owned resume copies were loaded and consumed,
+and actual256x224 composed captures were inspected at
+`qa-public/public-hud-{compact,horizontal}.png`.
+
+Tested GUI SHA256:
+`89337aca84758afad42dfcc27e7e7f64648059d3254bb3bfedf2ed53d7a39b79`.
+Test SHA256:
+`5b3928974faa1f63de2d08d581018c6d409f4ac87d57d645dc3ae588fcf5fde8`.
+This qualifies focused HUD ownership/composition and state invariance. It does
+not complete V08/V09/V10/V14: damage/refill transitions, survivor HUD handoff,
+pause/aspect/scene coverage and moving clips remain for the final campaign
+pass. Stock restrictions, paired menus, assists, adaptive co-op fields, online
+play and other listed campaign requirements also remain open. All15 rollups
+remain open and the delivered archive is unchanged.

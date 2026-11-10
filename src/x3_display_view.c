@@ -372,8 +372,7 @@ static bool begin_independent_frame(Ppu *p,unsigned seat){
   }
   prepare_events();world_objects(p);
   if(frame.count<EXTRA_PIECES){
-    const X3CoopPlayer *player=&visible->players.players[seat];
-    X3CoopHudHealth(p,player,player->maximum_health,frame.rom,frame.size,frame.hud);
+    X3CoopHudPlayer(p,visible,seat,frame.rom,frame.size,false,frame.hud);
     frame.objects[frame.count++]=(PpuExtraObject){.x=8-(int)p->extraLeftCur,.y=0,
       .width=X3_COOP_HUD_WIDTH,.height=X3_COOP_HUD_HEIGHT,.stride=X3_COOP_HUD_WIDTH,
       .priority=3,.oamSlot=0,.order=1,.pixels=frame.hud};
