@@ -449,3 +449,38 @@ These narrow checks support M07/M08/M10 and R01/R02. Pickup contact fallback
 when the nearest body misses, other item families, anchor-owned refill/retirement,
 menu spending and full campaign qualification remain open. The full180-point
 post-implementation suite and all15 final rollups remain open.
+
+### Native pickup contact and team lives checkpoint
+
+The nearest body origin can miss an item that touches the other character's
+different native hitbox. CC5C now retries only that original overlap helper
+after a true miss, restores its entry registers/scratch, and keeps the winning
+collector through the single item update. Missing item/player geometry returns
+are included. The continuation remains snapshot/preflight validated.
+
+A stage1 authored health-item fixture compares a nearer X miss and farther
+Zero hit against separate original single-body calls. The paired result matches
+all48 item bytes from exactly one Zero update. Both roster assignments cover
+the second-contact continuation, zero-HP/fallen candidates, missing geometry,
+and simultaneous contacts. Two touching bodies heal only X8->16, leaving Zero20
+unchanged; both park during the collision freeze and the native cleanup releases
+it. Camera/position preconditions bypass route traversal and camera admission.
+
+Native class03/04 life items borrow their collector too. Full-campaign co-op
+omits Zero's three stock character exclusions at01:D9CD/DA25/DA7C while retaining
+the original award, cap and retirement. Focused dropped-object fixtures cover
+airborne and both grounded branches, both rosters, simultaneous contact, one
+life2->3, and consuming the item at the cap9. Personal HP remains unchanged and
+no refill freeze remains. These fixtures bypass drop RNG/allocation and do not
+qualify authored drop spawning or item graphics.
+
+Fresh fixtures and combined ROM qualification pass in
+`build-coop/qa-state/native-pickup-complete-result.log` (exit0), including the
+existing survivor/retry, targeting, support, private display and replay checks.
+Both CTests pass. Strict generation is byte-identical with50 routed native
+variants. Inspected real host split captures `host-pickup-final-12.png` and
+`host-pickup-final-62.png` retain the distinct bright rooms, unchanged X16HP and
+Zero20->28HP with the native refill pose. Game SHA256:
+`3f69f70cf28c774e1c684c244f609562000cb9597c009db188bc1ffffb0deaa8`.
+Weapon energy, persistent acquisitions, paired menus, public settings and the
+full180-point final acceptance remain open. All15 final rollups remain open.

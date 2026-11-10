@@ -51,6 +51,8 @@ int main(int argc,char **argv) {
       native_reused_pose_checks(saved,size,after,damaged,cap);
       native_health_limit_checks(saved,size,after,cap);
       authored_health_pickup_checks(saved,size,after,damaged,cap);
+      pickup_contact_fallback_checks(saved,size,after,damaged,cap);
+      native_shared_life_checks(saved,size,after,cap);
       native_view_checks(saved,size,after,damaged,cap);
       native_contact_checks(saved,size,after,cap);
       native_support_checks(saved,size,after,damaged,cap);
@@ -73,6 +75,8 @@ int main(int argc,char **argv) {
       native_display_checks("reversed",saved,size,after,damaged,cap);
       native_reversed_roster_checks(saved,size,after,damaged,cap);
       authored_health_pickup_checks(saved,size,after,damaged,cap);
+      pickup_contact_fallback_checks(saved,size,after,damaged,cap);
+      native_shared_life_checks(saved,size,after,cap);
     }
     fixture=getenv("X3_COOP_INDEPENDENT_STATE");
     if(fixture && *fixture) {

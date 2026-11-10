@@ -280,6 +280,7 @@ static bool enemy_actor(unsigned d) {
   return (d>=0x0d18 && d<0x10d8 && !((d-0x0d18)%64)) || hostile_projectile(d);
 }
 static bool item_actor(unsigned d){return d>=0x1518 && d<0x1818 && !((d-0x1518)%48);}
+static bool shared_pickup(unsigned d){return item_actor(d) && g_ram[d+10]>=2 && g_ram[d+10]<=4;}
 static int support_slot(unsigned d) {
   if(d>=0xd18 && d<0x10d8 && !((d-0xd18)%64))return (int)((d-0xd18)/64);
   if(d>=0x1518 && d<0x1818 && !((d-0x1518)%48))return 15+(int)((d-0x1518)/48);
@@ -289,7 +290,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   if(!enabled || !state.initialized)return;
   unsigned at=pc&0xffff,d=cpu->D;
   if(at==0xdd1a || at==0xdcb3 || at==0xdafa) {
-    bool pickup=at==0xdafa && item_actor(d) && g_ram[d+10]==2;
+    bool pickup=at==0xdafa && shared_pickup(d);
     bool pending=pickup && refill.active && refill.slot==d;
     if(state.wipe || target.active || (!pickup && !enemy_actor(d)) || !g_ram[d] ||
        (!pickup && !(g_ram[d+0x27]&127)) ||
@@ -309,7 +310,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
    * the original JSR frame has been consumed. */
   if(target.active && d==target.slot && cpu->S==(uint16_t)(target.s+2)) {
     if(item_actor(d)){
-      if(g_ram[d+2]==6 && (g_ram[d]&128) && g_ram[0x1f28])
+      if(g_ram[d+10]==2 && g_ram[d+2]==6 && (g_ram[d]&128) && g_ram[0x1f28])
         refill=(PickupRefill){(uint16_t)d,target.seat,1};
       else if(refill.active && refill.slot==d)memset(&refill,0,sizeof(refill));
     }
@@ -332,12 +333,13 @@ static void target_query(CpuState *cpu,uint32_t pc) {
   cpu->_flag_Z=cpu->A==0;cpu->_flag_N=(cpu->A&32768)!=0;cpu_mirrors_to_p(cpu);
   interp_bridge_pre_opcode_redirect((pc&0xff0000)|((pc+3)&65535));
 }
-static void shared_health_bank(CpuState *cpu,uint32_t pc){
+static void shared_pickup_character(CpuState *cpu,uint32_t pc){
   if(!enabled || !state.initialized || !target.active || target.slot!=cpu->D ||
-     !item_actor(cpu->D) || g_ram[cpu->D+10]!=2 ||
+     !shared_pickup(cpu->D) ||
      state.players[state.current].life!=X3_COOP_ALIVE)return;
-  /* Full-campaign co-op shares the native subtanks. Keep the original
-   * capacity, amount, timer and sounds; omit the stock Zero-only discard. */
+  if(((pc&65535)==0xd837)!=(g_ram[cpu->D+10]==2))return;
+  /* Full-campaign co-op shares native subtanks and team lives. Keep their
+   * capacity, amount, timer and sounds; omit stock Zero-only exclusions. */
   cpu->A&=0xff00;cpu->_flag_Z=1;cpu->_flag_N=0;cpu_mirrors_to_p(cpu);
   interp_bridge_pre_opcode_redirect((pc&0xff0000)|((pc+3)&65535));
 }
@@ -440,6 +442,36 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
   unsigned at=pc&0xffff,d=cpu->D;
   NativePass *p=&contact.native;
   if(!enabled || !state.initialized || state.wipe)return;
+  if(at==0xcc5c){
+    if(!p->pass && target.active && target.slot==d && shared_pickup(d) &&
+       cpu->X==X3_COOP_BODY && partner_ready() && !refill.active && !controller.pass &&
+       !terrain.pass && !objects.native.pass && !draw.pass && !solid.native.pass){
+      p->entry=regs(cpu);contact.pc=0xcc5c;contact.seat=state.current;p->pass=1;
+      memcpy(contact.entry_scratch,g_ram,24);
+    }
+    return;
+  }
+  if(p->pass && contact.pc==0xcc5c){
+    if((at!=0xcc63 && at!=0xcc6b && at!=0xcd64) || cpu->S!=p->entry.s || d!=p->entry.d)return;
+    if(p->pass==1){
+      if(cpu->_flag_C){p->pass=0;return;}
+      const X3CoopPlayer *other=&state.players[contact.seat^1];
+      if(other->life!=X3_COOP_ALIVE || !(other->body[0x27]&127) || other->body[2]==0x0c){p->pass=0;return;}
+      p->result=regs(cpu);memcpy(contact.result_scratch,g_ram,24);
+      if(!X3CoopProject(&state,g_ram,contact.seat^1)){p->pass=0;return;}
+      restore(cpu,&p->entry);memcpy(g_ram,contact.entry_scratch,24);p->pass=2;
+      interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xcc5c);return;
+    }
+    if(cpu->_flag_C){
+      /* Keep the actual collector projected through the remainder of this
+       * single native item update, then latch any resulting refill. */
+      target.seat=state.current;
+    }else{
+      X3CoopProject(&state,g_ram,contact.seat);
+      restore(cpu,&p->result);memcpy(g_ram,contact.result_scratch,24);
+    }
+    p->pass=0;return;
+  }
   if(at==0xcb31 || at==0xcb74) {
     /* Ordinary hostile actors only. Pickups, capsules, supports and scripts
      * retain their native owner until their specific contracts are mapped. */
@@ -657,7 +689,7 @@ void X3CoopRuntimeFrame(void) {
     fprintf(stderr,"[x3-coop] controller hook capacity exhausted\n");enabled=false;
   }
   static const uint32_t contact_pcs[]={0x04cb31,0x04cb74,0x04cb73,0x04cbc3,
-      0x04cd69,0x04ce3b,0x04ced8,0x04cedb,0x04cfe3};
+      0x04cd69,0x04ce3b,0x04ced8,0x04cedb,0x04cfe3,0x04cc5c,0x04cc63,0x04cc6b,0x04cd64};
   static const uint32_t object_pcs[]={0x00da7f,0x00da9f,0x00db9f,0x00dbc0,
       0x00dbc1,0x00dbee,0x00dc06,0x00dc22,0x00dc23,0x00dc4b};
   for(unsigned i=0;i<sizeof(contact_pcs)/sizeof(*contact_pcs);++i)
@@ -675,7 +707,9 @@ void X3CoopRuntimeFrame(void) {
   static const uint32_t target_queries[]={0x02e142,0x02daa7,0x02dac6};
   for(unsigned i=0;i<sizeof(target_queries)/sizeof(*target_queries);++i)
     if(!interp_bridge_add_pre_opcode_hook(target_queries[i],target_query))enabled=false;
-  if(!interp_bridge_add_pre_opcode_hook(0x01d837,shared_health_bank))enabled=false;
+  static const uint32_t pickup_characters[]={0x01d837,0x01d9cd,0x01da25,0x01da7c};
+  for(unsigned i=0;i<sizeof(pickup_characters)/sizeof(*pickup_characters);++i)
+    if(!interp_bridge_add_pre_opcode_hook(pickup_characters[i],shared_pickup_character))enabled=false;
   static const uint32_t solid_pcs[]={0x04bfae,0x04bfce,0x04c021,0x04c07e,
       0x04c07f,0x04c09d,0x00dd1a,0x00dafa};
   for(unsigned i=0;i<sizeof(solid_pcs)/sizeof(*solid_pcs);++i)
@@ -736,7 +770,12 @@ static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePa
     if(h?hit->seat!=seat:q?support->restore!=seat:!s->wipe && s->current!=seat)return false;
   }
   if((a && c->entry.d!=X3_COOP_BODY) || (b && t->entry.d!=X3_COOP_BODY))return false;
-  if(h && ((hit->pc!=0xcb31 && hit->pc!=0xcb74) || !enemy_actor(hit->native.entry.d)))return false;
+  if(h){
+    if(hit->pc==0xcc5c){
+      if(!item_actor(hit->native.entry.d) || !world->active || world->slot!=hit->native.entry.d ||
+         world->seat!=hit->seat || hit->native.entry.x!=X3_COOP_BODY)return false;
+    }else if((hit->pc!=0xcb31 && hit->pc!=0xcb74) || !enemy_actor(hit->native.entry.d))return false;
+  }
   if(o && (!object_end(obj->pc) || object_end(obj->pc)!=obj->end))return false;
   if(v && (art->entry.d || !owned_object(art->entry.x)))return false;
   if(q && ((support->pc!=0xbfae && support->pc!=0xc07f) || support->restore>1 ||
