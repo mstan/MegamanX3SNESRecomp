@@ -1,6 +1,7 @@
 #include "common_cpu_infra.h"
 #include "mmx_replay.h"
 #include "x3_rtl.h"
+#include "x3_coop_runtime.h"
 
 /* .title drives coverage-artifact naming (tier2_<title>_*.json) — keep it
  * unique per ROM so sibling Mega Man X ports never collide. */
@@ -15,4 +16,5 @@ const RtlGameInfo kX3GameInfo = {
   .state_save_extra = &X3StateSaveExtra,
   .state_load_extra = &X3StateLoadExtra,
   .on_state_loaded = &X3OnStateLoaded,
+  .snapshot_preflight = &X3CoopRuntimePreflight,
 };

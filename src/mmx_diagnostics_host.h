@@ -34,6 +34,10 @@ static int MmxDiagnosticDesktopMain(const SnesDesktopHostGame *base,int argc,cha
     argc-=2;break;
   }
   SnesDesktopHostGame game=*base;
+  /* The development actor path consumes both engine input seats even before
+   * a public co-op package is exposed by the launcher. */
+  const char *coop_prototype=getenv("SNESRECOMP_X3_COOP_PROTOTYPE");
+  if(coop_prototype && coop_prototype[0]=='1')game.num_players=2;
   diagnostic_prepare=base->prepare_frame;
   game.prepare_frame=diagnostic_prepare_frame;
   game.after_run_frame=diagnostic_after_frame;

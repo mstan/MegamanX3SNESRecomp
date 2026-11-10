@@ -12,6 +12,8 @@
  * finding and must not be assumed for this title.
  */
 #include "x3_rtl.h"
+#include "x3_coop_runtime.h"
+#include "x3_coop_render.h"
 #include "mmx_replay.h"
 
 #include <stdbool.h>
@@ -143,6 +145,7 @@ static int x3_boot_log_enabled(void) {
 }
 
 void RunOneFrameOfGame(void) {
+  X3CoopRuntimeFrame();
   x3_install_oam_observers();
   /* Generated bodies route viewport constants through X3WsObjWin*.
    * Interpreter fallbacks fetch the original ROM bytes, so mirror those
@@ -151,6 +154,10 @@ void RunOneFrameOfGame(void) {
   x3_patch_hunter_landing();
 
   if (!s_lle_did_reset) {
+    X3CoopRuntimeReset();
+    const char *coop_prototype=getenv("SNESRECOMP_X3_COOP_PROTOTYPE");
+    X3CoopRuntimeEnable(coop_prototype && coop_prototype[0]=='1');
+    X3CoopRuntimeFrame();
     cpu_state_init(&g_cpu, g_ram);
     s_lle_resume_pc = x3_read_vector_pc24(0xFFFC);
     fprintf(stderr, "[x3_rtl] LLE boot from RESET vector $%06X\n",
@@ -1007,6 +1014,7 @@ static void x3_patch_ws_interp_obj_windows(void) {
 }
 
 void X3DrawPpuFrame(void) {
+  X3CoopRender();
   /* Presentation only. IRQs are serviced inside RunOneFrameOfGame while the
    * bridge advances the beam — never mutate g_cpu here. */
   SimpleHdma hdma_chans[8];
@@ -1038,7 +1046,7 @@ typedef struct X3LleSaveChunk {
 void X3StateSaveExtra(SaveLoadInfo *sli) {
   X3LleSaveChunk c;
   memset(&c, 0, sizeof(c));
-  c.magic = kX3LleSaveMagic + 2;
+  c.magic = kX3LleSaveMagic + 3;
   c.resume_pc24 = s_lle_resume_pc;
   c.A = g_cpu.A; c.X = g_cpu.X; c.Y = g_cpu.Y; c.S = g_cpu.S; c.D = g_cpu.D;
   c.DB = g_cpu.DB; c.PB = g_cpu.PB; c.P = g_cpu.P;
@@ -1056,6 +1064,7 @@ void X3StateSaveExtra(SaveLoadInfo *sli) {
   sli->func(sli, s_cx4_oam_valid, sizeof(s_cx4_oam_valid));
   sli->func(sli, g_ppu->wsOamFullX, sizeof(g_ppu->wsOamFullX));
   sli->func(sli, g_ppu->wsOamFullXValid, sizeof(g_ppu->wsOamFullXValid));
+  X3CoopRuntimeSave(sli);
 }
 
 void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
@@ -1064,7 +1073,7 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
   memset(&c, 0, sizeof(c));
   sli->func(sli, &c, sizeof(c));
   s_execution_loaded = false;
-  if (c.magic < kX3LleSaveMagic || c.magic > kX3LleSaveMagic + 2) {
+  if (c.magic < kX3LleSaveMagic || c.magic > kX3LleSaveMagic + 3) {
     fprintf(stderr,
             "[x3_rtl] save extra: bad magic $%08X — ignoring LLE chunk\n",
             (unsigned)c.magic);
@@ -1089,12 +1098,15 @@ void X3StateLoadExtra(SaveLoadInfo *sli, uint32_t version) {
     s_execution_loaded = RtlLoadExecutionState(sli);
   memset(s_cx4_oam_valid, 0, sizeof(s_cx4_oam_valid));
   memset(g_ppu->wsOamFullXValid, 0, sizeof(g_ppu->wsOamFullXValid));
-  if (c.magic == kX3LleSaveMagic + 2) {
+  if (c.magic >= kX3LleSaveMagic + 2) {
     sli->func(sli, s_cx4_oam_x, sizeof(s_cx4_oam_x));
     sli->func(sli, s_cx4_oam_valid, sizeof(s_cx4_oam_valid));
     sli->func(sli, g_ppu->wsOamFullX, sizeof(g_ppu->wsOamFullX));
     sli->func(sli, g_ppu->wsOamFullXValid, sizeof(g_ppu->wsOamFullXValid));
   }
+  if(c.magic >= kX3LleSaveMagic + 3) {
+    if(!X3CoopRuntimeLoad(sli))s_lle_extra_loaded=false;
+  } else X3CoopRuntimeReset();
   fprintf(stderr, "[x3_rtl] LLE load extra resume=$%06X master=%llu\n",
           (unsigned)s_lle_resume_pc,
           (unsigned long long)g_cpu.master_cycles);

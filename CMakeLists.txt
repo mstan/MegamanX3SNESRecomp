@@ -17,7 +17,8 @@ include(${SNESRECOMP_ROOT}/runner/runner.cmake)
 add_executable(MegaManX3SNESRecomp
     ${SNESRECOMP_RUNNER_SOURCES}
     src/main.c src/gen_stubs.c src/x3_display.c src/x3_cpu_infra.c
-    src/x3_rtl.c src/x3_spc_player.c src/mmx_replay.c src/mmx_startup.c src/mods/x3_widescreen_plugin.c)
+    src/x3_rtl.c src/x3_spc_player.c src/mmx_replay.c src/mmx_startup.c
+    src/x3_coop.c src/x3_coop_runtime.c src/x3_coop_render.c src/mods/x3_widescreen_plugin.c)
 target_include_directories(MegaManX3SNESRecomp PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/recomp ${SNESRECOMP_RUNNER_INCLUDE_DIRS})
@@ -45,6 +46,8 @@ recomp_target_launcher_ui(MegaManX3SNESRecomp CONSOLE snes
 include(${SNESRECOMP_ROOT}/runner/cmake/mmx_state_tests.cmake)
 snesrecomp_target_mmx_state_tests(MegaManX3SNESRecomp ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c)
 if(TARGET mmx_state_tests)
+    target_compile_definitions(mmx_state_tests PRIVATE
+        MMX_SHARED_STATE_TEST="${SNESRECOMP_ROOT}/runner/tests/mmx_state_runtime.c")
     get_target_property(_state_sources mmx_state_tests SOURCES)
     list(REMOVE_ITEM _state_sources "${SNESRECOMP_RUNNER_ROOT}/tests/mmx_state_runtime.c")
     list(APPEND _state_sources tests/mmx_state_runtime.c)
@@ -69,5 +72,8 @@ if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/logging.ini")
 endif()
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(x3_coop_test tests/x3_coop_test.c src/x3_coop.c)
+    target_include_directories(x3_coop_test PRIVATE src)
+    add_test(NAME x3_coop_contract COMMAND x3_coop_test)
     add_subdirectory(${SNESRECOMP_ROOT}/runner/tests/diagnostics diagnostic-writer-tests)
 endif()

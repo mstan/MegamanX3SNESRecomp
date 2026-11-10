@@ -13,5 +13,9 @@ script = "tools/apply_overrides.py"
 args = ["--gen-dir", "{out_dir}"]
 
 [[postprocess]]
+script = "tools/apply_coop_hooks.py"
+args = ["--gen-dir", "{out_dir}"]
+
+[[postprocess]]
 script = "tools/diz_annotations.py"
 args = ["--game", "x3", "--rom", "{rom}", "--annotate-generated", "{out_dir}"]
