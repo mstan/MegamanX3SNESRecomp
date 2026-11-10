@@ -371,3 +371,34 @@ resource certification. Heart/capsule attribution, X upgrades/weapons, native
 exchange restrictions, scenes/stage transitions and full reversed death/retry
 coverage remain open. Public roster settings/profile negotiation are still
 required. All15 final QA rollups and the180-point suite remain open.
+
+### Remote common-object resources checkpoint
+
+Private common-enemy/station graphics now resolve their actual resource-phase
+file, VRAM placement and palette without uploading over the anchor's resources.
+This uses X3's08:8623 stage directory,06:F732 compressed files,08:D7C9 upload
+segments and06:8180 palette lists. Files are bounded immutable derived caches;
+native02:E15C's actual group/file row selects common-object art. Customized
+constructors, item/effect resources and dynamic cached-file uploads remain
+separate work; this does not certify every sprite family.
+
+The decoder matches native decompressed cache bytes for files00/02/28. File02's
+segmented upload and palette match actual enemy VRAM/CGRAM. A real stage1 case
+admits class2F from event3C:D1CE at1424,592 through the original union allocator.
+Its native03:D6F0 initialization uses the stage table to place the Ride Armor
+station at1712,432. A QA teleport then uses that upper room's03:E23A camera
+limits; it bypasses route traversal and camera admission, not the allocator,
+constructor or descriptor submission. The station renders in P2's selected and
+real host split fields while the anchor remains phase0 with file3C's placement
+and palette mapping unloaded. Inspected captures:
+`build-coop/qa/display-resource-remote.png` and `host-remote-resource.png`.
+Station interaction, boarding and vehicles are not accepted by an art check.
+
+All current ROM cases pass in `build-coop/qa-state/native-resource-combined-result.log`
+(exit0), including native/private field equality, split/selected simulation
+equality, both rosters, health limits, contacts, supports, survivors and retry.
+Both CTests pass. Game SHA256:
+`d53982299907efe3c32703f8242030151aa1006ebe44472d49eb58907f977907`.
+The remote-resource check also verifies painting leaves CPU time and shared
+WRAM unchanged. Optional `X3_COOP_REMOTE_RESOURCE_OUTPUT` saves its disposable
+slot7 fixture. All15 rollups/full180-point final acceptance remain open.

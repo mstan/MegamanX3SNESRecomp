@@ -44,6 +44,8 @@ int main(int argc,char **argv) {
         check(RtlLoadSnapshotFromMemory(saved,size),"low-HP preparation restores its starting machine");
       }
       native_display_checks("start",saved,size,after,damaged,cap);
+      native_resource_checks(saved,size,after,cap);
+      remote_resource_checks(saved,size,after,cap);
       native_presentation_checks(saved,size,after,damaged,cap);
       native_reused_pose_checks(saved,size,after,damaged,cap);
       native_health_limit_checks(saved,size,after,cap);

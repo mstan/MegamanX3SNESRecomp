@@ -18,7 +18,7 @@ add_executable(MegaManX3SNESRecomp
     ${SNESRECOMP_RUNNER_SOURCES}
     src/main.c src/gen_stubs.c src/x3_display.c src/x3_display_view.c src/x3_cpu_infra.c
     src/x3_rtl.c src/x3_spc_player.c src/mmx_replay.c src/mmx_startup.c
-    src/x3_coop.c src/x3_coop_runtime.c src/x3_coop_render.c src/x3_coop_view.c src/x3_coop_present.c src/x3_coop_hud.c src/mods/x3_widescreen_plugin.c)
+    src/x3_coop.c src/x3_coop_runtime.c src/x3_coop_render.c src/x3_coop_view.c src/x3_coop_present.c src/x3_coop_hud.c src/x3_native_resources.c src/mods/x3_widescreen_plugin.c)
 target_include_directories(MegaManX3SNESRecomp PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/recomp ${SNESRECOMP_RUNNER_INCLUDE_DIRS})

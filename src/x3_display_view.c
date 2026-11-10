@@ -7,6 +7,7 @@
 #include "x3_coop_render.h"
 #include "x3_coop_view.h"
 #include "x3_coop_hud.h"
+#include "x3_native_resources.h"
 #include "snes/ppu.h"
 #include "snes/snes.h"
 #include "snes/cart.h"
@@ -40,6 +41,9 @@ static const uint8_t *cache_rom;
 static uint8_t chr[16][65536],chr_valid[16][2048],chr_ready[16];
 static Palette palettes[RESOURCE_PHASES];
 static uint8_t palette_ready[RESOURCE_PHASES];
+/* Native decompressed files are immutable, bounded ROM-derived caches. */
+static uint8_t files[X3_RESOURCE_KEYS][X3_RESOURCE_FILE_MAX],file_ready[X3_RESOURCE_KEYS];
+static size_t file_length[X3_RESOURCE_KEYS];
 
 static unsigned word(const uint8_t *p){return p[0]|(unsigned)p[1]<<8;}
 static bool rom_read(unsigned a,unsigned n,unsigned *v){
@@ -50,15 +54,15 @@ static bool rom_read(unsigned a,unsigned n,unsigned *v){
 /* Native06:A085/A172 directories contain15 stage lists; stage14 aliases11.
  * The next distinct list, rather than the next stage, bounds normal phases. */
 static unsigned resource_list(unsigned directory,unsigned phase){
-  unsigned lists[15],data=65535,start,end,list;
-  for(unsigned i=0;i<15;++i){
+  unsigned lists[18],data=65535,start,end,list,stages=directory==0x088623?18:15;
+  for(unsigned i=0;i<stages;++i){
     if(!rom_read(directory+i*2,2,&lists[i]) || lists[i]<30 || lists[i]>1024)return 0;
     unsigned first;if(!rom_read(directory+lists[i],2,&first) || first<30)return 0;
     if(first<data)data=first;
   }
   if(frame.stage>=15)return 0;
   start=lists[frame.stage];end=data;
-  for(unsigned i=0;i<15;++i)if(lists[i]>start && lists[i]<end)end=lists[i];
+  for(unsigned i=0;i<stages;++i)if(lists[i]>start && lists[i]<end)end=lists[i];
   if(end<start || ((end-start)&1))return 0;
   unsigned phases=(end-start)/2;
   if(directory==0x06a172 && (frame.stage==4 || frame.stage==6))phases+=5;
@@ -145,6 +149,50 @@ static unsigned tile_pixel(const uint16_t *v,unsigned a,unsigned x,unsigned y,un
     value|=((bits>>(7-x))&1)<<(pair*2);value|=((bits>>(15-x))&1)<<(pair*2+1);
   }
   return value;
+}
+typedef struct ObjectResource {
+  const uint8_t *tiles;
+  X3ResourceSegment segments[X3_RESOURCE_SEGMENTS];
+  unsigned count,tile,attributes;
+} ObjectResource;
+static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],ObjectResource *out){
+  const uint8_t *b=draw->body;
+  if(draw->owner || draw->address<0xd18 || draw->address>=0x10d8 || !b[10])return false;
+  /* The common native02:E15C constructor selects group/file from06:E28E.
+   * A customized group is left on its original native path. */
+  unsigned group,key;
+  if(!rom_read(0x06e28e + (b[10]-1)*5,1,&group) || group!=b[0x16] ||
+     !rom_read(0x06e28f+(b[10]-1)*5,1,&key) || key>=X3_RESOURCE_KEYS)return false;
+  unsigned phase=resource_phase(2,(int)word(b+5),(int)word(b+8));
+  unsigned a=resource_list(0x088623,phase),file=255;
+  for(unsigned i=0;a && i<64;++i,a+=6){
+    if(!rom_read(a,1,&file) || file==255)return false;
+    if(file==key)break;
+  }
+  if(!a || file!=key)return false;
+  unsigned target,palette,offset;
+  if(!rom_read(a+1,2,&target) || target>=32768 || !rom_read(a+3,2,&palette) || !rom_read(a+5,1,&offset))return false;
+  out->tile=(target>>4)&255;out->attributes=(target>>12)|(offset>>3)|0x20;
+  /* Preserve native animation, flashing and uploaded art when the completed
+   * local cache already has this file's actual placement and palette. */
+  if(phase==frame.ram[0x1f18] && b[0x18]==out->tile && (b[0x11]&63)==out->attributes)return false;
+  if(!file_ready[key]){
+    file_ready[key]=X3ResourceDecode(frame.rom,frame.size,key,files[key],sizeof(files[key]),&file_length[key])?1:2;
+  }
+  if(file_ready[key]!=1 || !X3ResourceLayout(frame.rom,frame.size,key,target,out->segments,&out->count) ||
+     !X3ResourcePalette(frame.rom,frame.size,palette,offset,colors))return false;
+  for(unsigned i=0;i<out->count;++i)if(out->segments[i].source+out->segments[i].length>file_length[key])return false;
+  out->tiles=files[key];return true;
+}
+static unsigned resource_pixel(const ObjectResource *resource,unsigned address,unsigned x,unsigned y){
+  unsigned at=address*2+(y&7)*2;
+  for(unsigned i=0;i<resource->count;++i){
+    const X3ResourceSegment *s=&resource->segments[i];unsigned base=s->destination*2;
+    if(at<base || at+17>=base+s->length)continue;
+    const uint8_t *bits=resource->tiles+s->source+at-base;unsigned shift=7-(x&7);
+    return ((bits[0]>>shift)&1)|(((bits[1]>>shift)&1)<<1)|(((bits[16]>>shift)&1)<<2)|(((bits[17]>>shift)&1)<<3);
+  }
+  return 0;
 }
 static bool stage_tile(unsigned layer,int x,int y,unsigned *tile){
   if(x<0 || y<0 || x>=8192 || y>=8192)return false;
@@ -238,6 +286,7 @@ static void world_objects(const Ppu *p){
     if(!rom_read(0x8d8000+b[0x16]*3,3,&table) ||
        !rom_read(table+(b[0x17]&127)*3,3,&a) || !rom_read(a,1,&n) || n>64)continue;
     uint16_t colors[256];memcpy(colors,p->cgram,sizeof(colors));
+    ObjectResource resource;bool private_resource=object_resource(draw,colors,&resource);
     if(draw->owner){
       const uint8_t *palette=visible->players.players[draw->owner-1].palette;
       for(unsigned j=0;j<32;++j)colors[128+j]=(uint16_t)word(palette+j*2);
@@ -245,18 +294,19 @@ static void world_objects(const Ppu *p){
     for(unsigned piece=0;piece<n && used<WORLD_PIECES && frame.count<EXTRA_PIECES;++piece){
       unsigned packed;if(!rom_read(a+1+piece*4,4,&packed))break;
       unsigned flags=packed&255,side=flags&32?16:8,attributes=(flags&0xdf)|(b[0x11]&63);
+      if(private_resource)attributes=(flags&0xdf)|resource.attributes;
       int x=(int8_t)(packed>>8),y=(int8_t)(packed>>16);
       if(b[0x11]&64){x=-x-(int)side;attributes^=64;}
       if(b[0x11]&128){y=-y-(int)side;attributes^=128;}
       x+=(int)word(b+5)-frame.x;y+=(int)word(b+8)-frame.y;
       if(x+(int)side<=-(int)p->extraLeftCur || x>=256+p->extraRightCur || y+(int)side<=0 || y>=224)continue;
-      unsigned tile=((packed>>24)+b[0x18])&255;
+      unsigned tile=((packed>>24)+(private_resource?resource.tile:b[0x18]))&255;
       unsigned base=((attributes&1)?PPU_objTileAdr2(p):PPU_objTileAdr1(p))+tile*16;
       uint16_t *pixels=frame.pixels[used];memset(pixels,0,256*sizeof(*pixels));
       for(unsigned dy=0;dy<side;++dy)for(unsigned dx=0;dx<side;++dx){
         unsigned tx=attributes&64?side-1-dx:dx,ty=attributes&128?side-1-dy:dy;
         unsigned adr=(base+(ty/8)*256+(tx/8)*16)&32767;
-        unsigned pixel=tile_pixel(p->vram,adr,tx&7,ty&7,4);
+        unsigned pixel=private_resource?resource_pixel(&resource,adr,tx&7,ty&7):tile_pixel(p->vram,adr,tx&7,ty&7,4);
         if(pixel)pixels[dy*16+dx]=(uint16_t)(0x8000|colors[128+((attributes>>1)&7)*16+pixel]);
       }
       frame.objects[frame.count++]=(PpuExtraObject){.x=x,.y=y,.width=(uint16_t)side,.height=(uint16_t)side,.stride=16,
@@ -285,6 +335,7 @@ static bool begin_independent_frame(Ppu *p,unsigned seat){
   frame.stage=frame.ram[0x1fae];frame.count=0;
   if(frame.stage>14)return false;
   if(cache_stage!=frame.stage || cache_rom!=frame.rom){
+    if(cache_rom!=frame.rom)memset(file_ready,0,sizeof(file_ready));
     cache_stage=frame.stage;cache_rom=frame.rom;
     memset(chr_ready,0,sizeof(chr_ready));memset(chr_valid,0,sizeof(chr_valid));
     memset(palette_ready,0,sizeof(palette_ready));memset(palettes,0,sizeof(palettes));
