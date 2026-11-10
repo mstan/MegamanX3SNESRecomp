@@ -59,8 +59,8 @@ int main(void) {
   masks[0]=0xc0;CHECK(X3CoopActions(1,masks)==0);
   CHECK(X3CoopActions(3,masks)==0x4000);
   memset(masks,0,sizeof(masks));CHECK(X3CoopActions(0xfff,masks)==0x0f00);
-  masks[3]=0x80;CHECK(X3CoopActions(1,masks)==0x0010);
-  masks[3]=0;masks[4]=0x80;CHECK(X3CoopActions(1,masks)==0x0020);
+  masks[3]=0x80;CHECK(X3CoopActions(1,masks)==0x0020);
+  masks[3]=0;masks[4]=0x80;CHECK(X3CoopActions(1,masks)==0x0010);
   puts("X3 actor projection, fallen persistence, team retry, input and decode contracts passed");
   return 0;
 }

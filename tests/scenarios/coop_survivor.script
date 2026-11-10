@@ -1,0 +1,42 @@
+# Disposable QA profile only: writes state slots 11 and 12.
+# Reach the stage loader, initialize stage 1, then trigger native enemy contact
+# with one HP. No death, completion or survivor flags are written by the setup.
+wait 600
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+wait 240
+poke 1fae 01
+poke 1faf 00
+poke 1fb3 00
+poke 1fb5 00
+poke 1fb6 00
+poke 1ebf 01
+poke 00d1 02
+poke 00d2 04
+poke 00d3 00
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+until 1f22 == 00 1800
+wait 120
+press p2:right 30
+wait 10
+savestate 11
+dump native-coop-ready
+poke 09ff 01
+press right 180
+press right+b 60
+press right 240
+wait 10
+dump survivor-after
+press p2:right 30
+wait 10
+dump survivor-control
+savestate 12
+quit

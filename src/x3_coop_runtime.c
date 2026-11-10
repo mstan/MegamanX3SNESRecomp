@@ -37,9 +37,46 @@ static void input(unsigned seat) {
   putword(body+0x22,word(body+5));putword(body+0x24,word(body+8));
   g_ram[0x1f1e]=0;
 }
+static void anchor_palette(void) {
+  if(state.players[state.anchor].character!=X3_COOP_ZERO)return;
+  /* Native palette key $D0 is {16,$8C:B580,$90}. $01:804A writes
+   * its colors into $0300+2*$90 and requests the next NMI upload at $A1.
+   * The survivor now owns the native body pages, including this palette. */
+  if(g_snes->cart->romImageSize<0x635a0)return;
+  memcpy(g_ram+0x420,g_snes->cart->rom+0x63580,32);
+  g_ram[0xa1]=1;
+}
+static void team_death_decision(CpuState *cpu,uint32_t pc) {
+  (void)cpu;(void)pc;
+  if(!enabled || !state.initialized || state.wipe || controller.pass || terrain.pass)return;
+  /* $00:9C60 checks native HP after the world/contact pass, before another
+   * player-controller entry can hand off. Project a living survivor before
+   * that LDA, so the original stage task cannot queue a team fade for one
+   * actor's fatal enemy contact. Do not overwrite the native HP result. */
+  X3CoopCapture(&state,g_ram);
+  for(unsigned seat=0;seat<2;++seat) {
+    const X3CoopPlayer *p=&state.players[seat];
+    if(p->life==X3_COOP_ALIVE && (!(p->body[0x27]&127) || p->body[2]==0x0c))
+      X3CoopFall(&state,seat);
+  }
+  if(!state.wipe && state.current!=state.anchor) {
+    X3CoopProject(&state,g_ram,state.anchor);
+    anchor_palette();
+  }
+  if(state.wipe)g_ram[X3_COOP_BODY+0xb6]=0;
+}
 static void boundary(CpuState *cpu,uint32_t pc) {
   if(!enabled || cpu->D!=X3_COOP_BODY || cpu->emulation)return;
   pc&=0x7fffff;
+  if(pc==0x04823f && state.initialized && controller.pass &&
+     !state.wipe && g_ram[X3_COOP_BODY+2]==0x0c) {
+    /* Fatal contact can select death inside this very controller pass. Skip
+     * its state call before $04:9258 freezes every shared object pool. The
+     * balanced controller epilogue records the corpse; the next entry hands
+     * the world to the survivor, or runs native death for a complete wipe. */
+    interp_bridge_pre_opcode_redirect(((unsigned)cpu->PB<<16)|0x8244);
+    return;
+  }
   if(pc==0x04b591 || pc==0x04b5ab) {
     if(!state.initialized)return;
     if(pc==0x04b591 && !terrain.pass) {
@@ -103,6 +140,7 @@ static void boundary(CpuState *cpu,uint32_t pc) {
         return;
       }
       X3CoopProject(&state,g_ram,state.anchor);
+      anchor_palette();
       if(g_ram[X3_COOP_BODY+2]==0x0c) {
         X3CoopCapture(&state,g_ram);
         X3CoopFall(&state,state.current);
@@ -149,8 +187,10 @@ void X3CoopRuntimeFrame(void) {
   if(!interp_bridge_add_pre_opcode_hook(0x048008,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x0480bc,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x04809e,boundary) ||
+     !interp_bridge_add_pre_opcode_hook(0x04823f,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x04b591,boundary) ||
-     !interp_bridge_add_pre_opcode_hook(0x04b5ab,boundary)) {
+     !interp_bridge_add_pre_opcode_hook(0x04b5ab,boundary) ||
+     !interp_bridge_add_pre_opcode_hook(0x009c60,team_death_decision)) {
     fprintf(stderr,"[x3-coop] controller hook capacity exhausted\n");enabled=false;
   }
 }

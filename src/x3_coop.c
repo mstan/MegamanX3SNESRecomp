@@ -8,7 +8,7 @@ uint16_t X3CoopActions(uint16_t input,const uint8_t masks[6]) {
   unsigned native=0;
   for(unsigned bit=0;bit<12;++bit)if(input&(1u<<bit))native|=0x8000u>>bit;
   unsigned buttons=((native&255)>>2&0x3c)|(native>>8&0xc0)|(native>>12&3);
-  static const uint16_t bits[6]={0x4000,0x8000,0x0080,0x0010,0x0020,0x1000};
+  static const uint16_t bits[6]={0x4000,0x8000,0x0080,0x0020,0x0010,0x1000};
   unsigned actions=native&0x0f00;
   for(unsigned i=0;i<6;++i)if(masks[i] && (buttons&masks[i])==masks[i])actions|=bits[i];
   return (uint16_t)actions;

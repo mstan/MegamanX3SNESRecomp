@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 
 MARKER = '/*X3-COOP*/'
-ENTRY = re.compile(r'RecompReturn bank_04_(8000|B58A)_M[01]X[01]\(CpuState \*cpu\) \{')
+ENTRY = re.compile(r'RecompReturn bank_04_(8000|81D0|B58A)_M[01]X[01]\(CpuState \*cpu\) \{')
 
 def apply(source):
     output = [MARKER + ' #include "snes/interp_bridge.h"\n']

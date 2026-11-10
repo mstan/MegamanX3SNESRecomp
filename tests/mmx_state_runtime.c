@@ -39,6 +39,24 @@ int main(int argc,char **argv) {
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
     }
+    fixture=getenv("X3_COOP_SURVIVOR_STATE");
+    if(fixture && *fixture) {
+      X3CoopRuntimeEnable(true);
+      check(RtlLoadSnapshot(fixture),"natural-contact survivor fixture loads");
+      check(X3CoopRuntimeState()->players[0].life==X3_COOP_FALLEN &&
+            X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,
+            "X remains fallen with Zero alive");
+      bool bright=true,unfrozen=true;
+      for(int i=0;i<60;++i) {
+        frame(0);
+        bright=bright && g_ram[0xd1]==4 && g_ram[0xd2]==4 && (g_ppu->inidisp&0x8f)==15;
+        for(unsigned a=0x1f25;a<=0x1f2b;++a)unfrozen=unfrozen && !g_ram[a];
+      }
+      check(bright,"survivor remains in bright active gameplay");
+      check(unfrozen,"survivor world pools remain unfrozen");
+      check(X3CoopRuntimeState()->players[0].life==X3_COOP_FALLEN,
+            "surviving gameplay does not revive X");
+    }
     free(saved);free(damaged);free(after);
     /* Exercise adaptive native/wide bounds in the same diagnostic stream. */
     for(int i=0;i<120;++i) {
