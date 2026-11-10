@@ -2,6 +2,7 @@
  * pipeline. A lag NMI can retain the previous OAM and its private actors. */
 #include "x3_coop_present.h"
 #include "x3_coop_view.h"
+#include "x3_coop_runtime.h"
 #include <string.h>
 
 static X3CoopPresentedFrame queued,completed,visible;
@@ -39,9 +40,10 @@ void X3CoopPresentationEnroll(const X3CoopState *players,const uint16_t *vram,co
 }
 void X3CoopPresentationBegin(const X3CoopState *p,const uint8_t *ram,unsigned x,unsigned y){
   memset(&queued,0,sizeof(queued));queued.players=*p;X3CoopCapture(&queued.players,ram);
+  X3CoopRuntimeScenePresentation(&queued.players);
   memcpy(queued.body_chr,body_chr,sizeof(body_chr));
   queued.camera[0]=(uint16_t)x;queued.camera[1]=(uint16_t)y;
-  bool scene=ram[0x1f22] || ram[0x1f24] || ram[0x1f63];
+  bool scene=X3CoopRuntimeSceneActive() || ram[0x1f22] || ram[0x1f24] || ram[0x1f63];
   for(unsigned seat=0;seat<2;++seat){
     X3CoopView v=X3CoopViewsForPlayer(ram,&queued.players,seat,scene);
     queued.views[seat][0]=(uint16_t)v.x;queued.views[seat][1]=(uint16_t)v.y;

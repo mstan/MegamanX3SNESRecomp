@@ -23,6 +23,9 @@ X3CoopView X3CoopViewsForPlayer(const uint8_t *ram,const X3CoopState *players,un
 X3CoopView X3CoopViewsFollowPlayer(const uint8_t *ram,const X3CoopState *players,unsigned seat);
 void X3CoopViewsPlayerLimits(const uint8_t *ram,const X3CoopState *players,unsigned seat,int limits[4]);
 void X3CoopViewsAdoptPlayer(uint8_t *ram,const X3CoopState *players,unsigned seat,bool scene);
+/* Native door/encounter commitments may temporarily cross their two raw
+ * limits. Store the same effective clamped interval in private views. */
+void X3CoopViewsCommitNative(const uint8_t *ram,const X3CoopState *players);
 bool X3CoopViewsContains(const uint8_t *ram,const X3CoopState *players,
     int x,int y,int left,int right,int top,int bottom,int margin,bool scene);
 bool X3CoopViewsSeen(unsigned flag);

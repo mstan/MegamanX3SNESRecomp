@@ -1,5 +1,17 @@
 /* Authored stage1 midboss entrance. Teleport/camera setup bypasses the route,
  * not native allocation, admission, locks, animation or forced movement. */
+static void door_install_player(const X3CoopState *setup){
+  const X3CoopPlayer *world=&setup->players[setup->current];
+  memcpy(g_ram+X3_COOP_BODY,world->body,sizeof(world->body));
+  memcpy(g_ram+X3_COOP_AUX,world->auxiliaries,sizeof(world->auxiliaries));
+  memcpy(g_ram+X3_COOP_SHOTS,world->shots,sizeof(world->shots));
+  memcpy(g_ram+X3_COOP_PALETTE,world->palette,sizeof(world->palette));
+  g_ram[0x1f1e]=world->shot_command;g_ram[0x1fd2]=world->maximum_health;g_ram[0xa1]=1;
+}
+static size_t door_scene_chunk(const uint8_t *bytes,size_t size){
+  for(size_t i=0;i+12<=size;++i)if(!memcmp(bytes+i,"X3S1",4))return i;
+  check(0,"door scene chunk exists");return 0;
+}
 static unsigned door_approach(uint8_t *original,size_t size,uint8_t *work,size_t capacity,unsigned character){
   check(RtlLoadSnapshotFromMemory(original,size),"native gate approach restores");
   X3CoopState setup=*X3CoopRuntimeState();unsigned seat=setup.players[0].character==character?0:1;
@@ -12,12 +24,7 @@ static unsigned door_approach(uint8_t *original,size_t size,uint8_t *work,size_t
         RtlLoadSnapshotFromMemory(work,size),"private remote gate approach restores");
   /* The fixture explicitly reverses native world ownership too. Copy the
    * whole owning context, not just character/body bytes over the old X. */
-  const X3CoopPlayer *world=&setup.players[setup.anchor];
-  memcpy(g_ram+X3_COOP_BODY,world->body,sizeof(world->body));
-  memcpy(g_ram+X3_COOP_AUX,world->auxiliaries,sizeof(world->auxiliaries));
-  memcpy(g_ram+X3_COOP_SHOTS,world->shots,sizeof(world->shots));
-  memcpy(g_ram+X3_COOP_PALETTE,world->palette,sizeof(world->palette));
-  g_ram[0x1f1e]=world->shot_command;g_ram[0x1fd2]=world->maximum_health;g_ram[0xa1]=1;
+  door_install_player(&setup);
   X3CoopViewsConfigure(true);X3CoopRuntimeFrame();
   X3CoopViewState views={0};views.independent=views.initialized=1;views.stage=1;
   views.valid=views.camera_valid=3;
@@ -54,36 +61,111 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   check(g_ram[slot+1]==4 && g_ram[0x1f28],"original single-body gate admits the touching remote character");
   uint8_t native_item[48];memcpy(native_item,g_ram+slot,sizeof(native_item));
   check(RtlLoadSnapshotFromMemory(work,prepared),"paired gate starts from the matched native approach");
+  check(interp_bridge_add_pre_opcode_hook(0x01e0f1,pickup_continuation_probe),"native gate scene continuation probe registers");
+  pickup_probe_slot=slot;pickup_probe_pc=0x01e0f1;pickup_probe_seat=remote;pickup_probe_seen=false;
   pickup_native_items(0x00daa0);
   if(g_ram[slot+1]!=4)fprintf(stderr,"gate remote%u char%u: state=%u freeze=%u anchor=%u current=%u\n",
       remote,setup.players[remote].character,g_ram[slot+1],g_ram[0x1f28],
       X3CoopRuntimeState()->anchor,X3CoopRuntimeState()->current);
   check(g_ram[slot+1]==4 && g_ram[0x1f28],"remote actor admits the single authored native gate");
+  check(pickup_probe_seen,"actual admitted native gate retains a restorable scene and world borrow");
   check(!memcmp(native_item,g_ram+slot,sizeof(native_item)),"paired admission matches one original gate update");
   check(X3CoopRuntimeState()->anchor==remote,"native gate adopts the actual entering actor");
   check(view_read(0x1e5d)==2416 && view_read(0x1e60)==1280,
         "gate camera adopts the entering region before changing world ownership");
   size_t admitted=RtlSaveSnapshotToMemory(expected,capacity);
-  const char *output=getenv("X3_COOP_DOOR_OUTPUT");char path[1024];
-  for(unsigned i=0;i<300;++i){frame(0);
+  uint8_t *admitted_state=malloc(admitted),*finished=malloc(capacity);
+  check(admitted_state && finished,"native scene replay and refusal buffers allocate");
+  memcpy(admitted_state,expected,admitted);size_t scene_chunk=door_scene_chunk(expected,admitted);
+  const unsigned bad_field[]={4,6,6,7,8,9,10,11},bad_value[]={0,2,remote^1,4,8,15,2,1};
+  for(unsigned i=0;i<8;++i){
+    memcpy(finished,expected,admitted);finished[scene_chunk+bad_field[i]]=(uint8_t)bad_value[i];
+    check(!RtlLoadSnapshotFromMemory(finished,admitted),"invalid native door scene is rejected before load");
+    size_t unchanged=RtlSaveSnapshotToMemory(finished,capacity);
+    same(expected,admitted,finished,unchanged,"refused scene leaves the complete machine unchanged");
+  }
+  const char *output=getenv("X3_COOP_DOOR_OUTPUT");char path[1024];bool arrival_saved=false;
+  unsigned elapsed=0;
+  for(unsigned i=0;i<900;++i){frame(0);elapsed=i+1;
     if(i==60 && output && *output){
       snprintf(path,sizeof(path),"%s-p%u-%s-mid.sav",output,remote+1,character==X3_COOP_ZERO?"zero":"x");
       check(RtlSaveSnapshot(path),"pending native gate visual fixture saves");
     }
+    if(i>8 && !arrival_saved && X3CoopRuntimeSceneActive() && !g_ram[0x1f28] && !g_ram[X3_COOP_BODY+0x6e]){
+      arrival_saved=true;
+      if(output && *output){
+        snprintf(path,sizeof(path),"%s-p%u-%s-arrival.sav",output,remote+1,character==X3_COOP_ZERO?"zero":"x");
+        check(RtlSaveSnapshot(path),"native gate arrival visual fixture saves");
+      }
+    }
+    if(!X3CoopRuntimeSceneActive())break;
   }
+  check(elapsed<900 && arrival_saved,"door transport waits through the following native miniboss introduction");
   check(!g_ram[0x1f28] && view_read(0x1e5d)==2560 && support_position(remote,5)>2552,
         "native gate finishes its original forced walk and cleanup");
+  const X3CoopState *arrived=X3CoopRuntimeState();
+  check(!X3CoopRuntimeSceneActive() && arrived->players[0].life==X3_COOP_ALIVE &&
+        arrived->players[1].life==X3_COOP_ALIVE,
+        "native door transport retains both living participants through cleanup");
+  check((arrived->players[0].body[0x27]&127)==(setup.players[0].body[0x27]&127) &&
+        (arrived->players[1].body[0x27]&127)==(setup.players[1].body[0x27]&127),
+        "door transport preserves both personal health values");
+  check(abs((int)support_position(remote,5)-(int)support_position(remote^1,5))<=16 &&
+        abs((int)support_position(remote,8)-(int)support_position(remote^1,8))<=8,
+        "transported X and Zero arrive on the same native floor with their different feet offsets");
   if(output && *output){
     snprintf(path,sizeof(path),"%s-p%u-%s-complete.sav",output,remote+1,character==X3_COOP_ZERO?"zero":"x");
     check(RtlSaveSnapshot(path),"completed native gate visual fixture saves");
   }
-  uint8_t *finished=malloc(capacity);check(finished!=NULL,"gate replay buffer allocates");
   size_t finished_size=RtlSaveSnapshotToMemory(finished,capacity);
   check(RtlLoadSnapshotFromMemory(expected,admitted),"admitted native gate snapshot restores");
-  for(unsigned i=0;i<300;++i)frame(0);
+  for(unsigned i=0;i<elapsed;++i)frame(0);
   size_t replay=RtlSaveSnapshotToMemory(expected,capacity);
   same(finished,finished_size,expected,replay,"native gate forced-walk and cleanup deterministic replay");
   free(finished);
+  unsigned before0=support_position(0,5),before1=support_position(1,5);
+  for(unsigned i=0;i<15;++i)frame(SNES_PAD_RIGHT);
+  check(support_position(0,5)>before0+10 && support_position(1,5)==before1,
+        "P1 resumes independent native control after transport while P2 stays parked by its own input");
+  size_t moving=RtlSaveSnapshotToMemory(expected,capacity);
+  check(X3CoopRuntimePreflight(expected,moving),"moving released door scene passes actor-state preflight");
+  check(RtlLoadSnapshotFromMemory(expected,moving),"moving released door scene restores in the current build");
+  if(output && *output){
+    snprintf(path,sizeof(path),"%s-p%u-%s-released.sav",output,remote+1,character==X3_COOP_ZERO?"zero":"x");
+    check(RtlSaveSnapshot(path),"released native gate actors visual fixture saves");
+  }
+  before0=support_position(0,5);
+  for(unsigned i=0;i<15;++i)frame(SNES_PAD_RIGHT<<12);
+  check(support_position(1,5)>before1+10 && abs((int)support_position(0,5)-(int)before0)<=2,
+        "P2 resumes independent native control after transport without moving P1");
+  /* Isolated lifecycle API events, not authored enemy deaths or a launcher
+   * withdrawal handoff: native door progression/cleanup is still exercised. */
+  for(unsigned mode=0;mode<8;++mode){
+    check(RtlLoadSnapshotFromMemory(admitted_state,admitted),"pending gate retirement approach restores");
+    if(mode>=4){
+      for(unsigned i=0;i<600 && g_ram[0x1f28];++i)frame(0);
+      check(!g_ram[0x1f28] && X3CoopRuntimeSceneActive() && g_ram[X3_COOP_BODY+0x6e],
+            "late retirement starts in the following original miniboss introduction");
+    }
+    X3CoopState retired=*X3CoopRuntimeState();unsigned seat=(mode&3)<2?remote:remote^1;
+    check(mode&1?X3CoopWithdraw(&retired,seat):X3CoopFall(&retired,seat),"door participant lifecycle precondition applies");
+    retired.current=retired.anchor;
+    size_t retirement=RtlSaveSnapshotToMemory(expected,capacity);
+    check(X3CoopEncode(&retired,expected+contact_context_offset(expected,retirement),X3CoopEncodedSize()) &&
+          RtlLoadSnapshotFromMemory(expected,retirement),"retired native scene participant restores");
+    door_install_player(&retired);
+    for(unsigned i=0;i<900 && X3CoopRuntimeSceneActive();++i)frame(0);
+    const X3CoopState *result=X3CoopRuntimeState();
+    check(!X3CoopRuntimeSceneActive() && !g_ram[0x1f28] && g_ram[0xd1]==4 && g_ram[0xd2]==4,
+          "retiring either door participant leaves native progression bright and unfrozen");
+    check(result->players[seat].life==(mode&1?X3_COOP_ABSENT:X3_COOP_FALLEN) &&
+          result->players[seat^1].life==X3_COOP_ALIVE &&
+          (result->players[seat^1].body[0x27]&127)==(setup.players[seat^1].body[0x27]&127),
+          "door transfer preserves survivor health and never revives a retired participant");
+    check(support_position(seat^1,5)>2552 && view_read(0x1e5d)==2560,
+          "surviving participant finishes the original committed native door walk");
+  }
+  free(admitted_state);
   for(unsigned mode=0;mode<5;++mode){
     check(RtlLoadSnapshotFromMemory(work,prepared),"native gate eligibility approach restores");
     X3CoopState candidates=*X3CoopRuntimeState();unsigned first=candidates.anchor;
@@ -111,6 +193,31 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
     check(X3CoopRuntimeState()->anchor==(mode==0?remote:first) &&
           X3CoopRuntimeState()->current==X3CoopRuntimeState()->anchor,
           "gate miss restores canonical ownership; one actual entrant owns a successful gate");
+  }
+  for(unsigned mode=0;mode<5;++mode){
+    memcpy(expected,work,prepared);expected[door_scene_chunk(expected,prepared)+10]=1;
+    check(RtlLoadSnapshotFromMemory(expected,prepared),"both-present gate policy restores");
+    X3CoopState candidates=*X3CoopRuntimeState();unsigned other=remote^1;
+    if(mode==1){
+      candidates.players[other].body[5]=0xe8;candidates.players[other].body[6]=9;
+      candidates.players[other].body[8]=0x9b;candidates.players[other].body[9]=5;
+    }else if(mode==2 || mode==3){
+      check(mode==2?X3CoopFall(&candidates,other):X3CoopWithdraw(&candidates,other),
+            "unavailable both-present prerequisite applies");
+      candidates.current=candidates.anchor;
+    }else if(mode==4)candidates.players[other].body[0x27]=0;
+    check(X3CoopEncode(&candidates,expected+contact_context_offset(expected,prepared),X3CoopEncodedSize()) &&
+          RtlLoadSnapshotFromMemory(expected,prepared),"both-present candidates restore without gate results");
+    door_install_player(&candidates);pickup_native_items(0x00daa0);
+    check(mode?(g_ram[slot+1]==4 && g_ram[0x1f28]):(g_ram[slot+1]==2 && !g_ram[0x1f28]),
+          "both-present rule waits only for living available participants");
+    if(mode==1){
+      check(!(g_ram[0x1f5d]&32) && !g_ram[0x1f37],"full-campaign entrance sensor cannot queue a native Zero exchange");
+      for(unsigned i=0;i<900 && X3CoopRuntimeSceneActive();++i)frame(0);
+      check(!X3CoopRuntimeSceneActive() && !g_ram[0x1f28] &&
+            X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,
+            "both-present admission transports both native bodies through cleanup without crushing");
+    }
   }
   check(RtlLoadSnapshotFromMemory(original,size),"native gate admission probes restore the starting machine");
 }

@@ -29,6 +29,20 @@ bool X3CoopViewsValidState(const X3CoopViewState *s){
   return true;
 }
 void X3CoopViewsSetState(const X3CoopViewState *s){state=*s;}
+void X3CoopViewsCommitNative(const uint8_t *r,const X3CoopState *p){
+  state.initialized=1;state.stage=r[0x1fae];state.valid=state.camera_valid=0;
+  for(unsigned seat=0;seat<2;++seat){
+    if(!living(r,p,seat))continue;
+    state.valid|=(uint8_t)(1u<<seat);state.camera_valid|=(uint8_t)(1u<<seat);
+    state.camera[seat][0]=(uint16_t)word(r+0x1e5d);state.camera[seat][1]=(uint16_t)word(r+0x1e60);
+    for(unsigned i=0;i<4;++i){state.limits[seat][i]=(uint16_t)word(r+targets[i]);
+      state.current[seat][i]=(uint16_t)word(r+0x1e66+i*2);}
+    for(unsigned i=0;i<4;i+=2){
+      if(state.limits[seat][i+1]<state.limits[seat][i])state.limits[seat][i+1]=state.limits[seat][i];
+      if(state.current[seat][i+1]<state.current[seat][i])state.current[seat][i+1]=state.current[seat][i];
+    }
+  }
+}
 void X3CoopViewsPlayerLimits(const uint8_t *r,const X3CoopState *p,unsigned seat,int out[4]){
   for(unsigned i=0;i<4;++i)out[i]=word(r+0x1e66+i*2);
   if(state.independent && p->initialized && seat<2 && state.stage==r[0x1fae] && (state.valid&(1u<<seat)))
@@ -40,6 +54,9 @@ void X3CoopViewsUpdate(const uint8_t *r,const X3CoopState *p,bool scene,bool men
   if(!state.initialized || state.stage!=stage){X3CoopViewsReset();state.stage=(uint8_t)stage;state.initialized=1;}
   if(scene || r[0xd1]!=4 || r[0xd2]!=4){state.valid=0;return;}
   if(menu)return;
+  /* Retail doors hold the new minimum while the previous maximum can still
+   * be behind it. Their shared camera commitment lasts to the exit sensor. */
+  if(r[0x1f5d]&128){X3CoopViewsCommitNative(r,p);return;}
   /* Native shared encounter locks supersede authored region targets. */
   if(r[0x1f63]){state.valid=0;return;}
   /* Stage14 aliases stage11. Region lists are not in stage order, and
@@ -93,6 +110,7 @@ static int limit_step(int target,int current,int camera,int b,int previous,int z
 void X3CoopViewsEndFrame(const uint8_t *r,const X3CoopState *p,bool scene,bool menu){
   if(!state.independent || !p->initialized || scene || r[0xd1]!=4 || r[0xd2]!=4){state.camera_valid=0;return;}
   if(menu)return;
+  if(r[0x1f5d]&128){X3CoopViewsCommitNative(r,p);return;}
   int zones[4]={word(r+0x1e84),word(r+0x1e86),word(r+0x1e80),word(r+0x1e82)};
   int tracking=word(r+0x1e64),pan=word(r+0x1e62);
   for(unsigned seat=0;seat<2;++seat){

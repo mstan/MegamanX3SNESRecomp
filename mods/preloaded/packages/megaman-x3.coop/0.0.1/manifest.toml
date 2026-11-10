@@ -47,6 +47,20 @@ label = "Independent"
 value = "unified"
 label = "Unified"
 
+[[option]]
+feature = "coop"
+id = "doors"
+label = "Door admission"
+description = "Either player can lead through a door. Both players waits for every living participant to reach it."
+type = "choice"
+default = "either"
+[[option.choice]]
+value = "either"
+label = "Either player"
+[[option.choice]]
+value = "both"
+label = "Both players"
+
 [[feature]]
 id = "view"
 name = "Co-op view"

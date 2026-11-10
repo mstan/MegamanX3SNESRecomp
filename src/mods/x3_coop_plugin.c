@@ -34,6 +34,8 @@ bool X3CoopSettingsEnabled(void){resolve_profile();return enabled;}
 void X3CoopSettingsBoot(void){
   resolve_profile();
   X3CoopRuntimeSetP1Character(player1);
+  const char *doors=getenv("SNESRECOMP_X3_COOP_DOORS");
+  X3CoopRuntimeSetDoorPolicy(doors?!strcmp(doors,"both"):option_is("coop","doors","both"));
   X3CoopViewsConfigure(enabled && independent);
   X3CoopRuntimeEnable(enabled);
 }

@@ -612,3 +612,65 @@ and native retry. Game SHA256:
 Five additional X1 parent/source-reviewed door/capsule repair dispositions are
 in `COOP_FIX_REFERENCES.md`. The full180-point final suite and all15 final QA
 rollups remain open. The release archive is unchanged.
+
+### Door participant transport and native commitment checkpoint
+
+Door admission now parks the other living actor's controller, terrain pass and
+owned transient effects. The original world/door task continues once. A saved
+12-byteX3S1 chunk owns the participant, door, departure/wait/arrival phase and
+admission policy. Queued presentation uses the original7F/7E warp animation
+records and private CHR. It does not change live HP or revive retired actors.
+Arrival aligns the characters' actual native collision bottoms, retaining their
+different standing heights, and gives the arriving actor32 invulnerability ticks.
+
+The authored entrance3C:D27C passes remote X and remote Zero in both seats.
+Both remain alive with unchanged personal HP, then independently resume native
+movement. Transport waits for the original body lock as well as door cleanup:
+the following class2C miniboss introduction legitimately locks the entrant
+again after the gate closes. Its normal timer and original control release run
+without being bypassed. Snapshot/replay follows that actual completion point,
+rather than assuming300 frames means the whole scene has finished.
+
+An entrance sensor01:CF02 could request Zero's stock exchange back to X; native
+00:A30C then reset the camera during the admitted door. Full-campaign co-op
+omits that request while preserving the separate native exit sensor. The stock
+participation/loss option remains unimplemented; co-op off retains native rules.
+
+The public Door admission option defaults to Either player. Both players tests
+both complete original admission predicates, waiting only for living available
+participants. Both-player traversal, fallen/absent/zero-HP exclusions and
+simultaneous contact pass for this authored entrance. Fresh public-package boots
+with every prototype override cleared save the selected policy before gameplay;
+`build-coop/qa-public/public-door-policy-result.log` records both selections.
+Interactive launcher navigation is still unverified.
+
+Isolated lifecycle API events cover either actor falling/withdrawing immediately
+after admission and during the following introduction. The survivor finishes
+the native sequence with its own character/HP; the retired actor remains fallen
+or absent. These are not authored enemy-death or launcher-withdrawal acceptance.
+Malformed scene fields and an inconsistent living scene owner fail before
+mutation. Current snapshots are412623B, with fresh disposable fixtures.
+
+Post-arrival visual checks caught rejected moving snapshots: native door
+commitment can hold a new minimum beyond its old maximum. Private views now
+store the same effective clamped interval and retain the native commitment to
+the exit sensor. Strict private-state validation remains intact. Moving snapshots
+pass preflight/load and resume in the actual host; their earlier black cold-boot
+captures are excluded from gameplay evidence.
+
+Inspected actual host split images in `build-coop/qa-door/host-transport-*` cover
+the waiting scene, arrival and released actors, including both reversed-roster
+release captures. They show bright fields, living personal meters, correct actor
+art and separate post-transport movement. This does not qualify the miniboss's
+complete graphics/combat or other scene families.
+
+Strict regeneration reports52 routed native variants and byte-identical complete
+trees. The regenerated build, both CTests and
+`build-coop/qa-state/native-door-transport-combined-result.log` pass (exit0),
+including prior contacts, resources, supports, independent routes, survivors and
+native retry. Game SHA256:
+`1fca554cf7013773f2e0b06987d635f3341a16b1dc1a4d710ece4e9b6b67ef97`.
+Other authored gates, native wipe/fatal-contact cases during scenes, exit-sensor
+traversal, capsules/demos and broader campaign integration remain open. This is
+focused S01-S07/R01-R02/V12 evidence; all15 final rollups and the full180-point
+final suite remain open. The release archive is unchanged.
