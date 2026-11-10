@@ -173,8 +173,8 @@ Fatal contacts now settle before returning to the enemy/boss continuation,
 which sees a surviving body's HP instead of prematurely selecting death logic.
 
 The real stage-1 class08/variant1 fixture retains two living actors. With X
-160 pixels left and Zero32 pixels right, its actual facing/proximity branch
-selects Zero. All15 native enemy records match a single-seat reference update
+160 pixels left and Zero 32 pixels right, its actual facing/proximity branch
+selects Zero. All 15 native enemy records match a single-seat reference update
 against that same body, including a timer expiring once; its stack and canonical
 ownership are restored. This is a narrow E04/E05 case, not all enemy behavior.
 An inspected gameplay capture also shows that authored enemy beside active
@@ -190,8 +190,8 @@ still need their own native ownership contracts and authored checks.
 
 ### Shared supports and an authored moving-platform case
 
-Native BFAE contact and C07F carry now retain separate rider bits for the15
-enemy slots and16 item/script slots. Both calls keep their actual entry
+Native BFAE contact and C07F carry now retain separate rider bits for the 15
+enemy slots and 16 item/script slots. Both calls keep their actual entry
 registers/scratch and balanced guest returns. A carry runs only for that
 support's living riders; one actor leaving does not clear the other rider.
 Native initialization clears histories on slot reuse. Continuations and
@@ -202,16 +202,16 @@ vehicles, specialized crush and custom-height helpers remain separate work.
 ROM-backed isolated checks pass equal carry for two riders, independent
 movement on two supports, releasing one rider, current-build history restore
 and transactional malformed-history rejection. The geometry uses the actual
-class37 table06:C5D4, rather than an assumed player-sized support.
+class37 table 06:C5D4, rather than an assumed player-sized support.
 
-The authored moving case uses native stage5 event3C:E12C: enemy class26,
-variant2 at1224,1464. A QA teleport and the original event-column spawner
+The authored moving case uses native stage5 event 3C:E12C: enemy class26,
+variant2 at (1224,1464). A QA teleport and the original event-column spawner
 prepare its real room; this explicitly bypasses camera admission, normal
 activation frontiers and background-stream preparation. It does not set the
 support's movement or rider result flags. With normal native updates, X and
-Zero land and ride at their own standing heights. Over45 frames, all64 support
-bytes match a single-seat native reference, including movement1464→1434;
-both runs advance the world45 times. X can then jump off while Zero keeps
+Zero land and ride at their own standing heights. Over 45 frames, all 64 support
+bytes match a single-seat native reference, including movement 1464→1434;
+both runs advance the world 45 times. X can then jump off while Zero keeps
 riding. A separate P2-first setup starts/moves the support while X remains
 outside its native contact width; its rider mask contains only Zero.
 
@@ -225,6 +225,9 @@ Use `tests/scenarios/coop_platform.script` for disposable entry slot6 and
 P2-only visual fixtures (local slots5/4). Current combined results are in
 `build-coop/qa-state/native-combined-result.log`, with source build identity
 recorded in the private issue. These narrow checks support P01/P02/P04 and
-R01; all15 rollups and the full180-point campaign suite remain open.
+R01; all 15 rollups and the full 180-point campaign suite remain open.
 The standard regeneration recipe passes its complete-tree byte comparison
 after these hooks, including the refreshed generated build identity.
+The regenerated build passes all current ROM-backed cases and both CTests in
+`build-coop/qa-state/native-combined-regenerated-result.log` (exit0). Its game
+SHA256 is `35f04da53fb2b0e0877e9a77d881efa3f2873fff427d2112aba50843f5db5121`.
