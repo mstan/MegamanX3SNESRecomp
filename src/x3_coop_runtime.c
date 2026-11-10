@@ -281,6 +281,8 @@ static bool enemy_actor(unsigned d) {
 }
 static bool item_actor(unsigned d){return d>=0x1518 && d<0x1818 && !((d-0x1518)%48);}
 static bool shared_pickup(unsigned d){return item_actor(d) && g_ram[d+10]>=2 && g_ram[d+10]<=4;}
+static bool native_door(unsigned d){return item_actor(d) &&
+    (g_ram[d+10]==7 || g_ram[d+10]==0x10 || g_ram[d+10]==0x11);}
 static int support_slot(unsigned d) {
   if(d>=0xd18 && d<0x10d8 && !((d-0xd18)%64))return (int)((d-0xd18)/64);
   if(d>=0x1518 && d<0x1818 && !((d-0x1518)%48))return 15+(int)((d-0x1518)/48);
@@ -292,9 +294,10 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   if(at==0xdd1a || at==0xdcb3 || at==0xdafa) {
     bool weapon=item_actor(d) && g_ram[d+10]==1;
     bool pickup=at==0xdafa && (weapon || shared_pickup(d));
+    bool door=at==0xdafa && native_door(d) && g_ram[d+1]<=2;
     bool pending=pickup && refill.active && refill.slot==d;
-    if(state.wipe || target.active || (!pickup && !enemy_actor(d)) || !g_ram[d] ||
-       (!pickup && !(g_ram[d+0x27]&127)) ||
+    if(state.wipe || target.active || (!pickup && !door && !enemy_actor(d)) || !g_ram[d] ||
+       (!pickup && !door && !(g_ram[d+0x27]&127)) ||
        ((g_ram[0x1f22] || g_ram[0x1f24]) && !pending) || controller.pass || terrain.pass ||
        contact.native.pass || objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
     /* Zero has no special-weapon inventory. Only native X may test or refill
@@ -304,7 +307,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
         X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
     bool retired=state.players[seat].life!=X3_COOP_ALIVE;
     if(retired && !pending)return;
-    if(!pickup && seat==state.anchor)return;
+    if(!pickup && !door && seat==state.anchor)return;
     target=(WorldTarget){(uint16_t)d,cpu->S,1,(uint8_t)seat};
     if(retired)X3CoopProjectRetired(&state,g_ram,seat);
     else X3CoopProject(&state,g_ram,seat);
@@ -442,10 +445,47 @@ static void presentation_boundary(CpuState *cpu,uint32_t pc) {
     X3CoopPresentationSubmit(&state,g_ram,slot,owner);
   }
 }
+static void door_boundary(CpuState *cpu,uint32_t pc){
+  unsigned at=pc&65535,d=cpu->D;NativePass *p=&contact.native;
+  if(!enabled || !state.initialized || state.wipe)return;
+  if(at==0xe0ae){
+    if(!p->pass && target.active && target.slot==d && native_door(d) && partner_ready() &&
+       !controller.pass && !terrain.pass && !objects.native.pass && !draw.pass && !solid.native.pass){
+      p->entry=regs(cpu);contact.pc=0xe0ae;contact.seat=state.current;p->pass=1;
+      memcpy(contact.entry_scratch,g_ram,24);
+    }
+    return;
+  }
+  if((at!=0xe0e0 && at!=0xe0f0 && at!=0xe0f1) || !p->pass || contact.pc!=0xe0ae ||
+     cpu->S!=p->entry.s || d!=p->entry.d)return;
+  bool hit=at==0xe0f1;
+  if(p->pass==1 && !hit){
+    const X3CoopPlayer *other=&state.players[contact.seat^1];
+    if(other->life==X3_COOP_ALIVE && (other->body[0x27]&127) && other->body[2]!=0x0c){
+      p->result=regs(cpu);memcpy(contact.result_scratch,g_ram,24);
+      X3CoopProject(&state,g_ram,contact.seat^1);restore(cpu,&p->entry);
+      memcpy(g_ram,contact.entry_scratch,24);p->pass=2;
+      interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xe0ae);return;
+    }
+  }
+  if(hit){
+    /* This is before the original door mutates locks/camera/body state.
+     * Adopt the entrant's old independent view while the old anchor is still
+     * identifiable, then let the native scene own that body and world once. */
+    X3CoopViewsAdoptPlayer(g_ram,&state,state.current,view_scene());
+    state.anchor=state.current;target.seat=state.current;anchor_palette();
+  }else if(p->pass==2){
+    X3CoopProject(&state,g_ram,contact.seat);restore(cpu,&p->result);
+    memcpy(g_ram,contact.result_scratch,24);
+    interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xe0f0);
+  }
+  p->pass=0;
+}
 static void contact_boundary(CpuState *cpu,uint32_t pc) {
   unsigned at=pc&0xffff,d=cpu->D;
   NativePass *p=&contact.native;
   if(!enabled || !state.initialized || state.wipe)return;
+  if(p->pass && contact.pc==0xe0ae)return;
   if(at==0xcc5c){
     if(!p->pass && target.active && target.slot==d && shared_pickup(d) &&
        cpu->X==X3_COOP_BODY && partner_ready() && !refill.active && !controller.pass &&
@@ -727,6 +767,9 @@ void X3CoopRuntimeFrame(void) {
   static const uint32_t presentation_pcs[]={0x038dd7,0x038df0,0x038f70};
   for(unsigned i=0;i<sizeof(presentation_pcs)/sizeof(*presentation_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(presentation_pcs[i],presentation_boundary))enabled=false;
+  static const uint32_t door_pcs[]={0x01e0ae,0x01e0e0,0x01e0f0,0x01e0f1};
+  for(unsigned i=0;i<sizeof(door_pcs)/sizeof(*door_pcs);++i)
+    if(!interp_bridge_add_pre_opcode_hook(door_pcs[i],door_boundary))enabled=false;
 }
 void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   uint8_t bytes[4096]={0};
@@ -775,9 +818,9 @@ static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePa
   }
   if((a && c->entry.d!=X3_COOP_BODY) || (b && t->entry.d!=X3_COOP_BODY))return false;
   if(h){
-    if(hit->pc==0xcc5c){
+    if(hit->pc==0xcc5c || hit->pc==0xe0ae){
       if(!item_actor(hit->native.entry.d) || !world->active || world->slot!=hit->native.entry.d ||
-         world->seat!=hit->seat || hit->native.entry.x!=X3_COOP_BODY)return false;
+         world->seat!=hit->seat || (hit->pc==0xcc5c && hit->native.entry.x!=X3_COOP_BODY))return false;
     }else if((hit->pc!=0xcb31 && hit->pc!=0xcb74) || !enemy_actor(hit->native.entry.d))return false;
   }
   if(o && (!object_end(obj->pc) || object_end(obj->pc)!=obj->end))return false;

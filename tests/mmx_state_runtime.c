@@ -14,6 +14,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_present_test.inc"
 #include "x3_coop_display_test.inc"
 #include "x3_coop_pickup_test.inc"
+#include "x3_coop_scene_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -44,6 +45,7 @@ int main(int argc,char **argv) {
         check(RtlLoadSnapshotFromMemory(damaged,size) && RtlSaveSnapshot(low_p2),"private low-HP route precondition saves");
         check(RtlLoadSnapshotFromMemory(saved,size),"low-HP preparation restores its starting machine");
       }
+      for(unsigned character=0;character<2;++character)native_door_checks(saved,size,after,damaged,cap,character);
       native_display_checks("start",saved,size,after,damaged,cap);
       native_resource_checks(saved,size,after,cap);
       remote_resource_checks(saved,size,after,cap);
@@ -74,6 +76,7 @@ int main(int argc,char **argv) {
       X3CoopRuntimeEnable(true);
       check(RtlLoadSnapshot(fixture),"native reversed roster fixture loads");
       size=RtlSaveSnapshotToMemory(saved,cap);
+      for(unsigned character=0;character<2;++character)native_door_checks(saved,size,after,damaged,cap,character);
       native_display_checks("reversed",saved,size,after,damaged,cap);
       native_reversed_roster_checks(saved,size,after,damaged,cap);
       authored_health_pickup_checks(saved,size,after,damaged,cap);

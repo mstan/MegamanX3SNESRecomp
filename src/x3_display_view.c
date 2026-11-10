@@ -157,12 +157,20 @@ typedef struct ObjectResource {
 } ObjectResource;
 static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],ObjectResource *out){
   const uint8_t *b=draw->body;
-  if(draw->owner || draw->address<0xd18 || draw->address>=0x10d8 || !b[10])return false;
+  if(draw->owner || !b[10])return false;
   /* The common native02:E15C constructor selects group/file from06:E28E.
    * A customized group is left on its original native path. */
   unsigned group,key;
-  if(!rom_read(0x06e28e + (b[10]-1)*5,1,&group) || group!=b[0x16] ||
-     !rom_read(0x06e28f+(b[10]-1)*5,1,&key) || key>=X3_RESOURCE_KEYS)return false;
+  if(draw->address>=0xd18 && draw->address<0x10d8){
+    if(!rom_read(0x06e28e + (b[10]-1)*5,1,&group) ||
+       !rom_read(0x06e28f+(b[10]-1)*5,1,&key))return false;
+  }else if(draw->address>=0x1518 && draw->address<0x1818 && !((draw->address-0x1518)%48) &&
+           (b[10]==7 || b[10]==0x10 || b[10]==0x11)){
+    /* Native01:E069/E073 selects these door files/groups. A remote gate
+     * can initialize before its region uploads the native placement cache. */
+    group=b[10]==7?0x1b:0x4c;key=b[10]==7?0x19:0x56;
+  }else return false;
+  if(group!=b[0x16] || key>=X3_RESOURCE_KEYS)return false;
   unsigned phase=resource_phase(2,(int)word(b+5),(int)word(b+8));
   unsigned a=resource_list(0x088623,phase),file=255;
   for(unsigned i=0;a && i<64;++i,a+=6){
@@ -181,7 +189,13 @@ static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],Obj
   }
   if(file_ready[key]!=1 || !X3ResourceLayout(frame.rom,frame.size,key,target,out->segments,&out->count) ||
      !X3ResourcePalette(frame.rom,frame.size,palette,offset,colors))return false;
-  for(unsigned i=0;i<out->count;++i)if(out->segments[i].source+out->segments[i].length>file_length[key])return false;
+  /* Native DMA rounds some uploads beyond the meaningful decoded file
+   * (door56:352 bytes in a384-byte upload). Keep real tiles available and
+   * leave padding transparent, with every pixel read bounded to file data. */
+  for(unsigned i=0;i<out->count;++i){X3ResourceSegment *s=&out->segments[i];
+    size_t available=s->source<file_length[key]?file_length[key]-s->source:0;
+    if(s->length>available)s->length=(uint16_t)available;
+  }
   out->tiles=files[key];return true;
 }
 static unsigned resource_pixel(const ObjectResource *resource,unsigned address,unsigned x,unsigned y){

@@ -567,3 +567,48 @@ CTests pass. Engine build-only repair `ee208443` fixes nested Windows shell
 handling of multiple catalog IDs; missing packages are still rejected. Game
 SHA256 `b8602217aa8b925462fa8a0d91c1243944d91969d1584921913de0095d7d3673`.
 All15 final QA rollups and the full180-point acceptance suite remain open.
+
+### Native door admission and remote gate art checkpoint
+
+The authored stage1 midboss entrance3C:D27C initializes through the original
+union allocator and door constructor. A matched original single-body call
+admits the touching actor, while the previous co-op implementation left the
+gate waiting for its distant world owner. Co-op now borrows a candidate for
+native door classes07/10/11 and retries the whole side-effect-free01:E0AE
+admission predicate after a miss. Success adopts the entrant's independent
+camera and current/target room limits before changing the shared leader.
+Native opening, tile updates, forced movement and cleanup remain one task.
+
+The fixture now explicitly reverses world ownership as well as roster seats.
+Both X and Zero enter remotely in both rosters. An excluded nearest actor
+retries the other actor's full predicate; two excluded, zero-HP and fallen
+candidates cannot admit the gate. Simultaneous contacts select one entrant.
+An interrupted second predicate passes snapshot preflight/load, and300-frame
+replay from an admitted gate agrees through the native walk and freeze cleanup.
+Teleports and prepared room-camera bands bypass route/camera admission history;
+these checks do not certify normal campaign traversal or every gate family.
+
+Visual inspection found unrelated sprite tiles on the remote gate. The private
+resource lookup now covers its native files19/56 and groups1B/4C. File56 has352
+decoded bytes but a384-byte native DMA segment; rejecting the whole file had
+fallen back to unrelated native VRAM. Segments now retain meaningful decoded
+bytes, with padding transparent and pixel reads bounded. Actual host split
+captures `build-coop/qa-door/host-door-p1-x-{mid,complete}.png` and
+`host-door-p2-zero-{mid,complete}.png` show clean X/Zero art and bright gate
+rooms during opening and after cleanup.
+
+The visual run also demonstrates an unresolved failure: the distant partner
+falls during the committed camera handoff. Both panes subsequently follow the
+survivor; this is not evidence that independent cameras passed. Door transport,
+parking/arrival, the optional both-present policy, owner retirement and remaining
+authored gates stay open under S01-S07/D13/T06/V12. No final scene rollup passes.
+
+Strict regeneration reports51 routed variants and byte-identical generated
+trees. The regenerated build, both CTests and combined native qualification
+pass; evidence is `build-coop/qa-state/native-door-combined-result.log` (exit0),
+including existing contacts, supports, resources, independent routes, survivors
+and native retry. Game SHA256:
+`a146c4a20aac00eff60531ce95dac00d85344e8d2e8226e83a109cd7b8dc4c57`.
+Five additional X1 parent/source-reviewed door/capsule repair dispositions are
+in `COOP_FIX_REFERENCES.md`. The full180-point final suite and all15 final QA
+rollups remain open. The release archive is unchanged.
