@@ -6,6 +6,7 @@ struct SaveLoadInfo;
  * until world contact, lifecycle and presentation integration qualify. */
 void X3CoopRuntimeEnable(bool enabled);
 bool X3CoopRuntimeEnabled(void);
+void X3CoopRuntimeSetP1Character(unsigned character);
 void X3CoopRuntimeFrame(void);
 const X3CoopState *X3CoopRuntimeState(void);
 void X3CoopRuntimeReset(void);

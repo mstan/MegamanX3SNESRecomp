@@ -13,6 +13,7 @@
 extern uint8_t g_ram[0x20000];
 extern Snes *g_snes;
 static bool enabled;
+static unsigned p1_character;
 static X3CoopState state;
 typedef struct Registers {uint16_t a,x,y,s,d;uint8_t db,p;} Registers;
 typedef struct NativePass {Registers entry,result;uint8_t pass;} NativePass;
@@ -521,8 +522,8 @@ static void boundary(CpuState *cpu,uint32_t pc) {
       if(caller!=0xd98e || g_ram[0x1f22] ||
          g_ram[X3_COOP_BODY+1]!=2 || g_ram[X3_COOP_BODY+2]>0x16 ||
          !g_ram[X3_COOP_BODY+0x27] || g_ram[X3_COOP_BODY+0xb6])return;
-      X3CoopInit(&state,g_ram,0);
-      X3CoopPlayer *p=&state.players[1];
+      X3CoopInit(&state,g_ram,p1_character);
+      X3CoopPlayer *p=&state.players[p1_character^1];
       p->body[0xb6]=2; /* Native playable Zero selector, not an imported actor. */
       p->body[0x16]=0x4a;
       const uint8_t *rom=g_snes->cart->rom;
@@ -598,6 +599,9 @@ void X3CoopRuntimeReset(void) {
   memset(&view_spawn,0,sizeof(view_spawn));X3CoopViewsReset();
   memset(&view_bounds,0,sizeof(view_bounds));
   X3CoopPresentationReset();
+}
+void X3CoopRuntimeSetP1Character(unsigned character) {
+  if(!state.initialized && character<=X3_COOP_ZERO)p1_character=character;
 }
 void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
@@ -712,7 +716,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;target=world;solid=support;
   /* A state can load before the first reset-frame environment setup. An
    * enrolled machine must resume its actor schedule on that startup path. */
-  if(loaded.initialized)enabled=true;
+  if(loaded.initialized){enabled=true;p1_character=loaded.players[0].character;}
   memcpy(riders,rider_bits,sizeof(riders));view_spawn=spawn;view_bounds=bounds;
   X3CoopViewsLoad(views,sizeof(views),true);return true;
 }

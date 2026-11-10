@@ -5,7 +5,7 @@ static void native_display_checks(const char *tag,uint8_t *original,size_t size,
   frame(0);frame(0);
   check(g_ppu->renderPitch==256*4,"native display comparison uses an actual256px field");
   memcpy(native,g_ppu->renderBuffer,256u*224u*4u);
-  X3CoopViewsConfigure(true);X3Display_SetPresentationSeat(0);
+  X3CoopViewsConfigure(true);X3Display_SetPresentationSeat(X3CoopRuntimeState()->anchor);
   check(X3Display_BeginIndependentFrame(g_ppu),"private primary compositor is active for the comparison");
   g_rtl_game_info->draw_ppu_frame();
   check(X3Display_RenderedPrivateFrame(),"actual render call uses the private compositor rather than its native fallback");

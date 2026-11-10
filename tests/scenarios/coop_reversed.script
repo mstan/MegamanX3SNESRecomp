@@ -1,0 +1,31 @@
+# Disposable slot1: run with prototype1, P1=zero and independent1.
+# Enter the actual stage, then move Zero while native X remains stationary.
+wait 600
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+wait 240
+poke 1fae 01
+poke 1faf 00
+poke 1fb3 00
+poke 1fb5 00
+poke 1fb6 00
+poke 1ebf 01
+poke 00d1 02
+poke 00d2 04
+poke 00d3 00
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+until 1f22 == 00 1800
+wait 120
+press right 30
+wait 10
+savestate 1
+dump reversed-coop-ready
+quit

@@ -2,7 +2,7 @@
  * isolated geometry fixtures, not an assertion of stage/AI coverage. */
 #include "../src/x3_coop_render.h"
 static size_t contact_context_offset(const uint8_t *snapshot,size_t size) {
-  for(size_t i=size-4;i>0;--i)if(!memcmp(snapshot+i,"X3C3",4))return i;
+  for(size_t i=size-4;i>0;--i)if(!memcmp(snapshot+i,"X3C4",4))return i;
   check(0,"actor context is present");return 0;
 }
 static void contact_geometry(unsigned slot,unsigned x,unsigned y) {
@@ -26,6 +26,57 @@ static void contact_native_call(unsigned slot,unsigned pc) {
 static unsigned contact_hp(unsigned seat) {
   const X3CoopState *s=X3CoopRuntimeState();
   return (s->current==seat?g_ram[X3_COOP_BODY+0x27]:s->players[seat].body[0x27])&127;
+}
+static void native_health_limit_checks(uint8_t *snapshot,size_t size,uint8_t *modified,size_t capacity) {
+  for(unsigned seat=0;seat<2;++seat)for(unsigned full=0;full<2;++full){
+    check(RtlLoadSnapshotFromMemory(snapshot,size),"health-limit probe restores");
+    X3CoopState setup=*X3CoopRuntimeState();
+    check(X3CoopProject(&setup,g_ram,seat),"health probe projects the actor's native globals");
+    unsigned maximum=seat?28:16;
+    check(g_ram[0x1fd2]==maximum,"native maximum belongs to the projected character");
+    g_ram[X3_COOP_BODY+0x27]=(uint8_t)(maximum-1+full);
+    g_ram[X3_COOP_BODY+0xbf]=1;g_ram[X3_COOP_BODY+0xc0]=0;
+    uint16_t stack=g_cpu.S;g_cpu.PB=4;g_cpu.DB=6;g_cpu.D=X3_COOP_BODY;
+    g_cpu.P|=0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);
+    check(interp_bridge_run(&g_cpu,0x04aa09) && g_cpu.S==stack,"native health regeneration returns with a balanced stack");
+    check((g_ram[X3_COOP_BODY+0x27]&127)==maximum,"native healing reaches each actor's limit and cannot exceed it");
+  }
+  check(RtlLoadSnapshotFromMemory(snapshot,size),"health preflight probe restores");
+  memcpy(modified,snapshot,size);
+  size_t offset=contact_context_offset(snapshot,size);
+  modified[offset+X3CoopEncodedSize()-1]=0;
+  check(!RtlLoadSnapshotFromMemory(modified,size),"invalid personal health maximum is refused before mutation");
+  size_t after=RtlSaveSnapshotToMemory(modified,capacity);
+  same(snapshot,size,modified,after,"refused health maximum leaves the machine unchanged");
+}
+static void native_reversed_roster_checks(uint8_t *snapshot,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
+  const X3CoopState *s=X3CoopRuntimeState();
+  check(s->initialized && s->anchor==1 && s->current==1 &&
+        s->players[0].character==X3_COOP_ZERO && s->players[1].character==X3_COOP_X,
+        "reversed roster keeps the original native X as canonical seat2");
+  check(s->players[0].maximum_health==28 && s->players[1].maximum_health==16 &&
+        (s->players[0].body[0x27]&127)==28 && (s->players[1].body[0x27]&127)==16 &&
+        s->players[0].body[0xb6]==2 && !s->players[1].body[0xb6] && g_ram[0x1fd2]==16,
+        "reversed roster preserves native character selectors, health and world maximum");
+  unsigned zero=coop_x(0),x=coop_x(1);
+  for(unsigned i=0;i<30;++i)frame(SNES_PAD_RIGHT);
+  check(coop_x(0)>zero && coop_x(1)==x,"seat1 Zero moves without borrowing X input");
+  zero=coop_x(0);
+  for(unsigned i=0;i<30;++i)frame(SNES_PAD_RIGHT<<12);
+  check(coop_x(0)==zero && coop_x(1)>x,"seat2 X moves without borrowing Zero input");
+  check(RtlLoadSnapshotFromMemory(snapshot,size),"reversed roster replay start restores");
+  bool shot=false;
+  for(unsigned i=0;i<30;++i){
+    frame(SNES_PAD_Y | (SNES_PAD_RIGHT<<12));s=X3CoopRuntimeState();
+    for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)if(s->players[0].shots[j])shot=true;
+  }
+  size_t n=RtlSaveSnapshotToMemory(expected,capacity);
+  check(shot,"reversed Zero owns his native projectile pool");
+  check(RtlLoadSnapshotFromMemory(snapshot,size),"reversed roster repeat start restores");
+  for(unsigned i=0;i<30;++i)frame(SNES_PAD_Y | (SNES_PAD_RIGHT<<12));
+  size_t actual=RtlSaveSnapshotToMemory(work,capacity);
+  same(expected,n,work,actual,"reversed roster movement/combat deterministic replay");
+  check(RtlLoadSnapshotFromMemory(snapshot,size),"reversed roster probes restore");
 }
 static void contact_native_draw(unsigned slot,unsigned expected_x,unsigned expected_y) {
   uint16_t stack=g_cpu.S;
@@ -53,7 +104,7 @@ static void native_contact_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
   check(primary_x!=partner_x,"native fixture separates both bodies");
   check(RtlLoadSnapshotFromMemory(snapshot,size),"isolated P2 contact fixture restores");
   contact_geometry(0xd18,partner_x,y);contact_native_call(0xd18,0x04cb31);
-  check((g_cpu.A&255)!=0 && contact_hp(0)==16 && contact_hp(1)==14,
+  check((g_cpu.A&255)!=0 && contact_hp(0)==16 && contact_hp(1)==26,
         "native enemy body contact reaches P2 without damaging distant X");
 
   memcpy(modified,snapshot,size);
@@ -62,11 +113,11 @@ static void native_contact_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
   check(X3CoopEncode(&setup,modified+offset,X3CoopEncodedSize()),"overlap fixture encodes");
   check(RtlLoadSnapshotFromMemory(modified,size),"overlapping bodies restore");
   contact_geometry(0xd18,primary_x,y);contact_native_call(0xd18,0x04cb31);
-  check(contact_hp(0)==14 && contact_hp(1)==14,"solid enemy contact evaluates each eligible body once");
+  check(contact_hp(0)==14 && contact_hp(1)==26,"solid enemy contact evaluates each eligible body once");
 
   check(RtlLoadSnapshotFromMemory(modified,size),"hostile-shot overlap fixture restores");
   contact_geometry(0x1318,primary_x,y);contact_native_call(0x1318,0x04cb31);
-  check(contact_hp(0)==14 && contact_hp(1)==16,"consumed hostile shot does not damage both players");
+  check(contact_hp(0)==14 && contact_hp(1)==28,"consumed hostile shot does not damage both players");
   check(X3CoopDecode(&setup,snapshot+offset,X3CoopEncodedSize()),"fatal-contact context decodes");
   setup.players[1].body[0x27]=1;
   memcpy(modified,snapshot,size);
@@ -80,7 +131,7 @@ static void native_contact_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
   g_ram[X3_COOP_BODY+0x27]=1;
   contact_geometry(0xd18,primary_x,y);contact_native_call(0xd18,0x04cb31);
   check(X3CoopRuntimeState()->players[0].life==X3_COOP_FALLEN &&
-        X3CoopRuntimeState()->current==1 && (g_ram[X3_COOP_BODY+0x27]&127)==16,
+        X3CoopRuntimeState()->current==1 && (g_ram[X3_COOP_BODY+0x27]&127)==28 && g_ram[0x1fd2]==28,
         "native fatal-contact continuation sees the living survivor's HP");
   check(RtlLoadSnapshotFromMemory(snapshot,size),"native projectile-update fixture restores");
   for(int i=0;i<3;++i)frame(SNES_PAD_Y<<12);

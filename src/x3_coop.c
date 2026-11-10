@@ -20,11 +20,13 @@ static void capture(X3CoopPlayer *p, const uint8_t *ram) {
   memcpy(p->shots,ram+X3_COOP_SHOTS,sizeof(p->shots));
   memcpy(p->palette,ram+X3_COOP_PALETTE,sizeof(p->palette));
   p->shot_command=ram[0x1f1e];
+  p->maximum_health=ram[0x1fd2];
 }
 bool X3CoopValid(const X3CoopState *s) {
   if(!s || s->initialized>1 || s->current>1 || s->anchor>1 || s->wipe>1)return false;
   for(unsigned i=0;i<2;++i)
-    if(s->players[i].life>X3_COOP_FALLEN || s->players[i].character>1)return false;
+    if(s->players[i].life>X3_COOP_FALLEN || s->players[i].character>1 ||
+       (s->initialized && (s->players[i].maximum_health<1 || s->players[i].maximum_health>32)))return false;
   if(!s->initialized)return !s->wipe && !s->current && !s->anchor &&
       s->players[0].life==X3_COOP_ABSENT && s->players[1].life==X3_COOP_ABSENT;
   if(s->players[0].character==s->players[1].character)return false;
@@ -37,16 +39,20 @@ bool X3CoopInit(X3CoopState *s,const uint8_t ram[0x20000],unsigned p1) {
   if(!s || !ram || p1>1)return false;
   memset(s,0,sizeof(*s));
   s->initialized=1;
+  /* Enrollment receives the native X body, regardless of controller seat. */
+  s->current=s->anchor=(uint8_t)p1;
   for(unsigned i=0;i<2;++i) {
     s->players[i].character=(uint8_t)(p1^i);
     s->players[i].life=X3_COOP_ALIVE;
     capture(&s->players[i],ram);
-    if(i==0)s->players[i].previous_actions=(uint16_t)(ram[X3_COOP_BODY+0x38]|ram[X3_COOP_BODY+0x39]<<8);
+    if(i==p1)s->players[i].previous_actions=(uint16_t)(ram[X3_COOP_BODY+0x38]|ram[X3_COOP_BODY+0x39]<<8);
   }
   /* Fresh partner: no inherited projectiles, charge effects or armor tasks. */
-  memset(s->players[1].auxiliaries,0,sizeof(s->players[1].auxiliaries));
-  memset(s->players[1].shots,0,sizeof(s->players[1].shots));
-  s->players[1].shot_command=0;
+  X3CoopPlayer *zero=&s->players[p1^1];
+  memset(zero->auxiliaries,0,sizeof(zero->auxiliaries));
+  memset(zero->shots,0,sizeof(zero->shots));
+  zero->shot_command=0;
+  zero->maximum_health=28;zero->body[0x27]=28;
   return true;
 }
 void X3CoopCapture(X3CoopState *s,const uint8_t ram[0x20000]) {
@@ -77,6 +83,7 @@ bool X3CoopProject(X3CoopState *s,uint8_t ram[0x20000],unsigned seat) {
     ram[0xa1]=1; /* Request the native next-NMI palette upload. */
   }
   ram[0x1f1e]=p->shot_command;
+  ram[0x1fd2]=p->maximum_health;
   s->current=(uint8_t)seat;
   return true;
 }
@@ -117,12 +124,12 @@ bool X3CoopTeamRetry(X3CoopState *s) {
   return true;
 }
 /* Pointer-free wire representation, independent of host struct padding. */
-enum { PLAYER_BYTES=X3_COOP_BODY_BYTES+X3_COOP_AUX_BYTES+X3_COOP_SHOT_BYTES+X3_COOP_PALETTE_BYTES+5,
+enum { PLAYER_BYTES=X3_COOP_BODY_BYTES+X3_COOP_AUX_BYTES+X3_COOP_SHOT_BYTES+X3_COOP_PALETTE_BYTES+6,
        STATE_BYTES=4+4+2*PLAYER_BYTES };
 size_t X3CoopEncodedSize(void) {return STATE_BYTES;}
 bool X3CoopEncode(const X3CoopState *s,void *out,size_t size) {
   if(!out || size!=STATE_BYTES || !X3CoopValid(s))return false;
-  uint8_t *p=out;memcpy(p,"X3C3",4);p+=4;
+  uint8_t *p=out;memcpy(p,"X3C4",4);p+=4;
   *p++=s->initialized;*p++=s->current;*p++=s->anchor;*p++=s->wipe;
   for(unsigned i=0;i<2;++i) {
     const X3CoopPlayer *a=&s->players[i];
@@ -131,12 +138,12 @@ bool X3CoopEncode(const X3CoopState *s,void *out,size_t size) {
     memcpy(p,a->shots,sizeof(a->shots));p+=sizeof(a->shots);
     memcpy(p,a->palette,sizeof(a->palette));p+=sizeof(a->palette);
     *p++=(uint8_t)a->previous_actions;*p++=(uint8_t)(a->previous_actions>>8);
-    *p++=a->life;*p++=a->character;*p++=a->shot_command;
+    *p++=a->life;*p++=a->character;*p++=a->shot_command;*p++=a->maximum_health;
   }
   return true;
 }
 bool X3CoopDecode(X3CoopState *s,const void *data,size_t size) {
-  if(!s || !data || size!=STATE_BYTES || memcmp(data,"X3C3",4))return false;
+  if(!s || !data || size!=STATE_BYTES || memcmp(data,"X3C4",4))return false;
   const uint8_t *p=(const uint8_t *)data+4;X3CoopState v={0};
   v.initialized=*p++;v.current=*p++;v.anchor=*p++;v.wipe=*p++;
   for(unsigned i=0;i<2;++i) {
@@ -146,7 +153,7 @@ bool X3CoopDecode(X3CoopState *s,const void *data,size_t size) {
     memcpy(a->shots,p,sizeof(a->shots));p+=sizeof(a->shots);
     memcpy(a->palette,p,sizeof(a->palette));p+=sizeof(a->palette);
     a->previous_actions=(uint16_t)(p[0]|p[1]<<8);p+=2;
-    a->life=*p++;a->character=*p++;a->shot_command=*p++;
+    a->life=*p++;a->character=*p++;a->shot_command=*p++;a->maximum_health=*p++;
   }
   if(!X3CoopValid(&v))return false;
   *s=v;return true;

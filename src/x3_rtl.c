@@ -159,6 +159,8 @@ void RunOneFrameOfGame(void) {
 
   if (!s_lle_did_reset) {
     X3CoopRuntimeReset();
+    const char *p1_character=getenv("SNESRECOMP_X3_COOP_P1");
+    X3CoopRuntimeSetP1Character(p1_character && !strcmp(p1_character,"zero")?X3_COOP_ZERO:X3_COOP_X);
     const char *coop_independent=getenv("SNESRECOMP_X3_COOP_INDEPENDENT");
     X3CoopViewsConfigure((coop_independent && coop_independent[0]=='1') ||
         X3Display_PresentationSeat()>=0 || X3Display_LocalSplit());

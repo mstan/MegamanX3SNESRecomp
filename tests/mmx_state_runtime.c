@@ -22,7 +22,7 @@ int main(int argc,char **argv) {
     check(saved && damaged && after,"co-op preflight buffers");
     size_t size=RtlSaveSnapshotToMemory(saved,cap),marker=0;
     check(size>32,"co-op snapshot is present");
-    for(size_t i=size-4;i>0;--i)if(!memcmp(saved+i,"X3C3",4)){marker=i;break;}
+    for(size_t i=size-4;i>0;--i)if(!memcmp(saved+i,"X3C4",4)){marker=i;break;}
     check(marker && marker+8<size,"co-op context chunk is present");
     memcpy(damaged,saved,size);damaged[marker+6]=2;
     check(!RtlLoadSnapshotFromMemory(damaged,size),"invalid actor anchor is refused before load");
@@ -35,9 +35,18 @@ int main(int argc,char **argv) {
       check(X3CoopRuntimeEnabled(),"loading an enrolled state before boot enables its actor schedule");
       check(X3CoopRuntimeState()->initialized,"fixture contains enrolled actors");
       size=RtlSaveSnapshotToMemory(saved,cap);
+      const char *low_p2=getenv("X3_COOP_LOW_P2_OUTPUT");
+      if(low_p2 && *low_p2){
+        memcpy(damaged,saved,size);size_t offset=contact_context_offset(saved,size);
+        X3CoopState setup=*X3CoopRuntimeState();setup.players[1].body[0x27]=1;
+        check(X3CoopEncode(&setup,damaged+offset,X3CoopEncodedSize()),"private low-HP precondition encodes");
+        check(RtlLoadSnapshotFromMemory(damaged,size) && RtlSaveSnapshot(low_p2),"private low-HP route precondition saves");
+        check(RtlLoadSnapshotFromMemory(saved,size),"low-HP preparation restores its starting machine");
+      }
       native_display_checks("start",saved,size,after,damaged,cap);
       native_presentation_checks(saved,size,after,damaged,cap);
       native_reused_pose_checks(saved,size,after,damaged,cap);
+      native_health_limit_checks(saved,size,after,cap);
       native_view_checks(saved,size,after,damaged,cap);
       native_contact_checks(saved,size,after,cap);
       native_support_checks(saved,size,after,damaged,cap);
@@ -51,6 +60,14 @@ int main(int argc,char **argv) {
       for(int i=0;i<30;++i)frame(SNES_PAD_RIGHT<<12);
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
+    }
+    fixture=getenv("X3_COOP_REVERSED_STATE");
+    if(fixture && *fixture){
+      X3CoopRuntimeEnable(true);
+      check(RtlLoadSnapshot(fixture),"native reversed roster fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_display_checks("reversed",saved,size,after,damaged,cap);
+      native_reversed_roster_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_INDEPENDENT_STATE");
     if(fixture && *fixture) {
@@ -115,7 +132,8 @@ int main(int argc,char **argv) {
       const X3CoopState *s=X3CoopRuntimeState();
       check(s->initialized && !s->wipe && s->players[0].life==X3_COOP_ALIVE &&
             s->players[1].life==X3_COOP_ALIVE,"whole-team native retry reenrolls both actors");
-      check((s->players[0].body[0x27]&127)==16 && (s->players[1].body[0x27]&127)==16,
+      check((s->players[0].body[0x27]&127)==16 && (s->players[1].body[0x27]&127)==28 &&
+            s->players[0].maximum_health==16 && s->players[1].maximum_health==28,
             "native retry gives both actors fresh health");
       check(g_ram[0x1fb4]==1,"staggered-wipe route debits one shared life from two");
     }

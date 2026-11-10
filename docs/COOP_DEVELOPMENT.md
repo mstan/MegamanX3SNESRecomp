@@ -337,3 +337,37 @@ choices, paired menus and public settings/netplay remain open. Zero's prototype
 starting health still inherits X's; native Zero28HP and per-actor maximum/roster
 ownership must be completed. No final QA rollup or campaign suite is accepted
 by this checkpoint; the full180-point post-implementation suite remains open.
+
+### Native health limits and reversed roster checkpoint
+
+Enrollment preserves the native X body/resources in the seat assigned X and
+seeds the other seat with native Zero28HP. The original04:8DEE stock exchange
+provides Zero's maximum. Maximum HP is now personal projected state, including
+current/queued/completed/visible snapshots (X3C4/X3P3), rather than one shared
+native1FD2 value. Private HUDs use the matching visible actor's maximum.
+Development `SNESRECOMP_X3_COOP_P1=zero` reverses the roster at enrollment;
+restoring an enrolled state retains that roster through the next native retry.
+
+The native04:AA09 health regeneration routine reaches each actor's own maximum
+and does not exceed it. A zero maximum in saved actor data fails transactional
+preflight. Fresh native fixtures pass both natural-contact death directions,
+the staggered wipe with one shared life debit, and retry HP16/28. The P2-death
+route now loads an explicit private Zero1HP precondition: run native tests with
+`X3_COOP_LOW_P2_OUTPUT` pointing at disposable slot2 before running that script.
+No death, survivor or retry result flags are supplied by the preparation.
+
+Use `tests/scenarios/coop_reversed.script` for disposable slot1 and
+`X3_COOP_REVERSED_STATE` for its ROM checks. Native movement, owned Zero combat
+and30-frame replay pass with either seat controlling its assigned character.
+The reversed X primary view matches all native pixels; the real host split
+capture shows the native Z/X badges and their28/16HP meters in the right fields.
+Evidence: `native-health-roster-result.log`, `native-reversed-display-result.log`
+in `build-coop/qa-state`, and `build-coop/qa/host-reversed-split.png`.
+Both CTests pass. Qualified game SHA256:
+`677b8443029d636b669c6fa3e34bfc9f71a69e8cca2d3770cb7153b921005122`.
+
+This completes the enrollment/normal healing ownership repair, not campaign
+resource certification. Heart/capsule attribution, X upgrades/weapons, native
+exchange restrictions, scenes/stage transitions and full reversed death/retry
+coverage remain open. Public roster settings/profile negotiation are still
+required. All15 final QA rollups and the180-point suite remain open.
