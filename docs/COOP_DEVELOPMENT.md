@@ -37,13 +37,13 @@ campaign or co-op gameplay acceptance.
 
 | Area | Status | Acceptance |
 | --- | --- | --- |
-| Individual death | X contact-death case passed; other cases open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
-| Team wipe | Not qualified | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
+| Individual death | Stage-1 contact deaths pass for X/P1 and Zero/P2; other cases open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
+| Team wipe | Zero-then-X stage-1 route passes; other cases open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | Component checks only | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | Not implemented | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | Terrain pass prepared | Both riders retain support, momentum and crush behavior while each platform advances once. |
-| Enemy interactions | Not implemented | Targeting, contact, capture and release recognize either actor and clean up victims. |
-| Combat ownership | Not qualified | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
+| Enemy interactions | Native body-contact probes pass; targeting/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
+| Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | Not implemented | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Not qualified | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | Not implemented | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
@@ -88,3 +88,42 @@ The survivor check passes another 60 frames with gameplay phase 4, brightness
 at a step without killing X is not death-validation evidence.
 Do not deliver or
 replace the existing X3 archive with this unqualified prototype.
+
+### Native contacts and owned updates
+
+The native hostile body and player-shot scans now test the partner through
+balanced guest continuations. Solid contacts check both bodies; a hostile shot
+consumed by its first hit stops there. A player-shot scan retries the partner
+only after its actual miss return, preserving reflection/immunity results.
+Each player's native shot, armor and auxiliary pools receive one update.
+The common world/enemy scheduler still runs once. Continuations and their
+scratch/results participate in snapshots; invalid active PCs, pass combinations
+and projected-seat identities are refused before loading the machine.
+
+Cartridge-backed geometry probes pass P2-only enemy damage, overlapping solid
+damage, hostile-shot single consumption, partner buster movement and partner
+buster damage to a shared enemy. These isolated probes do not qualify enemy
+AI, spawning, authored platforms or native graphics for those projectiles.
+The generated-boundary check covers all ten routed entries and all four
+register-width variants. Initialized immediate restore and input replay still
+pass, together with the stock state/rewind checks.
+
+`tests/scenarios/coop_p2_survivor.script` gives Zero low health before native
+enrollment, restores X's health, then moves both into real stage-1 enemy
+contact. Zero is fallen at x719 while X moves to x761. Phase remains 04/04,
+brightness 15 and all seven shared freeze bytes remain zero. The captured
+survivor image was inspected; another 60 frames retain the same life states.
+`coop_team_retry.script` resumes that disposable slot10 and gives the remaining
+X one health before further contact. Native retry reenrolls both with 16 HP;
+the common life count changes from two to one. No death/retry result flags are
+written by either setup. Pits, simultaneous wipes, boss retries, reversed
+rosters and continuation restores remain unqualified.
+
+Implementation-stage evidence under `build-coop/qa`: `p2-death-*`,
+`team-retry-*`, and slots10/9; ROM-backed results in
+`build-coop/qa-state/native-contact-result.log`. Game binary SHA256:
+`9edbcf2d35820f313d743d36ea471cc3184c3ac0efe03867552b77666d30badf`.
+Automated profiles use dummy audio/video, software rendering, native aspect
+and the prototype switch. These narrow results support D01/D02/D08/D09 and
+T03; they do not close their full roster/stage coverage or any of the 15
+rollup areas. The planned post-implementation suite remains 180 touchpoints.

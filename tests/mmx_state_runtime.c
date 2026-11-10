@@ -7,6 +7,7 @@ static unsigned coop_x(unsigned seat) {
   const uint8_t *body=X3CoopRuntimeState()->players[seat].body;
   return body[5]|body[6]<<8;
 }
+#include "x3_coop_contact_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -28,6 +29,7 @@ int main(int argc,char **argv) {
       check(RtlLoadSnapshot(fixture),"native two-actor fixture loads");
       check(X3CoopRuntimeState()->initialized,"fixture contains enrolled actors");
       size=RtlSaveSnapshotToMemory(saved,cap);
+      native_contact_checks(saved,size,after,cap);
       unsigned x=coop_x(0),zero=coop_x(1);
       for(int i=0;i<30;++i)frame(SNES_PAD_RIGHT<<12);
       check(coop_x(0)==x && coop_x(1)>zero,"native partner movement leaves X in place");
@@ -56,6 +58,32 @@ int main(int argc,char **argv) {
       check(unfrozen,"survivor world pools remain unfrozen");
       check(X3CoopRuntimeState()->players[0].life==X3_COOP_FALLEN,
             "surviving gameplay does not revive X");
+    }
+    fixture=getenv("X3_COOP_P2_SURVIVOR_STATE");
+    if(fixture && *fixture) {
+      X3CoopRuntimeEnable(true);
+      check(RtlLoadSnapshot(fixture),"natural-contact P2-death fixture loads");
+      bool bright=true,unfrozen=true;
+      for(int i=0;i<60;++i) {
+        frame(0);
+        bright=bright && g_ram[0xd1]==4 && g_ram[0xd2]==4 && (g_ppu->inidisp&0x8f)==15;
+        for(unsigned a=0x1f25;a<=0x1f2b;++a)unfrozen=unfrozen && !g_ram[a];
+      }
+      check(bright && unfrozen,"P2-death survivor retains bright unfrozen gameplay");
+      check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE &&
+            X3CoopRuntimeState()->players[1].life==X3_COOP_FALLEN,
+            "continued gameplay keeps Zero fallen and X alive");
+    }
+    fixture=getenv("X3_COOP_RETRY_STATE");
+    if(fixture && *fixture) {
+      X3CoopRuntimeEnable(true);
+      check(RtlLoadSnapshot(fixture),"native staggered-wipe retry fixture loads");
+      const X3CoopState *s=X3CoopRuntimeState();
+      check(s->initialized && !s->wipe && s->players[0].life==X3_COOP_ALIVE &&
+            s->players[1].life==X3_COOP_ALIVE,"whole-team native retry reenrolls both actors");
+      check((s->players[0].body[0x27]&127)==16 && (s->players[1].body[0x27]&127)==16,
+            "native retry gives both actors fresh health");
+      check(g_ram[0x1fb4]==1,"staggered-wipe route debits one shared life from two");
     }
     free(saved);free(damaged);free(after);
     /* Exercise adaptive native/wide bounds in the same diagnostic stream. */

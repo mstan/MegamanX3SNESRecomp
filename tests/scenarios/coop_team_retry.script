@@ -1,0 +1,12 @@
+# Uses the disposable slot10 produced by coop_p2_survivor.script.
+wait 10
+loadstate 10
+wait 10
+poke 09ff 01
+press right 180
+press right+b 60
+press right 480
+wait 900
+dump team-retry-after
+savestate 9
+quit

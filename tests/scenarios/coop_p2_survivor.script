@@ -1,0 +1,37 @@
+# P2 low-HP precondition before native enrollment; no result flags written.
+wait 600
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+wait 240
+poke 1fae 01
+poke 1faf 00
+poke 1fb3 00
+poke 1fb5 00
+poke 1fb6 00
+poke 1ebf 01
+poke 00d1 02
+poke 00d2 04
+poke 00d3 00
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+until 1f22 == 00 1800
+pokefor 09ff 01 120
+poke 09ff 10
+dump p2-death-before
+press right+p2:right 180
+press right+p2:right+b+p2:b 60
+press right+p2:right 240
+wait 10
+dump p2-death-after
+press right 30
+wait 60
+dump p2-death-control
+savestate 10
+quit

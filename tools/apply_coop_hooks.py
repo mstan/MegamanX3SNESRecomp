@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Keep X3's balanced native controller boundary observable in development co-op."""
+"""Keep X3's paired actor, contact and owned-pool boundaries observable."""
 import argparse
 from pathlib import Path
 import re
 
 MARKER = '/*X3-COOP*/'
-ENTRY = re.compile(r'RecompReturn bank_04_(8000|81D0|B58A)_M[01]X[01]\(CpuState \*cpu\) \{')
+ENTRY = re.compile(r'RecompReturn bank_(00|04)_([0-9A-F]{4})_M[01]X[01]\(CpuState \*cpu\) \{')
+TARGETS = {0: {0xda7f,0xdb9f,0xdbc1,0xdc06,0xdc23},
+           4: {0x8000,0x81d0,0xb58a,0xcb31,0xcb74}}
 
 def apply(source):
     output = [MARKER + ' #include "snes/interp_bridge.h"\n']
@@ -16,10 +18,10 @@ def apply(source):
             continue
         output.append(line)
         match=ENTRY.match(line)
-        if match:
-            pending = int(match[1],16)
+        if match and int(match[2],16) in TARGETS.get(int(match[1],16),set()):
+            pending = int(match[1],16)<<16|int(match[2],16)
         if pending and 'g_cpu_entry_s[g_recomp_stack_top - 1] = _entry_s;' in line:
-            output.append('  ' + MARKER + f' {{ extern bool X3CoopRuntimeEnabled(void); if (X3CoopRuntimeEnabled()) {{ RecompReturn r = interp_tier_dispatch_bank_miss(cpu, 0x04{pending:04x}u, _entry_s, _hrv); RecompStackPop(); return r; }} }}\n')
+            output.append('  ' + MARKER + f' {{ extern bool X3CoopRuntimeEnabled(void); if (X3CoopRuntimeEnabled()) {{ RecompReturn r = interp_tier_dispatch_bank_miss(cpu, 0x{pending:06x}u, _entry_s, _hrv); RecompStackPop(); return r; }} }}\n')
             count += 1
             pending = False
     if pending:
