@@ -20,7 +20,7 @@ static void capture(X3CoopPlayer *p, const uint8_t *ram) {
   memcpy(p->shots,ram+X3_COOP_SHOTS,sizeof(p->shots));
   /* Native pause backs up and replaces all CGRAM staging, including these
    * addresses. UI colors do not become an actor's gameplay palette. */
-  if(!(ram[0x1f37]&1))memcpy(p->palette,ram+X3_COOP_PALETTE,sizeof(p->palette));
+  if(!X3CoopNativePauseActive(ram))memcpy(p->palette,ram+X3_COOP_PALETTE,sizeof(p->palette));
   p->shot_command=ram[0x1f1e];
   p->native_flags=ram[0x1fff];
   p->maximum_health=ram[0x1fd2];
@@ -83,7 +83,7 @@ static bool project(X3CoopState *s,uint8_t ram[0x20000],unsigned seat,bool retir
   memcpy(ram+X3_COOP_BODY,p->body,sizeof(p->body));
   memcpy(ram+X3_COOP_AUX,p->auxiliaries,sizeof(p->auxiliaries));
   memcpy(ram+X3_COOP_SHOTS,p->shots,sizeof(p->shots));
-  if(!(ram[0x1f37]&1) && memcmp(ram+X3_COOP_PALETTE,p->palette,sizeof(p->palette))) {
+  if(!X3CoopNativePauseActive(ram) && memcmp(ram+X3_COOP_PALETTE,p->palette,sizeof(p->palette))) {
     memcpy(ram+X3_COOP_PALETTE,p->palette,sizeof(p->palette));
     ram[0xa1]=1; /* Request the native next-NMI palette upload. */
   }

@@ -31,8 +31,10 @@ HUDs. Private views show their actor's native health, X's applicable weapon
 energy/icon and personal charge indicator. Diagnostic environment overrides
 remain available. Holding Select withdraws a living actor; release and hold
 again to return beside the partner when clear native ground is available.
-Full-campaign scenes/lifecycle qualification,
-paired menus, assists, widescreen co-op fields and online session
+Either living actor can open the paired pause with Start. Both navigate their
+own panel; Fire selects equipment or uses a shared subtank, and Start resumes
+when healing finishes. Full-campaign scenes and lifecycle qualification,
+assists, widescreen co-op fields and online session
 qualification still require work. This is not a release qualification.
 
 Full campaign is the default Zero policy. Stock restrictions start him
@@ -56,7 +58,7 @@ campaign or co-op gameplay acceptance.
 | Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | Stage1 entrance/transport and stage5/stage8 capsule tasks pass focused both-roster/API-retirement checks; visuals, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Not qualified | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
-| Menus/resources | Native pickup/refill and authored heart/subtank probes pass narrowly; paired menus/spending open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
+| Menus/resources | Paired navigation, native timed healing, ownership, resume and Escape pass focused checks; full campaign and online qualification open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Not qualified | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. Unchanged X3 reaches a rendered scene; early black captures were startup transients. |
 | Rollback/state | Component and stock-runtime checks | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
 | Netplay | Not implemented | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
@@ -1045,3 +1047,66 @@ GUI SHA256:`d20980eb6c62907d68cc8b700b00443b45ae5d88fa40c7e987cc2cc28a63a4a6`;
 state tests:`8f44f82807db2be9fcc0bd7f08cabd991bff6dd848523cfe4e882ed737731bc0`.
 Fixtures11/1/3/8/6/13/quick/2/10/9 were regenerated for this wire format.
 All15 final rollups remain open; delivered archives and owner data are unchanged.
+
+## Paired native pause
+
+Either living seat can request the original00:A2FA pause; P1 wins simultaneous
+requests. Input sampling follows the common emulated frame, with Start at
+native action1000. The original weapon-cycle action0010 remains gameplay.
+The native scheduler enters and leaves pause once; shared enemies, shots and
+items remain frozen. The two panel cursors and selection histories stay
+separate. X's acquired selection commits through original00:D632, then the
+world regains its original anchor. Zero keeps his native arms.
+
+The panels reuse native pause glyphs and the PPU fade. Shared output displays
+both panels, split gives each half its own panel, and selected-player output
+shows the selected panel. Rendering the same paused machine in these views
+leaves the complete machine identical. Controller navigation changes only
+the requesting panel. A retired actor's panel has no active controls.
+
+Native00:C8B2 and C901 supply the original subtank pulse cadence, HP limit,
+sound and reserve cost. The actors borrow the one native handler in seat order.
+A shared tank has one owner. Different tanks can heal concurrently. The first
+finishing heal leaves any active tank's slot in place, and the last heal runs
+original00:CEAC repacking once. Empty tanks and full HP refuse a refill.
+Start does not close an active heal, but the other panel can still navigate.
+
+Exit has one requesting owner and uses the original00:CEF4 eligibility check
+and C6F8 wait/fade. Only that owner can confirm or cancel. The focused test
+uses the real stage unlock as a prepared prerequisite, then confirms through
+actual input; it is not a boss-clear or campaign-route result.
+
+The explicit128-byte X3M1 chunk saves input edges/frame serial, both panels,
+healing fields, modal/commit ownership and any borrowed native continuation.
+Full snapshots are413017 bytes. Preflight rejects inconsistent phase, life,
+tank, cursor, CPU width, action and continuation metadata before mutation.
+Native healing matches the original HP/reserve trace over all56 full-tank
+ticks in both rosters; active-heal replay matches the whole machine. The
+interrupted pulse also restores the saved native borrow in place. A natural
+contact-death survivor can pause, restore and resume without re-enrolling the
+fallen partner. These are focused implementation checks; the final campaign,
+moving presentation, online and owner checks remain open.
+
+Final menu/sole-Zero exit evidence is`native-paired-menu-zero-exit-result.log`
+under`build-coop/qa-state`. Both rosters reach the actual original stage-exit
+task and restored-world draw on confirmed Escape. Active pause is distinct
+from the restored-world values80 and81, so Escape's low bit cannot retain UI
+palette or draw ownership. If X is fallen or absent, Zero still runs his
+original equipment graphics restore. Final GUI SHA256:
+`298a0a01bba0976837671262fc66028b90684b543ed31460674a626c44ea646a`;
+state tests:`cac885d1dcc7ec539d2845ece1a8e94bc0230a84c15eda439cc38af1788a6ba4`.
+
+The base gate passes in`native-paired-menu-final-base-result.log`.
+Stock, HUD, return, stage, reversed roster, independent routes and targeting
+pass before an outdated authored support test reads the old tail offset in
+`native-paired-menu-final-rest-result.log`. The corrected test still requires
+the original rider bits; support, capsule, both survivors and retry pass in
+`native-paired-menu-escape-result.log`. That run precedes only the sole-Zero
+exit restore change, covered by the focused final gate. Both X3 CTests pass.
+
+The prototype-free launcher route opens pause with Zero at455, retains X at384,
+and lets X resume once; Zero then moves to494. The actual512x224 paired output
+is`build-coop/qa-public/paired-menu-final-split.png`; the current-build resume
+copy was loaded and consumed. The runtime observations and panel capture cover
+an isolated native-resolution profile, not adaptive widescreen or a human
+controller handoff. No final QA rollup or release is closed by this component.

@@ -4,6 +4,7 @@
 #undef main
 #include "../src/x3_coop_runtime.h"
 #include "../src/x3_coop_view.h"
+#include "../src/x3_coop_menu.h"
 static unsigned coop_x(unsigned seat) {
   const uint8_t *body=X3CoopRuntimeState()->players[seat].body;
   return body[5]|body[6]<<8;
@@ -23,6 +24,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_hud_test.inc"
 #include "x3_coop_stock_test.inc"
 #include "x3_coop_menu_test.inc"
+#include "x3_coop_paired_menu_test.inc"
 #include "x3_coop_flags_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
@@ -99,6 +101,12 @@ int main(int argc,char **argv) {
       check(RtlLoadSnapshot(fixture),"native pause-menu fixture loads");
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_menu_checks(saved,size,after,damaged,cap);
+    }
+    fixture=getenv("X3_COOP_PAIRED_MENU_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"paired pause-menu fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_paired_menu_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_STOCK_STATE");
     if(fixture && *fixture){

@@ -18,6 +18,8 @@ bool X3CoopRuntimeZeroAvailable(void);
 bool X3CoopRuntimeSceneActive(void);
 void X3CoopRuntimeScenePresentation(X3CoopState *copy);
 void X3CoopRuntimeFrame(void);
+/* Sample once per emulated host frame, including native pause waits. */
+void X3CoopRuntimeInputFrame(uint32_t serial);
 const X3CoopState *X3CoopRuntimeState(void);
 void X3CoopRuntimeReset(void);
 void X3CoopRuntimeSave(struct SaveLoadInfo *sli);

@@ -7,6 +7,7 @@
 #include "x3_coop_render.h"
 #include "x3_coop_view.h"
 #include "x3_coop_hud.h"
+#include "x3_coop_menu.h"
 #include "x3_native_resources.h"
 #include "snes/ppu.h"
 #include "snes/snes.h"
@@ -354,7 +355,7 @@ static bool begin_independent_frame(Ppu *p,unsigned seat){
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
   if(!p || !p->renderBuffer || seat>1 || !X3CoopRuntimeReady() || !X3CoopViewsIndependent() ||
      !visible->players.initialized || visible->players.wipe || !g_snes || !g_snes->cart ||
-     g_ram[0xd1]!=4 || g_ram[0xd2]!=4 || (g_ram[0x1f37]&1) || (p->bgmode&7)!=1)return false;
+     g_ram[0xd1]!=4 || g_ram[0xd2]!=4 || X3CoopNativePauseActive(g_ram) || (p->bgmode&7)!=1)return false;
   active_frame=&independent_frames[seat];
   frame.rom=g_snes->cart->rom;frame.size=g_snes->cart->romImageSize;
   memcpy(frame.ram,g_ram,sizeof(frame.ram));
@@ -464,6 +465,7 @@ void X3Display_CaptureLocalSplitNative(const Ppu *p){
   /* Menus, arrivals and shared scripts retain their real native scanout. */
   for(unsigned y=0;y<224;++y)for(unsigned seat=0;seat<2;++seat)
     memcpy(split_pixels+((size_t)y*512+seat*256)*4,p->renderBuffer+(size_t)y*p->renderPitch,256*4);
+  X3CoopMenuDraw(p,split_pixels,512*4,512,-1);
 }
 int X3Display_DrawLocalSplit(uint8_t *dst,size_t pitch,const uint8_t *field,
                             int width,int height,double alpha){

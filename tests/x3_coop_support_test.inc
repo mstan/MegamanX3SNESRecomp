@@ -55,7 +55,7 @@ static void native_support_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
   check(support_position(0,5)==before[0]-4 && support_position(1,5)==before[2]+2,
         "restored histories carry the same two actors");
   size_t expected=RtlSaveSnapshotToMemory(extra,capacity);
-  modified[prepared-31]|=4;
+  modified[prepared-X3_COOP_MENU_STATE_BYTES-31]|=4;
   check(!RtlLoadSnapshotFromMemory(modified,prepared),"invalid support rider bits are refused before load");
   size_t after=RtlSaveSnapshotToMemory(modified,capacity);
   same(extra,expected,modified,after,"invalid rider state leaves the machine unchanged");
@@ -143,7 +143,7 @@ static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modif
   int zero_gap=(int)support_position(1,8)+29-(int)y;
   size_t riding=RtlSaveSnapshotToMemory(modified,capacity);
   check(support_position(0,8)+21<y-8 && zero_gap>=0 && zero_gap<=1 &&
-        (modified[riding-31+(d-0xd18)/64]&3)==2,
+        (modified[riding-X3_COOP_MENU_STATE_BYTES-31+(d-0xd18)/64]&3)==2,
         "X can jump off while Zero keeps riding the authored support");
   check(RtlLoadSnapshotFromMemory(snapshot,prepared),"P2-first authored support setup restores");
   /* X is outside the real38-pixel contact width; both remain in one view. */
@@ -154,7 +154,7 @@ static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modif
   check(!memcmp(reference,g_ram+d,sizeof(reference)) && zero_gap>=0 && zero_gap<=1,
         "P2 alone lands, starts and rides the actual support with native movement");
   size_t observed=RtlSaveSnapshotToMemory(modified,capacity);
-  check((modified[observed-31+(d-0xd18)/64]&3)==2,
+  check((modified[observed-X3_COOP_MENU_STATE_BYTES-31+(d-0xd18)/64]&3)==2,
         "authored P2-only ride retains no false X rider");
   output=getenv("X3_COOP_PLATFORM_P2_OUTPUT");
   if(output && *output)check(RtlSaveSnapshot(output),"P2-only support visual handoff saves");

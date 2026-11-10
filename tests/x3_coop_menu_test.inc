@@ -1,8 +1,11 @@
 /* Original pause entry/render/restore is a prerequisite for paired controls. */
+#include "../src/x3_coop_menu.h"
 static void native_menu_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
   check(RtlLoadSnapshotFromMemory(original,size),"pause rendering starts from actual two-actor gameplay");
   X3Display_SetLocalSplit(true);X3Display_SetPresentationSeat(-1);
+  fprintf(stderr,"pause entry native phase%u/%u pause%u lock%u life%u/%u hp%u/%u flags7e%u/%u\n",g_ram[0xd1],g_ram[0xd2],g_ram[0x1f37],g_ram[0x1f4f],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,contact_hp(0),contact_hp(1),X3CoopRuntimeState()->players[0].body[0x7e],X3CoopRuntimeState()->players[1].body[0x7e]);
   frame(SNES_PAD_START);for(unsigned i=0;i<90;++i)frame(0);
+  fprintf(stderr,"pause after native phase%u/%u pause%u lock%u enabled%u\n",g_ram[0xd1],g_ram[0xd2],g_ram[0x1f37],g_ram[0x1f4f],X3CoopRuntimeEnabled());
   check((g_ram[0x1f37]&1) && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE &&
         X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual Start opens the original native pause with both actors retained");
   check(!X3Display_RenderedPrivateFrame(),"native pause never renders a stale private game field over its menu");
@@ -25,11 +28,14 @@ static void native_menu_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   memcpy(paused,work,after);X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
   bool wide=g_config.widescreen;g_config.widescreen=false;
   X3CoopRuntimeEnable(false);g_rtl_game_info->draw_ppu_frame();
-  memcpy(pixels,g_ppu->renderBuffer,256u*224u*4u);
+  for(unsigned y=0;y<224;++y)memcpy(pixels+(size_t)y*256*4,g_ppu->renderBuffer+(size_t)y*g_ppu->renderPitch,256*4);
   check(RtlLoadSnapshotFromMemory(paused,after),"paused co-op snapshot restores with its native UI");
+  X3CoopMenuNativeReference(true);
   g_rtl_game_info->draw_ppu_frame();
-  same(pixels,256u*224u*4u,g_ppu->renderBuffer,256u*224u*4u,
+  for(unsigned y=0;y<224;++y)memcpy(work+(size_t)y*256*4,g_ppu->renderBuffer+(size_t)y*g_ppu->renderPitch,256*4);
+  same(pixels,256u*224u*4u,work,256u*224u*4u,
        "co-op pause retains exactly the native menu pixels without partner ghosts or borrowed colors");
+  X3CoopMenuNativeReference(false);
   size_t restored=RtlSaveSnapshotToMemory(work,capacity);
   check(RtlLoadSnapshotFromMemory(paused,after),"paused state replays its idle operation");
   size_t immediate=RtlSaveSnapshotToMemory(expected,capacity);

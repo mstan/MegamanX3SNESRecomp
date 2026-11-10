@@ -27,6 +27,9 @@ typedef struct X3CoopState {
   uint8_t initialized, current, anchor, wipe;
 } X3CoopState;
 
+/* Native bit7 announces restored gameplay, including Escape's value81. */
+static inline bool X3CoopNativePauseActive(const uint8_t *ram){return (ram[0x1f37]&0x81)==1;}
+
 bool X3CoopInit(X3CoopState *state, const uint8_t ram[0x20000], unsigned p1);
 bool X3CoopValid(const X3CoopState *state);
 void X3CoopCapture(X3CoopState *state, const uint8_t ram[0x20000]);

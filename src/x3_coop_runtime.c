@@ -1,6 +1,7 @@
 #include "x3_coop_runtime.h"
 #include "x3_coop_view.h"
 #include "x3_coop_present.h"
+#include "x3_coop_menu.h"
 #include "common_rtl.h"
 #include "snes/cart.h"
 #include "snes/snes.h"
@@ -67,6 +68,7 @@ typedef struct ViewBounds {NativePass native;uint8_t camera[64],scratch[24];} Vi
 static ViewBounds view_bounds;
 static bool partner_ready(void);
 static void settle_deaths(void);
+static bool menu_pending(void);
 static unsigned object_end(unsigned pc) {
   switch(pc) {
     case 0xda7f:return 0xda9f; /* Three native armor objects. */
@@ -300,6 +302,7 @@ static void settle_deaths(void) {
 }
 static void team_death_decision(CpuState *cpu,uint32_t pc) {
   (void)cpu;(void)pc;
+  if(menu_pending())return;
   if(controller.pass || terrain.pass || contact.native.pass || objects.native.pass ||
      draw.pass || target.active || solid.native.pass || view_bounds.native.pass)return;
   settle_deaths();
@@ -439,7 +442,7 @@ static bool landing_clear(int x,int floor,unsigned height,int source_x,int sourc
   return true;
 }
 static bool participation_ready(void){
-  if(!X3CoopRuntimeReady() || state.wipe || state.current!=state.anchor || scene.phase || refill.active ||
+  if(!X3CoopRuntimeReady() || menu_pending() || state.wipe || state.current!=state.anchor || scene.phase || refill.active ||
      controller.pass || terrain.pass || contact.native.pass || objects.native.pass || draw.pass ||
      target.active || solid.native.pass || view_bounds.native.pass || view_spawn.active ||
      g_ram[0xd1]!=4 || g_ram[0xd2]!=4 || g_ram[0x1f22] || g_ram[0x1f24])return false;
@@ -808,6 +811,10 @@ static bool owned_object(unsigned d) {
 static void draw_boundary(CpuState *cpu,uint32_t pc) {
   if(!X3CoopRuntimeReady())return;
   pc&=0x7fffff;
+  if(X3CoopNativePauseActive(g_ram)){
+    if(pc==0x038f70 && owned_object((cpu->D+cpu->X)&32767))cpu->X&=32767;
+    return;
+  }
   if((pc>>16)==2) {
     /* TDC has produced the real slot pointer. Bit15 is unused by the native
      * WRAM pools, and travels with this one request through all six queues. */
@@ -830,7 +837,7 @@ static void draw_boundary(CpuState *cpu,uint32_t pc) {
   }
 }
 static void presentation_boundary(CpuState *cpu,uint32_t pc) {
-  if(!X3CoopRuntimeReady() || (g_ram[0x1f37]&1))return;
+  if(!X3CoopRuntimeReady() || X3CoopNativePauseActive(g_ram))return;
   pc&=0x7fffff;
   if(pc==0x038dd7) {
     X3CoopPresentationBegin(&state,g_ram,cpu_read16(cpu,cpu->DB,0x6621),cpu_read16(cpu,cpu->DB,0x6623));
@@ -1194,10 +1201,12 @@ static void boundary(CpuState *cpu,uint32_t pc) {
     }
   }
 }
+#include "x3_coop_menu_runtime.inc"
 void X3CoopRuntimeEnable(bool value) {enabled=value;}
 bool X3CoopRuntimeEnabled(void) {return enabled;}
 const X3CoopState *X3CoopRuntimeState(void) {return &state;}
 void X3CoopRuntimeReset(void) {
+  memset(&menu,0,sizeof(menu));
   memset(&state,0,sizeof(state));memset(&controller,0,sizeof(controller));
   memset(participation_hold,0,sizeof(participation_hold));
   stock_exit_pending=false;
@@ -1273,6 +1282,10 @@ void X3CoopRuntimeFrame(void) {
   if(!interp_bridge_add_pre_opcode_hook(0x13c164,capsule_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x13c250,capsule_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x13c5bd,capsule_boundary))enabled=false;
+  static const uint32_t menu_pcs[]={0x00a2fa,0x00a36f,0x00c6d6,0x00c8d0,0x00c93e,
+      0x00cf13,0x00cf1c,0x00ceac,0x00cb64,0x00cb67};
+  for(unsigned i=0;i<sizeof(menu_pcs)/sizeof(*menu_pcs);++i)
+    if(!interp_bridge_add_pre_opcode_hook(menu_pcs[i],menu_boundary))enabled=false;
 }
 void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   uint8_t bytes[4096]={0};
@@ -1299,6 +1312,7 @@ void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   sli->func(sli,&view_bounds,sizeof(view_bounds));
   X3CoopPresentationSave(sli);
   sli->func(sli,&solid,sizeof(solid));sli->func(sli,riders,sizeof(riders));
+  uint8_t menu_bytes[MENU_BYTES];menu_encode(menu_bytes);sli->func(sli,menu_bytes,sizeof(menu_bytes));
 }
 static bool view_spawn_valid(const ViewSpawn *v) {
   if(v->count>sizeof(v->columns) || v->cursor>v->count || v->active>1)return false;
@@ -1392,13 +1406,18 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   ViewBounds bounds;sli->func(sli,&bounds,sizeof(bounds));
   if(!X3CoopPresentationLoad(sli))return false;
   sli->func(sli,&support,sizeof(support));sli->func(sli,rider_bits,sizeof(rider_bits));
+  uint8_t menu_bytes[MENU_BYTES];PairedMenu paired;sli->func(sli,menu_bytes,sizeof(menu_bytes));
   if(!X3CoopViewsLoad(views,sizeof(views),false) || !view_spawn_valid(&spawn) || bounds.native.pass>2)return false;
   if(!X3CoopDecode(&loaded,bytes,X3CoopEncodedSize()) || !refill_decode(&healing,refill_bytes,&loaded) ||
      !scene_decode(&scripted,scene_bytes,&loaded) || !participation_valid(participation,&scripted,&loaded) ||
      !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,rider_bits))return false;
+  if(!menu_decode(&paired,menu_bytes,&loaded) || (paired.phase &&
+      (scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
+       world.active || support.native.pass || spawn.active || bounds.native.pass)))return false;
   if(scripted.phase && scripted.kind==SCENE_STAGE_ENTRY && (spawn.active || bounds.native.pass))return false;
   state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;target=world;solid=support;
   refill=healing;scene=scripted;
+  menu=paired;
   memcpy(participation_hold,participation+4,sizeof(participation_hold));
   stock_zero=participation[6]!=0;stock_exit_pending=participation[7]!=0;
   /* A state can load before the first reset-frame environment setup. An
@@ -1408,7 +1427,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   X3CoopViewsLoad(views,sizeof(views),true);return true;
 }
 bool X3CoopRuntimePreflight(const void *data,size_t size) {
-  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target)+8+16+8+sizeof(solid)+sizeof(riders)+X3_COOP_VIEW_STATE_BYTES+sizeof(view_spawn)+sizeof(view_bounds)+X3CoopPresentationEncodedSize();
+  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target)+8+16+8+sizeof(solid)+sizeof(riders)+MENU_BYTES+X3_COOP_VIEW_STATE_BYTES+sizeof(view_spawn)+sizeof(view_bounds)+X3CoopPresentationEncodedSize();
   if(!data || size<tail)return false;
   X3CoopState decoded;
   const uint8_t *p=(const uint8_t *)data+size-tail;
@@ -1428,6 +1447,18 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
   if(!X3CoopPresentationPreflight(p,X3CoopPresentationEncodedSize()))return false;
   p+=X3CoopPresentationEncodedSize();memcpy(&support,p,sizeof(support));p+=sizeof(support);
   if(!passes_valid(&decoded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,p))return false;
+  PairedMenu paired;
+  if(!menu_decode(&paired,p+sizeof(riders),&decoded) || (paired.phase &&
+      (scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
+       world.active || support.native.pass || spawn.active || bounds.native.pass)))return false;
+  if(paired.phase && size>tail){
+    size_t ram_at;size_t guest=RtlSnapshotGuestLayout(NULL,&ram_at);
+    if(!guest || ram_at>size || size-ram_at<0x20000)return false;
+    const uint8_t *ram=(const uint8_t *)data+ram_at;
+    bool paused=X3CoopNativePauseActive(ram),exiting=(ram[0x1f37]&0x80)!=0;
+    if((paired.phase==1 && exiting) || (paired.phase==2 && !paused) ||
+       (paired.phase==3 && !paused && !exiting))return false;
+  }
   if(scripted.phase && scripted.kind==SCENE_STAGE_ENTRY && (spawn.active || bounds.native.pass))return false;
   if(scripted.phase && scripted.kind==SCENE_STAGE_ENTRY && size>tail){
     size_t ram_at;size_t guest=RtlSnapshotGuestLayout(NULL,&ram_at);

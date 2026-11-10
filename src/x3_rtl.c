@@ -13,6 +13,7 @@
  */
 #include "x3_rtl.h"
 #include "x3_coop_runtime.h"
+#include "x3_coop_menu.h"
 #include "x3_coop_hud.h"
 #include "x3_coop_settings.h"
 #include "x3_coop_render.h"
@@ -171,6 +172,7 @@ void RunOneFrameOfGame(void) {
     s_lle_host_frames = 0;
   }
 
+  X3CoopRuntimeInputFrame(s_lle_host_frames);
   const uint64_t frame_end =
       g_cpu.master_cycles + (uint64_t)kX3MasterClocksPerFrame;
 
@@ -1040,6 +1042,8 @@ void X3DrawPpuFrame(void) {
       SimpleHdma_DoLine(&hdma_chans[ch]);
   }
   X3CoopRenderRestorePalette();
+  X3CoopMenuDraw(g_ppu,g_ppu->renderBuffer,g_ppu->renderPitch,
+      256+g_ppu->extraLeftRight*2,X3Display_PresentationSeat());
   if(split && !private_frame)X3Display_CaptureLocalSplitNative(g_ppu);
 }
 
