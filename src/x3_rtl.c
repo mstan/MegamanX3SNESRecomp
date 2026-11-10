@@ -15,6 +15,7 @@
 #include "x3_coop_runtime.h"
 #include "x3_coop_render.h"
 #include "x3_coop_view.h"
+#include "x3_coop_present.h"
 #include "mmx_replay.h"
 
 #include <stdbool.h>
@@ -84,6 +85,7 @@ static void x3_oam_xy_uploaded(uint8_t bank, uint16_t y_address, uint8_t slot) {
   const unsigned offset = y_address & 0xfff;
   if (offset >= 512 || (offset & 3) != 1) return;
   const unsigned source_slot = offset >> 2;
+  if(!source_slot && !slot && X3CoopRuntimeEnabled())X3CoopPresentationUpload();
   if (!(s_cx4_oam_valid[source_slot >> 3] & (1u << (source_slot & 7)))) return;
   const int16_t x = s_cx4_oam_x[source_slot];
   if ((g_ppu->oam[slot * 2] & 255) == (x & 255))

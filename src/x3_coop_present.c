@@ -1,0 +1,79 @@
+/* Metadata follows the retail descriptor build -> Cx4 completion -> OAM DMA
+ * pipeline. A lag NMI can retain the previous OAM and its private actors. */
+#include "x3_coop_present.h"
+#include "x3_coop_view.h"
+#include <string.h>
+
+static X3CoopPresentedFrame queued,completed,visible;
+static unsigned word(const uint8_t *p){return p[0]|(unsigned)p[1]<<8;}
+static void putword(uint8_t *p,unsigned value){p[0]=(uint8_t)value;p[1]=(uint8_t)(value>>8);}
+void X3CoopPresentationReset(void){memset(&queued,0,sizeof(queued));memset(&completed,0,sizeof(completed));memset(&visible,0,sizeof(visible));}
+void X3CoopPresentationBegin(const X3CoopState *p,const uint8_t *ram,unsigned x,unsigned y){
+  memset(&queued,0,sizeof(queued));queued.players=*p;X3CoopCapture(&queued.players,ram);
+  queued.camera[0]=(uint16_t)x;queued.camera[1]=(uint16_t)y;
+  bool scene=ram[0x1f22] || ram[0x1f24] || ram[0x1f63];
+  for(unsigned seat=0;seat<2;++seat){
+    X3CoopView v=X3CoopViewsForPlayer(ram,&queued.players,seat,scene);
+    queued.views[seat][0]=(uint16_t)v.x;queued.views[seat][1]=(uint16_t)v.y;
+  }
+}
+void X3CoopPresentationSubmit(const X3CoopState *p,const uint8_t *ram,unsigned address,unsigned owner){
+  if(!queued.players.initialized || queued.count==X3_COOP_WORLD_DRAWS || address>0x1fe0 || owner>2)return;
+  X3CoopWorldDraw *draw=&queued.actors[queued.count++];
+  draw->address=(uint16_t)address;draw->owner=(uint8_t)owner;memcpy(draw->body,ram+address,32);
+  /* The native player submission, rather than a later physics poll, owns
+   * the displayed primary pose. The private partner is frozen at list start. */
+  if(address==X3_COOP_BODY && owner && owner-1==p->current){
+    X3CoopState copy=*p;X3CoopCapture(&copy,ram);
+    queued.players.players[owner-1]=copy.players[owner-1];
+  }
+}
+void X3CoopPresentationComplete(void){completed=queued;}
+void X3CoopPresentationUpload(void){visible=completed;}
+const X3CoopPresentedFrame *X3CoopPresentationVisible(void){return &visible;}
+static size_t frame_size(void){return X3CoopEncodedSize()+12+1+X3_COOP_WORLD_DRAWS*35;}
+size_t X3CoopPresentationEncodedSize(void){return frame_size()*3;}
+static void encode_frame(const X3CoopPresentedFrame *frame,uint8_t *bytes){
+  X3CoopEncode(&frame->players,bytes,X3CoopEncodedSize());memcpy(bytes,"X3P1",4);bytes+=X3CoopEncodedSize();
+  for(unsigned i=0;i<2;++i){putword(bytes,frame->camera[i]);bytes+=2;}
+  for(unsigned seat=0;seat<2;++seat)for(unsigned i=0;i<2;++i){putword(bytes,frame->views[seat][i]);bytes+=2;}
+  *bytes++=frame->count;
+  for(unsigned i=0;i<X3_COOP_WORLD_DRAWS;++i){
+    const X3CoopWorldDraw *draw=&frame->actors[i];putword(bytes,draw->address);bytes+=2;*bytes++=draw->owner;
+    memcpy(bytes,draw->body,32);bytes+=32;
+  }
+}
+static bool decode_frame(X3CoopPresentedFrame *frame,const uint8_t *bytes){
+  memset(frame,0,sizeof(*frame));
+  uint8_t context[4096];
+  if(memcmp(bytes,"X3P1",4))return false;
+  memcpy(context,bytes,X3CoopEncodedSize());memcpy(context,"X3C3",4);
+  if(!X3CoopDecode(&frame->players,context,X3CoopEncodedSize()))return false;
+  bytes+=X3CoopEncodedSize();
+  for(unsigned i=0;i<2;++i){frame->camera[i]=(uint16_t)word(bytes);bytes+=2;if(frame->camera[i]>8192)return false;}
+  for(unsigned seat=0;seat<2;++seat)for(unsigned i=0;i<2;++i){
+    frame->views[seat][i]=(uint16_t)word(bytes);bytes+=2;if(frame->views[seat][i]>8192)return false;
+  }
+  frame->count=*bytes++;if(frame->count>X3_COOP_WORLD_DRAWS || (!frame->players.initialized && frame->count))return false;
+  for(unsigned i=0;i<X3_COOP_WORLD_DRAWS;++i){
+    X3CoopWorldDraw *draw=&frame->actors[i];draw->address=(uint16_t)word(bytes);bytes+=2;draw->owner=*bytes++;
+    if(draw->address>0x1fe0 || draw->owner>2)return false;
+    memcpy(draw->body,bytes,32);bytes+=32;
+  }
+  return true;
+}
+void X3CoopPresentationSave(SaveLoadInfo *io){
+  uint8_t bytes[8192];const X3CoopPresentedFrame *frames[]={&queued,&completed,&visible};
+  for(unsigned i=0;i<3;++i){encode_frame(frames[i],bytes);io->func(io,bytes,frame_size());}
+}
+bool X3CoopPresentationLoad(SaveLoadInfo *io){
+  uint8_t bytes[8192];X3CoopPresentedFrame frames[3];
+  for(unsigned i=0;i<3;++i){io->func(io,bytes,frame_size());if(!decode_frame(&frames[i],bytes))return false;}
+  queued=frames[0];completed=frames[1];visible=frames[2];return true;
+}
+bool X3CoopPresentationPreflight(const void *data,size_t size){
+  if(!data || size!=X3CoopPresentationEncodedSize())return false;
+  X3CoopPresentedFrame frame;const uint8_t *bytes=data;
+  for(unsigned i=0;i<3;++i)if(!decode_frame(&frame,bytes+i*frame_size()))return false;
+  return true;
+}

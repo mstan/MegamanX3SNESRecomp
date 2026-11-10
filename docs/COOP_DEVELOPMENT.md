@@ -276,3 +276,30 @@ presentation. Private background/resource rendering, split/selected displays,
 HUD/UI, online profile negotiation and full campaign qualification remain open.
 These narrow results support A01/A06/A07/A08/A09, D14 and R01/R02; none closes
 an entire rollup. All15 broad areas and the full180-point final suite remain open.
+
+### Native display handoff checkpoint
+
+Private actor metadata now follows the actual descriptor/Cx4/OAM pipeline.
+03:8DD7 freezes the pair and native list camera, actual03:8F70 submissions
+retain native draw records and ownership, and03:8DF0 completes the list only
+after the original sprite program returns. The DMA observer advances visible
+metadata when the original Cx4 OAM is uploaded. Merely starting an NMI or
+updating body physics cannot advance the displayed private actor.
+
+The renderer uses the visible body, palette and list camera. Queued, completed
+and visible records use an explicit snapshot codec, including native draw
+order. Real-ROM checks observe the pipeline and primary ownership; isolated
+handoff checks hold the prior visible state through queue/completion, advance
+the matching body/camera/list on upload, preserve immediate state restore and
+reject malformed presentation metadata before machine mutation. These tests
+do not certify an authored heavy-load/lag sequence or separate-view rendering.
+
+All current combined native tests pass in
+`build-coop/qa-state/native-presentation-combined-result.log` (exit0), including
+independent-route replay,45-frame authored support comparison, charge palette
+isolation, both natural-contact survivors and native whole-team retry. Both
+CTests pass; native hook entry routing did not change. Refreshed enrollment
+and charge/fire captures were inspected. The qualified game SHA256 is
+`5d1b6f8c57fb1b040a56288df57c29b70ab8dfa0455a497d18b749daf3986195`.
+Full view presentation, lifecycle/menu integration and the180-point final
+acceptance suite remain open; no rollup is closed by this checkpoint.

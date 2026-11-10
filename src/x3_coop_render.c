@@ -3,6 +3,7 @@
  * No extracted graphics are stored in the repository or release package. */
 #include "x3_coop_render.h"
 #include "x3_coop_runtime.h"
+#include "x3_coop_present.h"
 #include "snes/ppu.h"
 #include "snes/snes.h"
 #include "snes/cart.h"
@@ -47,7 +48,7 @@ static bool draw_pose(const uint8_t *body) {
   const uint8_t *entry=rom(pointer(directory)+pose*3,3);
   p=rom(pointer(entry),1+count*4);if(!p)return false;
   uint16_t colors[256];memcpy(colors,g_ppu->cgram,sizeof(colors));
-  const X3CoopState *s=X3CoopRuntimeState();
+  const X3CoopState *s=&X3CoopPresentationVisible()->players;
   const uint8_t *palette=s->players[s->anchor^1].palette;
   for(unsigned j=0;j<32;++j)colors[0x80+j]=(uint16_t)(0x8000|word(palette+2*j));
   memset(pixels,0,sizeof(pixels));
@@ -70,7 +71,8 @@ static bool draw_pose(const uint8_t *body) {
 }
 void X3CoopRender(void) {
   PpuSetExtraObjects(g_ppu,NULL,0);
-  const X3CoopState *s=X3CoopRuntimeState();
+  const X3CoopPresentedFrame *frame=X3CoopPresentationVisible();
+  const X3CoopState *s=&frame->players;
   palette_borrowed=false;
   if(X3CoopRuntimeEnabled() && s->initialized) {
     /* NMI can land inside a borrowed actor pass. Draw with the anchor's
@@ -86,8 +88,8 @@ void X3CoopRender(void) {
   const uint8_t *body=s->players[partner].body;
   if(!body[0xe] || !draw_pose(body))return;
   object=(PpuExtraObject){
-    .x=(int16_t)(word(body+5)-word(g_ram+0x1e5d))-64,
-    .y=(int16_t)(word(body+8)-word(g_ram+0x1e60))-64,
+    .x=(int16_t)(word(body+5)-frame->camera[0])-64,
+    .y=(int16_t)(word(body+8)-frame->camera[1])-64,
     .width=128,.height=128,.stride=128,
     .priority=(body[0x11]>>4)&3,.oamSlot=108,.order=1,.pixels=pixels};
   PpuSetExtraObjects(g_ppu,&object,1);

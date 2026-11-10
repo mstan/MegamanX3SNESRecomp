@@ -1,5 +1,6 @@
 #include "x3_coop_runtime.h"
 #include "x3_coop_view.h"
+#include "x3_coop_present.h"
 #include "common_rtl.h"
 #include "snes/cart.h"
 #include "snes/snes.h"
@@ -386,6 +387,22 @@ static void draw_boundary(CpuState *cpu,uint32_t pc) {
     X3CoopProject(&state,g_ram,state.anchor);draw.pass=0;
   }
 }
+static void presentation_boundary(CpuState *cpu,uint32_t pc) {
+  if(!enabled || !state.initialized)return;
+  pc&=0x7fffff;
+  if(pc==0x038dd7) {
+    X3CoopPresentationBegin(&state,g_ram,cpu_read16(cpu,cpu->DB,0x6621),cpu_read16(cpu,cpu->DB,0x6623));
+  } else if(pc==0x038df0) {
+    /* JSL7E:26A0 has waited for the original sprite program to finish. */
+    X3CoopPresentationComplete();
+  } else if(pc==0x038f70) {
+    /* Registered after draw_boundary: tagged owned pools have been lent
+     * to their real submitter before taking this native descriptor copy. */
+    unsigned slot=(cpu->D+cpu->X)&65535,owner=0;
+    if(slot==X3_COOP_BODY || owned_object(slot))owner=state.current+1;
+    X3CoopPresentationSubmit(&state,g_ram,slot,owner);
+  }
+}
 static void contact_boundary(CpuState *cpu,uint32_t pc) {
   unsigned at=pc&0xffff,d=cpu->D;
   NativePass *p=&contact.native;
@@ -573,6 +590,7 @@ void X3CoopRuntimeReset(void) {
   memset(&solid,0,sizeof(solid));memset(riders,0,sizeof(riders));
   memset(&view_spawn,0,sizeof(view_spawn));X3CoopViewsReset();
   memset(&view_bounds,0,sizeof(view_bounds));
+  X3CoopPresentationReset();
 }
 void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
@@ -614,6 +632,9 @@ void X3CoopRuntimeFrame(void) {
     if(!interp_bridge_add_pre_opcode_hook(view_pcs[i],view_world_boundary))enabled=false;
   if(!interp_bridge_add_pre_opcode_hook(0x00e2a2,view_bounds_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x00e316,view_bounds_boundary))enabled=false;
+  static const uint32_t presentation_pcs[]={0x038dd7,0x038df0,0x038f70};
+  for(unsigned i=0;i<sizeof(presentation_pcs)/sizeof(*presentation_pcs);++i)
+    if(!interp_bridge_add_pre_opcode_hook(presentation_pcs[i],presentation_boundary))enabled=false;
 }
 void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   uint8_t bytes[4096]={0};
@@ -629,6 +650,7 @@ void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   uint8_t views[X3_COOP_VIEW_STATE_BYTES];X3CoopViewsSave(views);
   sli->func(sli,views,sizeof(views));sli->func(sli,&view_spawn,sizeof(view_spawn));
   sli->func(sli,&view_bounds,sizeof(view_bounds));
+  X3CoopPresentationSave(sli);
   sli->func(sli,&solid,sizeof(solid));sli->func(sli,riders,sizeof(riders));
 }
 static bool view_spawn_valid(const ViewSpawn *v) {
@@ -675,6 +697,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   uint8_t views[X3_COOP_VIEW_STATE_BYTES];ViewSpawn spawn;
   sli->func(sli,views,sizeof(views));sli->func(sli,&spawn,sizeof(spawn));
   ViewBounds bounds;sli->func(sli,&bounds,sizeof(bounds));
+  if(!X3CoopPresentationLoad(sli))return false;
   sli->func(sli,&support,sizeof(support));sli->func(sli,rider_bits,sizeof(rider_bits));
   if(!X3CoopViewsLoad(views,sizeof(views),false) || !view_spawn_valid(&spawn) || bounds.native.pass>2)return false;
   if(!X3CoopDecode(&loaded,bytes,X3CoopEncodedSize()) || !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world,&support,rider_bits))return false;
@@ -686,7 +709,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   X3CoopViewsLoad(views,sizeof(views),true);return true;
 }
 bool X3CoopRuntimePreflight(const void *data,size_t size) {
-  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target)+sizeof(solid)+sizeof(riders)+X3_COOP_VIEW_STATE_BYTES+sizeof(view_spawn)+sizeof(view_bounds);
+  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target)+sizeof(solid)+sizeof(riders)+X3_COOP_VIEW_STATE_BYTES+sizeof(view_spawn)+sizeof(view_bounds)+X3CoopPresentationEncodedSize();
   if(!data || size<tail)return false;
   X3CoopState decoded;
   const uint8_t *p=(const uint8_t *)data+size-tail;
@@ -699,7 +722,9 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
   if(!X3CoopViewsLoad(p,X3_COOP_VIEW_STATE_BYTES,false))return false;
   p+=X3_COOP_VIEW_STATE_BYTES;ViewSpawn spawn;memcpy(&spawn,p,sizeof(spawn));
   p+=sizeof(spawn);ViewBounds bounds;memcpy(&bounds,p,sizeof(bounds));
-  p+=sizeof(bounds);memcpy(&support,p,sizeof(support));p+=sizeof(support);
+  p+=sizeof(bounds);
+  if(!X3CoopPresentationPreflight(p,X3CoopPresentationEncodedSize()))return false;
+  p+=X3CoopPresentationEncodedSize();memcpy(&support,p,sizeof(support));p+=sizeof(support);
   if(!passes_valid(&decoded,&c,&t,&hit,&obj,&art,&world,&support,p))return false;
   if(bounds.native.pass>2)return false;
   if(bounds.native.pass && (!decoded.initialized || decoded.wipe || bounds.native.entry.d!=0x1e58 ||
