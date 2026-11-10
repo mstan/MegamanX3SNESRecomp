@@ -32,6 +32,9 @@ bool X3CoopValid(const X3CoopState *state);
 void X3CoopCapture(X3CoopState *state, const uint8_t ram[0x20000]);
 unsigned X3CoopNearest(const X3CoopState *state,const uint8_t ram[0x20000],unsigned x,unsigned y);
 bool X3CoopProject(X3CoopState *state, uint8_t ram[0x20000], unsigned seat);
+/* Native modal cleanup may inspect a retired body, without capturing changes
+ * or restoring its life. Its temporary projected HP is always zero. */
+bool X3CoopProjectRetired(X3CoopState *state,uint8_t ram[0x20000],unsigned seat);
 /* These are lifecycle events, not frame polls. A checkpoint or section change
  * deliberately has no revival operation. Fallen actors can only return via
  * an explicit, complete-team retry. */

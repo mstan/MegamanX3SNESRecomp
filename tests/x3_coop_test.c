@@ -76,6 +76,14 @@ int main(void) {
   CHECK(!X3CoopValid(&impossible));
   impossible=s;impossible.wipe=0;
   CHECK(!X3CoopValid(&impossible));
+  CHECK(X3CoopInit(&s,ram,X3_COOP_X));
+  s.players[1].body[0x27]=20;
+  CHECK(X3CoopWithdraw(&s,1));
+  CHECK(X3CoopProjectRetired(&s,ram,1) && !ram[X3_COOP_BODY+0x27]);
+  CHECK(X3CoopProject(&s,ram,0));
+  CHECK(s.players[1].life==X3_COOP_ABSENT && s.players[1].body[0x27]==20);
+  CHECK(X3CoopRejoin(&s,1) && X3CoopProject(&s,ram,1));
+  CHECK(ram[X3_COOP_BODY+0x27]==20 && ram[0x1fd2]==28);
   /* Physical B mapped to jump by the native mask table. Disabled and compound
    * mappings must behave exactly as the cartridge's CMP/ROR implementation. */
   uint8_t masks[6]={0x80,0,0,0,0,0};

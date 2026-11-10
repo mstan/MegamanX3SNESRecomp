@@ -71,8 +71,9 @@ unsigned X3CoopNearest(const X3CoopState *s,const uint8_t ram[0x20000],unsigned 
   }
   return chosen;
 }
-bool X3CoopProject(X3CoopState *s,uint8_t ram[0x20000],unsigned seat) {
-  if(!X3CoopValid(s) || !s->initialized || seat>1 || s->players[seat].life!=X3_COOP_ALIVE)return false;
+static bool project(X3CoopState *s,uint8_t ram[0x20000],unsigned seat,bool retired) {
+  if(!X3CoopValid(s) || !s->initialized || seat>1 ||
+     (retired?s->players[seat].life==X3_COOP_ALIVE:s->players[seat].life!=X3_COOP_ALIVE))return false;
   X3CoopCapture(s,ram);
   const X3CoopPlayer *p=&s->players[seat];
   memcpy(ram+X3_COOP_BODY,p->body,sizeof(p->body));
@@ -84,9 +85,12 @@ bool X3CoopProject(X3CoopState *s,uint8_t ram[0x20000],unsigned seat) {
   }
   ram[0x1f1e]=p->shot_command;
   ram[0x1fd2]=p->maximum_health;
+  if(retired)ram[X3_COOP_BODY+0x27]=0;
   s->current=(uint8_t)seat;
   return true;
 }
+bool X3CoopProject(X3CoopState *s,uint8_t ram[0x20000],unsigned seat){return project(s,ram,seat,false);}
+bool X3CoopProjectRetired(X3CoopState *s,uint8_t ram[0x20000],unsigned seat){return project(s,ram,seat,true);}
 bool X3CoopFall(X3CoopState *s,unsigned seat) {
   if(!X3CoopValid(s) || !s->initialized || seat>1 || s->players[seat].life!=X3_COOP_ALIVE)return false;
   s->players[seat].life=X3_COOP_FALLEN;

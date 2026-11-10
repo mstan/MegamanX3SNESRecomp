@@ -13,6 +13,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_view_test.inc"
 #include "x3_coop_present_test.inc"
 #include "x3_coop_display_test.inc"
+#include "x3_coop_pickup_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -49,6 +50,7 @@ int main(int argc,char **argv) {
       native_presentation_checks(saved,size,after,damaged,cap);
       native_reused_pose_checks(saved,size,after,damaged,cap);
       native_health_limit_checks(saved,size,after,cap);
+      authored_health_pickup_checks(saved,size,after,damaged,cap);
       native_view_checks(saved,size,after,damaged,cap);
       native_contact_checks(saved,size,after,cap);
       native_support_checks(saved,size,after,damaged,cap);
@@ -70,6 +72,7 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_display_checks("reversed",saved,size,after,damaged,cap);
       native_reversed_roster_checks(saved,size,after,damaged,cap);
+      authored_health_pickup_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_INDEPENDENT_STATE");
     if(fixture && *fixture) {

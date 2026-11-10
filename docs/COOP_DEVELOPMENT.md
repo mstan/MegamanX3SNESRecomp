@@ -402,3 +402,50 @@ Both CTests pass. Game SHA256:
 The remote-resource check also verifies painting leaves CPU time and shared
 WRAM unchanged. Optional `X3_COOP_REMOTE_RESOURCE_OUTPUT` saves its disposable
 slot7 fixture. All15 rollups/full180-point final acceptance remain open.
+
+### Native health refill ownership checkpoint
+
+Health items now borrow their recipient for each original normal/frozen item
+update, retaining the recipient through the entire native refill. The world
+item advances once. A pending refill keeps its original owner when shared
+scene control changes. Full-health Zero can bank overflow into the same native
+shared subtanks, with the original capacity, amount, timer and sounds.
+
+Two demonstrated failures are repaired: removing a recipient's view could cull
+the refill item before cleanup and leave the world frozen; and the other actor
+could move while native terrain collision was skipped. The item now survives
+until native cleanup, and the non-collector parks while the collector's native
+animation and item timer continue. Cleanup can temporarily inspect a retired
+body with zero HP without capturing changes or restoring its life/resources.
+The native cleanup releases the shared freeze before returning to the survivor.
+
+The authored check uses stage1 health item3C:D1FB at1848,1448. A teleport,
+damaged HP and lower-room camera band prepare the approach; route traversal and
+camera admission are explicitly bypassed. Original allocation/contact/refill
+results are not supplied. Both roster assignments pass Zero20->28 with X16
+unchanged, all seven freeze flags released, no fade/stage exit, and identical
+48-frame replay from a pending refill. Movement/jump input leaves both actors
+parked during collision freeze. An owned empty subtank80 becomes82 once through
+the native full-health banking path; other tanks/personal HP stay unchanged.
+
+Isolated withdrawal/fallen lifecycle events cancel a pending refill without
+revival or healing the unrelated survivor. A codec probe saves/restores inside
+the real retired-recipient borrow; malformed saved recipients fail before
+mutation. These probes do not certify launcher withdrawal, an authored death
+during frozen gameplay, or complete scene/menu integration. A native frozen-item
+call also retains the recipient with shared scene control set.
+
+Refill state uses the explicit8-byteX3R1 chunk; current full snapshots412611B.
+Fresh native fixtures and all current ROM checks pass in
+`build-coop/qa-state/native-pickup-combined-result.log` (exit0). Both CTests
+pass. Strict generation reports byte-identical complete trees with45 routed
+native variants, and the regenerated build passes the combined checks.
+Inspected real host split captures `host-health-mid.png` and
+`host-health-complete.png` show the correct20/28HP meter, native healing pose,
+surviving X and bright distinct rooms. Game SHA256:
+`7cdb4382516568746010294ccf81577d6076d1684c62b4255bf75d5c96fd6a4f`.
+
+These narrow checks support M07/M08/M10 and R01/R02. Pickup contact fallback
+when the nearest body misses, other item families, anchor-owned refill/retirement,
+menu spending and full campaign qualification remain open. The full180-point
+post-implementation suite and all15 final rollups remain open.
