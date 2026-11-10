@@ -49,6 +49,20 @@ label = "Unified"
 
 [[option]]
 feature = "coop"
+id = "zero_rules"
+label = "Zero participation"
+description = "Full campaign keeps Zero available. Stock starts Zero withdrawn: hold his Select button to call him once per stage. Restricted encounters send him back, and death removes him from the campaign."
+type = "choice"
+default = "full"
+[[option.choice]]
+value = "full"
+label = "Full campaign"
+[[option.choice]]
+value = "stock"
+label = "Stock restrictions"
+
+[[option]]
+feature = "coop"
 id = "doors"
 label = "Door admission"
 description = "Either player can lead through a door. Both players waits for every living participant to reach it."

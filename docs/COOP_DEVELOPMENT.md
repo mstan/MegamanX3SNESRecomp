@@ -31,9 +31,14 @@ HUDs. Private views show their actor's native health, X's applicable weapon
 energy/icon and personal charge indicator. Diagnostic environment overrides
 remain available. Holding Select withdraws a living actor; release and hold
 again to return beside the partner when clear native ground is available.
-Full-campaign scenes/lifecycle, the stock restriction option,
+Full-campaign scenes/lifecycle qualification,
 paired menus, assists, widescreen co-op fields and online session
 qualification still require work. This is not a release qualification.
+
+Full campaign is the default Zero policy. Stock restrictions start him
+withdrawn; his Select control calls him when the original game permits it.
+Stock encounter return and permanent loss are implemented and have focused
+native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
@@ -946,3 +951,62 @@ pause/aspect/scene coverage and moving clips remain for the final campaign
 pass. Stock restrictions, paired menus, assists, adaptive co-op fields, online
 play and other listed campaign requirements also remain open. All15 rollups
 remain open and the delivered archive is unchanged.
+
+
+## Native stock participation and single-participant doors
+
+Full campaign remains the default. The stock launcher option starts Zero
+withdrawn and uses his Select control for the original game's call. Eligibility
+matches executed00:CBB2 in both rosters: native actions2C/76, stages0/9/C/D,
+encounter lock1F5D.80, used-call flag1FE1.01 and permanent-loss flag1FB2.40.
+Calling consumes the original04:8DF5 flag. Withdrawal cannot repeat a used call;
+the native stage loader owns its reset. Native stage entry also leaves stock
+Zero withdrawn until requested.
+
+The native01:CF02 restricted-room sensor records a pending stock return rather
+than initiating a character exchange over the other co-op context. The balanced
+world boundary applies it after borrowed item work returns. X retains personal
+health and control; a living withdrawn X returns only to clear native ground.
+While waiting, Zero can move/jump/dash toward ground but cannot charge or fight.
+A fallen X stays fallen and the unavailable team uses one original native retry.
+Actual stock Zero death commits the cartridge's permanent-loss flag without
+fading the survivor's world. Death/withdrawal clears a pending return.
+
+Authored door checks exposed a separate single-participant gap:01:E0AE began
+co-op scene tracking only with two living actors. It now tracks a living entrant
+with either roster size; only the optional contact retry requires a partner.
+The original stage1 gate and following introduction complete in765 updates in
+both seat assignments: stock Zero hands back to X, stock X proceeds with Zero
+unavailable under Both policy, and full-campaign X or Zero proceeds alone under
+Both policy. The correct native body, personal maximum, final camera and released
+locks survive the sequence. X arrives at2577,1439 and Zero at2577,1431.
+
+`tests/x3_coop_stock_test.inc` additionally covers original menu eligibility,
+real Select calls, native stage reset, safe airborne return, movement without
+charging while pending, transactional malformed requests, pending-return death,
+whole-machine replay and native single-cost retry. Both real roster fixtures
+also reach Zero death through actual enemy contact; the permanent loss and
+fallen state survive real native next-stage construction. The stage requests
+bypass travel, and API lifecycle/encounter preparations do not qualify authored
+hazards or complete campaign routes.
+
+X3J2 replaces X3J1 without increasing its8-byte size: two hold counters, stock
+profile and pending-return flag. Full states remain412881 bytes with X3P4
+presentation. Stock profile and pending work restore with the simulation;
+inconsistent requests reject before mutation. Old disposable states are rejected.
+
+Final focused evidence in`build-coop/qa-state`:
+`native-stock-final-result.log`, `native-stock-final-base-result.log` and both
+X3 CTests pass. The broader`native-stock-combined-result.log` passes before the
+single-participant repair; final focused gates cover that repair and the affected
+base actor/resource/view/door cases. Final GUI SHA256:
+`d63b2ad69ca4b45844f8b89228bc801ed047a53f844585c668277e5d33e11b38`;
+state tests:`895a58dee9165b6b3fcc5f365c0f8a5c66c3a6f0465a3e442b7ce54f38ac7494`.
+Launcher-selected stock startup, calls and refusal of repeat calls are verified
+with prototype overrides cleared and actual host captures in
+`qa-public/public-stock*.png`. Native saves and delivered builds are untouched.
+
+These are implementation gates for stock policy, single-participant scene
+ownership and related state. All15 final rollups remain open. Paired menus,
+assists, adaptive co-op fields, online qualification, other campaign content and
+the remaining180-point checks still require completion before release.
