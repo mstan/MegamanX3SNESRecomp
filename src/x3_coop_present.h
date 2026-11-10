@@ -2,7 +2,7 @@
 #include "x3_coop.h"
 #include "snes/saveload.h"
 
-enum {X3_COOP_WORLD_DRAWS=128};
+enum {X3_COOP_WORLD_DRAWS=128,X3_COOP_BODY_CHR_BYTES=8192};
 typedef struct X3CoopWorldDraw {
   uint16_t address;
   uint8_t owner,body[32];
@@ -10,11 +10,14 @@ typedef struct X3CoopWorldDraw {
 typedef struct X3CoopPresentedFrame {
   X3CoopState players;
   uint16_t camera[2],views[2][2];
+  uint8_t body_chr[2][X3_COOP_BODY_CHR_BYTES];
   uint8_t count;
   X3CoopWorldDraw actors[X3_COOP_WORLD_DRAWS];
 } X3CoopPresentedFrame;
 
 void X3CoopPresentationReset(void);
+void X3CoopPresentationEnroll(const X3CoopState *players,const uint16_t *vram,const uint8_t *rom,size_t size);
+bool X3CoopPresentationBodyDma(unsigned seat,const uint8_t *body,const uint8_t *rom,size_t size);
 void X3CoopPresentationBegin(const X3CoopState *players,const uint8_t *ram,unsigned x,unsigned y);
 void X3CoopPresentationSubmit(const X3CoopState *players,const uint8_t *ram,unsigned address,unsigned owner);
 void X3CoopPresentationComplete(void);

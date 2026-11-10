@@ -1,4 +1,26 @@
 #include "../src/x3_coop_present.h"
+static void native_reused_pose_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
+  X3CoopState pose=*X3CoopRuntimeState();
+  pose.players[1].body[0x17]=(uint8_t)((pose.players[1].body[0x17]&128)|2);
+  check(X3CoopPresentationBodyDma(1,pose.players[1].body,g_snes->cart->rom,g_snes->cart->romImageSize),
+        "native Zero pose2 retains its inherited body tiles");
+  X3CoopPresentationBegin(&pose,g_ram,0,0);X3CoopPresentationComplete();X3CoopPresentationUpload();
+  const PpuExtraObject *body=X3CoopRenderPlayer(1,0,0);
+  check(body!=NULL,"inherited-tile native pose renders");memcpy(expected,body->pixels,128*128*2);
+  size_t prepared=RtlSaveSnapshotToMemory(work,capacity);
+  uint8_t other[X3_COOP_BODY_BYTES];memcpy(other,pose.players[1].body,sizeof(other));other[0x17]=10;
+  check(X3CoopPresentationBodyDma(1,other,g_snes->cart->rom,g_snes->cart->romImageSize),"another native pose replaces the live private atlas");
+  memcpy(pose.players[1].body,other,sizeof(other));
+  X3CoopPresentationBegin(&pose,g_ram,0,0);X3CoopPresentationComplete();X3CoopPresentationUpload();
+  body=X3CoopRenderPlayer(1,0,0);
+  check(body && memcmp(expected,body->pixels,128*128*2),"the intervening native pose changes the rendered art");
+  check(RtlLoadSnapshotFromMemory(work,prepared),"inherited-tile presentation snapshot restores");
+  pose.players[1].body[0x17]=2;
+  X3CoopPresentationBegin(&pose,g_ram,0,0);X3CoopPresentationComplete();X3CoopPresentationUpload();
+  body=X3CoopRenderPlayer(1,0,0);
+  check(body && !memcmp(expected,body->pixels,128*128*2),"restored live and visible atlases reproduce a no-DMA pose independent of rendering history");
+  check(RtlLoadSnapshotFromMemory(original,size),"inherited-pose probes restore their starting machine");
+}
 static void native_presentation_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
   check(visible->players.initialized && visible->count,
@@ -27,7 +49,7 @@ static void native_presentation_checks(uint8_t *original,size_t size,uint8_t *wo
   after_size=RtlSaveSnapshotToMemory(expected,capacity);
   same(work,prepared,expected,after_size,"presentation pipeline immediate restore");
   size_t marker=0;
-  for(size_t i=0;i+4<prepared;++i)if(!memcmp(work+i,"X3P1",4)){marker=i;break;}
+  for(size_t i=0;i+4<prepared;++i)if(!memcmp(work+i,"X3P2",4)){marker=i;break;}
   check(marker!=0,"presentation codec chunk is present");
   work[marker+6]=2;
   check(!RtlLoadSnapshotFromMemory(work,prepared),"malformed visible/queued actor identity fails preflight");

@@ -4,6 +4,7 @@
 #include "common_rtl.h"
 #include "snes/cart.h"
 #include "snes/snes.h"
+#include "snes/ppu.h"
 #include "snes/interp_bridge.h"
 #include "snes/saveload.h"
 #include <stdio.h>
@@ -465,6 +466,10 @@ static void object_boundary(CpuState *cpu,uint32_t pc) {
 static void boundary(CpuState *cpu,uint32_t pc) {
   if(!enabled || cpu->D!=X3_COOP_BODY || cpu->emulation)return;
   pc&=0x7fffff;
+  if(pc==0x04bca2 && state.initialized){
+    X3CoopPresentationBodyDma(state.current,g_ram+X3_COOP_BODY,g_snes->cart->rom,g_snes->cart->romImageSize);
+    return;
+  }
   if(pc==0x04823f && state.initialized && controller.pass &&
      !state.wipe && g_ram[X3_COOP_BODY+2]==0x0c) {
     /* Fatal contact can select death inside this very controller pass. Skip
@@ -496,6 +501,7 @@ static void boundary(CpuState *cpu,uint32_t pc) {
     return;
   }
   if(pc==0x04809e && controller.pass==2) {
+    X3CoopPresentationBodyDma(state.current,g_ram+X3_COOP_BODY,g_snes->cart->rom,g_snes->cart->romImageSize);
     /* The second body has its own presentation, so its dynamic CHR must
      * never replace X's native body pages in the shared DMA queue. */
     interp_bridge_pre_opcode_redirect(((unsigned)cpu->PB<<16)|0x80a2);
@@ -530,6 +536,7 @@ static void boundary(CpuState *cpu,uint32_t pc) {
         memcpy(p->palette,g_snes->cart->rom+0x635a0,32);
         memcpy(p->palette+32,g_snes->cart->rom+0x63580,32);
       }
+      X3CoopPresentationEnroll(&state,g_snes->ppu->vram,g_snes->cart->rom,g_snes->cart->romImageSize);
       fprintf(stderr,"[x3-coop] native actor qualification enrolled X and Zero\n");
     }
     if(controller.pass)return;
@@ -598,6 +605,7 @@ void X3CoopRuntimeFrame(void) {
   if(!interp_bridge_add_pre_opcode_hook(0x048008,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x0480bc,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x04809e,boundary) ||
+     !interp_bridge_add_pre_opcode_hook(0x04bca2,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x04823f,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x04b591,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x04b5ab,boundary) ||

@@ -12,6 +12,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_support_test.inc"
 #include "x3_coop_view_test.inc"
 #include "x3_coop_present_test.inc"
+#include "x3_coop_display_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -34,7 +35,9 @@ int main(int argc,char **argv) {
       check(X3CoopRuntimeEnabled(),"loading an enrolled state before boot enables its actor schedule");
       check(X3CoopRuntimeState()->initialized,"fixture contains enrolled actors");
       size=RtlSaveSnapshotToMemory(saved,cap);
+      native_display_checks("start",saved,size,after,damaged,cap);
       native_presentation_checks(saved,size,after,damaged,cap);
+      native_reused_pose_checks(saved,size,after,damaged,cap);
       native_view_checks(saved,size,after,damaged,cap);
       native_contact_checks(saved,size,after,cap);
       native_support_checks(saved,size,after,damaged,cap);
@@ -54,6 +57,7 @@ int main(int argc,char **argv) {
       X3CoopRuntimeEnable(true);
       check(RtlLoadSnapshot(fixture),"normal independent P2 route fixture loads");
       size=RtlSaveSnapshotToMemory(saved,cap);
+      independent_display_checks(saved,size,after,damaged,cap);
       independent_route_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_TARGET_STATE");
@@ -61,6 +65,7 @@ int main(int argc,char **argv) {
       X3CoopRuntimeEnable(true);
       check(RtlLoadSnapshot(fixture),"authored native enemy fixture loads");
       size=RtlSaveSnapshotToMemory(saved,cap);
+      native_display_checks("enemy",saved,size,after,damaged,cap);
       native_target_checks(saved,size,after,cap);
     }
     fixture=getenv("X3_COOP_PLATFORM_STATE");

@@ -3,6 +3,12 @@
 #include <stddef.h>
 
 #include "widescreen.h"
+static bool local_split;
+static int presentation_seat=-1;
+void X3Display_SetLocalSplit(bool value){local_split=value;}
+bool X3Display_LocalSplit(void){return local_split;}
+void X3Display_SetPresentationSeat(int seat){presentation_seat=seat>=0 && seat<2?seat:-1;}
+int X3Display_PresentationSeat(void){return presentation_seat;}
 
 static int ClampEven(int64_t value) {
   value &= ~1;

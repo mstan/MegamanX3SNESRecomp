@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,6 +13,18 @@ void X3Display_SetWidescreenEnabled(bool enabled);
 bool X3Display_IsWidescreenEnabled(void);
 bool X3Display_IsWidescreenActive(void);
 int X3Display_GetCurrentFrameWidth(void);
+void X3Display_SetLocalSplit(bool enabled);
+bool X3Display_LocalSplit(void);
+void X3Display_SetPresentationSeat(int seat);
+int X3Display_PresentationSeat(void);
+bool X3Display_RenderedPrivateFrame(void);
+struct Ppu;
+bool X3Display_BeginIndependentFrame(struct Ppu *ppu);
+bool X3Display_BeginLocalSplitFrame(struct Ppu *ppu);
+void X3Display_DrawIndependentLine(struct Ppu *ppu,int line);
+void X3Display_DrawLocalSplitLine(struct Ppu *ppu,int line);
+void X3Display_CaptureLocalSplitNative(const struct Ppu *ppu);
+int X3Display_DrawLocalSplit(uint8_t *dst,size_t pitch,const uint8_t *field,int width,int height,double alpha);
 
 typedef struct X3DisplayViewport {
   int x, y, width, height;

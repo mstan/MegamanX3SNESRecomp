@@ -3,6 +3,7 @@
 #include "desktop/config.h"
 #include "desktop/sdl_compat.h"
 #include "mmx_replay.h"
+#include "x3_display.h"
 #include <stdlib.h>
 #include <string.h>
 static void (*diagnostic_prepare)(int,int,int *,int *);
@@ -23,6 +24,13 @@ static void diagnostic_after_config(void) {
     g_config.output_method=kOutputMethod_SDL;
   }
 }
+static void diagnostic_split_prepare(int dw,int dh,int *w,int *h) {
+  (void)dw;(void)dh;*w=512;*h=224;
+}
+static void diagnostic_split_viewport(int fw,int fh,int dw,int dh,SnesDisplayViewport *out) {
+  X3DisplayViewport view;X3Display_ComputeViewport(fw,fh,dw,dh,false,false,&view);
+  out->x=view.x;out->y=view.y;out->width=view.width;out->height=view.height;
+}
 static int MmxDiagnosticDesktopMain(const SnesDesktopHostGame *base,int argc,char **argv) {
   MmxStartupLogging();
   for(int arg=1;arg+1<argc;++arg)
@@ -38,7 +46,15 @@ static int MmxDiagnosticDesktopMain(const SnesDesktopHostGame *base,int argc,cha
    * a public co-op package is exposed by the launcher. */
   const char *coop_prototype=getenv("SNESRECOMP_X3_COOP_PROTOTYPE");
   if(coop_prototype && coop_prototype[0]=='1')game.num_players=2;
-  diagnostic_prepare=base->prepare_frame;
+  const char *view=getenv("SNESRECOMP_X3_COOP_VIEW");
+  X3Display_SetPresentationSeat(view && !strcmp(view,"p1")?0:view && !strcmp(view,"p2")?1:-1);
+  X3Display_SetLocalSplit(view && !strcmp(view,"split"));
+  if(X3Display_LocalSplit()) {
+    game.native_widescreen=0;game.frame_width=512;game.frame_height=224;
+    game.prepare_frame=diagnostic_split_prepare;game.draw_frame=X3Display_DrawLocalSplit;
+    game.compute_viewport=diagnostic_split_viewport;
+  }
+  diagnostic_prepare=game.prepare_frame;
   game.prepare_frame=diagnostic_prepare_frame;
   game.after_run_frame=diagnostic_after_frame;
   game.after_config=diagnostic_after_config;

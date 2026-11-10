@@ -16,6 +16,7 @@
 #include "x3_coop_render.h"
 #include "x3_coop_view.h"
 #include "x3_coop_present.h"
+#include "x3_display.h"
 #include "mmx_replay.h"
 
 #include <stdbool.h>
@@ -159,7 +160,8 @@ void RunOneFrameOfGame(void) {
   if (!s_lle_did_reset) {
     X3CoopRuntimeReset();
     const char *coop_independent=getenv("SNESRECOMP_X3_COOP_INDEPENDENT");
-    X3CoopViewsConfigure(coop_independent && coop_independent[0]=='1');
+    X3CoopViewsConfigure((coop_independent && coop_independent[0]=='1') ||
+        X3Display_PresentationSeat()>=0 || X3Display_LocalSplit());
     const char *coop_prototype=getenv("SNESRECOMP_X3_COOP_PROTOTYPE");
     X3CoopRuntimeEnable(coop_prototype && coop_prototype[0]=='1');
     X3CoopRuntimeFrame();
@@ -1027,12 +1029,19 @@ void X3DrawPpuFrame(void) {
   for (int ch = 0; ch < 8; ch++)
     SimpleHdma_Init(&hdma_chans[ch], &g_dma->channel[ch]);
 
+  bool split=X3Display_LocalSplit();
+  bool private_frame=split?X3Display_BeginLocalSplitFrame(g_ppu):X3Display_BeginIndependentFrame(g_ppu);
   for (int line = 0; line <= 224; line++) {
-    ppu_runLine(g_ppu, line);
+    if(private_frame) {
+      ppu_runLineState(g_ppu,line);
+      if(split)X3Display_DrawLocalSplitLine(g_ppu,line);
+      else X3Display_DrawIndependentLine(g_ppu,line);
+    } else ppu_runLine(g_ppu, line);
     for (int ch = 0; ch < 8; ch++)
       SimpleHdma_DoLine(&hdma_chans[ch]);
   }
   X3CoopRenderRestorePalette();
+  if(split && !private_frame)X3Display_CaptureLocalSplitNative(g_ppu);
 }
 
 /* ── save-state extras: the LLE host cursor ───────────────────────────── */

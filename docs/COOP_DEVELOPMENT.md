@@ -303,3 +303,37 @@ and charge/fire captures were inspected. The qualified game SHA256 is
 `5d1b6f8c57fb1b040a56288df57c29b70ab8dfa0455a497d18b749daf3986195`.
 Full view presentation, lifecycle/menu integration and the180-point final
 acceptance suite remain open; no rollup is closed by this checkpoint.
+
+### Selected and split presentation checkpoint
+
+Development `SNESRECOMP_X3_COOP_VIEW=p1|p2|split` now selects an independent
+field or a512x224 two-field host display. Private scanout uses native world
+tile/layout data, authored resource controllers, completed draw submissions,
+native X/Zero body art and each selected actor's health meter. The original
+PPU/HDMA state advances once; neither field reruns the shared simulation.
+Native menus and unsupported scenes retain their original scanout.
+
+Body CHR follows the original04:BCA2 upload path and the private controller's
+equivalent upload. Live, queued, completed and visible atlases are serialized
+with their matching body poses. This matters for actual ROM poses whose upload
+list is empty or partial and therefore inherits previous tiles. A restored
+Zero pose2 reproduces its pixels after another pose replaced the live atlas.
+Current presentation codec isX3P2; disposable fixtures were regenerated.
+
+The combined ROM checks pass in
+`build-coop/qa-state/native-display-atlas-result.log` (exit0). The stage1 entry
+and authored enemy-contact P1 fields match all native pixels, including their
+health HUD. Separated selected fields differ, while each split half exactly
+matches its selected field. Drawing leaves WRAM/CPU time unchanged;10-frame
+full snapshots match across anchor/selected/split presentation choices using
+one independent simulation profile. Both CTests and strict full-tree regeneration
+pass. The host's composed split capture and enemy/contact fields were inspected.
+Qualified game SHA256:
+`0ce809186d74a8de278d601e5e39f13313a66e47c272e2299b4175b405155ecb`.
+
+These are bounded implementation checks. Private general-resource phase1F18
+assets, authored effects/lighting/forced scenes, X weapon HUD, shared HUD layout
+choices, paired menus and public settings/netplay remain open. Zero's prototype
+starting health still inherits X's; native Zero28HP and per-actor maximum/roster
+ownership must be completed. No final QA rollup or campaign suite is accepted
+by this checkpoint; the full180-point post-implementation suite remains open.
