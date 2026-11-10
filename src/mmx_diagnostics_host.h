@@ -4,11 +4,20 @@
 #include "desktop/sdl_compat.h"
 #include "mmx_replay.h"
 #include "x3_display.h"
+#include "x3_coop_settings.h"
 #include <stdlib.h>
 #include <string.h>
 static void (*diagnostic_prepare)(int,int,int *,int *);
+static SnesDesktopHostGame *diagnostic_game;
+static int diagnostic_native_widescreen;
 static void diagnostic_prepare_frame(int dw,int dh,int *w,int *h) {
-  diagnostic_prepare(dw,dh,w,h);
+  X3CoopSettingsPresentation();
+  bool coop=X3CoopSettingsEnabled();
+  /* Local presentation width must not select different guest PPU margins.
+   * Co-op currently qualifies a common native-width simulation field. */
+  diagnostic_game->native_widescreen=coop?0:diagnostic_native_widescreen;
+  if(coop){*w=X3Display_LocalSplit()?512:256;*h=224;}
+  else diagnostic_prepare(dw,dh,w,h);
   int extra; MmxReplayViewport(w,&extra);
 }
 static void diagnostic_after_frame(const SnesDesktopHostFrameStats *stats) {
@@ -24,12 +33,12 @@ static void diagnostic_after_config(void) {
     g_config.output_method=kOutputMethod_SDL;
   }
 }
-static void diagnostic_split_prepare(int dw,int dh,int *w,int *h) {
-  (void)dw;(void)dh;*w=512;*h=224;
-}
-static void diagnostic_split_viewport(int fw,int fh,int dw,int dh,SnesDisplayViewport *out) {
-  X3DisplayViewport view;X3Display_ComputeViewport(fw,fh,dw,dh,false,false,&view);
-  out->x=view.x;out->y=view.y;out->width=view.width;out->height=view.height;
+static void diagnostic_viewport(int fw,int fh,int dw,int dh,SnesDisplayViewport *out) {
+  if(X3Display_LocalSplit()){
+    X3DisplayViewport view;X3Display_ComputeViewport(fw,fh,dw,dh,g_config.ignore_aspect_ratio,false,&view);
+    out->x=view.x;out->y=view.y;out->width=view.width;out->height=view.height;
+  }else SnesDisplayAspect_ComputeViewport(fw,fh,dw,dh,SnesDisplayAspect_Clamp(g_config.display_aspect),
+                                        g_config.ignore_aspect_ratio,false,out);
 }
 static int MmxDiagnosticDesktopMain(const SnesDesktopHostGame *base,int argc,char **argv) {
   MmxStartupLogging();
@@ -42,20 +51,13 @@ static int MmxDiagnosticDesktopMain(const SnesDesktopHostGame *base,int argc,cha
     argc-=2;break;
   }
   SnesDesktopHostGame game=*base;
-  /* The development actor path consumes both engine input seats even before
-   * a public co-op package is exposed by the launcher. */
-  const char *coop_prototype=getenv("SNESRECOMP_X3_COOP_PROTOTYPE");
-  if(coop_prototype && coop_prototype[0]=='1')game.num_players=2;
-  const char *view=getenv("SNESRECOMP_X3_COOP_VIEW");
-  X3Display_SetPresentationSeat(view && !strcmp(view,"p1")?0:view && !strcmp(view,"p2")?1:-1);
-  X3Display_SetLocalSplit(view && !strcmp(view,"split"));
-  if(X3Display_LocalSplit()) {
-    game.native_widescreen=0;game.frame_width=512;game.frame_height=224;
-    game.prepare_frame=diagnostic_split_prepare;game.draw_frame=X3Display_DrawLocalSplit;
-    game.compute_viewport=diagnostic_split_viewport;
-  }
+  game.num_players=2;
+  diagnostic_game=&game;diagnostic_native_widescreen=game.native_widescreen;
   diagnostic_prepare=game.prepare_frame;
   game.prepare_frame=diagnostic_prepare_frame;
+  game.draw_frame=X3Display_DrawLocalSplit;
+  game.compute_viewport=diagnostic_viewport;
+  game.window_base_width=X3CoopSettingsWindowWidth;
   game.after_run_frame=diagnostic_after_frame;
   game.after_config=diagnostic_after_config;
   game.on_shutdown=MmxReplayShutdown;

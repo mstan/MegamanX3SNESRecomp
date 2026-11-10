@@ -13,6 +13,7 @@
  */
 #include "x3_rtl.h"
 #include "x3_coop_runtime.h"
+#include "x3_coop_settings.h"
 #include "x3_coop_render.h"
 #include "x3_coop_view.h"
 #include "x3_coop_present.h"
@@ -159,13 +160,7 @@ void RunOneFrameOfGame(void) {
 
   if (!s_lle_did_reset) {
     X3CoopRuntimeReset();
-    const char *p1_character=getenv("SNESRECOMP_X3_COOP_P1");
-    X3CoopRuntimeSetP1Character(p1_character && !strcmp(p1_character,"zero")?X3_COOP_ZERO:X3_COOP_X);
-    const char *coop_independent=getenv("SNESRECOMP_X3_COOP_INDEPENDENT");
-    X3CoopViewsConfigure((coop_independent && coop_independent[0]=='1') ||
-        X3Display_PresentationSeat()>=0 || X3Display_LocalSplit());
-    const char *coop_prototype=getenv("SNESRECOMP_X3_COOP_PROTOTYPE");
-    X3CoopRuntimeEnable(coop_prototype && coop_prototype[0]=='1');
+    X3CoopSettingsBoot();
     X3CoopRuntimeFrame();
     cpu_state_init(&g_cpu, g_ram);
     s_lle_resume_pc = x3_read_vector_pc24(0xFFFC);

@@ -1,0 +1,87 @@
+format_version = 1
+id = "megaman-x3.coop"
+version = "0.0.1"
+name = "X / Zero Co-op"
+author = "mstan"
+description = "Play together as native X and Zero with separate health and shared lives."
+license = "MIT"
+resolver = "declarative"
+save_compatibility = "requires-same-mods"
+
+[[target]]
+game_id = "megaman-x3-us"
+rom_sha256 = "65b03268afac296330e8ff8d60dd0825879e13ed658b37713c034a3bd074f1d7"
+
+[[feature]]
+id = "coop"
+name = "Co-op"
+description = "Play as X and Zero. Health and attacks belong to each player; lives and subtanks are shared."
+group = "Characters"
+default_enabled = false
+
+[[option]]
+feature = "coop"
+id = "player1"
+label = "Player 1 character"
+description = "Player 2 plays as the other character. Zero retains his native X3 combat."
+type = "choice"
+default = "x"
+[[option.choice]]
+value = "x"
+label = "X"
+[[option.choice]]
+value = "zero"
+label = "Zero"
+
+[[option]]
+feature = "coop"
+id = "cameras"
+label = "Camera policy"
+description = "Independent lets each player explore a separate region. Unified uses one shared camera. This choice is shared by online players."
+type = "choice"
+default = "independent"
+[[option.choice]]
+value = "independent"
+label = "Independent"
+[[option.choice]]
+value = "unified"
+label = "Unified"
+
+[[feature]]
+id = "view"
+name = "Co-op view"
+description = "Choose the views shown on this screen while Co-op is enabled."
+group = "Display"
+default_enabled = true
+presentation_only = true
+
+[[option]]
+feature = "view"
+id = "layout"
+label = "Local view"
+description = "Automatic shows both independent views side by side, or one Unified view. A selected player view follows that player's camera."
+type = "choice"
+default = "auto"
+[[option.choice]]
+value = "auto"
+label = "Automatic"
+[[option.choice]]
+value = "split"
+label = "Split screen"
+[[option.choice]]
+value = "p1"
+label = "Player 1"
+[[option.choice]]
+value = "p2"
+label = "Player 2"
+[[option.choice]]
+value = "shared"
+label = "Leader view"
+
+[[plugin]]
+feature = "coop"
+id = "megaman-x3.coop"
+
+[[plugin]]
+feature = "view"
+id = "megaman-x3.coop-view"

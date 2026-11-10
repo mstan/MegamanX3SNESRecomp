@@ -25,10 +25,11 @@ This is an incomplete development implementation, not a co-op release.
 - Actor/pass snapshot extensions and a transactional actor decoder, with
   snapshot preflight before the common loader changes guest memory.
 
-The actor experiment requires `SNESRECOMP_X3_COOP_PROTOTYPE=1`; it is not
-advertised as a usable launcher mod. X/Zero roster reversal, the restriction
-option, runtime survivor lifecycle, shared interactions, camera modes, paired
-menus, HUDs, assists and online sessions remain implementation work.
+The launcher catalog now offers X / Zero Co-op, with roster and camera policy
+choices and a separate local-view feature. Diagnostic environment overrides
+remain available. Full-campaign scenes/lifecycle, the stock restriction option,
+paired menus, shared HUDs, assists, widescreen co-op fields and online session
+qualification still require work. This is not a release qualification.
 
 ## QA burndown
 
@@ -529,3 +530,40 @@ freeze release or stale freeze was observed. Evidence:
 These are dropped-controller fixtures with prepared cameras/positions, not
 authored drop/RNG or campaign qualification. No new refill arbitration was
 needed. The full feature and180-point acceptance contract remains open.
+
+### Launcher package and local view selection checkpoint
+
+`megaman-x3.coop/coop` selects the native roster and Unified/Independent world
+policy before boot. `megaman-x3.coop/view` selects automatic split/shared,
+split, P1, P2 or leader presentation. The latter has a trusted presentation-only
+plugin and no dependency that can disable actors when its checkbox is cleared.
+Window previews read selections without freezing the later simulation profile.
+Both engine input seats are available through the launcher.
+
+Co-op currently uses one common256-pixel simulation field, regardless of local
+layout. The host composes split output separately. Adaptive widescreen private
+fields, the online cosmetic grant/profile handshake, stock restrictions and the
+remaining co-op controls are still required before release.
+
+Actual persisted package selections boot with every prototype override cleared.
+Automatic split, P1 and P2 runs follow the same2256-frame native input route.
+Their CPU/WRAM, canonical SPC/DSP, PPU, actors, views, continuations and queued
+presentation agree byte-for-byte. Ordinary files differ only in the host DAC
+output ring/cursors at[66496,99276), whose native ABI boundaries were verified;
+that consumer queue is excluded from this cross-process comparison. Each split
+pane exactly matches the corresponding selected-player capture. Evidence:
+`build-coop/qa-public/view-equivalence-result.log` and its public-* captures.
+
+Disabling the view feature retains the same canonical machine and both actors.
+Reversed roster/Unified selects the intended native characters; co-op off leaves
+the stock single actor. Persisted choices survive each run. These cases and
+inspected gameplay captures are in `qa-public/policy-result.log`; the launcher's
+interactive controls still need a visual/navigation check.
+
+A fresh final public boot passes the combined ROM suite, including full current
+save/load/replay, survivors/retry, contacts, supports and competing resources:
+`build-coop/qa-state/native-public-settings-combined-result.log` (exit0). Both
+CTests pass. Engine build-only repair `ee208443` fixes nested Windows shell
+handling of multiple catalog IDs; missing packages are still rejected. Game
+SHA256 `b8602217aa8b925462fa8a0d91c1243944d91969d1584921913de0095d7d3673`.
+All15 final QA rollups and the full180-point acceptance suite remain open.
