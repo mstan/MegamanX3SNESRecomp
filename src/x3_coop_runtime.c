@@ -33,7 +33,7 @@ static NativePass draw;
  * recipient only for that call; canonical ownership stays at state.anchor. */
 typedef struct WorldTarget {uint16_t slot,s;uint8_t active,seat;} WorldTarget;
 static WorldTarget target;
-/* A native health refill remains in the shared item pool while all world
+/* A native resource refill remains in the shared item pool while all world
  * pools are frozen. Its original recipient outlives an individual item call. */
 typedef struct PickupRefill {uint16_t slot;uint8_t seat,active;} PickupRefill;
 static PickupRefill refill;
@@ -290,13 +290,17 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   if(!enabled || !state.initialized)return;
   unsigned at=pc&0xffff,d=cpu->D;
   if(at==0xdd1a || at==0xdcb3 || at==0xdafa) {
-    bool pickup=at==0xdafa && shared_pickup(d);
+    bool weapon=item_actor(d) && g_ram[d+10]==1;
+    bool pickup=at==0xdafa && (weapon || shared_pickup(d));
     bool pending=pickup && refill.active && refill.slot==d;
     if(state.wipe || target.active || (!pickup && !enemy_actor(d)) || !g_ram[d] ||
        (!pickup && !(g_ram[d+0x27]&127)) ||
        ((g_ram[0x1f22] || g_ram[0x1f24]) && !pending) || controller.pass || terrain.pass ||
        contact.native.pass || objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
-    unsigned seat=pending?refill.seat:
+    /* Zero has no special-weapon inventory. Only native X may test or refill
+     * weapon energy, even when Zero is nearer or owns the shared world. */
+    unsigned seat=pending?refill.seat:pickup && weapon?
+        (state.players[0].character==X3_COOP_X?0:1):
         X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
     bool retired=state.players[seat].life!=X3_COOP_ALIVE;
     if(retired && !pending)return;
@@ -310,7 +314,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
    * the original JSR frame has been consumed. */
   if(target.active && d==target.slot && cpu->S==(uint16_t)(target.s+2)) {
     if(item_actor(d)){
-      if(g_ram[d+10]==2 && g_ram[d+2]==6 && (g_ram[d]&128) && g_ram[0x1f28])
+      if(g_ram[d+10]>=1 && g_ram[d+10]<=2 && g_ram[d+2]==6 && (g_ram[d]&128) && g_ram[0x1f28])
         refill=(PickupRefill){(uint16_t)d,target.seat,1};
       else if(refill.active && refill.slot==d)memset(&refill,0,sizeof(refill));
     }

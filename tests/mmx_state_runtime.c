@@ -53,6 +53,7 @@ int main(int argc,char **argv) {
       authored_health_pickup_checks(saved,size,after,damaged,cap);
       pickup_contact_fallback_checks(saved,size,after,damaged,cap);
       native_shared_life_checks(saved,size,after,cap);
+      native_weapon_pickup_checks(saved,size,after,damaged,cap);
       native_view_checks(saved,size,after,damaged,cap);
       native_contact_checks(saved,size,after,cap);
       native_support_checks(saved,size,after,damaged,cap);
@@ -77,6 +78,7 @@ int main(int argc,char **argv) {
       authored_health_pickup_checks(saved,size,after,damaged,cap);
       pickup_contact_fallback_checks(saved,size,after,damaged,cap);
       native_shared_life_checks(saved,size,after,cap);
+      native_weapon_pickup_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_INDEPENDENT_STATE");
     if(fixture && *fixture) {

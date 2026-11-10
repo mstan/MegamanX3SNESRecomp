@@ -484,3 +484,35 @@ Zero20->28HP with the native refill pose. Game SHA256:
 `3f69f70cf28c774e1c684c244f609562000cb9597c009db188bc1ffffb0deaa8`.
 Weapon energy, persistent acquisitions, paired menus, public settings and the
 full180-point final acceptance remain open. All15 final rollups remain open.
+
+### Remote X weapon-energy ownership checkpoint
+
+Class01 weapon-energy items now borrow native X, including when Zero leads the
+world or stands nearer the item. Native Zero eligibility stays unchanged; this
+adds no Zero special weapons. The existing recipient latch also retains X for
+normal/frozen energy refill and cleanup. Item movement and award still run once.
+
+A matched native controller check reproduced an unclaimed remote-X item while
+the original X-only call collected it. Both rosters now match all48 item bytes
+from that single native update, restore a pending refill identically, refill
+X8->16 energy with native inventory flags, and leave other inventories and both
+personal HP values unchanged. Zero's actual hitbox overlaps rejected items with
+distant/fallen/withdrawn X. Isolated withdrawal of a pending X releases every
+freeze without awarding energy or restoring participation. This qualifies the
+lifecycle API cleanup, not the future launcher withdrawal interface.
+
+These dropped-object fixtures bypass allocation/RNG, route traversal, native
+leader handoff and camera admission. They explicitly prepare a coherent whole
+actor context and camera; visual output advances the native presentation queue
+after those preparations. Earlier captures from mismatched fixture camera,
+palette and queued presentation are excluded from visual evidence.
+
+Combined ROM checks pass in `build-coop/qa-state/native-weapon-combined-result.log`
+(exit0), as do both CTests. No new generated boundaries or state layout were
+needed. Inspected real host split captures `host-weapon-final-12.png` and
+`host-weapon-final-62.png` retain red Zero, X's native refill/standing poses,
+correct personal health and distinct bright rooms. Weapon HUD completion is
+still open. Game SHA256:
+`62d934a73bf832e5ba2c736002f83a604375cee6069aa4e1c2b24dfdf8c7f52a`.
+Persistent acquisitions, simultaneous resource tasks, paired menus, public
+settings and the full180-point acceptance remain open;0/15 final rollups pass.

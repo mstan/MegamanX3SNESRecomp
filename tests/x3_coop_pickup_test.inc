@@ -179,6 +179,130 @@ static void native_shared_life_checks(uint8_t *original,size_t size,uint8_t *wor
   }
   check(RtlLoadSnapshotFromMemory(original,size),"native shared-life probes restore their starting machine");(void)capacity;
 }
+/* Native dropped-weapon-energy controller: allocation/RNG and route traversal
+ * are bypassed, but native eligibility, overlap, refill and cleanup are real. */
+static void native_weapon_pickup_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
+  unsigned zero=health_pickup_approach(original,size,work,20),x=zero^1,slot=0;
+  X3CoopState setup=*X3CoopRuntimeState();
+  setup.anchor=setup.current=(uint8_t)zero;
+  setup.players[x].body[5]=0x38;setup.players[x].body[6]=7;
+  setup.players[x].body[8]=0x9b;setup.players[x].body[9]=5; /*1848,1435*/
+  setup.players[x].body[0x33]=2; /* First native special weapon. */
+  size_t offset=contact_context_offset(original,size);
+  X3CoopState initial;check(X3CoopDecode(&initial,original+offset,X3CoopEncodedSize()),"native safe Zero location decodes");
+  memcpy(setup.players[zero].body+5,initial.players[zero].body+5,5);
+  memcpy(work,original,size);
+  check(X3CoopEncode(&setup,work+offset,X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,size),
+        "Zero-led remote X weapon-energy approach restores");
+  /* This fixture changes the leading actor without a native death/door
+   * handoff. Prepare its whole projected context, including its real palette. */
+  memcpy(g_ram+X3_COOP_BODY,setup.players[zero].body,X3_COOP_BODY_BYTES);
+  memcpy(g_ram+X3_COOP_AUX,setup.players[zero].auxiliaries,X3_COOP_AUX_BYTES);
+  memcpy(g_ram+X3_COOP_SHOTS,setup.players[zero].shots,X3_COOP_SHOT_BYTES);
+  memcpy(g_ram+X3_COOP_PALETTE,setup.players[zero].palette,X3_COOP_PALETTE_BYTES);
+  g_ram[0x1f1e]=setup.players[zero].shot_command;g_ram[0x1fd2]=28;g_ram[0xa1]=1;
+  X3CoopViewsConfigure(true);X3CoopViewState views={0};views.independent=views.initialized=1;views.stage=1;
+  views.valid=views.camera_valid=3;
+  for(unsigned s=0;s<2;++s){views.camera[s][0]=s==x?1720:256;views.camera[s][1]=s==x?1280:1024;
+    views.limits[s][1]=views.current[s][1]=8192;views.limits[s][2]=views.current[s][2]=views.camera[s][1];
+    views.limits[s][3]=views.current[s][3]=views.camera[s][1];}
+  X3CoopViewsSetState(&views);
+  for(unsigned d=0x1518;d<0x1818;d+=48)if(!g_ram[d]){slot=d;break;}
+  check(slot!=0,"native weapon-energy fixture has an unused item slot");
+  memset(g_ram+slot,0,48);g_ram[slot]=1;g_ram[slot+10]=1;g_ram[slot+11]=128;
+  view_word(slot+5,1848);view_word(slot+8,1448);
+  memset(g_ram+0x1fbb,0,18);g_ram[0x1fbc]=0x48; /* Unlocked,8/28 energy. */
+  size_t prepared=RtlSaveSnapshotToMemory(work,capacity);
+  X3CoopRuntimeEnable(false);memcpy(g_ram+X3_COOP_BODY,setup.players[x].body,X3_COOP_BODY_BYTES);
+  g_ram[0x1fd2]=16;
+  /* Only the original single-body reference needs X's native camera. The
+   * paired machine retains the actual leading Zero's upper-room camera. */
+  view_word(0x1e5d,1720);view_word(0x1e7a,1720);view_word(0x1e60,1280);view_word(0x1e7c,1280);
+  view_word(0x1e66,0);view_word(0x1e68,8192);view_word(0x1e6a,1280);view_word(0x1e6c,1280);
+  view_word(0x1e6e,0);view_word(0x1e70,8192);view_word(0x1e78,1280);view_word(0x1e7e,1280);
+  for(unsigned i=0;i<12 && !g_ram[0x1f28];++i)pickup_native_items(0x00daa0);
+  if(!g_ram[0x1f28])fprintf(stderr,"native weapon reference: item=%u/%u/%u active=%u xy=%u,%u selector=%u energy=%02x geom=%04x\n",
+      g_ram[slot+1],g_ram[slot+2],g_ram[slot+3],g_ram[slot],view_read(slot+5),view_read(slot+8),g_ram[0xa0b],g_ram[0x1fbc],view_read(slot+0x20));
+  check(g_ram[slot+2]==6 && g_ram[0x1f28],"single-body native X really starts weapon-energy refill");
+  uint8_t native_item[48];memcpy(native_item,g_ram+slot,sizeof(native_item));
+  for(unsigned mode=0;mode<3;++mode){
+    X3CoopState probe=setup;
+    if(mode==0){
+      probe.players[x].body[5]=0;probe.players[x].body[6]=1;
+      probe.players[x].body[8]=0x20;probe.players[x].body[9]=4;
+    }else check(mode==1?X3CoopFall(&probe,x):X3CoopWithdraw(&probe,x),
+               "weapon pickup ineligible-X lifecycle precondition applies");
+    probe.players[zero].body[5]=0x38;probe.players[zero].body[6]=7;
+    probe.players[zero].body[8]=0x9b;probe.players[zero].body[9]=5;
+    memcpy(expected,work,prepared);
+    check(X3CoopEncode(&probe,expected+offset,X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(expected,prepared),
+          "Zero-only weapon-energy contact precondition restores");
+    memcpy(g_ram+X3_COOP_BODY,probe.players[zero].body,X3_COOP_BODY_BYTES);
+    X3CoopViewState nearby=views;nearby.camera[zero][0]=1720;nearby.camera[zero][1]=1280;
+    nearby.limits[zero][2]=nearby.current[zero][2]=nearby.limits[zero][3]=nearby.current[zero][3]=1280;
+    X3CoopViewsSetState(&nearby);
+    for(unsigned i=0;i<12;++i)pickup_native_items(0x00daa0);
+    check(pickup_single_overlap(slot,&probe.players[zero]),"native Zero hitbox actually overlaps the rejected weapon-energy item");
+    if(!g_ram[slot] || g_ram[slot+2]==6 || g_ram[0x1f28] || g_ram[0x1fbc]!=0x48)
+      fprintf(stderr,"rejected weapon mode%u: active=%u item=%u/%u/%u freeze=%u energy=%02x\n",
+          mode,g_ram[slot],g_ram[slot+1],g_ram[slot+2],g_ram[slot+3],g_ram[0x1f28],g_ram[0x1fbc]);
+    check(g_ram[slot] && g_ram[slot+2]!=6 && !g_ram[0x1f28] && g_ram[0x1fbc]==0x48,
+          "Zero cannot collect weapon energy for a distant fallen or withdrawn X");
+    check(X3CoopRuntimeState()->players[x].life==probe.players[x].life,
+          "weapon energy does not revive or rejoin an ineligible X");
+  }
+  check(RtlLoadSnapshotFromMemory(work,prepared),"Zero-led weapon-energy comparison restores");
+  for(unsigned i=0;i<12 && !g_ram[0x1f28];++i)pickup_native_items(0x00daa0);
+  if(!g_ram[0x1f28])fprintf(stderr,"weapon pickup: seat%u anchor%u item=%u/%u/%u energy=%02x\n",
+      x,X3CoopRuntimeState()->anchor,g_ram[slot+1],g_ram[slot+2],g_ram[slot+3],g_ram[0x1fbc]);
+  check(g_ram[slot+2]==6 && g_ram[0x1f28],"remote X collects native weapon energy while Zero leads the world");
+  check(!memcmp(native_item,g_ram+slot,sizeof(native_item)),"remote weapon-energy claim matches one native X item update");
+  size_t pending=RtlSaveSnapshotToMemory(work,capacity);
+  const char *output=getenv("X3_COOP_WEAPON_PICKUP_OUTPUT");
+  if(output && *output){
+    /* Teleport/anchor preparation changed core state without advancing the
+     * native presentation queue. Let it catch up before a visual handoff. */
+    for(unsigned i=0;i<4;++i)frame(0);
+    check(g_ram[0x1f28] && RtlSaveSnapshot(output),"native pending weapon-energy visual fixture saves");
+    check(RtlLoadSnapshotFromMemory(work,pending),"visual preparation restores the original pending refill");
+  }
+  setup=*X3CoopRuntimeState();check(X3CoopWithdraw(&setup,x),"pending weapon-energy recipient withdraws through the lifecycle API");
+  memcpy(expected,work,pending);
+  check(X3CoopEncode(&setup,expected+offset,X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(expected,pending),
+        "withdrawn weapon-energy recipient restores");
+  for(unsigned i=0;i<12;++i)frame(0);
+  bool cancelled=true;for(unsigned a=0x1f25;a<=0x1f2b;++a)cancelled=cancelled && !g_ram[a];
+  check(cancelled && !g_ram[0x1f4f] && (g_ram[0x1fbc]&63)==8 &&
+        X3CoopRuntimeState()->players[x].life==X3_COOP_ABSENT,
+        "retired weapon-energy cleanup releases the freeze without energy or revival");
+  check(RtlLoadSnapshotFromMemory(work,pending),"native weapon-energy refill resumes from its real pending owner");
+  unsigned positions[2][2];for(unsigned s=0;s<2;++s){positions[s][0]=support_position(s,5);positions[s][1]=support_position(s,8);}
+  bool parked=true;
+  for(unsigned i=0;i<8;++i){frame(SNES_PAD_RIGHT|(SNES_PAD_RIGHT<<12));
+    for(unsigned s=0;s<2;++s)parked=parked && support_position(s,5)==positions[s][0] && support_position(s,8)==positions[s][1];}
+  check(parked,"weapon-energy freeze parks the noncollector while native refill continues");
+  for(unsigned i=0;i<40;++i)frame(0);
+  bool released=true;for(unsigned a=0x1f25;a<=0x1f2b;++a)released=released && !g_ram[a];
+  if(!released || g_ram[0x1f4f] || g_ram[0x1fbc]!=0xd0)fprintf(stderr,
+      "weapon complete: energy=%02x freeze=%u/%u item=%u/%u/%u count=%u owner%u selections=%u/%u phase=%u/%u\n",
+      g_ram[0x1fbc],g_ram[0x1f28],g_ram[0x1f4f],g_ram[slot+1],g_ram[slot+2],g_ram[slot+3],g_ram[slot+0x27],
+      X3CoopRuntimeState()->current,X3CoopRuntimeState()->players[x].body[0x33],
+      X3CoopRuntimeState()->players[zero].body[0x33],g_ram[0xd1],g_ram[0xd2]);
+  /* Native D5D3 ORs C000 into the updated8->16 energy word. */
+  check(released && !g_ram[0x1f4f] && g_ram[0x1fbc]==0xd0,
+        "remote X receives exactly eight native energy units and releases the shared freeze");
+  bool isolated=true;for(unsigned a=0x1fbb;a<0x1fcd;++a)if(a!=0x1fbc && g_ram[a])isolated=false;
+  check(isolated,"selected native energy refill leaves every other weapon inventory unchanged");
+  check(contact_hp(x)==16 && contact_hp(zero)==20 && X3CoopRuntimeState()->players[x].body[0x33]==2 &&
+        !X3CoopRuntimeState()->players[zero].body[0x33],"weapon pickup preserves personal HP and Zero has no special selection");
+  size_t complete=RtlSaveSnapshotToMemory(expected,capacity);
+  check(RtlLoadSnapshotFromMemory(work,pending),"pending remote weapon-energy refill restores");
+  for(unsigned i=0;i<8;++i)frame(SNES_PAD_RIGHT|(SNES_PAD_RIGHT<<12));
+  for(unsigned i=0;i<40;++i)frame(0);
+  size_t repeated=RtlSaveSnapshotToMemory(work,capacity);
+  same(expected,complete,work,repeated,"remote weapon-energy refill replays to the identical complete machine");
+  check(RtlLoadSnapshotFromMemory(original,size),"native weapon-energy probes restore their starting machine");
+}
 static void authored_health_pickup_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
   unsigned seat=health_pickup_approach(original,size,work,20),other=seat^1;
   size_t offset=contact_context_offset(original,size);X3CoopState setup;
