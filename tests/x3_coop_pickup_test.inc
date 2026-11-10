@@ -26,6 +26,7 @@ static void pickup_native_item_loop(void){pickup_native_items(0x00dac2);}
 static bool pickup_single_overlap(unsigned slot,const X3CoopPlayer *player){
   bool enabled=X3CoopRuntimeEnabled();X3CoopRuntimeEnable(false);
   memcpy(g_ram+X3_COOP_BODY,player->body,sizeof(player->body));
+  g_ram[0x1fff]=player->native_flags;
   uint16_t stack=g_cpu.S;g_cpu.PB=4;g_cpu.DB=6;g_cpu.D=(uint16_t)slot;g_cpu.X=X3_COOP_BODY;
   g_cpu.P=(uint8_t)((g_cpu.P|0x20)&~0x10);cpu_p_to_mirrors(&g_cpu);cpu_push_jsl_return_frame(&g_cpu);
   check(interp_bridge_run(&g_cpu,0x04cc5c) && g_cpu.S==stack,"single-body native pickup overlap returns with its actual stack");

@@ -1010,3 +1010,38 @@ These are implementation gates for stock policy, single-participant scene
 ownership and related state. All15 final rollups remain open. Paired menus,
 assists, adaptive co-op fields, online qualification, other campaign content and
 the remaining180-point checks still require completion before release.
+
+## Personal native status and pause staging
+
+Native RAM1FFF combines the character selector with temporary armor/damage
+status. It now travels with each actor through projection, scripted retirement
+and snapshots. A before-fix core probe reproduced X's status leaking into Zero.
+ROM-backed contacts in both actual rosters now match the original04:CB31 path:
+with acquired body armor and contact damage4, X loses2 HP normally or1 with
+the native C0 protection state; Zero loses4. The original consumes/transitions
+only the victim's status. The distant actor's health and flags stay unchanged,
+and whole-machine contact replay agrees.
+
+Actor wire X3C5 is2806 bytes; presentation X3P5 embeds the expanded contexts.
+Complete states are412889 bytes. Old disposable snapshots are intentionally
+rejected. Native progress is unchanged.
+
+Native pause replaces gameplay CGRAM staging and OAM with menu assets. Paused
+actor capture/projection now preserves personal gameplay palettes, and private
+world composition, partner objects and presentation-history capture stop while
+1F37 bit0 is set. The original exit value80 already draws the restored world,
+so it remains eligible for gameplay presentation. Actual Start pause freezes
+both bodies and shared pools; idle menu work preserves all three gameplay
+presentation lists. Native menu pixels agree exactly with the solo renderer,
+paused immediate restore agrees, and native resume restores partner movement.
+These are prerequisites for paired menus, not paired-navigation acceptance.
+
+Qualification evidence under`build-coop/qa-state`:
+`native-flags-final-base-result.log`, `native-flags-final-menu-result.log`,
+`native-flags-combined-result.log` and`native-flags-arms-result.log` pass,
+along with both X3 CTests. Fresh prototype-free public withdrawal/return
+also passes (`flags-public-lease.json`, original public route logs).
+GUI SHA256:`d20980eb6c62907d68cc8b700b00443b45ae5d88fa40c7e987cc2cc28a63a4a6`;
+state tests:`8f44f82807db2be9fcc0bd7f08cabd991bff6dd848523cfe4e882ed737731bc0`.
+Fixtures11/1/3/8/6/13/quick/2/10/9 were regenerated for this wire format.
+All15 final rollups remain open; delivered archives and owner data are unchanged.

@@ -152,6 +152,7 @@ static void native_view_checks(uint8_t *original,size_t original_size,uint8_t *w
   check(X3CoopEncode(&setup,work+offset,X3CoopEncodedSize()),"camera comparison P2 position encodes");
   check(RtlLoadSnapshotFromMemory(work,prepared),"matched native camera setup restores");
   X3CoopRuntimeEnable(false);memcpy(g_ram+X3_COOP_BODY,setup.players[1].body,X3_COOP_BODY_BYTES);
+  g_ram[0x1fff]=setup.players[1].native_flags;
   view_native_call(0x00dfc6,0,false);
   unsigned reference[6]={view_read(0x1e5d),view_read(0x1e60)};
   for(unsigned i=0;i<4;++i)reference[i+2]=view_read(0x1e66+i*2);

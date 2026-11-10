@@ -27,6 +27,7 @@ static void native_target_checks(uint8_t *snapshot,size_t size,uint8_t *modified
   uint8_t expected[0x3c0];
   X3CoopRuntimeEnable(false);
   memcpy(g_ram+X3_COOP_BODY,setup.players[1].body,X3_COOP_BODY_BYTES);
+  g_ram[0x1fff]=setup.players[1].native_flags;
   target_world_call();
   check((g_ram[d+0x11]&64) && g_ram[d+0x36]==1 && !g_ram[d+0x35],
         "single-seat native reference faces right and detects its nearby player");

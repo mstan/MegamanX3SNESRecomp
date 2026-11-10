@@ -2,7 +2,7 @@
  * isolated geometry fixtures, not an assertion of stage/AI coverage. */
 #include "../src/x3_coop_render.h"
 static size_t contact_context_offset(const uint8_t *snapshot,size_t size) {
-  for(size_t i=size-4;i>0;--i)if(!memcmp(snapshot+i,"X3C4",4))return i;
+  for(size_t i=size-4;i>0;--i)if(!memcmp(snapshot+i,"X3C5",4))return i;
   check(0,"actor context is present");return 0;
 }
 static void contact_geometry(unsigned slot,unsigned x,unsigned y) {

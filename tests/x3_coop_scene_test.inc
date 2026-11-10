@@ -7,6 +7,7 @@ static void door_install_player(const X3CoopState *setup){
   memcpy(g_ram+X3_COOP_SHOTS,world->shots,sizeof(world->shots));
   memcpy(g_ram+X3_COOP_PALETTE,world->palette,sizeof(world->palette));
   g_ram[0x1f1e]=world->shot_command;g_ram[0x1fd2]=world->maximum_health;g_ram[0xa1]=1;
+  g_ram[0x1fff]=world->native_flags;
 }
 static size_t door_scene_chunk(const uint8_t *bytes,size_t size){
   for(size_t i=0;i+16<=size;++i)if(!memcmp(bytes+i,"X3S2",4))return i;
@@ -56,6 +57,7 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   /* Native single-body control: use the same touching character and local
    * camera. The distant other body is absent from this reference update. */
   X3CoopRuntimeEnable(false);memcpy(g_ram+X3_COOP_BODY,setup.players[remote].body,X3_COOP_BODY_BYTES);
+  g_ram[0x1fff]=setup.players[remote].native_flags;
   view_word(0x1e5d,2416);view_word(0x1e60,1280);
   pickup_native_items(0x00daa0);
   check(g_ram[slot+1]==4 && g_ram[0x1f28],"original single-body gate admits the touching remote character");

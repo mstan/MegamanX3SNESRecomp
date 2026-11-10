@@ -73,6 +73,7 @@ void X3CoopRender(void) {
   const X3CoopPresentedFrame *frame=X3CoopPresentationVisible();
   const X3CoopState *s=&frame->players;
   palette_borrowed=false;
+  if(g_ram[0x1f37]&1)return; /* Native pause owns its portrait palette and objects. */
   if(X3CoopRuntimeReady() && s->initialized) {
     /* NMI can land inside a borrowed actor pass. Draw with the anchor's
      * personal ramps, then restore the exact emulated CGRAM after rendering.

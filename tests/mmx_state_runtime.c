@@ -22,6 +22,8 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_return_test.inc"
 #include "x3_coop_hud_test.inc"
 #include "x3_coop_stock_test.inc"
+#include "x3_coop_menu_test.inc"
+#include "x3_coop_flags_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -31,7 +33,7 @@ int main(int argc,char **argv) {
     check(saved && damaged && after,"co-op preflight buffers");
     size_t size=RtlSaveSnapshotToMemory(saved,cap),marker=0;
     check(size>32,"co-op snapshot is present");
-    for(size_t i=size-4;i>0;--i)if(!memcmp(saved+i,"X3C4",4)){marker=i;break;}
+    for(size_t i=size-4;i>0;--i)if(!memcmp(saved+i,"X3C5",4)){marker=i;break;}
     check(marker && marker+8<size,"co-op context chunk is present");
     memcpy(damaged,saved,size);damaged[marker+6]=2;
     check(!RtlLoadSnapshotFromMemory(damaged,size),"invalid actor anchor is refused before load");
@@ -85,6 +87,18 @@ int main(int argc,char **argv) {
       for(int i=0;i<30;++i)frame(SNES_PAD_RIGHT<<12);
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
+    }
+    fixture=getenv("X3_COOP_FLAGS_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"native private-status fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_flags_checks(saved,size,after,damaged,cap);
+    }
+    fixture=getenv("X3_COOP_MENU_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"native pause-menu fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_menu_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_STOCK_STATE");
     if(fixture && *fixture){

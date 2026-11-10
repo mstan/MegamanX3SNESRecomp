@@ -7,6 +7,7 @@ static uint8_t ram[0x20000],before[0x20000];
 int main(void) {
   X3CoopState s;
   memset(ram,0x5a,sizeof(ram));
+  ram[0x1fff]=0x50;
   ram[0x1fd2]=16;
   CHECK(X3CoopInit(&s,ram,X3_COOP_X));
   CHECK(X3CoopValid(&s));
@@ -15,10 +16,12 @@ int main(void) {
   CHECK(X3CoopProject(&s,ram,1));
   CHECK(ram[X3_COOP_BODY+0x27]==28);
   CHECK(ram[0x1fd2]==28 && s.players[0].maximum_health==16);
+  CHECK(ram[0x1fff]==2);
   CHECK(!memcmp(ram+0xcc8,before+0xcc8,0x10d8-0xcc8));
   CHECK(!memcmp(ram+0x1318,before+0x1318,0x1f1e - 0x1318));
   CHECK(!memcmp(ram+0x1f1f,before+0x1f1f,0x1fd2-0x1f1f));
-  CHECK(!memcmp(ram+0x1fd3,before+0x1fd3,sizeof(ram)-0x1fd3));
+  CHECK(!memcmp(ram+0x1fd3,before+0x1fd3,0x1fff-0x1fd3));
+  CHECK(!memcmp(ram+0x2000,before+0x2000,sizeof(ram)-0x2000));
   ram[X3_COOP_BODY+5]=42;
   CHECK(X3CoopProject(&s,ram,0));
   CHECK(s.players[1].body[5]==42);
@@ -30,6 +33,15 @@ int main(void) {
   CHECK(ram[0xa1]==1);
   CHECK(X3CoopProject(&s,ram,0));
   CHECK(ram[X3_COOP_PALETTE]==0x22);
+  ram[0x1f37]|=1;
+  memset(ram+X3_COOP_PALETTE,0x77,X3_COOP_PALETTE_BYTES);
+  CHECK(X3CoopProject(&s,ram,1));
+  CHECK(s.players[0].palette[0]==0x22 && ram[X3_COOP_PALETTE]==0x77);
+  ram[X3_COOP_BODY+0x27]=23;X3CoopCapture(&s,ram);
+  CHECK(s.players[1].body[0x27]==23 && s.players[1].palette[0]==0x5a);
+  CHECK(X3CoopProject(&s,ram,0));
+  CHECK(ram[X3_COOP_PALETTE]==0x77);
+  ram[0x1f37]&=254;memset(ram+X3_COOP_PALETTE,0x22,X3_COOP_PALETTE_BYTES);
   ram[X3_COOP_BODY+5]=10;ram[X3_COOP_BODY+6]=0;
   ram[X3_COOP_BODY+8]=100;ram[X3_COOP_BODY+9]=0;
   ram[X3_COOP_BODY+0x27]=16;

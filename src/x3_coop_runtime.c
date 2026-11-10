@@ -338,6 +338,7 @@ static void scene_cancel_transients(unsigned seat){
   X3CoopPlayer *p=&state.players[seat];
   memset(p->auxiliaries,0,sizeof(p->auxiliaries));memset(p->shots,0,sizeof(p->shots));
   p->shot_command=0;p->previous_actions=0;
+  p->native_flags&=15; /* Original01:8725 retires these owned effect flags. */
   p->body[0x57]=p->body[0x58]=p->body[0x5a]=p->body[0x5b]=0;
   for(unsigned i=0;i<SHARED_SUPPORTS;++i)riders[i]&=(uint8_t)~(1u<<seat);
 }
@@ -389,6 +390,7 @@ static void scene_install(unsigned seat){
   memcpy(g_ram+X3_COOP_AUX,p->auxiliaries,sizeof(p->auxiliaries));
   memcpy(g_ram+X3_COOP_SHOTS,p->shots,sizeof(p->shots));
   g_ram[0x1f1e]=p->shot_command;g_ram[0x1fd2]=p->maximum_health;anchor_palette();
+  g_ram[0x1fff]=p->native_flags;
 }
 /* Read-only04:BF2F/BEA5 terrain lookup. Use the live layout/metatiles so a
  * destroyed wall is immediately reflected; no guest collision pass is run. */
@@ -694,6 +696,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
       memcpy(p->body,g_ram+X3_COOP_BODY,sizeof(p->body));p->body[0x27]=hp;
       memcpy(p->auxiliaries,g_ram+X3_COOP_AUX,sizeof(p->auxiliaries));
       memcpy(p->palette,g_ram+X3_COOP_PALETTE,sizeof(p->palette));
+      p->native_flags=g_ram[0x1fff];
     }
     if(item_actor(d)){
       if((x_pickup(d) || g_ram[d+10]==2) && g_ram[d+2]==6 && (g_ram[d]&128) && g_ram[0x1f28])
@@ -827,7 +830,7 @@ static void draw_boundary(CpuState *cpu,uint32_t pc) {
   }
 }
 static void presentation_boundary(CpuState *cpu,uint32_t pc) {
-  if(!X3CoopRuntimeReady())return;
+  if(!X3CoopRuntimeReady() || (g_ram[0x1f37]&1))return;
   pc&=0x7fffff;
   if(pc==0x038dd7) {
     X3CoopPresentationBegin(&state,g_ram,cpu_read16(cpu,cpu->DB,0x6621),cpu_read16(cpu,cpu->DB,0x6623));
@@ -1006,6 +1009,7 @@ static void initialize_zero(void){
   unsigned x=state.players[0].character==X3_COOP_X?0:1;
   X3CoopPlayer *p=&state.players[x^1];
   p->body[0xb6]=2; /* Native playable Zero selector, not an imported actor. */
+  p->native_flags=2;
   p->body[0x16]=0x4a;
   const uint8_t *rom=g_snes->cart->rom;
   putword(p->body+0x31,word(rom+0x3326a)); /* Data bank $86:B26A. */

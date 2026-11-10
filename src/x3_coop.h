@@ -20,7 +20,7 @@ typedef struct X3CoopPlayer {
   uint8_t shots[X3_COOP_SHOT_BYTES];
   uint8_t palette[X3_COOP_PALETTE_BYTES];
   uint16_t previous_actions;
-  uint8_t life, character, shot_command, maximum_health;
+  uint8_t life, character, shot_command, native_flags, maximum_health;
 } X3CoopPlayer;
 typedef struct X3CoopState {
   X3CoopPlayer players[2];
