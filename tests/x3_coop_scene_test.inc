@@ -107,6 +107,11 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   check(!X3CoopRuntimeSceneActive() && arrived->players[0].life==X3_COOP_ALIVE &&
         arrived->players[1].life==X3_COOP_ALIVE,
         "native door transport retains both living participants through cleanup");
+  for(unsigned seat=0;seat<2;++seat)if(arrived->players[seat].character==X3_COOP_X)
+    for(unsigned part=0;part<3;++part)if(g_ram[0x1fd1]&(2u<<part)){
+      const uint8_t *child=arrived->players[seat].auxiliaries+part*32;
+      check(child[0] && child[0x10]==0x5d,"authored door arrival reconstructs X's acquired native armor children");
+    }
   check((arrived->players[0].body[0x27]&127)==(setup.players[0].body[0x27]&127) &&
         (arrived->players[1].body[0x27]&127)==(setup.players[1].body[0x27]&127),
         "door transport preserves both personal health values");

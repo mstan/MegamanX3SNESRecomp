@@ -15,7 +15,7 @@ rom_sha256 = "65b03268afac296330e8ff8d60dd0825879e13ed658b37713c034a3bd074f1d7"
 [[feature]]
 id = "coop"
 name = "Co-op"
-description = "Play as X and Zero. Health and attacks belong to each player; lives and subtanks are shared."
+description = "Play as X and Zero. Hold Select to leave or return beside your partner. Health and attacks belong to each player; lives and subtanks are shared."
 group = "Characters"
 default_enabled = false
 

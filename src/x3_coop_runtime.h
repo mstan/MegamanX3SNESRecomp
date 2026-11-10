@@ -6,6 +6,10 @@ struct SaveLoadInfo;
 void X3CoopRuntimeEnable(bool enabled);
 bool X3CoopRuntimeEnabled(void);
 bool X3CoopRuntimeReady(void);
+/* Participation requests are admitted only at a balanced gameplay boundary.
+ * Return requires clear native terrain beside the living participant. */
+bool X3CoopRuntimeWithdraw(unsigned seat);
+bool X3CoopRuntimeRejoin(unsigned seat);
 void X3CoopRuntimeSetP1Character(unsigned character);
 void X3CoopRuntimeSetDoorPolicy(bool both_present);
 bool X3CoopRuntimeSceneActive(void);

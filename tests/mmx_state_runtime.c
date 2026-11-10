@@ -19,6 +19,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_acquisition_test.inc"
 #include "x3_coop_capsule_test.inc"
 #include "x3_coop_stage_test.inc"
+#include "x3_coop_return_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -34,6 +35,12 @@ int main(int argc,char **argv) {
     check(!RtlLoadSnapshotFromMemory(damaged,size),"invalid actor anchor is refused before load");
     size_t after_size=RtlSaveSnapshotToMemory(after,cap);
     same(saved,size,after,after_size,"refused actor state leaves the machine unchanged");
+    if(!X3CoopRuntimeState()->initialized){
+      memcpy(damaged,saved,size);damaged[door_scene_chunk(saved,size)+16+4]=1;
+      check(!RtlLoadSnapshotFromMemory(damaged,size),"unenrolled state cannot contain a pending participation request");
+      after_size=RtlSaveSnapshotToMemory(after,cap);
+      same(saved,size,after,after_size,"refused unenrolled participation state leaves the machine unchanged");
+    }
     const char *fixture=getenv("X3_COOP_TEST_STATE");
     if(fixture && *fixture) {
       X3CoopRuntimeEnable(false);
@@ -51,6 +58,7 @@ int main(int argc,char **argv) {
       }
       native_persistent_pickup_checks(saved,size,after,damaged,cap,11,5856,1096,1,false);
       for(unsigned character=0;character<2;++character)native_door_checks(saved,size,after,damaged,cap,character);
+      native_armored_door_checks(saved,size,after,damaged,cap);
       native_display_checks("start",saved,size,after,damaged,cap);
       native_resource_checks(saved,size,after,cap);
       remote_resource_checks(saved,size,after,cap);
@@ -76,6 +84,12 @@ int main(int argc,char **argv) {
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
     }
+    fixture=getenv("X3_COOP_RETURN_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"native safe return fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_return_checks(saved,size,after,damaged,cap);
+    }
     fixture=getenv("X3_COOP_STAGE_STATE");
     if(fixture && *fixture){
       check(RtlLoadSnapshot(fixture),"native stage handoff fixture loads");
@@ -89,6 +103,7 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_persistent_pickup_checks(saved,size,after,damaged,cap,11,5856,1096,1,false);
       for(unsigned character=0;character<2;++character)native_door_checks(saved,size,after,damaged,cap,character);
+      native_armored_door_checks(saved,size,after,damaged,cap);
       native_display_checks("reversed",saved,size,after,damaged,cap);
       native_reversed_roster_checks(saved,size,after,damaged,cap);
       authored_health_pickup_checks(saved,size,after,damaged,cap);

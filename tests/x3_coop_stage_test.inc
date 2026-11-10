@@ -57,6 +57,8 @@ static void native_stage_checks(uint8_t *original,size_t size,uint8_t *work,uint
     }
     memcpy(work,pending,middle);work[scene_at+9]=4;
     check(!RtlLoadSnapshotFromMemory(work,middle),"pending stage must match the saved native stage");
+    memcpy(work,pending,middle);work[scene_at+16+4]=1;
+    check(!RtlLoadSnapshotFromMemory(work,middle),"pending stage cannot retain an active participation request");
     /* Current native-pass ABI: two 12-byte register records, then a pass
      * byte and padding. Each constructed continuation must be valid without
      * the stage scene, so refusal proves the cross-state invariant. */

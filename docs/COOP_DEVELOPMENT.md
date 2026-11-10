@@ -27,7 +27,9 @@ This is an incomplete development implementation, not a co-op release.
 
 The launcher catalog now offers X / Zero Co-op, with roster and camera policy
 choices and a separate local-view feature. Diagnostic environment overrides
-remain available. Full-campaign scenes/lifecycle, the stock restriction option,
+remain available. Holding Select withdraws a living actor; release and hold
+again to return beside the partner when clear native ground is available.
+Full-campaign scenes/lifecycle, the stock restriction option,
 paired menus, shared HUDs, assists, widescreen co-op fields and online session
 qualification still require work. This is not a release qualification.
 
@@ -40,7 +42,7 @@ campaign or co-op gameplay acceptance.
 | --- | --- | --- |
 | Individual death | Stage-1 contact deaths pass for X/P1 and Zero/P2; other cases open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | Zero-then-X stage-1 route passes; other cases open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
-| Fallen persistence | Component checks only | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
+| Fallen persistence | Native stage-entry and public withdrawal/return checks pass narrowly; campaign transitions and assists open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | Native union admission/retention passes focused remote-region cases; campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | Shared rider contracts and stage5 class26 case pass; broader families open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | Native contact and class08 targeting probes pass; broader AI/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
@@ -830,3 +832,68 @@ These are prerequisite F04/R05/R09 implementation checks. Actual stage exits,
 campaign rewards, safe public rejoin, native scene visuals, menus and online
 qualification remain open. All15 final rollups and the180-point suite remain
 open; the delivery archive is unchanged.
+
+
+### Public withdrawal and safe native return
+
+Holding Select for90 world updates withdraws that seat. Release and hold again
+to return; if no safe landing is available, the held return waits. The request
+latches after success so a continued hold cannot toggle participation repeatedly.
+Both seats use the same simulation inputs and deterministic ordering. Simultaneous
+withdrawals leave one living participant, and neither controls nor safe placement
+can restore a fallen actor. Scripted/captured/vehicle actions must release before
+public participation changes are admitted.
+
+Return reads the current native stage layout, metatiles and collision classes,
+including dynamic map edits. It requires a visible flat terrain floor, full
+standing clearance, a clear corridor and space around shared actors/projectiles.
+It retains the returning character's HP and personal context, clears cancelled
+transients and replaces obsolete private camera bounds. Unsupported terrain or
+an unsafe/busy location refuses the request without changing the machine. This
+is a conservative ground return; broader authored hazards, supports and vehicle
+ownership still require their campaign checks.
+
+Clearing transients also exposed persistent X armor children. Return and scene
+arrival now reconstruct those three children from the shared acquired-parts bits,
+matching original04:B5BB construction rather than borrowing Zero's or stale X
+slots. Native child updates continue after return. A Zero-led authored stage1
+door also retains X's acquired children through parking and arrival in both
+rosters. Acquired-parts flags are explicit test preconditions; these checks do
+not establish armor acquisition or every weapon/upgrade combination.
+
+The8-byteX3J1 chunk serializes both Select counters/latches. Full snapshots are
+now412635B; older disposable fixtures are rejected and the existing native
+scenario scripts regenerated the working fixtures. Partial-hold replay, return
+with stale view bounds, completed restore, malformed counters/reserved fields,
+unenrolled participation and pending-stage consistency pass transactionally.
+The original stage-entry codec and generated boundaries are unchanged.
+
+ROM-backed return/control checks cover both seats/rosters, unequal personal HP,
+fallen exclusion, last-player/simultaneous withdrawal guards, subsequent native
+movement, an actual jump with no nearby landing, and an isolated corridor made
+through the original native metatile writer. The corridor setup is not authored
+wall/door coverage. Public launcher-selected startup with every prototype
+override cleared also withdraws and returns Zero28HP beside X16HP, then moves
+Zero from416 to455 on native stage5 ground. The composed scene was inspected;
+launcher navigation and owner play checks remain open.
+
+Evidence in`build-coop/qa-state`: `native-return-base-result.log` and
+`native-return-combined-result.log` pass the native actor/resource/view/door,
+armored arrival, supports, capsule, both survivor and retry cases on GUI
+SHA256`56e8f7e072f482523eee9e1586b52409ccc889581d5bd2d4204cb969dcd7b785` /
+test`27bd9d9decc6e01b9f9e65370f30281cdd65b9743e46ee49994edfa18e6364f6`.
+After the corridor and ordinary-action guards, focused
+`native-return-corridor-result.log`, `native-return-arms-result.log` and
+`public-return-final-result.log` pass on GUI
+`49d9efda5feec1d77bdaf632f02ed36627c7e13aee5220fc122aed1d2fb59edb` /
+test`0bddcc448c15e98184d48001e11a75075b7229e7b2b4cb22265af96f43b673ea`.
+Both X3 CTests pass. No generated routing changes were needed. The public
+control image and states are in`build-coop/qa-public/public-return-*` and
+its disposable slots14/15.
+
+This supports F05/F06/F07, C10 and R05/R09 narrowly. It does not qualify all
+terrain, native scene fatalities, campaign exits, shared menus, HUD layouts,
+assists, online play or the final180-point suite. All15 final rollups remain
+open and the delivered archive is unchanged. Old fixture copies under
+`qa-state/pre-x3j1-fixtures` remain temporary reference data for ongoing scene
+analysis; remove obsolete copies after retaining the needed evidence.
