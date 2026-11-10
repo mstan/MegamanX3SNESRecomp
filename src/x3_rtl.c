@@ -14,6 +14,7 @@
 #include "x3_rtl.h"
 #include "x3_coop_runtime.h"
 #include "x3_coop_render.h"
+#include "x3_coop_view.h"
 #include "mmx_replay.h"
 
 #include <stdbool.h>
@@ -155,6 +156,8 @@ void RunOneFrameOfGame(void) {
 
   if (!s_lle_did_reset) {
     X3CoopRuntimeReset();
+    const char *coop_independent=getenv("SNESRECOMP_X3_COOP_INDEPENDENT");
+    X3CoopViewsConfigure(coop_independent && coop_independent[0]=='1');
     const char *coop_prototype=getenv("SNESRECOMP_X3_COOP_PROTOTYPE");
     X3CoopRuntimeEnable(coop_prototype && coop_prototype[0]=='1');
     X3CoopRuntimeFrame();

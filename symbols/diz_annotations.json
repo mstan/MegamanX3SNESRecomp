@@ -21,7 +21,7 @@
   "labels_by_kind": {
     "opcode": 1
   },
-  "overlay_symbols": 2,
+  "overlay_symbols": 0,
   "instruction_count": 70916,
   "instruction_boundary_mismatches": [],
   "policy": "Discovery metadata only. Unknown is not data. Recorded modes and classifications are not execution contracts.",
@@ -30,7 +30,7 @@
       "address": "018000",
       "name": "Emulation_RESET",
       "kind": "opcode",
-      "project_name": ""
+      "project_name": "bank_01_8000"
     }
   ]
 }

@@ -10,6 +10,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_contact_test.inc"
 #include "x3_coop_target_test.inc"
 #include "x3_coop_support_test.inc"
+#include "x3_coop_view_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -27,10 +28,12 @@ int main(int argc,char **argv) {
     same(saved,size,after,after_size,"refused actor state leaves the machine unchanged");
     const char *fixture=getenv("X3_COOP_TEST_STATE");
     if(fixture && *fixture) {
-      X3CoopRuntimeEnable(true);
+      X3CoopRuntimeEnable(false);
       check(RtlLoadSnapshot(fixture),"native two-actor fixture loads");
+      check(X3CoopRuntimeEnabled(),"loading an enrolled state before boot enables its actor schedule");
       check(X3CoopRuntimeState()->initialized,"fixture contains enrolled actors");
       size=RtlSaveSnapshotToMemory(saved,cap);
+      native_view_checks(saved,size,after,damaged,cap);
       native_contact_checks(saved,size,after,cap);
       native_support_checks(saved,size,after,damaged,cap);
       unsigned x=coop_x(0),zero=coop_x(1);
@@ -43,6 +46,13 @@ int main(int argc,char **argv) {
       for(int i=0;i<30;++i)frame(SNES_PAD_RIGHT<<12);
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
+    }
+    fixture=getenv("X3_COOP_INDEPENDENT_STATE");
+    if(fixture && *fixture) {
+      X3CoopRuntimeEnable(true);
+      check(RtlLoadSnapshot(fixture),"normal independent P2 route fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      independent_route_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_TARGET_STATE");
     if(fixture && *fixture) {

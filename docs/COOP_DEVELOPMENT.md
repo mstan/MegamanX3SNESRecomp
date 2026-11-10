@@ -231,3 +231,48 @@ after these hooks, including the refreshed generated build identity.
 The regenerated build passes all current ROM-backed cases and both CTests in
 `build-coop/qa-state/native-combined-regenerated-result.log` (exit0). Its game
 SHA256 is `35f04da53fb2b0e0877e9a77d881efa3f2873fff427d2112aba50843f5db5121`.
+
+### Independent camera and activation implementation checkpoint
+
+`x3_coop_view` now tracks each living player's native follow position, current
+limits and authored region targets. It reads only camera-limit commands from
+X3's03:DD76 data; shared script commands still execute once in the cartridge.
+The parser handles all15 stage lists, including stage14's stage11 alias and
+non-monotonic region records. Camera follow and limit panning match a native
+single-seat reference in the qualified stage1 setup.
+
+The development independent profile (`SNESRECOMP_X3_COOP_INDEPENDENT=1`, with
+the existing prototype switch) activates the union of the two native frontier
+regions through the original event allocator. It excludes the gap and retains
+shared actors visible to either living view. Admission uses the original
+frontier columns: an early allocation at the wider retirement margin otherwise
+retires the actor before its first visible update and holds its visit history.
+Resident parallax-controller admission remains with the native anchor pending
+private presentation. Owned auxiliary/projectile culling uses its owner's view.
+
+The original camera body-bound/pit tail runs for the partner with private
+camera limits. It receives the unclamped follow result so native pit damage
+can still occur. Either actor's pit death leaves the other alive, and an
+anchor death adopts the survivor's camera. Camera/visit state and interrupted
+spawn/bound continuations are included in current-build snapshots. Loading an
+enrolled state before the first reset frame now enables its actor schedule.
+
+`tests/scenarios/coop_independent.script` uses a normal P2 dash-jump approach
+after stage entry. X remains at384/camera256; Zero reaches761 and admits the
+actual class08 enemy outside X's retirement rectangle. Thirty further console
+frames advance the native world counter30 times; full machine replay matches.
+Isolated native checks also cover gap exclusion, no duplicate allocation,
+frontier admission, interrupted allocation-codec restore, stage aliases,
+private camera panning and both pit handoffs. The existing support/contact,
+palette, survivor, retry, stock snapshot and rewind checks still pass together
+in `build-coop/qa-state/native-view-combined-result.log` (exit0); both CTests
+pass. Standard strict regeneration reports complete byte-identical trees.
+The qualified game SHA256 is
+`159b7454eb9d88403acb1bfbe6b6078eee98acec2f430e31c478b6cf081058ad`.
+
+Inspected desktop captures show a normal anchor view and the restored Zero
+jump. This implements simulation camera/activation support, not separate view
+presentation. Private background/resource rendering, split/selected displays,
+HUD/UI, online profile negotiation and full campaign qualification remain open.
+These narrow results support A01/A06/A07/A08/A09, D14 and R01/R02; none closes
+an entire rollup. All15 broad areas and the full180-point final suite remain open.
