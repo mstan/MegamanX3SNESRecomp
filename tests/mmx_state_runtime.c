@@ -8,6 +8,7 @@ static unsigned coop_x(unsigned seat) {
   return body[5]|body[6]<<8;
 }
 #include "x3_coop_contact_test.inc"
+#include "x3_coop_target_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -40,6 +41,13 @@ int main(int argc,char **argv) {
       for(int i=0;i<30;++i)frame(SNES_PAD_RIGHT<<12);
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
+    }
+    fixture=getenv("X3_COOP_TARGET_STATE");
+    if(fixture && *fixture) {
+      X3CoopRuntimeEnable(true);
+      check(RtlLoadSnapshot(fixture),"authored native enemy fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_target_checks(saved,size,after,cap);
     }
     fixture=getenv("X3_COOP_SURVIVOR_STATE");
     if(fixture && *fixture) {

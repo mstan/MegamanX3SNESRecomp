@@ -53,6 +53,18 @@ void X3CoopCapture(X3CoopState *s,const uint8_t ram[0x20000]) {
   if(s && s->initialized && s->current<2 && s->players[s->current].life==X3_COOP_ALIVE)
     capture(&s->players[s->current],ram);
 }
+unsigned X3CoopNearest(const X3CoopState *s,const uint8_t ram[0x20000],unsigned x,unsigned y) {
+  unsigned chosen=s->anchor;uint64_t best=UINT64_MAX;
+  for(unsigned i=0;i<2;++i) {
+    unsigned seat=s->anchor^i;
+    const uint8_t *b=seat==s->current?ram+X3_COOP_BODY:s->players[seat].body;
+    if(s->players[seat].life!=X3_COOP_ALIVE || !(b[0x27]&127) || b[2]==0x0c)continue;
+    int64_t dx=(int)(b[5]|b[6]<<8)-(int)x,dy=(int)(b[8]|b[9]<<8)-(int)y;
+    uint64_t distance=(uint64_t)(dx*dx+dy*dy);
+    if(distance<best){best=distance;chosen=seat;}
+  }
+  return chosen;
+}
 bool X3CoopProject(X3CoopState *s,uint8_t ram[0x20000],unsigned seat) {
   if(!X3CoopValid(s) || !s->initialized || seat>1 || s->players[seat].life!=X3_COOP_ALIVE)return false;
   X3CoopCapture(s,ram);

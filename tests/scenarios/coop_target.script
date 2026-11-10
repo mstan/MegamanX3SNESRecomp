@@ -1,0 +1,37 @@
+# Native stage-1 enemy fixture: both players keep normal health.
+wait 600
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+wait 120
+press start 6
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+wait 240
+poke 1fae 01
+poke 1faf 00
+poke 1fb3 00
+poke 1fb5 00
+poke 1fb6 00
+poke 1ebf 01
+poke 00d1 02
+poke 00d2 04
+poke 00d3 00
+until 00d1 == 04 1800
+until 00d2 == 04 1800
+until 1f22 == 00 1800
+wait 120
+press right+p2:right 180
+press right+p2:right+b+p2:b 60
+press right+p2:right 240
+wait 10
+dump target-native-enemy
+savestate 8
+press left+p2:right+p2:b 60
+dump target-separated
+wait 60
+dump target-response
+savestate 7
+quit

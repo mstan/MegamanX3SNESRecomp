@@ -17,6 +17,7 @@ static NativePass controller,terrain;
 typedef struct ContactPass {
   NativePass native;
   uint16_t pc;
+  uint8_t seat;
   uint8_t entry_scratch[24],result_scratch[24];
 } ContactPass;
 static ContactPass contact;
@@ -24,6 +25,10 @@ typedef struct ObjectPass {NativePass native;uint16_t pc,end;} ObjectPass;
 static ObjectPass objects;
 /* Late native draw requests outlive the actor update that queued them. */
 static NativePass draw;
+/* The world scheduler calls each native hostile once. Borrow its target only
+ * for that call; canonical camera/scene ownership stays at state.anchor. */
+typedef struct WorldTarget {uint16_t slot,s;uint8_t active,seat;} WorldTarget;
+static WorldTarget target;
 static unsigned object_end(unsigned pc) {
   switch(pc) {
     case 0xda7f:return 0xda9f; /* Three native armor objects. */
@@ -61,10 +66,8 @@ static void anchor_palette(void) {
   memcpy(g_ram+X3_COOP_PALETTE,state.players[state.anchor].palette,X3_COOP_PALETTE_BYTES);
   g_ram[0xa1]=1;
 }
-static void team_death_decision(CpuState *cpu,uint32_t pc) {
-  (void)cpu;(void)pc;
-  if(!enabled || !state.initialized || state.wipe || controller.pass || terrain.pass ||
-     contact.native.pass || objects.native.pass || draw.pass)return;
+static void settle_deaths(void) {
+  if(!enabled || !state.initialized || state.wipe)return;
   /* $00:9C60 checks native HP after the world/contact pass, before another
    * player-controller entry can hand off. Project a living survivor before
    * that LDA, so the original stage task cannot queue a team fade for one
@@ -75,11 +78,18 @@ static void team_death_decision(CpuState *cpu,uint32_t pc) {
     if(p->life==X3_COOP_ALIVE && (!(p->body[0x27]&127) || p->body[2]==0x0c))
       X3CoopFall(&state,seat);
   }
-  if(!state.wipe && state.current!=state.anchor) {
+  if(!state.wipe && (state.players[state.current].life!=X3_COOP_ALIVE ||
+                    (!target.active && state.current!=state.anchor))) {
     X3CoopProject(&state,g_ram,state.anchor);
     anchor_palette();
   }
   if(state.wipe)g_ram[X3_COOP_BODY+0xb6]=0;
+}
+static void team_death_decision(CpuState *cpu,uint32_t pc) {
+  (void)cpu;(void)pc;
+  if(controller.pass || terrain.pass || contact.native.pass || objects.native.pass ||
+     draw.pass || target.active)return;
+  settle_deaths();
 }
 static bool partner_ready(void) {
   return enabled && state.initialized && !state.wipe &&
@@ -91,6 +101,41 @@ static bool hostile_projectile(unsigned d) {
 }
 static bool enemy_actor(unsigned d) {
   return (d>=0x0d18 && d<0x10d8 && !((d-0x0d18)%64)) || hostile_projectile(d);
+}
+static void target_boundary(CpuState *cpu,uint32_t pc) {
+  if(!enabled || !state.initialized)return;
+  unsigned at=pc&0xffff,d=cpu->D;
+  if(at==0xdd1a || at==0xdcb3) {
+    if(state.wipe || target.active || !enemy_actor(d) || !g_ram[d] || !(g_ram[d+0x27]&127) ||
+       g_ram[0x1f22] || g_ram[0x1f24] || controller.pass || terrain.pass ||
+       contact.native.pass || objects.native.pass || draw.pass || state.current!=state.anchor)return;
+    unsigned seat=X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
+    if(seat==state.anchor)return;
+    target=(WorldTarget){(uint16_t)d,cpu->S,1,(uint8_t)seat};
+    X3CoopProject(&state,g_ram,seat);
+    return;
+  }
+  /* These four loop continuations follow the actual RTS (normal/frozen,
+   * enemy/hostile shot), so the original JSR frame has been consumed. */
+  if(target.active && d==target.slot && cpu->S==(uint16_t)(target.s+2)) {
+    target.active=0;
+    settle_deaths();
+    if(!state.wipe)X3CoopProject(&state,g_ram,state.anchor);
+  }
+}
+static void target_query(CpuState *cpu,uint32_t pc) {
+  if(!enabled || !state.initialized || state.wipe || !enemy_actor(cpu->D) || !g_ram[cpu->D])return;
+  /* The native common facing/proximity helpers also run during enemy
+   * construction, before HP is initialized. Replace just their coordinate
+   * load; keep original range arithmetic, flags, branch and AI cadence. */
+  unsigned seat=target.active?target.seat:X3CoopNearest(&state,g_ram,
+      word(g_ram+cpu->D+5),word(g_ram+cpu->D+8));
+  if(state.players[seat].life!=X3_COOP_ALIVE)return;
+  const uint8_t *body=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+  unsigned axis=(pc&65535)==0xdac6?8:5;
+  cpu->A=(uint16_t)word(body+axis);
+  cpu->_flag_Z=cpu->A==0;cpu->_flag_N=(cpu->A&32768)!=0;cpu_mirrors_to_p(cpu);
+  interp_bridge_pre_opcode_redirect((pc&0xff0000)|((pc+3)&65535));
 }
 static bool owned_object(unsigned d) {
   return (d>=X3_COOP_AUX && d<X3_COOP_AUX+X3_COOP_AUX_BYTES && !((d-X3_COOP_AUX)%32)) ||
@@ -128,9 +173,9 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
     /* Ordinary hostile actors only. Pickups, capsules, supports and scripts
      * retain their native owner until their specific contracts are mapped. */
     if(!enemy_actor(d) || !g_ram[d] || !partner_ready())return;
-    if(!p->pass && state.current==state.anchor && !controller.pass &&
+    if(!p->pass && (state.current==state.anchor || target.active) && !controller.pass &&
        !terrain.pass && !objects.native.pass && !draw.pass) {
-      p->entry=regs(cpu);contact.pc=(uint16_t)at;p->pass=1;
+      p->entry=regs(cpu);contact.pc=(uint16_t)at;contact.seat=state.current;p->pass=1;
       memcpy(contact.entry_scratch,g_ram,24);
     }
     return;
@@ -143,20 +188,20 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
     /* A hostile shot is consumed on its first body hit. A player-shot scan
      * is consumed by hit, shield or reflection; only CBC3 is a true miss. */
     if((contact.pc==0xcb31 && hostile_projectile(d) && hit) ||
-       (contact.pc==0xcb74 && at!=0xcbc3)) {p->pass=0;return;}
+       (contact.pc==0xcb74 && at!=0xcbc3)) {p->pass=0;settle_deaths();return;}
     p->result=regs(cpu);memcpy(contact.result_scratch,g_ram,24);
-    if(!X3CoopProject(&state,g_ram,state.anchor^1))return;
+    if(!X3CoopProject(&state,g_ram,contact.seat^1))return;
     restore(cpu,&p->entry);memcpy(g_ram,contact.entry_scratch,24);p->pass=2;
     interp_bridge_pre_opcode_redirect(((unsigned)cpu->PB<<16)|contact.pc);
     return;
   }
   bool first_hit=(p->result.a&255)!=0;
   bool second_missed=contact.pc==0xcb74?at==0xcbc3:!(cpu->A&255);
-  X3CoopProject(&state,g_ram,state.anchor);
+  X3CoopProject(&state,g_ram,contact.seat);
   if(first_hit || second_missed) {
     restore(cpu,&p->result);memcpy(g_ram,contact.result_scratch,24);
   }
-  p->pass=0;
+  p->pass=0;settle_deaths();
 }
 static void object_boundary(CpuState *cpu,uint32_t pc) {
   unsigned at=pc&0xffff,end=object_end(at);
@@ -303,6 +348,7 @@ void X3CoopRuntimeReset(void) {
   memset(&terrain,0,sizeof(terrain));
   memset(&contact,0,sizeof(contact));memset(&objects,0,sizeof(objects));
   memset(&draw,0,sizeof(draw));
+  memset(&target,0,sizeof(target));
 }
 void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
@@ -327,6 +373,12 @@ void X3CoopRuntimeFrame(void) {
       0x02d6da,0x02d6ef,0x038f70,0x038fe1};
   for(unsigned i=0;i<sizeof(draw_pcs)/sizeof(*draw_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(draw_pcs[i],draw_boundary))enabled=false;
+  static const uint32_t target_pcs[]={0x00dd1a,0x00dcb3,0x00dccf,0x00dcf3,0x00dc68,0x00dc8c};
+  for(unsigned i=0;i<sizeof(target_pcs)/sizeof(*target_pcs);++i)
+    if(!interp_bridge_add_pre_opcode_hook(target_pcs[i],target_boundary))enabled=false;
+  static const uint32_t target_queries[]={0x02e142,0x02daa7,0x02dac6};
+  for(unsigned i=0;i<sizeof(target_queries)/sizeof(*target_queries);++i)
+    if(!interp_bridge_add_pre_opcode_hook(target_queries[i],target_query))enabled=false;
 }
 void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   uint8_t bytes[4096]={0};
@@ -338,15 +390,24 @@ void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   sli->func(sli,&contact,sizeof(contact));
   sli->func(sli,&objects,sizeof(objects));
   sli->func(sli,&draw,sizeof(draw));
+  sli->func(sli,&target,sizeof(target));
 }
 static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePass *t,
-                         const ContactPass *hit,const ObjectPass *obj,const NativePass *art) {
+                         const ContactPass *hit,const ObjectPass *obj,const NativePass *art,
+                         const WorldTarget *world) {
   unsigned a=c->pass,b=t->pass,h=hit->native.pass,o=obj->native.pass,v=art->pass;
   if(a>2 || b>2 || h>2 || o>2 || v>2 || (a!=0)+(b!=0)+(h!=0)+(o!=0)+(v!=0)>1)return false;
-  if(!s->initialized)return !(a || b || h || o || v);
+  if(world->active>1 || world->seat>1)return false;
+  if(!s->initialized)return !(a || b || h || o || v || world->active);
+  if(world->active && (!enemy_actor(world->slot) || a || b || o || v))return false;
   const NativePass *active=a?c:b?t:h?&hit->native:o?&obj->native:v?art:NULL;
-  if(active && (s->wipe || s->current!=(s->anchor^(active->pass==2)) ||
+  unsigned base=h?hit->seat:s->anchor;
+  if(active && (base>1 || s->wipe || s->current!=(base^(active->pass==2)) ||
      s->players[s->current].life!=X3_COOP_ALIVE))return false;
+  if(world->active) {
+    unsigned seat=s->players[world->seat].life==X3_COOP_ALIVE?world->seat:s->anchor;
+    if(h?hit->seat!=world->seat:!s->wipe && s->current!=seat)return false;
+  }
   if((a && c->entry.d!=X3_COOP_BODY) || (b && t->entry.d!=X3_COOP_BODY))return false;
   if(h && ((hit->pc!=0xcb31 && hit->pc!=0xcb74) || !enemy_actor(hit->native.entry.d)))return false;
   if(o && (!object_end(obj->pc) || object_end(obj->pc)!=obj->end))return false;
@@ -355,23 +416,25 @@ static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePa
 }
 bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   uint8_t bytes[4096];X3CoopState loaded;
-  NativePass c,t,art;ContactPass hit;ObjectPass obj;
+  NativePass c,t,art;ContactPass hit;ObjectPass obj;WorldTarget world;
   sli->func(sli,bytes,X3CoopEncodedSize());
   sli->func(sli,&c,sizeof(c));sli->func(sli,&t,sizeof(t));
   sli->func(sli,&hit,sizeof(hit));sli->func(sli,&obj,sizeof(obj));
   sli->func(sli,&art,sizeof(art));
-  if(!X3CoopDecode(&loaded,bytes,X3CoopEncodedSize()) || !passes_valid(&loaded,&c,&t,&hit,&obj,&art))return false;
-  state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;return true;
+  sli->func(sli,&world,sizeof(world));
+  if(!X3CoopDecode(&loaded,bytes,X3CoopEncodedSize()) || !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world))return false;
+  state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;target=world;return true;
 }
 bool X3CoopRuntimePreflight(const void *data,size_t size) {
-  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw);
+  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target);
   if(!data || size<tail)return false;
   X3CoopState decoded;
   const uint8_t *p=(const uint8_t *)data+size-tail;
   if(!X3CoopDecode(&decoded,p,payload))return false;
   /* Validate before the common loader changes WRAM, CPU or either pass. */
-  NativePass c,t,art;ContactPass hit;ObjectPass obj;p+=payload;
+  NativePass c,t,art;ContactPass hit;ObjectPass obj;WorldTarget world;p+=payload;
   memcpy(&c,p,sizeof(c));p+=sizeof(c);memcpy(&t,p,sizeof(t));p+=sizeof(t);
   memcpy(&hit,p,sizeof(hit));p+=sizeof(hit);memcpy(&obj,p,sizeof(obj));p+=sizeof(obj);
-  memcpy(&art,p,sizeof(art));return passes_valid(&decoded,&c,&t,&hit,&obj,&art);
+  memcpy(&art,p,sizeof(art));p+=sizeof(art);memcpy(&world,p,sizeof(world));
+  return passes_valid(&decoded,&c,&t,&hit,&obj,&art,&world);
 }

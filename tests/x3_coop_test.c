@@ -26,6 +26,16 @@ int main(void) {
   CHECK(ram[0xa1]==1);
   CHECK(X3CoopProject(&s,ram,0));
   CHECK(ram[X3_COOP_PALETTE]==0x22);
+  ram[X3_COOP_BODY+5]=10;ram[X3_COOP_BODY+6]=0;
+  ram[X3_COOP_BODY+8]=100;ram[X3_COOP_BODY+9]=0;
+  ram[X3_COOP_BODY+0x27]=16;
+  s.players[1].body[5]=90;s.players[1].body[6]=0;
+  s.players[1].body[8]=100;s.players[1].body[9]=0;
+  s.players[1].body[0x27]=16;
+  CHECK(X3CoopNearest(&s,ram,80,100)==1);
+  s.anchor=1;CHECK(X3CoopNearest(&s,ram,50,100)==1);
+  s.players[1].body[0x27]=0;CHECK(X3CoopNearest(&s,ram,90,100)==0);
+  s.anchor=0;
   for(unsigned first=0;first<2;++first) {
     CHECK(X3CoopInit(&s,ram,first));
     CHECK(X3CoopFall(&s,first));

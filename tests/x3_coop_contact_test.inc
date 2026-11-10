@@ -67,6 +67,21 @@ static void native_contact_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
   check(RtlLoadSnapshotFromMemory(modified,size),"hostile-shot overlap fixture restores");
   contact_geometry(0x1318,primary_x,y);contact_native_call(0x1318,0x04cb31);
   check(contact_hp(0)==14 && contact_hp(1)==16,"consumed hostile shot does not damage both players");
+  check(X3CoopDecode(&setup,snapshot+offset,X3CoopEncodedSize()),"fatal-contact context decodes");
+  setup.players[1].body[0x27]=1;
+  memcpy(modified,snapshot,size);
+  check(X3CoopEncode(&setup,modified+offset,X3CoopEncodedSize()),"fatal P2 precondition encodes");
+  check(RtlLoadSnapshotFromMemory(modified,size),"fatal P2 contact fixture restores");
+  contact_geometry(0xd18,partner_x,y);contact_native_call(0xd18,0x04cb31);
+  check(X3CoopRuntimeState()->players[1].life==X3_COOP_FALLEN &&
+        X3CoopRuntimeState()->current==0 && contact_hp(0)==16,
+        "fatal partner contact settles before the enemy continuation resumes");
+  check(RtlLoadSnapshotFromMemory(snapshot,size),"fatal X contact fixture restores");
+  g_ram[X3_COOP_BODY+0x27]=1;
+  contact_geometry(0xd18,primary_x,y);contact_native_call(0xd18,0x04cb31);
+  check(X3CoopRuntimeState()->players[0].life==X3_COOP_FALLEN &&
+        X3CoopRuntimeState()->current==1 && (g_ram[X3_COOP_BODY+0x27]&127)==16,
+        "native fatal-contact continuation sees the living survivor's HP");
   check(RtlLoadSnapshotFromMemory(snapshot,size),"native projectile-update fixture restores");
   for(int i=0;i<3;++i)frame(SNES_PAD_Y<<12);
   const uint8_t *shot=X3CoopRuntimeState()->players[1].shots;

@@ -42,7 +42,7 @@ campaign or co-op gameplay acceptance.
 | Fallen persistence | Component checks only | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | Not implemented | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | Terrain pass prepared | Both riders retain support, momentum and crush behavior while each platform advances once. |
-| Enemy interactions | Native body-contact probes pass; targeting/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
+| Enemy interactions | Native contact and class08 targeting probes pass; broader AI/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | Not implemented | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Not qualified | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
@@ -160,3 +160,30 @@ The complete regenerated build passes the same ROM-backed cases in
 `build-coop/qa-state/native-regenerated-result.log` (exit0), plus both CTests.
 Its game SHA256 is
 `e38d59b9e266a6f7d6c799e22d3de50cba6ef0299e6f4d34c2d538b4d3d5df89`.
+
+### Native targeting and fatal-contact continuations
+
+Living native enemies/hostile shots can borrow the nearest living body for
+their existing normal/frozen update, then restore the canonical anchor. The
+world actor runs once; camera ownership does not change during the borrow.
+Common native facing/proximity coordinate loads also recognize the nearest
+actor during initialization. Contact continuations retain their actual first
+seat, allowing either target order without switching the world anchor.
+Fatal contacts now settle before returning to the enemy/boss continuation,
+which sees a surviving body's HP instead of prematurely selecting death logic.
+
+The real stage-1 class08/variant1 fixture retains two living actors. With X
+160 pixels left and Zero32 pixels right, its actual facing/proximity branch
+selects Zero. All15 native enemy records match a single-seat reference update
+against that same body, including a timer expiring once; its stack and canonical
+ownership are restored. This is a narrow E04/E05 case, not all enemy behavior.
+An inspected gameplay capture also shows that authored enemy beside active
+actors; a blinking hurt sprite is checked against its native visibility flag.
+Fatal-contact probes verify immediate survivor HP for either death order.
+The existing contacts, palettes, replay, both survivor directions and staggered
+retry still pass in `build-coop/qa-state/native-target-result.log` (exit0).
+Use `tests/scenarios/coop_target.script` and optional `X3_COOP_TARGET_STATE`
+with its disposable slot8 fixture. This checkpoint's binary SHA256 is
+`444a65fca7e5e7c67818b9b950c54b6044ce7956dd6c67919e98c548f56437d5`.
+Captors, scene admission, all platform types and separate-region activation
+still need their own native ownership contracts and authored checks.
