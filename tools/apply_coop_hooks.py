@@ -10,8 +10,9 @@ TARGETS = {0: {0xda7f,0xdaa0,0xdac2,0xdaf0,0xdafa,0xdb9f,0xdbc1,0xdc06,0xdc23,0x
            1: {0xcede,0xd820,0xd989,0xd9e7,0xe0ae},
            2: {0xd58a,0xd5ab,0xd5da,0xd611,0xd636,0xd65b,0xd67a,0xd68f,0xd6a4,0xd6b9,0xd6ce,0xd6e3,0xda99,0xdab8,0xe13f},
            3: {0x8f70},
-           4: {0x8000,0x81d0,0xb58a,0xbca2,0xbfae,0xc07f,0xcb31,0xcb74,0xcc5c},
+           4: {0x8000,0x81d0,0xb58a,0xbca2,0xbfae,0xc07f,0xcb31,0xcb74,0xcc5c,0xcd6a,0xd06a,0xd06f},
            0x13: {0xc000,0xc145,0xc214,0xc5bd}}
+LEARNER_TARGETS = {0x04cd6a,0x04d06a,0x04d06f}
 
 def apply(source):
     output = [MARKER + ' #include "snes/interp_bridge.h"\n']
@@ -25,7 +26,8 @@ def apply(source):
         if match and int(match[2],16) in TARGETS.get(int(match[1],16),set()):
             pending = int(match[1],16)<<16|int(match[2],16)
         if pending and 'g_cpu_entry_s[g_recomp_stack_top - 1] = _entry_s;' in line:
-            output.append('  ' + MARKER + f' {{ extern bool X3CoopRuntimeEnabled(void); if (X3CoopRuntimeEnabled()) {{ RecompReturn r = interp_tier_dispatch_bank_miss(cpu, 0x{pending:06x}u, _entry_s, _hrv); RecompStackPop(); return r; }} }}\n')
+            gate = 'X3CoopRuntimeLearner' if pending in LEARNER_TARGETS else 'X3CoopRuntimeEnabled'
+            output.append('  ' + MARKER + f' {{ extern bool {gate}(void); if ({gate}()) {{ RecompReturn r = interp_tier_dispatch_bank_miss(cpu, 0x{pending:06x}u, _entry_s, _hrv); RecompStackPop(); return r; }} }}\n')
             count += 1
             pending = False
     if pending:

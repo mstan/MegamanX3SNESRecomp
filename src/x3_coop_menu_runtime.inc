@@ -104,7 +104,7 @@ static void menu_boundary(CpuState *cpu,uint32_t pc){
        * Only arbitrate a real request or an old single-body pause edge. */
       if(!((menu.edge[0]|menu.edge[1])&0x1000) && !(g_ram[0x1f5d]&0x20) &&
           !(g_ram[X3_COOP_BODY+0x3b]&0x10))return;
-      if(menu.phase || scene.phase || refill.active || stock_exit_pending ||
+      if(menu.phase || scene.phase || refill.active || stock_exit_pending || learner_rescue ||
           controller.pass || terrain.pass || contact.native.pass || objects.native.pass ||
           draw.pass || target.active || solid.native.pass || view_bounds.native.pass){
         interp_bridge_pre_opcode_redirect(0x00a36f);return;}

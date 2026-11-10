@@ -27,6 +27,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_paired_menu_test.inc"
 #include "x3_coop_flags_test.inc"
 #include "x3_coop_shared_camera_test.inc"
+#include "x3_coop_learner_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -114,6 +115,12 @@ int main(int argc,char **argv) {
       check(RtlLoadSnapshot(fixture),"native shared camera fixture loads");
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_shared_camera_checks(saved,size,after,damaged,cap);
+    }
+    fixture=getenv("X3_COOP_LEARNER_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"native learner fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_learner_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_STOCK_STATE");
     if(fixture && *fixture){

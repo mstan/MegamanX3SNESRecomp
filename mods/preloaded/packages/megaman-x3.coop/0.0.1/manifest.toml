@@ -63,6 +63,20 @@ label = "Stock restrictions"
 
 [[option]]
 feature = "coop"
+id = "learner"
+label = "Player 2 Learner Mode"
+description = "Protect Player 2 from ordinary hits. In Unified view the camera follows Player 1, and Player 2 can catch up or escape a fatal hazard when there is safe ground beside Player 1."
+type = "choice"
+default = "off"
+[[option.choice]]
+value = "off"
+label = "Off"
+[[option.choice]]
+value = "on"
+label = "On"
+
+[[option]]
+feature = "coop"
 id = "doors"
 label = "Door admission"
 description = "Either player can lead through a door. Both players waits for every living participant to reach it."

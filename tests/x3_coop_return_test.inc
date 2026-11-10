@@ -17,7 +17,7 @@ static void native_participation_controls(uint8_t *original,size_t size,uint8_t 
           X3CoopRuntimeState()->players[seat].life==X3_COOP_ALIVE,
           "Select hold is simulation state and does not withdraw before its threshold");
     for(unsigned field=4;field<8;++field){
-      memcpy(work,pending,middle);work[chunk+field]=(uint8_t)(field<6?92:field==6?2:1);
+      memcpy(work,pending,middle);work[chunk+field]=(uint8_t)(field<6?92:field==6?4:1);
       check(!RtlLoadSnapshotFromMemory(work,middle),"malformed participation hold/latch rejects transactionally");
       size_t unchanged=RtlSaveSnapshotToMemory(work,capacity);
       same(pending,middle,work,unchanged,"refused participation state leaves complete machine unchanged");

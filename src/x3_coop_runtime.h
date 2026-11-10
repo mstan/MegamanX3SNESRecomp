@@ -14,6 +14,8 @@ void X3CoopRuntimeSetP1Character(unsigned character);
 void X3CoopRuntimeSetDoorPolicy(bool both_present);
 void X3CoopRuntimeSetStockZero(bool stock);
 bool X3CoopRuntimeStockZero(void);
+void X3CoopRuntimeSetLearner(bool enabled);
+bool X3CoopRuntimeLearner(void);
 bool X3CoopRuntimeZeroAvailable(void);
 bool X3CoopRuntimeSceneActive(void);
 void X3CoopRuntimeScenePresentation(X3CoopState *copy);

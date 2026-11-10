@@ -15,6 +15,7 @@ extern uint8_t g_ram[0x20000];
 extern Snes *g_snes;
 static bool enabled;
 static bool stock_zero,stock_exit_pending;
+static bool learner_enabled,learner_rescue;
 static unsigned p1_character;
 static X3CoopState state;
 typedef struct Registers {uint16_t a,x,y,s,d;uint8_t db,p;} Registers;
@@ -44,13 +45,14 @@ static PickupRefill refill;
 enum { SCENE_DOOR,SCENE_CAPSULE_OPEN,SCENE_CAPSULE_AWARD,SCENE_STAGE_ENTRY };
 typedef struct NativeScene {uint16_t slot;uint8_t owner,phase,tick,stage,both,kind;uint16_t raw[2];} NativeScene;
 static NativeScene scene;
-enum { PARTICIPATION_HOLD=90 };
+enum { PARTICIPATION_HOLD=90, PROFILE_STOCK=1, PROFILE_LEARNER=2 };
 static uint8_t participation_hold[2];
 static bool stage_pending(void){return scene.phase && scene.kind==SCENE_STAGE_ENTRY;}
 static void scene_tick(void);
 static void participation_tick(void);
 static void stock_tick(void);
 static void shared_catchup_tick(void);
+static void learner_tick(void);
 static bool scene_parked(unsigned seat){return scene.phase && seat!=scene.owner;}
 enum { SHARED_SUPPORTS=31 };
 static uint8_t riders[SHARED_SUPPORTS];
@@ -146,6 +148,7 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
       X3CoopViewsEndFrame(g_ram,&state,view_scene(),false);
     }
     if(enabled && state.initialized)participation_tick();
+    if(enabled && state.initialized)learner_tick();
     if(enabled && state.initialized)shared_catchup_tick();
     return;
   }
@@ -290,6 +293,7 @@ static bool fall_player(unsigned seat) {
   if(seat==state.anchor && state.players[seat^1].life==X3_COOP_ALIVE)
     X3CoopViewsAdoptPlayer(g_ram,&state,seat^1,view_scene());
   bool fallen=X3CoopFall(&state,seat);
+  if(fallen)learner_rescue=false;
   if(fallen && (state.wipe || state.players[seat].character==X3_COOP_ZERO))stock_exit_pending=false;
   /* Original04:933C selects the Zero-loss branch;00:9D11 commits this
    * campaign flag after its fade. Co-op has no individual world fade. */
@@ -362,6 +366,7 @@ static void scene_cancel_transients(unsigned seat){
 }
 static void scene_begin(unsigned slot,unsigned kind){
   if(scene.phase && (scene.slot!=slot || kind!=SCENE_CAPSULE_AWARD))return;
+  learner_rescue=false;
   X3CoopCapture(&state,g_ram);scene.slot=(uint16_t)slot;scene.owner=state.current;
   scene.stage=g_ram[0x1fae];scene.tick=0;scene.kind=(uint8_t)kind;
   if(kind)for(unsigned seat=0;seat<2;++seat)scene.raw[seat]=(uint16_t)native_pad(seat);
@@ -476,6 +481,7 @@ bool X3CoopRuntimeWithdraw(unsigned seat){
   X3CoopCapture(&state,g_ram);
   if(seat==state.anchor)X3CoopViewsAdoptPlayer(g_ram,&state,seat^1,false);
   if(!X3CoopWithdraw(&state,seat))return false;
+  learner_rescue=false;
   if(state.players[seat].character==X3_COOP_ZERO)stock_exit_pending=false;
   scene_cancel_transients(seat);X3CoopProject(&state,g_ram,state.anchor);anchor_palette();return true;
 }
@@ -548,6 +554,7 @@ static void shared_catchup_tick(void){
   land_player(lag,&landing);restore_x_armor(lag);
   X3CoopProject(&state,g_ram,state.anchor);
 }
+#include "x3_coop_learner.inc"
 bool X3CoopRuntimeRejoin(unsigned seat){
   if(seat>1 || !participation_ready())return false;
   bool zero=state.players[seat].character==X3_COOP_ZERO;
@@ -563,6 +570,7 @@ static void stock_tick(void){
   if(state.players[zero].life!=X3_COOP_ALIVE){stock_exit_pending=false;return;}
   if(g_ram[0x1f5d]&0x80)stock_exit_pending=true;
   if(!stock_exit_pending)return;
+  learner_rescue=false;
   if(state.players[x].life==X3_COOP_ABSENT && !rejoin_player(x))return;
   X3CoopCapture(&state,g_ram);
   if(state.players[x].life==X3_COOP_ALIVE){
@@ -1080,6 +1088,7 @@ static void stage_begin(void){
   memset(&view_spawn,0,sizeof(view_spawn));memset(&view_bounds,0,sizeof(view_bounds));
   memset(participation_hold,0,sizeof(participation_hold));
   stock_exit_pending=false;
+  learner_rescue=false;
   X3CoopViewsReset();X3CoopPresentationReset();
 }
 static void stock_start(const X3CoopPlayer *fresh_x){
@@ -1248,6 +1257,7 @@ bool X3CoopRuntimeEnabled(void) {return enabled;}
 const X3CoopState *X3CoopRuntimeState(void) {return &state;}
 void X3CoopRuntimeReset(void) {
   memset(&menu,0,sizeof(menu));
+  learner_rescue=false;
   memset(&state,0,sizeof(state));memset(&controller,0,sizeof(controller));
   memset(participation_hold,0,sizeof(participation_hold));
   stock_exit_pending=false;
@@ -1268,6 +1278,8 @@ void X3CoopRuntimeSetP1Character(unsigned character) {
 void X3CoopRuntimeSetDoorPolicy(bool both_present){if(!state.initialized)scene.both=both_present;}
 void X3CoopRuntimeSetStockZero(bool stock){if(!state.initialized)stock_zero=stock;}
 bool X3CoopRuntimeStockZero(void){return stock_zero;}
+void X3CoopRuntimeSetLearner(bool value){if(!state.initialized)learner_enabled=value;}
+bool X3CoopRuntimeLearner(void){return enabled && learner_enabled;}
 void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
   X3CoopViewsSetRom(g_snes->cart->rom,g_snes->cart->romImageSize);
@@ -1316,6 +1328,11 @@ void X3CoopRuntimeFrame(void) {
   static const uint32_t shared_pcs[]={0x00e08b,0x00e096,0x00e0aa,0x00e0b5,0x00e2e2,0x00e2f1};
   for(unsigned i=0;i<sizeof(shared_pcs)/sizeof(*shared_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(shared_pcs[i],shared_camera_boundary))enabled=false;
+  /* A current-build snapshot may change the profile between frames. The
+   * callback and generated entry guard both consult the loaded value. */
+  if(!interp_bridge_add_pre_opcode_hook(0x04cd6e,learner_damage_boundary) ||
+      !interp_bridge_add_pre_opcode_hook(0x04d06a,learner_damage_boundary) ||
+      !interp_bridge_add_pre_opcode_hook(0x04d06f,learner_damage_boundary))enabled=false;
   static const uint32_t presentation_pcs[]={0x038dd7,0x038df0,0x038f70};
   for(unsigned i=0;i<sizeof(presentation_pcs)/sizeof(*presentation_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(presentation_pcs[i],presentation_boundary))enabled=false;
@@ -1349,7 +1366,9 @@ void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   uint8_t scene_bytes[16]={'X','3','S','2',0,0,scene.owner,scene.phase,scene.tick,scene.stage,scene.both,scene.kind};
   putword(scene_bytes+12,scene.raw[0]);putword(scene_bytes+14,scene.raw[1]);
   putword(scene_bytes+4,scene.slot);sli->func(sli,scene_bytes,sizeof(scene_bytes));
-  uint8_t participation[8]={'X','3','J','2',participation_hold[0],participation_hold[1],stock_zero,stock_exit_pending};
+  uint8_t participation[8]={'X','3','J','2',participation_hold[0],participation_hold[1],
+      (stock_zero?PROFILE_STOCK:0)|(learner_enabled?PROFILE_LEARNER:0),
+      (stock_exit_pending?PROFILE_STOCK:0)|(learner_rescue?PROFILE_LEARNER:0)};
   sli->func(sli,participation,sizeof(participation));
   uint8_t views[X3_COOP_VIEW_STATE_BYTES];X3CoopViewsSave(views);
   sli->func(sli,views,sizeof(views));sli->func(sli,&view_spawn,sizeof(view_spawn));
@@ -1427,9 +1446,12 @@ static bool scene_decode(NativeScene *out,const uint8_t bytes[16],const X3CoopSt
 }
 static bool participation_valid(const uint8_t bytes[8],const NativeScene *s,const X3CoopState *players){
   unsigned zero=players->players[0].character==X3_COOP_ZERO?0:1;
+  unsigned profile=bytes[6],pending=bytes[7];
   return !memcmp(bytes,"X3J2",4) && bytes[4]<=PARTICIPATION_HOLD+1 && bytes[5]<=PARTICIPATION_HOLD+1 &&
-      bytes[6]<=1 && bytes[7]<=1 && (!bytes[7] || (bytes[6] && players->initialized && !players->wipe &&
-      players->players[zero].life==X3_COOP_ALIVE)) &&
+      !(profile&~(PROFILE_STOCK|PROFILE_LEARNER)) && !(pending&~profile) &&
+      (!(pending&PROFILE_STOCK) || (!players->wipe && players->players[zero].life==X3_COOP_ALIVE)) &&
+      (!(pending&PROFILE_LEARNER) || (!players->wipe && !s->phase &&
+          players->players[0].life==X3_COOP_ALIVE && players->players[1].life==X3_COOP_ALIVE)) &&
       (players->initialized || (!bytes[4] && !bytes[5] && !bytes[7])) &&
       (!(s->phase && s->kind==SCENE_STAGE_ENTRY) || (!bytes[4] && !bytes[5] && !bytes[7]));
 }
@@ -1456,14 +1478,15 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
      !scene_decode(&scripted,scene_bytes,&loaded) || !participation_valid(participation,&scripted,&loaded) ||
      !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,rider_bits))return false;
   if(!menu_decode(&paired,menu_bytes,&loaded) || (paired.phase &&
-      (scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
+      ((participation[7]&PROFILE_LEARNER) || scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
        world.active || support.native.pass || spawn.active || bounds.native.pass)))return false;
   if(scripted.phase && scripted.kind==SCENE_STAGE_ENTRY && (spawn.active || bounds.native.pass))return false;
   state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;target=world;solid=support;
   refill=healing;scene=scripted;
   menu=paired;
   memcpy(participation_hold,participation+4,sizeof(participation_hold));
-  stock_zero=participation[6]!=0;stock_exit_pending=participation[7]!=0;
+  stock_zero=(participation[6]&PROFILE_STOCK)!=0;stock_exit_pending=(participation[7]&PROFILE_STOCK)!=0;
+  learner_enabled=(participation[6]&PROFILE_LEARNER)!=0;learner_rescue=(participation[7]&PROFILE_LEARNER)!=0;
   /* A state can load before the first reset-frame environment setup. An
    * enrolled machine must resume its actor schedule on that startup path. */
   if(loaded.initialized){enabled=true;p1_character=loaded.players[0].character;}
@@ -1483,7 +1506,8 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
   memcpy(&art,p,sizeof(art));p+=sizeof(art);memcpy(&world,p,sizeof(world));p+=sizeof(world);
   PickupRefill healing;if(!refill_decode(&healing,p,&decoded))return false;p+=8;
   NativeScene scripted;if(!scene_decode(&scripted,p,&decoded))return false;p+=16;
-  if(!participation_valid(p,&scripted,&decoded))return false;p+=8;
+  if(!participation_valid(p,&scripted,&decoded))return false;
+  unsigned pending=p[7];p+=8;
   if(!X3CoopViewsLoad(p,X3_COOP_VIEW_STATE_BYTES,false))return false;
   p+=X3_COOP_VIEW_STATE_BYTES;ViewSpawn spawn;memcpy(&spawn,p,sizeof(spawn));
   p+=sizeof(spawn);ViewBounds bounds;memcpy(&bounds,p,sizeof(bounds));
@@ -1493,7 +1517,7 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
   if(!passes_valid(&decoded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,p))return false;
   PairedMenu paired;
   if(!menu_decode(&paired,p+sizeof(riders),&decoded) || (paired.phase &&
-      (scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
+      ((pending&PROFILE_LEARNER) || scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
        world.active || support.native.pass || spawn.active || bounds.native.pass)))return false;
   if(paired.phase && size>tail){
     size_t ram_at;size_t guest=RtlSnapshotGuestLayout(NULL,&ram_at);

@@ -31,11 +31,12 @@ static void resolve_profile(void){
   player1=(character?!strcmp(character,"zero"):option_is("coop","player1","zero"))?X3_COOP_ZERO:X3_COOP_X;
   profile_loaded=true;
 }
-bool X3CoopSettingsEnabled(void){resolve_profile();return enabled;}
+bool X3CoopSettingsEnabled(void){return profile_loaded?enabled:selected();}
 void X3CoopSettingsBoot(void){
   resolve_profile();
   X3CoopRuntimeSetP1Character(player1);
   X3CoopRuntimeSetStockZero(option_is("coop","zero_rules","stock"));
+  X3CoopRuntimeSetLearner(option_is("coop","learner","on"));
   const char *doors=getenv("SNESRECOMP_X3_COOP_DOORS");
   X3CoopRuntimeSetDoorPolicy(doors?!strcmp(doors,"both"):option_is("coop","doors","both"));
   X3CoopViewsConfigure(enabled && independent);
@@ -74,7 +75,9 @@ static void reset(void){
   X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
   X3CoopHudSetLayout(X3_COOP_HUD_COMPACT);
 }
-static void activate_coop(void){resolve_profile();}
+/* The rollback barrier can adopt the host's settings after plugin activation
+ * and before the first guest frame. Only Boot freezes the actor profile. */
+static void activate_coop(void){profile_loaded=false;}
 static void activate_view(void){X3CoopSettingsPresentation();}
 SNES_MOD_CONSTRUCTOR(x3_register_coop_plugin){
   (void)snes_mod_register_reset_callback(reset);

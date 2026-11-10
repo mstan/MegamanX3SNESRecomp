@@ -1154,3 +1154,30 @@ observes X stationary at384 while Zero reaches437 and the camera moves from
 Zero at622, with both living and camera447. This is native-resolution gameplay
 evidence, not a matched performance or widescreen result. Learner mode,
 remaining authored routes, netplay and all15 final rollups remain open.
+
+### Optional Player 2 learner protection
+
+The default leaves original damage unchanged. The opt-in option protects the
+second seat from ordinary native enemy contact and direct hazard damage. It
+keeps Unified tracking on P1 and uses the same safe ground search as voluntary
+return and catch-up. Fatal rescue is available only while both actors are alive
+and there is clear ground beside P1. Scripts, captures, menu transitions and
+native stock Zero restrictions retain their own rules. P1 death still leaves
+P2 in control, and a previously fallen P2 cannot return through this option.
+
+The contact path uses the original no-damage return at04:CD65 and direct
+hazards use the existing RTL at04:D0BF before the native helper saves status.
+Pending rescue waits for the balanced world boundary; the X3J2 profile and
+pending flags encode it without increasing the413017-byte snapshot. An
+interrupted original pit-damage return passes codec preflight and restoration;
+clearing its required option is refused. Generated routing is62 variants.
+
+The SERVER ROM test binary SHA256
+`2de5a35a79523b27a5f773370cf20edce6c6d113d5aee2fede9a032416d3726f`
+passes in `build-coop/qa-state/native-learner-server-result.log` (child exit0).
+Native contact preserves P2 HP in both roster orders and retains the ordinary
+two-point hit on P1. In the real stage5 pit, P2 walks38 and falls16 frames,
+then returns at28 HP. The same approach with P1 jumping cannot rescue P2;
+original death occurs. P1's own pit death leaves P2 with bright, controllable
+gameplay. Whole-machine replay and a real previously fallen fixture pass.
+Public launcher default/opt-in, wider regressions and final suite remain open.

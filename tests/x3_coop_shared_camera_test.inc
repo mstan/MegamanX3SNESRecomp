@@ -23,9 +23,7 @@ static void shared_pit_probe(CpuState *cpu,uint32_t pc){
   if((pc&0x7fffff)==0x00e30a && cpu->D==0x1e58 && g_ram[0x9fe]==127 &&
       X3CoopRuntimeState()->current==shared_pit_victim)++shared_pit_damage;
 }
-static void native_shared_authored_pits(const char *ground,uint8_t *base,uint8_t *work,size_t capacity){
-  check(interp_bridge_add_pre_opcode_hook(0x00e30a,shared_pit_probe),"original native pit-damage call is observed");
-  for(unsigned victim=0;victim<2;++victim){
+static void shared_pit_prepare(const char *ground,unsigned victim,uint8_t *base,uint8_t *work,size_t capacity){
     check(RtlLoadSnapshot(ground) && g_ram[0x1fae]==5,"authored pit starts from the real stage5 terrain map");
     size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
     /* The live layout has a raised floor at928..1183, y2720, then an
@@ -39,12 +37,18 @@ static void native_shared_authored_pits(const char *ground,uint8_t *base,uint8_t
       body[4]=body[7]=body[2]=body[3]=0;memset(body+0x1a,0,6);
     }
     shared_prepare(base,n,work,&setup);view_word(0x1e5d,1000);view_word(0x1e7a,1000);
+}
+static void native_shared_authored_pits(const char *ground,uint8_t *base,uint8_t *work,size_t capacity){
+  check(interp_bridge_add_pre_opcode_hook(0x00e30a,shared_pit_probe),"original native pit-damage call is observed");
+  for(unsigned victim=0;victim<2;++victim){
+    shared_pit_prepare(ground,victim,base,work,capacity);
+    unsigned anchor=X3CoopRuntimeState()->anchor;
     shared_pit_victim=victim;shared_pit_damage=0;unsigned walked=0;
     while(walked<64 && coop_x(victim)<1216 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE){
       frame(SNES_PAD_RIGHT<<(victim*12));++walked;
     }
     check(coop_x(victim)>=1200 && coop_x(victim)<1248,"actual native movement enters the authored pit opening");
-    if(victim!=setup.anchor)check(coop_x(setup.anchor)==1104 && view_read(0x1e5d)>1000,
+    if(victim!=anchor)check(coop_x(anchor)==1104 && view_read(0x1e5d)>1000,
         "actual partner-led motion advances the native shared camera while the world actor stands still");
     unsigned falling=0;
     while(falling<120 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE){frame(0);++falling;}

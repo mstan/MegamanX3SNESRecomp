@@ -16,6 +16,7 @@ static bool shared_beyond_pit(const uint8_t *body){
   return (int16_t)(word(body+8)-32-shared_pit_bottom())>=0;
 }
 static unsigned shared_leader(unsigned axis){
+  if(learner_enabled)return 0;
   const uint8_t *a=state.current==0?g_ram+X3_COOP_BODY:state.players[0].body;
   const uint8_t *b=state.current==1?g_ram+X3_COOP_BODY:state.players[1].body;
   int p0=(int16_t)word(a+axis),p1=(int16_t)word(b+axis),sign=p0<=p1?1:-1;
@@ -54,7 +55,8 @@ static void shared_camera_boundary(CpuState *cpu,uint32_t pc){
   /* Round toward the world actor so a one-pixel subpixel phase difference
    * cannot alternate which character dictates the shared position. */
   int focus=anchor+(other-anchor)/2,gap=anchor-other;if(gap<0)gap=-gap;
-  if(gap>(axis==5?SHARED_GAP_X:SHARED_GAP_Y)){
+  if(learner_enabled)focus=state.anchor==0?anchor:other;
+  else if(gap>(axis==5?SHARED_GAP_X:SHARED_GAP_Y)){
     /* If no safe floor has been found yet, keep one real actor in view
      * instead of centering the empty space between the two bodies. */
     int leader=shared_leader(axis)==state.anchor?anchor:other;
