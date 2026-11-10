@@ -41,13 +41,13 @@ campaign or co-op gameplay acceptance.
 | Individual death | Stage-1 contact deaths pass for X/P1 and Zero/P2; other cases open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | Zero-then-X stage-1 route passes; other cases open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | Component checks only | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
-| Separated spawning | Not implemented | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
+| Separated spawning | Native union admission/retention passes focused remote-region cases; campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | Shared rider contracts and stage5 class26 case pass; broader families open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | Native contact and class08 targeting probes pass; broader AI/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
-| Doors/scripts | Not implemented | Either/both door policies and native scripts complete with either survivor. |
+| Doors/scripts | Authored stage1 entrance/transport passes both rosters and lifecycle API probes; other scenes open | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Not qualified | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
-| Menus/resources | Not implemented | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
+| Menus/resources | Native pickup/refill and authored heart/subtank probes pass narrowly; paired menus/spending open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Not qualified | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. Unchanged X3 reaches a rendered scene; early black captures were startup transients. |
 | Rollback/state | Component and stock-runtime checks | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
 | Netplay | Not implemented | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
@@ -674,3 +674,48 @@ Other authored gates, native wipe/fatal-contact cases during scenes, exit-sensor
 traversal, capsules/demos and broader campaign integration remain open. This is
 focused S01-S07/R01-R02/V12 evidence; all15 final rollups and the full180-point
 final suite remain open. The release archive is unchanged.
+
+### Native persistent acquisitions checkpoint
+
+Authored stage1 heart3C:D3E7 and stage5 subtank3C:E394 now borrow native X
+even when Zero owns the world. Both roster orders retain the cartridge's
+X-only eligibility: touching Zero cannot claim the item with distant, fallen
+or withdrawn X. Simultaneous contact produces the same48-byte item state as
+one original single-X update. Shared acquisition flags/tank reserves remain in
+world RAM; Zero retains28 HP/max and receives no invented weapon inventory.
+
+The retained recipient now covers these timed native tasks. Movement/jump
+input parks both actors, the original task releases all seven freeze bytes,
+and a pending award replays to the identical full machine. The heart gives
+native X two capacity/current-HP points; the subtank adds one empty shared tank
+without changing either actor's health.
+
+Interruption probes found a permanent-reward loss: native01:E968 commits the
+heart flag before its two timed capacity increments. Retirement could cancel
+the increments after that permanent flag was stored. Cleanup now calculates
+retired X's committed capacity exactly as native04:DBA6, retaining stored HP
+and life state. It copies only native04:D130's action release, rather than
+capturing a projected retired body with zero HP. API fall/withdrawal before
+the wait and partway through the award passes for both items/rosters. Fallen
+rejoin is still refused. Living return/control probes explicitly restore the
+prepared private bounds; public safe rejoin placement remains unimplemented.
+The route/roster preparation and short control window above the subtank pit
+do not qualify that route or a safe return location.
+
+Actual host split captures exposed unrelated enemy art on the remote heart.
+The bounded native resource resolver now recognizes heart group38/file36 and
+subtank group96/file8C, preserving the subtank's original common pickup palette.
+Inspected `build-coop/qa-door/host-persistent-*` images show the corrected red
+heart, authored subtank and both seat orders before/after their awards, with
+bright separate fields and personal meters. The heart before/after image pair
+retains the reproduced graphics failure as evidence.
+
+Both X3 CTests and `build-coop/qa-state/native-persistent-combined-result.log`
+pass (exit0), including the new acquisitions plus existing doors, resources,
+contacts, supports, separated views, survivors and native retry. Game SHA256:
+`139c811ba9ca053f24e828045c52592fdea30f0e8a151848219c847e7df460d5`.
+The52 existing routed variants and state layout are unchanged. This is focused
+M09/M10/R01/V06 evidence, not completed persistent-upgrade/menu/campaign
+qualification. Capsules/demos, shared menu spending and public rejoin remain
+open; all15 final rollups and the full180-point final suite remain open. No
+release archive was replaced.

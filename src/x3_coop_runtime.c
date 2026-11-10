@@ -291,6 +291,8 @@ static bool enemy_actor(unsigned d) {
 }
 static bool item_actor(unsigned d){return d>=0x1518 && d<0x1818 && !((d-0x1518)%48);}
 static bool shared_pickup(unsigned d){return item_actor(d) && g_ram[d+10]>=2 && g_ram[d+10]<=4;}
+static bool x_pickup(unsigned d){return item_actor(d) &&
+    (g_ram[d+10]==1 || g_ram[d+10]==5 || g_ram[d+10]==11);}
 static bool native_door(unsigned d){return item_actor(d) &&
     (g_ram[d+10]==7 || g_ram[d+10]==0x10 || g_ram[d+10]==0x11);}
 static void scene_clear(void){uint8_t both=scene.both;memset(&scene,0,sizeof(scene));scene.both=both;}
@@ -386,21 +388,39 @@ static int support_slot(unsigned d) {
   if(d>=0x1518 && d<0x1818 && !((d-0x1518)%48))return 15+(int)((d-0x1518)/48);
   return -1;
 }
+static void refill_retired_cleanup(unsigned d,unsigned seat){
+  X3CoopPlayer *p=&state.players[seat];
+  if(p->life==X3_COOP_ALIVE)return;
+  /* Retired bodies are deliberately never captured: their projected HP is
+   * zero. Keep only the original04:D130 action release for a later voluntary
+   * return, without importing that zero HP or reviving a fallen participant. */
+  p->body[0xa3]=g_ram[X3_COOP_BODY+0xa3];
+  p->body[0xa5]=g_ram[X3_COOP_BODY+0xa5];
+  p->body[0x6e]=g_ram[X3_COOP_BODY+0x6e];
+  if(g_ram[d+10]==11 && (g_ram[0x1fd4]&g_ram[d+11])){
+    /* Native01:E968 commits the heart before its two timed pulses. Retiring
+     * cancels healing, but cannot undo that permanent acquisition. Match
+     * native04:DBA6's capacity calculation from the shared collected mask. */
+    unsigned hearts=g_ram[0x1fd4],maximum=16;
+    for(;hearts;hearts>>=1)maximum+=2*(hearts&1);
+    p->maximum_health=(uint8_t)maximum;
+  }
+}
 static void target_boundary(CpuState *cpu,uint32_t pc) {
   if(!enabled || !state.initialized)return;
   unsigned at=pc&0xffff,d=cpu->D;
   if(at==0xdd1a || at==0xdcb3 || at==0xdafa) {
-    bool weapon=item_actor(d) && g_ram[d+10]==1;
-    bool pickup=at==0xdafa && (weapon || shared_pickup(d));
+    bool x_only=x_pickup(d);
+    bool pickup=at==0xdafa && (x_only || shared_pickup(d));
     bool door=at==0xdafa && native_door(d) && g_ram[d+1]<=2;
     bool pending=pickup && refill.active && refill.slot==d;
     if(state.wipe || target.active || (!pickup && !door && !enemy_actor(d)) || !g_ram[d] ||
        (!pickup && !door && !(g_ram[d+0x27]&127)) ||
        ((g_ram[0x1f22] || g_ram[0x1f24]) && !pending) || controller.pass || terrain.pass ||
        contact.native.pass || objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
-    /* Zero has no special-weapon inventory. Only native X may test or refill
-     * weapon energy, even when Zero is nearer or owns the shared world. */
-    unsigned seat=scene.phase?scene.owner:pending?refill.seat:pickup && weapon?
+    /* Keep native X eligibility for weapon energy and persistent heart/tank
+     * acquisitions, including when Zero is nearer or owns the shared world. */
+    unsigned seat=scene.phase?scene.owner:pending?refill.seat:pickup && x_only?
         (state.players[0].character==X3_COOP_X?0:1):
         X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
     bool retired=state.players[seat].life!=X3_COOP_ALIVE;
@@ -415,9 +435,11 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
    * the original JSR frame has been consumed. */
   if(target.active && d==target.slot && cpu->S==(uint16_t)(target.s+2)) {
     if(item_actor(d)){
-      if(g_ram[d+10]>=1 && g_ram[d+10]<=2 && g_ram[d+2]==6 && (g_ram[d]&128) && g_ram[0x1f28])
+      if((x_pickup(d) || g_ram[d+10]==2) && g_ram[d+2]==6 && (g_ram[d]&128) && g_ram[0x1f28])
         refill=(PickupRefill){(uint16_t)d,target.seat,1};
-      else if(refill.active && refill.slot==d)memset(&refill,0,sizeof(refill));
+      else if(refill.active && refill.slot==d){
+        refill_retired_cleanup(d,refill.seat);memset(&refill,0,sizeof(refill));
+      }
     }
     target.active=0;
     settle_deaths();

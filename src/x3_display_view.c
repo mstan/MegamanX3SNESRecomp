@@ -164,11 +164,13 @@ static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],Obj
   if(draw->address>=0xd18 && draw->address<0x10d8){
     if(!rom_read(0x06e28e + (b[10]-1)*5,1,&group) ||
        !rom_read(0x06e28f+(b[10]-1)*5,1,&key))return false;
-  }else if(draw->address>=0x1518 && draw->address<0x1818 && !((draw->address-0x1518)%48) &&
-           (b[10]==7 || b[10]==0x10 || b[10]==0x11)){
+  }else if(draw->address>=0x1518 && draw->address<0x1818 && !((draw->address-0x1518)%48)){
     /* Native01:E069/E073 selects these door files/groups. A remote gate
      * can initialize before its region uploads the native placement cache. */
-    group=b[10]==7?0x1b:0x4c;key=b[10]==7?0x19:0x56;
+    if(b[10]==7 || b[10]==0x10 || b[10]==0x11){group=b[10]==7?0x1b:0x4c;key=b[10]==7?0x19:0x56;}
+    else if(b[10]==11){group=0x38;key=0x36;} /* Native01:E848 heart. */
+    else if(b[10]==5){group=0x96;key=0x8c;} /* Native01:DAE1 subtank. */
+    else return false;
   }else return false;
   if(group!=b[0x16] || key>=X3_RESOURCE_KEYS)return false;
   unsigned phase=resource_phase(2,(int)word(b+5),(int)word(b+8));
@@ -181,6 +183,9 @@ static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],Obj
   unsigned target,palette,offset;
   if(!rom_read(a+1,2,&target) || target>=32768 || !rom_read(a+3,2,&palette) || !rom_read(a+5,1,&offset))return false;
   out->tile=(target>>4)&255;out->attributes=(target>>12)|(offset>>3)|0x20;
+  /* Unlike ordinary resource actors, native01:DB03 keeps the common pickup
+   * palette and the body's priority, borrowing only file8C's tile bank. */
+  if(draw->address>=0x1518 && b[10]==5)out->attributes=(target>>12)|(b[0x11]&62);
   /* Preserve native animation, flashing and uploaded art when the completed
    * local cache already has this file's actual placement and palette. */
   if(phase==frame.ram[0x1f18] && b[0x18]==out->tile && (b[0x11]&63)==out->attributes)return false;
