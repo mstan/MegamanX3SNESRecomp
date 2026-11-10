@@ -13,6 +13,8 @@ extern uint8_t g_ram[0x20000];
 static uint8_t chr[8192];
 static uint16_t pixels[128*128];
 static PpuExtraObject object;
+static uint16_t guest_palette[32];
+static bool palette_borrowed;
 static unsigned word(const uint8_t *p) {return p[0]|p[1]<<8;}
 static const uint8_t *rom(unsigned a,size_t n) {
   size_t off=((a>>16)&127)*32768+(a&32767);
@@ -44,22 +46,10 @@ static bool draw_pose(const uint8_t *body) {
   const uint8_t *directory=rom(0x8d8000+group*3,3);
   const uint8_t *entry=rom(pointer(directory)+pose*3,3);
   p=rom(pointer(entry),1+count*4);if(!p)return false;
-  uint16_t colors[256]={0};
-  /* Follow the native palette lists, including their destination indices;
-   * HUD and particle palettes are not the Zero body's palette. */
-  for(unsigned key=0xd0;key<=0xd2;key+=2) {
-    const uint8_t *list=rom(0x868180+key,2);if(!list)return false;
-    unsigned address=0x860000|word(list);
-    for(unsigned n=0;n<32;++n,address+=4) {
-      const uint8_t *record=rom(address,4);if(!record)return false;
-      unsigned length=record[0],destination=record[3];
-      if(!length)break;
-      if(destination+length>256)return false;
-      const uint8_t *source=rom(0x8c0000|word(record+1),length*2);if(!source)return false;
-      for(unsigned j=0;j<length;++j)colors[destination+j]=(uint16_t)(0x8000|word(source+2*j));
-      if(n==31)return false;
-    }
-  }
+  uint16_t colors[256];memcpy(colors,g_ppu->cgram,sizeof(colors));
+  const X3CoopState *s=X3CoopRuntimeState();
+  const uint8_t *palette=s->players[s->anchor^1].palette;
+  for(unsigned j=0;j<32;++j)colors[0x80+j]=(uint16_t)(0x8000|word(palette+2*j));
   memset(pixels,0,sizeof(pixels));
   bool flip=(body[0x11]&0x40)!=0;
   for(unsigned i=count;i>0;--i) {
@@ -81,8 +71,19 @@ static bool draw_pose(const uint8_t *body) {
 void X3CoopRender(void) {
   PpuSetExtraObjects(g_ppu,NULL,0);
   const X3CoopState *s=X3CoopRuntimeState();
-  if(!X3CoopRuntimeEnabled() || !s->initialized || s->players[1].life!=X3_COOP_ALIVE)return;
-  const uint8_t *body=s->players[1].body;
+  palette_borrowed=false;
+  if(X3CoopRuntimeEnabled() && s->initialized) {
+    /* NMI can land inside a borrowed actor pass. Draw with the anchor's
+     * personal ramps, then restore the exact emulated CGRAM after rendering.
+     * Presentation never becomes a simulation write or a rollback input. */
+    memcpy(guest_palette,g_ppu->cgram+0x80,sizeof(guest_palette));
+    const uint8_t *palette=s->players[s->anchor].palette;
+    for(unsigned i=0;i<32;++i)g_ppu->cgram[0x80+i]=(uint16_t)(word(palette+2*i)&32767);
+    palette_borrowed=true;
+  }
+  unsigned partner=s->anchor^1;
+  if(!X3CoopRuntimeEnabled() || !s->initialized || s->players[partner].life!=X3_COOP_ALIVE)return;
+  const uint8_t *body=s->players[partner].body;
   if(!body[0xe] || !draw_pose(body))return;
   object=(PpuExtraObject){
     .x=(int16_t)(word(body+5)-word(g_ram+0x1e5d))-64,
@@ -90,4 +91,8 @@ void X3CoopRender(void) {
     .width=128,.height=128,.stride=128,
     .priority=(body[0x11]>>4)&3,.oamSlot=108,.order=1,.pixels=pixels};
   PpuSetExtraObjects(g_ppu,&object,1);
+}
+void X3CoopRenderRestorePalette(void) {
+  if(palette_borrowed)memcpy(g_ppu->cgram+0x80,guest_palette,sizeof(guest_palette));
+  palette_borrowed=false;
 }

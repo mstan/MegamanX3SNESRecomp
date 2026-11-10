@@ -5,8 +5,10 @@ from pathlib import Path
 import re
 
 MARKER = '/*X3-COOP*/'
-ENTRY = re.compile(r'RecompReturn bank_(00|04)_([0-9A-F]{4})_M[01]X[01]\(CpuState \*cpu\) \{')
+ENTRY = re.compile(r'RecompReturn bank_(00|02|03|04)_([0-9A-F]{4})_M[01]X[01]\(CpuState \*cpu\) \{')
 TARGETS = {0: {0xda7f,0xdb9f,0xdbc1,0xdc06,0xdc23},
+           2: {0xd58a,0xd5da,0xd611,0xd636,0xd65b,0xd67a,0xd68f,0xd6a4,0xd6b9,0xd6ce,0xd6e3},
+           3: {0x8f70},
            4: {0x8000,0x81d0,0xb58a,0xcb31,0xcb74}}
 
 def apply(source):

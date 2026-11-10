@@ -20,6 +20,12 @@ int main(void) {
   CHECK(X3CoopProject(&s,ram,0));
   CHECK(s.players[1].body[5]==42);
   CHECK(ram[X3_COOP_BODY+5]==0x5a);
+  memset(ram+X3_COOP_PALETTE,0x22,X3_COOP_PALETTE_BYTES);
+  CHECK(X3CoopProject(&s,ram,1));
+  CHECK(s.players[0].palette[0]==0x22 && ram[X3_COOP_PALETTE]==0x5a);
+  CHECK(ram[0xa1]==1);
+  CHECK(X3CoopProject(&s,ram,0));
+  CHECK(ram[X3_COOP_PALETTE]==0x22);
   for(unsigned first=0;first<2;++first) {
     CHECK(X3CoopInit(&s,ram,first));
     CHECK(X3CoopFall(&s,first));

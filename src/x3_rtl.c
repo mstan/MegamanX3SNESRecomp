@@ -1027,6 +1027,7 @@ void X3DrawPpuFrame(void) {
     for (int ch = 0; ch < 8; ch++)
       SimpleHdma_DoLine(&hdma_chans[ch]);
   }
+  X3CoopRenderRestorePalette();
 }
 
 /* ── save-state extras: the LLE host cursor ───────────────────────────── */

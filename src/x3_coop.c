@@ -18,6 +18,7 @@ static void capture(X3CoopPlayer *p, const uint8_t *ram) {
   memcpy(p->body,ram+X3_COOP_BODY,sizeof(p->body));
   memcpy(p->auxiliaries,ram+X3_COOP_AUX,sizeof(p->auxiliaries));
   memcpy(p->shots,ram+X3_COOP_SHOTS,sizeof(p->shots));
+  memcpy(p->palette,ram+X3_COOP_PALETTE,sizeof(p->palette));
   p->shot_command=ram[0x1f1e];
 }
 bool X3CoopValid(const X3CoopState *s) {
@@ -59,6 +60,10 @@ bool X3CoopProject(X3CoopState *s,uint8_t ram[0x20000],unsigned seat) {
   memcpy(ram+X3_COOP_BODY,p->body,sizeof(p->body));
   memcpy(ram+X3_COOP_AUX,p->auxiliaries,sizeof(p->auxiliaries));
   memcpy(ram+X3_COOP_SHOTS,p->shots,sizeof(p->shots));
+  if(memcmp(ram+X3_COOP_PALETTE,p->palette,sizeof(p->palette))) {
+    memcpy(ram+X3_COOP_PALETTE,p->palette,sizeof(p->palette));
+    ram[0xa1]=1; /* Request the native next-NMI palette upload. */
+  }
   ram[0x1f1e]=p->shot_command;
   s->current=(uint8_t)seat;
   return true;
@@ -100,25 +105,26 @@ bool X3CoopTeamRetry(X3CoopState *s) {
   return true;
 }
 /* Pointer-free wire representation, independent of host struct padding. */
-enum { PLAYER_BYTES=X3_COOP_BODY_BYTES+X3_COOP_AUX_BYTES+X3_COOP_SHOT_BYTES+5,
+enum { PLAYER_BYTES=X3_COOP_BODY_BYTES+X3_COOP_AUX_BYTES+X3_COOP_SHOT_BYTES+X3_COOP_PALETTE_BYTES+5,
        STATE_BYTES=4+4+2*PLAYER_BYTES };
 size_t X3CoopEncodedSize(void) {return STATE_BYTES;}
 bool X3CoopEncode(const X3CoopState *s,void *out,size_t size) {
   if(!out || size!=STATE_BYTES || !X3CoopValid(s))return false;
-  uint8_t *p=out;memcpy(p,"X3C2",4);p+=4;
+  uint8_t *p=out;memcpy(p,"X3C3",4);p+=4;
   *p++=s->initialized;*p++=s->current;*p++=s->anchor;*p++=s->wipe;
   for(unsigned i=0;i<2;++i) {
     const X3CoopPlayer *a=&s->players[i];
     memcpy(p,a->body,sizeof(a->body));p+=sizeof(a->body);
     memcpy(p,a->auxiliaries,sizeof(a->auxiliaries));p+=sizeof(a->auxiliaries);
     memcpy(p,a->shots,sizeof(a->shots));p+=sizeof(a->shots);
+    memcpy(p,a->palette,sizeof(a->palette));p+=sizeof(a->palette);
     *p++=(uint8_t)a->previous_actions;*p++=(uint8_t)(a->previous_actions>>8);
     *p++=a->life;*p++=a->character;*p++=a->shot_command;
   }
   return true;
 }
 bool X3CoopDecode(X3CoopState *s,const void *data,size_t size) {
-  if(!s || !data || size!=STATE_BYTES || memcmp(data,"X3C2",4))return false;
+  if(!s || !data || size!=STATE_BYTES || memcmp(data,"X3C3",4))return false;
   const uint8_t *p=(const uint8_t *)data+4;X3CoopState v={0};
   v.initialized=*p++;v.current=*p++;v.anchor=*p++;v.wipe=*p++;
   for(unsigned i=0;i<2;++i) {
@@ -126,6 +132,7 @@ bool X3CoopDecode(X3CoopState *s,const void *data,size_t size) {
     memcpy(a->body,p,sizeof(a->body));p+=sizeof(a->body);
     memcpy(a->auxiliaries,p,sizeof(a->auxiliaries));p+=sizeof(a->auxiliaries);
     memcpy(a->shots,p,sizeof(a->shots));p+=sizeof(a->shots);
+    memcpy(a->palette,p,sizeof(a->palette));p+=sizeof(a->palette);
     a->previous_actions=(uint16_t)(p[0]|p[1]<<8);p+=2;
     a->life=*p++;a->character=*p++;a->shot_command=*p++;
   }

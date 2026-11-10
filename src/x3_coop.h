@@ -10,6 +10,7 @@ enum {
   X3_COOP_BODY = 0x09d8, X3_COOP_BODY_BYTES = 0x110,
   X3_COOP_AUX = 0x0ae8, X3_COOP_AUX_BYTES = 0x1e0,
   X3_COOP_SHOTS = 0x10d8, X3_COOP_SHOT_BYTES = 0x240,
+  X3_COOP_PALETTE = 0x400, X3_COOP_PALETTE_BYTES = 64, /* OBJ palettes80/90 */
   X3_COOP_X = 0, X3_COOP_ZERO = 1,
 };
 typedef enum X3CoopLife { X3_COOP_ABSENT, X3_COOP_ALIVE, X3_COOP_FALLEN } X3CoopLife;
@@ -17,6 +18,7 @@ typedef struct X3CoopPlayer {
   uint8_t body[X3_COOP_BODY_BYTES];
   uint8_t auxiliaries[X3_COOP_AUX_BYTES];
   uint8_t shots[X3_COOP_SHOT_BYTES];
+  uint8_t palette[X3_COOP_PALETTE_BYTES];
   uint16_t previous_actions;
   uint8_t life, character, shot_command;
 } X3CoopPlayer;

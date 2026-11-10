@@ -1,7 +1,8 @@
 /* Contract probes against the cartridge's real collision routines. These use
  * isolated geometry fixtures, not an assertion of stage/AI coverage. */
+#include "../src/x3_coop_render.h"
 static size_t contact_context_offset(const uint8_t *snapshot,size_t size) {
-  for(size_t i=size-4;i>0;--i)if(!memcmp(snapshot+i,"X3C2",4))return i;
+  for(size_t i=size-4;i>0;--i)if(!memcmp(snapshot+i,"X3C3",4))return i;
   check(0,"actor context is present");return 0;
 }
 static void contact_geometry(unsigned slot,unsigned x,unsigned y) {
@@ -25,6 +26,21 @@ static void contact_native_call(unsigned slot,unsigned pc) {
 static unsigned contact_hp(unsigned seat) {
   const X3CoopState *s=X3CoopRuntimeState();
   return (s->current==seat?g_ram[X3_COOP_BODY+0x27]:s->players[seat].body[0x27])&127;
+}
+static void contact_native_draw(unsigned slot,unsigned expected_x,unsigned expected_y) {
+  uint16_t stack=g_cpu.S;
+  unsigned descriptor=cpu_read8(&g_cpu,0,0x6620);
+  check(descriptor<128,"native draw fixture has descriptor capacity");
+  g_cpu.PB=3;g_cpu.DB=0;g_cpu.D=0;g_cpu.X=(uint16_t)(slot|0x8000);
+  g_cpu.P=(uint8_t)((g_cpu.P|0x20)&~0x10);cpu_p_to_mirrors(&g_cpu);
+  cpu_push_jsr_return_frame(&g_cpu);
+  check(interp_bridge_run(&g_cpu,0x038f70),"tagged native late draw returns");
+  check(g_cpu.S==stack,"native late draw preserves guest return frame");
+  check(cpu_read16(&g_cpu,0,0x6220+descriptor*16)==expected_x &&
+        cpu_read16(&g_cpu,0,0x6222+descriptor*16)==expected_y,
+        "native late descriptor reads the partner's real shot coordinates");
+  check(X3CoopRuntimeState()->current==X3CoopRuntimeState()->anchor,
+        "native late draw restores the world actor");
 }
 static void native_contact_checks(uint8_t *snapshot,size_t size,uint8_t *modified,size_t capacity) {
   size_t offset=contact_context_offset(snapshot,size);
@@ -62,10 +78,34 @@ static void native_contact_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
   shot=X3CoopRuntimeState()->players[1].shots;
   check(shot[index] && (unsigned)(shot[index+5]|shot[index+6]<<8)!=before,
         "partner projectile advances through its native updater");
+  bool tagged=false;
+  for(unsigned p=0x700;p<0x880;p+=2) {
+    unsigned request=g_ram[p]|g_ram[p+1]<<8;
+    if(request==(0x8000|(X3_COOP_SHOTS+index)))tagged=true;
+  }
+  check(tagged,"native partner update retains ownership in its late draw queue");
+  contact_native_draw(X3_COOP_SHOTS+index,shot[index+5]|shot[index+6]<<8,
+                      shot[index+8]|shot[index+9]<<8);
   contact_geometry(0xd18,shot[index+5]|shot[index+6]<<8,shot[index+8]|shot[index+9]<<8);
   g_ram[0xd18+0x28]=0;
   contact_native_call(0xd18,0x04cb74);
   check((g_ram[0xd18+0x27]&127)<8,"partner projectile damages shared native enemy");
   check(RtlSaveSnapshotToMemory(modified,capacity)!=0,"updated native pools remain snapshot-capable");
+  check(RtlLoadSnapshotFromMemory(snapshot,size),"native charge palette fixture restores");
+  uint8_t primary_palette[X3_COOP_PALETTE_BYTES],partner_palette[X3_COOP_PALETTE_BYTES];
+  memcpy(primary_palette,X3CoopRuntimeState()->players[0].palette,sizeof(primary_palette));
+  memcpy(partner_palette,X3CoopRuntimeState()->players[1].palette,sizeof(partner_palette));
+  bool isolated=true,animated=false;
+  for(unsigned i=0;i<180;++i) {
+    frame(SNES_PAD_Y<<12);
+    const X3CoopState *s=X3CoopRuntimeState();
+    isolated=isolated && !memcmp(primary_palette,s->players[0].palette,sizeof(primary_palette));
+    animated=animated || memcmp(partner_palette,s->players[1].palette,sizeof(partner_palette));
+  }
+  check(isolated && animated,"Zero's native charge ramps animate without recoloring X");
+  uint16_t emulated_colors[256];memcpy(emulated_colors,g_ppu->cgram,sizeof(emulated_colors));
+  X3CoopRender();X3CoopRenderRestorePalette();
+  check(!memcmp(emulated_colors,g_ppu->cgram,sizeof(emulated_colors)),
+        "player presentation restores exact emulated CGRAM");
   check(RtlLoadSnapshotFromMemory(snapshot,size),"contact probes restore their starting machine");
 }

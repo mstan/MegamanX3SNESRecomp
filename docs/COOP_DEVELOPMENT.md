@@ -127,3 +127,36 @@ Automated profiles use dummy audio/video, software rendering, native aspect
 and the prototype switch. These narrow results support D01/D02/D08/D09 and
 T03; they do not close their full roster/stage coverage or any of the 15
 rollup areas. The planned post-implementation suite remains 180 touchpoints.
+
+### Late draw ownership and charge palettes
+
+Native owned draw requests now retain their seat in the pointer's unused high
+bit across all six original queues. The actual late descriptor routine borrows
+that seat's pool, submits it once, and restores the anchor at its balanced RTS.
+The ROM-backed probe verifies the descriptor's real X/Y, guest-stack balance
+and anchor restoration. Fresh project regeneration preserves all 27 emitted
+hooked variants and produces byte-identical generated trees on a second pass.
+
+The first simultaneous-buster captures showed both projectiles, then exposed
+a separate fault: native Zero charge palette writes recolored X red. Each
+actor now retains native OBJ palettes80/90 through projection and snapshots.
+Rendering uses the anchor's ramps and restores emulated CGRAM afterward;
+the additional Zero body uses his own live charge ramps. A 180-frame native
+charge probe observes changing Zero colors while X's 64 palette bytes remain
+unchanged. Exact CGRAM restoration and initialized replay pass. Inspected
+`zero-charge-held` and `zero-charge-release` captures keep X blue while Zero
+charges and fires. The software body also follows the non-anchor seat rather
+than drawing a second copy of the surviving native anchor.
+
+The new disposable fixture format is X3C3; regenerate older development
+snapshots. `tests/scenarios/coop_buster_palette.script` resumes slot11 for
+the firing/charge captures. Current ROM results are in
+`build-coop/qa-state/native-palette-result.log`; refreshed P2 death and retry
+logs use the `palette-coop_*` prefix. Both survivor directions and the tested
+staggered retry still pass. These are implementation-stage cases under C01/C02,
+E11 and visual ownership; private projectile CHR/palette combinations, visible
+NMI alignment, reversed rosters, scene effects and full visual QA remain open.
+The complete regenerated build passes the same ROM-backed cases in
+`build-coop/qa-state/native-regenerated-result.log` (exit0), plus both CTests.
+Its game SHA256 is
+`e38d59b9e266a6f7d6c799e22d3de50cba6ef0299e6f4d34c2d538b4d3d5df89`.

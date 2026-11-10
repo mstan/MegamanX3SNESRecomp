@@ -1,0 +1,13 @@
+wait 10
+loadstate 11
+wait 5
+press y+p2:y 6
+dump both-busters
+wait 10
+dump both-busters-flight
+press p2:y 180
+wait 1
+dump zero-charge-held
+wait 7
+dump zero-charge-release
+quit

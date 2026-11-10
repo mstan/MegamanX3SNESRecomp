@@ -17,7 +17,7 @@ int main(int argc,char **argv) {
     check(saved && damaged && after,"co-op preflight buffers");
     size_t size=RtlSaveSnapshotToMemory(saved,cap),marker=0;
     check(size>32,"co-op snapshot is present");
-    for(size_t i=size-4;i>0;--i)if(!memcmp(saved+i,"X3C2",4)){marker=i;break;}
+    for(size_t i=size-4;i>0;--i)if(!memcmp(saved+i,"X3C3",4)){marker=i;break;}
     check(marker && marker+8<size,"co-op context chunk is present");
     memcpy(damaged,saved,size);damaged[marker+6]=2;
     check(!RtlLoadSnapshotFromMemory(damaged,size),"invalid actor anchor is refused before load");
