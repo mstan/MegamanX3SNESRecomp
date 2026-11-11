@@ -11,6 +11,7 @@ endif()
 set(SNESRECOMP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/snesrecomp" CACHE PATH "snesrecomp checkout")
 set(RECOMP_UI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/recomp-ui" CACHE PATH "recomp-ui checkout")
 set(SNESRECOMP_ENABLE_MODS ON CACHE BOOL "Shared mod package runtime" FORCE)
+option(SNESRECOMP_ENABLE_NET "Build X / Zero netplay and rollback" ON)
 option(SNESRECOMP_REVERSE_DEBUG "Instruction-level debugger instrumentation" OFF)
 include(${SNESRECOMP_ROOT}/runner/runner.cmake)
 
@@ -42,6 +43,9 @@ snesrecomp_target_mod_catalog(MegaManX3SNESRecomp ${CMAKE_CURRENT_SOURCE_DIR}/mo
 include(${RECOMP_UI_ROOT}/recomp_ui.cmake)
 recomp_target_launcher_ui(MegaManX3SNESRecomp CONSOLE snes
     BOXART ${CMAKE_CURRENT_SOURCE_DIR}/recomp/launcher/boxart.tga)
+if(SNESRECOMP_ENABLE_NET)
+    recomp_target_launcher_netplay(MegaManX3SNESRecomp)
+endif()
 
 include(${SNESRECOMP_ROOT}/runner/cmake/mmx_state_tests.cmake)
 snesrecomp_target_mmx_state_tests(MegaManX3SNESRecomp ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c)

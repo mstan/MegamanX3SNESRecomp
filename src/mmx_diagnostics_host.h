@@ -9,11 +9,16 @@
 #include "snes/ppu.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include "x3_coop_netplay_host.inc"
 static void (*diagnostic_prepare)(int,int,int *,int *);
 static SnesDesktopHostGame *diagnostic_game;
 static int diagnostic_native_widescreen;
 static void diagnostic_prepare_frame(int dw,int dh,int *w,int *h) {
   X3CoopSettingsPresentation();
+#if defined(SNES_HAS_LOBBY_CLIENT) && defined(SNESRECOMP_NET_ROLLBACK)
+  x3_net_view();
+#endif
   bool coop=X3CoopSettingsEnabled();
   /* The compositor samples extra pixels from the completed world. Leave the
    * guest PPU and activation budgets on their common co-op settings. */
@@ -31,6 +36,9 @@ static void diagnostic_prepare_frame(int dw,int dh,int *w,int *h) {
 }
 static void diagnostic_after_frame(const SnesDesktopHostFrameStats *stats) {
   (void)stats;
+#if defined(SNES_HAS_LOBBY_CLIENT) && defined(SNESRECOMP_NET_ROLLBACK) && SNESRECOMP_TRACE
+  x3_net_diagnostic_progress();
+#endif
   if(MmxReplayPlaying() && (MmxReplayFinished() || MmxReplayFailed())) {
     SDL_Event quit={0}; quit.type=SDL_QUIT; SDL_PushEvent(&quit);
   }
@@ -67,6 +75,16 @@ static int MmxDiagnosticDesktopMain(const SnesDesktopHostGame *base,int argc,cha
   game.after_run_frame=diagnostic_after_frame;
   game.after_config=diagnostic_after_config;
   game.on_shutdown=MmxReplayShutdown;
+#if defined(SNES_HAS_LOBBY_CLIENT) && defined(SNESRECOMP_NET_ROLLBACK)
+  game.configure_launcher=x3_net_configure_launcher;
+  game.prepare_netplay=x3_net_prepare;
+  game.netplay_ready=x3_net_ready;
+  game.netplay_cosmetic_allow=x3_net_cosmetic_allow;
+  game.netplay_requires_seated_rollback=1;
+#if SNESRECOMP_TRACE
+  game.netplay_diagnostic_pad=x3_net_diagnostic_pad;
+#endif
+#endif
   int result=snesrecomp_desktop_main(&game,argc,argv);
   MmxReplayShutdown();
   return MmxReplayPlaying() && (MmxReplayFailed() || !MmxReplayFinished()) ? 2:result;

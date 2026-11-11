@@ -1,7 +1,7 @@
 # X3 co-op implementation and qualification
 
 Development branch: `feat/x3-coop`, based on X3 master `11fd733`.
-Build reference: engine main `e9c20732`, UI master `cf6315a`.
+Current pinned build reference: engine `36a3d80e`, UI `cf6315a`.
 This is an incomplete development implementation, not a co-op release.
 
 ## Implemented components
@@ -33,9 +33,9 @@ remain available. Holding Select withdraws a living actor; release and hold
 again to return beside the partner when clear native ground is available.
 Either living actor can open the paired pause with Start. Both navigate their
 own panel; Fire selects equipment or uses a shared subtank, and Start resumes
-when healing finishes. Full-campaign scenes and lifecycle qualification,
-assists, widescreen co-op fields and online session
-qualification still require work. This is not a release qualification.
+when healing finishes. Learner mode has focused native protection and return
+checks. Adaptive co-op presentation and network startup have pilot evidence;
+full campaign, lifecycle, presentation and online qualification remain open.
 
 Full campaign is the default Zero policy. Stock restrictions start him
 withdrawn; his Select control calls him when the original game permits it.
@@ -51,17 +51,17 @@ campaign or co-op gameplay acceptance.
 | --- | --- | --- |
 | Individual death | Stage-1 contact deaths pass for X/P1 and Zero/P2; other cases open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | Zero-then-X stage-1 route passes; other cases open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
-| Fallen persistence | Native stage-entry and public withdrawal/return checks pass narrowly; campaign transitions and assists open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
+| Fallen persistence | Native stage-entry, withdrawal/return and learner checks pass narrowly; campaign and reconnect remain open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | Native union admission/retention passes focused remote-region cases; campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | Shared rider contracts and stage5 class26 case pass; broader families open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | Native contact and class08 targeting probes pass; broader AI/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | Stage1 entrance/transport and stage5/stage8 capsule tasks pass focused both-roster/API-retirement checks; visuals, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | Not qualified | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | Paired navigation, native timed healing, ownership, resume and Escape pass focused checks; full campaign and online qualification open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
-| Visuals | Not qualified | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. Unchanged X3 reaches a rendered scene; early black captures were startup transients. |
+| Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | Component and stock-runtime checks | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
-| Netplay | Not implemented | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
+| Netplay | Windows two-process startup and portable agreement pass; controller-driven progression and other network behavior remain open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
 
@@ -1180,4 +1180,76 @@ two-point hit on P1. In the real stage5 pit, P2 walks38 and falls16 frames,
 then returns at28 HP. The same approach with P1 jumping cannot rescue P2;
 original death occurs. P1's own pit death leaves P2 with bright, controllable
 gameplay. Whole-machine replay and a real previously fallen fixture pass.
-Public launcher default/opt-in, wider regressions and final suite remain open.
+The staged launcher catalog confirms the actual default and opt-in route on
+GUI SHA256 `3bb361945080898f071eea8bcccb13bfafcacf5cf6d80669c205e8da149ebd18`.
+Both runs leave X at384 and move Zero to437. The default advances the camera
+to282, while the opt-in keeps it at256. X3J2 records profile0 and2
+respectively. Both child runs and the combined native regression pass; the
+final suite remains open.
+
+The follow-up exact state SHA256
+`7c9f08b3ee5ee66a30d028c9b0b58c307bf9d4e34975b5739b48d91496e5d5e7`
+checks the real safe pit rescue with either roster: Zero at28 HP after16
+falling frames and X at16 HP after14. The same unsafe-return, P1-death and
+snapshot checks pass for both.
+
+### Authored Blast Hornet approach and Zero survivor reward
+
+Select stage1 checkpoint2 after the original00:9A75 stage selection resets
+the checkpoint byte. The original loader starts both actors atx7808. Actual
+P2 movement admits both actors through the final class07 door in both roster
+orders and starts the original class53 Blast Hornet at32 HP. This bypasses
+earlier corridor traversal. No boss admission flag was written.
+
+With only boss HP assisted to1, X's shots miss and native damage kills X.
+Zero remains the survivor. Positioning the survivor for an actual Zero shot
+reduces the boss to0. The original death, graphics upload and reward finish;
+1FBE becomesFF and the native password screen appears. No victory, reward or
+exit flag was written. Evidence: `public-boss-server-native-window-result.log`,
+`public-boss-server-victory-result.log` and `boss-reversed` captures under
+`build-coop/qa-state`, on GUI SHA256 `d55f864b265d71da6c1f97e96575e87ff5485b39e2e56292d347d28589449769`.
+The checkpoint setup retained intro campaign mode1 at1FD5. Input at the
+password returned to the intro; that setup does not qualify ordinary stage
+selection or the next-stage transition. A valid native campaign prerequisite
+and broader targeting, survivor and exit cases remain open.
+
+### Adaptive co-op display and LAN pilots
+
+The co-op compositor samples additional columns from the existing world. Its
+panel width does not change the guest PPU margins or activation choices. Exact
+state-test SHA256 `c4ee4fcb2439c0b8e55749afe469f424291926d11d40b2691f71d9d677fa3da1`
+passes the ROM regression and adaptive view checks on SERVER. A342-pixel
+private field preserves central world pixels and has content on both sides.
+Two448-pixel split fields show distinct regions. Native, selected, split and
+wider local presentations preserve the complete simulation snapshot.
+
+The actual staged Fit default on GUI SHA256
+`3bb361945080898f071eea8bcccb13bfafcacf5cf6d80669c205e8da149ebd18`
+renders256/342/448 columns at960x720,1280x720 and1680x720 respectively.
+Each resumed run gets its own disposable snapshot because the launcher
+consumes it. The two wider fields have37/45 and37/47 distinct margin colors
+in the same live stage5 scene. See `public-fit-live-server-result.log` and
+`public-learner-server/fit-live-*.bmp` under `build-coop/qa-state`.
+The same exact state binary used for the reversed learner terrain also
+verifies paused wide restoration: it discards the old composed scene and
+centers the current native picture until a new wide raster is available.
+On GUI SHA256 `bca15ca54154491324fdef257675caa1aca7deed4eea19ab282cdefe5b8bb695`,
+`fit-order-boss-wide.bmp` shows Blast Hornet's original OAM meter anchored
+at the wider right edge. That is one authored room, not a full visuals pass.
+
+The first net-enabled GUI SHA256
+`344f14645e1869aa3785a5a105c8ccce8fd8ad7a15afc4d44da067ab2b89fd98`
+links the pinned launcher backend. Its two actual rollback processes agree on
+portable profile0 and transcript `0c17fb26` and admit210/211 frames without a
+reported desync. Their local layout choices differ. This is a startup pilot;
+it does not qualify native controller progression, mixed hosts, rollback
+episodes, in-game transitions or disconnect recovery. Evidence is
+`build-coop/qa-state/x3-lan-server-result.log`.
+
+The exact-build gate folds the running executable SHA256, original ROM
+identity and agreed portable profile into the driver's required content
+fingerprint. The matched Windows pair at SHA256
+`b97852ff474c49c4c510a21da68e93c3ec91120e5cf3741655b1fba2119a6cec`
+admits195/196 frames. An otherwise identical disposable executable with
+different bytes is refused by both peers with zero admitted frames. See
+`x3-lan-strict-server-result.log`. No cross-build pair is qualified.
