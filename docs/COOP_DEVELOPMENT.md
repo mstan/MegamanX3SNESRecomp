@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 83/180; 97 open/partial. Accepted areas: 1/15
+**Accepted touch points: 84/180; 96 open/partial. Accepted areas: 1/15
 (snapshot/rewind/rollback).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -62,7 +62,7 @@ campaign or co-op gameplay acceptance.
 | Menus/resources | M01-M11 accepted (11/12); transition/menu overlap remains open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
-| Netplay | N02/N04/N05/N11/N12 accepted (5/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
+| Netplay | N01/N02/N04/N05/N11/N12 accepted (6/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
 
@@ -2845,3 +2845,29 @@ roster; a floating NPC is never accepted as an ordinary terrain landing for
 the returning participant. All four refusals leave the complete machine
 unchanged. The original two-rider future is restored afterward. No production
 landing-policy change was needed. Actual83/180 accepted,97open,1/15rollups.
+
+
+### Actual peer roster and full/stock startup policies — N01
+
+N01 is accepted by native-session-policy(child0), GUI SHA256
+846f3e29ff2649cbb337a97bd44dae1509d2358a196a7139693f0e44a65aa8b5,
+HEADd2edf6d plus the bounded TRACE diagnostic fields. Two real rollback
+processes run each complete native title/opening and enroll at tick3653.
+The reversed full-campaign case selects Zero/X and both-player doors; the
+stock case selects X/Zero and either-player doors. Each uses its own local
+independent view and the current frozen package catalog. Automated profiles
+disable physical gamepads and use muted dummy SDL, preserving desktop focus.
+
+Both peers agree on portable profile0/transcript0c17fb26. At ages0/50/130/210,
+their actual character assignments, restriction flag, life states, positions
+and complete personal actor-codec digest agree. Reversed full campaign keeps
+both living; stock keeps Zero absent while X moves. At age210 their personal
+digests are ec95817b and caa14a18 respectively. Required executable/content
+fingerprints and agreed mod settings gate startup; existing N11 rejection
+evidence remains independent. No desync is reported in either run. The final
+records are net-lan/session-policy83/result.json with both per-peer logs.
+
+This uses the existing LAN transport over loopback for the new policy cases;
+it does not replace N02's separate real-PC/SERVER evidence. No additional
+online combat, HUD, scene, rollback-episode or disconnect criterion is claimed.
+Actual84/180 accepted,96open,1/15rollups.

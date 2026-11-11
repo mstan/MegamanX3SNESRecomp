@@ -159,10 +159,13 @@ static void x3_net_diagnostic_progress(void){
   if(age!=0 && age!=50 && age!=130 && age!=210 && tick%600)return;
   if(tick==reported)return;
   reported=tick;
-  fprintf(stderr,"[x3-net-qa] tick=%u age=%d view=%d initialized=%d life=%u/%u x=%u/%u phase=%u/%u/%u stage=%u\n",(unsigned)tick,age,
+  uint8_t personal[4096];size_t personal_size=X3CoopEncodedSize();uint32_t personal_hash=2166136261u;
+  if(personal_size>sizeof(personal) || !X3CoopEncode(s,personal,personal_size))personal_hash=0;
+  else for(size_t i=0;i<personal_size;++i){personal_hash^=personal[i];personal_hash*=16777619u;}
+  fprintf(stderr,"[x3-net-qa] tick=%u age=%d view=%d initialized=%d life=%u/%u x=%u/%u phase=%u/%u/%u stage=%u characters=%u/%u stock=%u personal=%08x\n",(unsigned)tick,age,
       X3Display_PresentationSeat(),s->initialized,s->players[0].life,s->players[1].life,
       s->players[0].body[5]+256u*s->players[0].body[6],s->players[1].body[5]+256u*s->players[1].body[6],
-      g_ram[0xd1],g_ram[0xd2],g_ram[0xd3],g_ram[0x1fae]);
+      g_ram[0xd1],g_ram[0xd2],g_ram[0xd3],g_ram[0x1fae],s->players[0].character,s->players[1].character,X3CoopRuntimeStockZero(),personal_hash);
 }
 #endif
 #endif
