@@ -49,19 +49,19 @@ campaign or co-op gameplay acceptance.
 
 | Area | Status | Acceptance |
 | --- | --- | --- |
-| Individual death | D01-D05/D07/D09/D16 accepted (8/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
-| Team wipe | T01-T04/T09/T10 accepted (6/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
+| Individual death | D01-D05/D07/D09/D14/D16 accepted (9/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
+| Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F02-F07/F09 accepted (7/10); checkpoints, difficult placement and reconnect/options remain open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
-| Separated spawning | Native union admission/retention passes focused remote-region cases; campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | Shared rider contracts and stage5 class26 case pass; broader families open | Both riders retain support, momentum and crush behavior while each platform advances once. |
-| Enemy interactions | Native contact and class08 targeting probes pass; broader AI/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
+| Separated spawning | A06-A08 accepted (3/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
+| Supports/hazards | P01-P04 accepted (4/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
+| Enemy interactions | E01/E04/E11 accepted (3/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | Stage1 entrance/transport and stage5/stage8 capsule tasks pass focused both-roster/API-retirement checks; visuals, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
-| Menus/resources | M01-M10 accepted (10/12); shared modals and transition/menu overlap remain open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
+| Menus/resources | M01-M11 accepted (11/12); transition/menu overlap remains open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
-| Rollback/state | Component and stock-runtime checks | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
-| Netplay | N02/N04/N11 accepted (3/12); remaining peer behavior and explicit capability evidence remain open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
+| Rollback/state | R01/R04/R06-R08/R10 accepted (6/10); remaining interrupted-state and malformed-input coverage open | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
+| Netplay | N02/N04/N05/N11/N12 accepted (5/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
 
@@ -1821,3 +1821,308 @@ Total42/180 accepted: D01-D05/D07/D09/D16; T01-T04/T09/T10; E11;
 F02-F07/F09; G01; M01-M10; S01-S03; R01/R04/R06; N02/N04/N11.
 Remaining138open/partial,0/15rollups. No release/delivery replacement or remote
 action was performed.
+
+
+### Exhausted retries and native game-over recovery
+
+T08 is accepted on runtimeaef7666 / GUI
+bed93772e37d945f2a87459bc5ceb3a53e0ab3271af4a86c7743330eb386a9cc:
+native-gameover-final-server-result.log(child0), both real stage5 rosters.
+Actual actors fall together on the authored spike row with native lives0.
+Native phase4/6 reaches the original0A/0/0 password/game-over screen around
+frame270 and stays there without another retry. Earned-intro1FD3=1 and
+Ice-weapon1FC8=DC are supplied progress prerequisites for this recovery test;
+the test does not claim their acquisition. Their native password is displayed
+and they remain intact after actual continue and stage selection. The wipe
+owner's real Start/B input resets native lives to2 and reaches actual stage1
+play, with both original characters alive at16/28HP in their original seats.
+Actual30-frame Right input moves X in each roster. Terminal password and
+post-continue TCP images were inspected; they show native blue X/red Zero and
+full personal meters. No damage/death/game-over/continue result is written.
+
+The initial observation script confirmed only with the non-owning P1 B, so
+its child0 records an observation, not T08 qualification. The next attempt
+used the actual wipe owner but asserted enrollment at the first phase4/4,
+while the original entry warp was still running. Its child1 is unqualified.
+The final driver waits for the native arrival lock/warp to finish and checks
+actual enrollment, roster, resources and control. Native save/SRAM dialogs
+are never opened.
+
+E04 is accepted from native-modal-input-regression-result.log(state038210,
+child0) and native-modal-input-campaign-result.log(same state, child0): actual
+stage1 class08/variant1 faces/detects nearer P2 and matches every enemy byte
+of one original single-target update, restoring canonical ownership afterward.
+Actual Buffalo updates receive the sole living X in either seat after Zero's
+real death; the survivor completes combat. This qualifies a living/nearest
+target, not E05's changing attack target or the separate capture/attachment
+contracts.
+
+Total44/180 accepted;136open/partial;0/15rollups. AddedT08/E04 to the42-ID
+set above. New T05/P01/P04/D14/E01 checks remain prepared, not accepted, while
+their local compiler waits for measured capacity. No delivery changed.
+
+
+### Corrected pit disposition and native rider qualification
+
+D03, D04 and T04 are reopened. The previously selected stage5 opening at
+1184..1263 is an authored descent, not a terminal pit: cartridge regionE981
+covers x1120..1311/y2704..2815 and commands1E7E=2816 plus1E6E=768. The old
+teleport retained a2560 bottom without admitting that controller, so its native
+fatal call does not establish a real pit. Keep those raw results as bypassed
+setup evidence. They no longer qualify these three criteria. A true authored
+lethal opening still needs selection and qualification. The other spike-based
+team retries, stock loss and R04 remain independently qualified.
+
+The separated-room test reveals a different real defect: Native04:B5A2 compares
+the secondary body with the anchor's top bound. With lower world camera2560
+and upper partner camera1280, the upper body is pushed downward until it falls.
+Candidate14dc5dcf60ff039d8217e18f04f2cc6be4aec1c4c861cc2401fc9cad367b6319
+changes only that comparison's flags at B5A5 to use the secondary view's current
+top. The original CMP still executes, retaining A and elapsed cycles. This
+fix keeps the upper body1367 alive while the lower body2719 remains alive.
+The next lower-room descent correctly stays alive and changes its own camera
+limit; the earlier test incorrectly expected death there. D14 is still open
+for its actual pit-death coverage, and this terrain repair remains uncommitted
+until its remaining positive/regression cases are qualified. No new wire bytes
+or generated roots are added.
+
+P01 and P04 are accepted on runtimeaef7666 / state
+05002abae389f3bebc3207ca11f5a6f4adb72f15b0661307297b03a3c8350a46,
+native-platform-current-result.log(child0). Both actual stage5 rosters spawn
+original event3C:E12C/class26 at1224,1464. After45 frames, its complete native
+record and movement1434 match one original single-player simulation, with
+native X/Zero standing heights1413/1405 and45 world ticks. Each character's
+first5 departure frames match the original single-character position and
+horizontal/vertical velocity. After30 frames only that rider's latch clears;
+the other keeps riding. Zero alone also admits/rides the actual support in
+either seat. These results do not qualify other support families or vehicles.
+
+Current accepted43/180;137open/partial;0/15rollups. Relative to44 above,
+reopenD03/D04/T04 and addP01/P04. E01's new isolated immunity comparison still
+needs its corrected raw-body setup to run: a context projection was capturing
+and overwriting the prepared world's hurt flag. The native predicate actually
+reads body88/8A. T05's native checkpoint2/singledebit return works, but its
+matched position must be compared after the native arrival lock/warp finishes.
+The current Zero-survivor Buffalo clear passes both rosters (contact23, shot3,
+target6, rewardDC/nextstage2553); actual post-arrival control is being added.
+
+
+### Genuine pit replacements, immunity and native boss retry
+
+D03 and D04 are accepted again using a different verified opening: stage1
+x1104..1199 has empty collision below floor1200 and no command extending its
+lower room. Adjacent E1FC changes only minimumY=512 and minimumX=1024.
+native-true-pits-server-result.log and native-protected-true-pits-server-
+result.log both finish all four Unified pit cases before their separate D14
+failure. Both real rosters/each seat walk49frames to x1152; original fatal
+damage occurs at y1280/1284, with one native call, only that actor fallen,
+correct survivor anchor and actual surviving movement. The protected version
+uses native body88=255 to exclude incidental enemy contact; it still executes
+the original fatal pit call. No death result is supplied. The rejected stage5
+descent evidence remains retracted.
+
+E01 is accepted on stated3489df8dade6ef04115d30ce57e6d26ebd31369268ee650d42cebd6eb405b4f,
+native-protected-immunity-platform-result.log(child0). Both actual rosters
+exercise all four combinations of personal hurt protection with overlapping
+native geometry. Each paired victim matches its original single-body health
+and native88 timer; repeated contact also matches each original result. The
+first precondition incorrectly used30, then a same-seat context projection
+recaptured the unmodified raw body. The corrected setup installs the prepared
+body directly and uses the original CB31 absoluteA60/A62 predicate. This is
+an isolated native contact contract, without authored-AI/capture claims. The
+same successful run retains both-roster P01/P04 and actual subtank acquisition/
+interruption. Its short rejoined-collector input window is8frames so native
+controller initialization finishes before the existing movement threshold.
+
+T04 and T05 are accepted by native-personal-view-last-pit-boss-result.log
+(child0), state43f6474b521ac9bf09cbf394dd469489c6b079daea214ea10ccf8195586eae8c.
+For T04, both actors actually fall in the genuine stage1 pit, in both rosters
+and either final-survivor seat. One final native fatal call reaches full-team
+retry after578 loop frames, debits lives2to1 once and restores actual control.
+For T05, actual Buffalo contact first kills Zero; the final X also dies from
+real boss contact. Both rosters match the original single-X checkpoint2 and
+landing5760,927, release arena locks, debit2to1 once and restore16/28HP. The
+paired retry takes599frames versus the matched original598 and replays the
+complete machine identically. Earlier comparison failure observed the original
+arrival warp too early; both sides now require the native entry lock to finish.
+
+The same current run strengthens F03/F04: real X death leaves Zero to defeat
+Buffalo in3 firing frames after23 contact frames; six native target updates
+observe Zero. Both rosters finish rewardDC and actual native stage1 arrival
+after2585frames with selector2, then move24frames with24 world ticks while
+X stays fallen. The earlier2553-frame condition observed the stage phase before
+its native constructor finished; it is superseded by this actual-control check.
+
+Current48/180 accepted;132open/partial;0/15rollups. AddedE01/T05 and replaced
+D03/D04/T04 with genuine-pit evidence relative to the43 correction above. D14
+remains failed/open: even with incidental enemy hurt excluded, its primary
+lower actor rises to1075 rather than finishing the real pit fall. The partial
+B5A5 comparison patch is removed. A complete native camera borrow now surrounds
+secondary controller and terrain passes, reusing the existing serialized64-byte
+backup and pass3 with balanced restore; its active runtime codec passes, but
+it does not resolve that remaining movement. A bounded native-call observation
+and failed-case snapshot are being built to identify the actual source. This
+view-context candidate is still uncommitted and needs the broader regressions.
+
+
+### Fixed startup capability decision — N12
+
+N12 is accepted from the unchanged native capability path and actual two-host
+agreement. `src/x3_coop_netplay_host.inc` queries SDL SSE2/SSE3/AVX2/NEON,
+advertises the available portable C backend/profile, and fixes the selected
+profile before guest frame zero. The actual PC/SERVER gameplay pair at GUI
+SHA2562819182cc1de4e98d3df599acee4dab035e70b618540569dc80cff3db1c8327d
+agreed on profile0/transcript0c17fb26 and advanced the same co-op world
+(`x3-cross3-{local,server}-result.log`). The later bed93772 exact-build pair
+records the same agreement before its required identity match; the retained
+`build-coop/qa-state/modal-profile-host.log` is its original process log.
+Reconstructing the documented ordered capability transcript uniquely identifies
+actual CPU masks7/7 (SSE2/SSE3/AVX2), backend1/profile1/architecture1; this is
+derived from the exchanged transcript, not inferred from OS versions.
+Only the qualified portable profile is offered, so no unqualified SIMD path
+is selected. The barrier and identity code have remained unchanged since
+1cbcb6f. Rollback retains the fixed agreement; complete executable SHA256
+remains required, and actual changed bytes still fail before frame zero.
+This accepts the current portable fallback contract, with no cross-build or
+unqualified optimized-profile compatibility claim.
+
+Total49/180 accepted,131open/partial,0/15rollups. D14 and the new initialized
+rewind checks remain unaccepted pending the queued candidate build/results.
+
+
+### Personal native camera context, real pits and initialized rewind
+
+D14 is accepted on state test001ef96ef7e89d7da82ca7ca6a9177e915d4826cf4193da0b03d479802aa4bae
+(`native-room-limits-receipt.json`,child0). The secondary controller and
+post-enemy terrain borrow the complete native camera context, then restore
+the anchor context. This prevents retail terrain correction from pushing an
+upper-room body down according to the lower anchor camera. The existing
+serialized camera backup and pass3 retain this context without adding wire
+bytes or routed roots. Actual active projection preflight/load passes; unknown
+pass values, missing independent policy and orphaned camera backups fail.
+
+The original single-X reference confirms that native stage1 class05 at1152
+carries the earlier walking approach (rider81/playerY1075). That rise is native
+support behavior. The corrected pit setup keeps that support alive and places
+the actor below it at the real stage1 terminal gap; gravity and native damage
+select the outcome. Both actual rosters and either lower-room seat survive
+60frames in separated1024/256 camera bands, then the lower actor makes one
+native fatal-pit call after19X/21Zero frames. The upper survivor retains full
+health, moves1696->1726 under24frames of real input, remains bright at04/04,
+and no team wipe occurs. Teleports explicitly match native horizontal and
+vertical limits; stale stage1 horizontal limits caused an earlier fixture
+movement failure and are not a runtime regression.
+
+R08 and R10 are accepted from the completed initialized-rewind subcases in
+`native-rewind-supports-result.log`, state SHA256
+a945b8f0ae421b0b2d2f040a3fb0e29f841ee72a880378862828531f3809a8b0.
+Both real rosters move and create both real native buster pools, then the
+actual rewind ring restores six frames to an exact complete-machine snapshot.
+Replay reproduces the entire discarded movement/combat future and exact
+rendered pixels, including animation/CHR/projectile history. A later separate
+support reference fails in that same command; it does not erase the completed
+rewind cases or qualify P02.
+
+P03 is accepted by `native-landing-carry-receipt.json`(child0) on001ef96e.
+For each actual X/Zero seat in both real rosters, every one of45 approach,
+landing and carry frames matches that actor's original single-player X/Y.
+Native class26 at3C:E12C moves once; original landing really occurs. Existing
+P01/P04 displacement, independent release and original jump momentum remain
+passing. P02's second authored class26/variant84 reference remains open.
+
+Actual53/180 accepted,127open/partial,0/15rollups. Four lightweight CTests
+pass; broader affected native scenes/resources/views and the new GUI remain
+in qualification. No package delivery or remote action has occurred.
+
+
+### Authored independent riders, shared modals and complete camera regression
+
+P02 is accepted by `native-support-child-receipt.json`(child0), state SHA256
+a01bd7a0593a73b9451822cfcc008605fc0f9b2ec5cce6195392984b78f51cb9.
+Original stage5 records3C:E12C (class26/variant2 at1224,1464) and3C:E1BB
+(variant1 at1480,1944) create two actual moving supports in separate1280/1792
+camera rooms. In both actual rosters, every45 paired rider X/Y samples equal
+that actor's original single-player reference; each rider history belongs only
+to its actual support, and45frames advance45world ticks. Both native support
+records match their references after resolving the allocated trail-child slot.
+Native07:E649 stores that shared allocation pointer in3E; two supports allocate
+different slots. Their complete32-byte class1E child contents match the original
+references and retain the correct native parent pointer, so this comparison
+does not discard a behavior mismatch. The previous variant84 reference is
+stationary under its original campaign prerequisites; its gating at07:E49B
+checks completed-boss and encounter flags and remains separate authored work.
+
+M11 is accepted from the current `native-room-limits-regression` child0 Escape
+checks plus the unchanged input/modal path's actual password/game-over proofs.
+Both real rosters choose one simultaneous Exit owner; another seat cannot
+confirm, the owner can cancel, the other living seat can later own it, and
+original native eligibility/refusal and actual world-draw/stage-exit execution
+remain intact. Actual `native-password-owner-final-server` proves fallen-seat
+input refusal and living-X confirmation in either seat, including saved input
+history and actual resumed movement. `native-gameover-final-server` proves
+coherent continue/full-roster recovery and retained progress in both rosters.
+These GUI proofs used the same aef7666 input path as the current candidate;
+shared modal phases exclude the newly added personal camera borrow. X3's
+native progress route is its password/continue flow (cartridge RAM exponent0),
+not a native SRAM file picker. No save/import dialog was opened.
+
+The full affected `native-room-limits-regression` receipt exits0 on001ef96e,
+covering native scenes/capsules, physical input histories, contacts/items,
+stock participation, public withdrawal/rejoin, menus/healing, supports,
+independent worlds and team retries. `native-personal-view-intro-server` also
+exits0 on c674939b80942fe24eb9abc3de1d325690cb87f4cc1daac217c158d5e6eb6529:
+capture/rescue, unavailable actors, helper death and complete-machine replay.
+Arms-capsule qualification is running separately on the same runtime.
+
+The actual new GUI SHA256
+83de8aff898a449ead8013df4794b0221c304704b12f73c09c5e55485947f498
+passes `native-personal-view-gui`(child0). Its muted TCP-only split check
+retains two native rooms, then a position prerequisite below the live bridge
+lets native gravity/fatal damage kill X. Zero retains28HP/y423 and moves
+1696->1726 while X stays fallen. Both-room and survivor-moving BMPs were
+visually inspected in `build-coop/qa-state/personal-view-gui`; full presentation
+and owner controller approval remain open. No desktop focus or saves changed.
+
+Actual55/180 accepted,125open/partial,0/15rollups. No release is delivered.
+
+
+### Both-roster activation, simulation isolation and camera-state replay
+
+A06/A07/A08, R07 and N05 are accepted with
+`native-activation-leader-receipt.json`(child0), state SHA256
+727cb5ac43279f641a45976d77579202c11b619ae5ecb65f778ccdd74fb50524.
+Both actual rosters explicitly install seat0 as native world leader, exercising
+a Zero-led world in the reversed roster. The first reversed comparison failed
+because its original fixture had seat1 as anchor while this helper assumed
+seat0/P2 ownership; its copied reference and live bodies differed. Selecting
+and installing the same real leader fixes that fixture prerequisite, with the
+original camera-coordinate/current-limit assertions retained. No runtime
+change was needed for this comparison.
+
+Actual stage1 native event records near736,1136 and1840,1056 are admitted,
+while records1104,1198 and1232,1184 in the empty inter-view gap remain absent.
+Repeated allocator calls preserve all enemy records; a real P2-only enemy is
+retained by native culling, while moving it into the gap is rejected. An actual
+pending native allocation retains its frontier/visit continuation and restores
+the same allocation order. The separate authored support comparisons also
+match exactly one native object update with both riders and overlapping views.
+These establish A06-A08's union/overlap contracts; teleports and direct native
+column calls bypass traversal, so A01-A05 remain open.
+
+With both real actors and authored regions active,30world frames advance once
+and retain the remote enemy. Complete-machine restore and another30frames
+reproduce cameras, visit history, world actors and native phase exactly. Together
+with current actual gate/capsule scene-owner snapshot/replay results, this
+accepts R07. Actual selected/split rendering leaves CPU cycles and WRAM intact,
+and six local presentation/layout/width choices produce identical complete
+simulation snapshots after10frames in each choice. This accepts N05; full
+peer latency/rollback and remote transitions remain separate open checks.
+
+The current-runtime arms-capsule regression also exits0
+(`native-personal-view-arms-server-receipt.json`,c674939b state). Both roster
+assignments retain the exact411-frame original recorded demonstration and all
+participant-retirement cases; the broad and intro gates remain child0.
+
+Actual60/180 accepted,120open/partial,0/15rollups. All final owner/presentation,
+remaining authored campaign, online behavior, performance and package gates
+remain required. No delivery archive or remote repository was changed.

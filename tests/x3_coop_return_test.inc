@@ -142,6 +142,11 @@ static void native_return_checks(uint8_t *original,size_t size,uint8_t *work,uin
           RtlLoadSnapshotFromMemory(work,size),"safe return roster/resources precondition restores");
     door_install_player(&setup);X3CoopViewsConfigure(true);
     for(unsigned i=0;i<3;++i)frame(0);
+    unsigned x_seat=setup.players[0].character==X3_COOP_X?0:1;
+    g_ram[0x1fbc]=0x5c; /* Acquired full Toxic Seahorse weapon prerequisite. */
+    frame((uint32_t)SNES_PAD_R<<(x_seat*12));for(unsigned i=0;i<4;++i)frame(0);
+    check(X3CoopRuntimeState()->players[x_seat].body[0x33]==2,
+        "actual native weapon cycling establishes X's personal return selection");
     check(X3CoopRuntimeWithdraw(withdrawn),"runtime withdrawal transfers actual native world ownership");
     const X3CoopState *s=X3CoopRuntimeState();unsigned survivor=withdrawn^1;
     check(s->players[withdrawn].life==X3_COOP_ABSENT && s->anchor==survivor && s->current==survivor &&
@@ -162,6 +167,8 @@ static void native_return_checks(uint8_t *original,size_t size,uint8_t *work,uin
     size_t waiting=RtlSaveSnapshotToMemory(returning,capacity);
     check(X3CoopRuntimeRejoin(withdrawn),"runtime return finds actual clear native ground beside the survivor");
     s=X3CoopRuntimeState();
+    check(s->players[x_seat].body[0x33]==2 && !s->players[x_seat^1].body[0x33] && g_ram[0x1fbc]==0x5c,
+        "safe return preserves the actually selected native X weapon and its unspent energy");
     for(unsigned seat=0;seat<2;++seat)
       check(s->players[seat].life==X3_COOP_ALIVE && contact_hp(seat)==hp[seat],
             "runtime return retains each actor's own personal health");

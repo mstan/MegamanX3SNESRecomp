@@ -227,8 +227,21 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
   interp_bridge_pre_opcode_redirect((pc&0xff0000)|next);
 }
 #include "x3_coop_shared_camera.inc"
+/* Controller, terrain and camera-bound passes are serialized and exclusive.
+ * Reuse their existing camera backup for a complete personal view borrow.
+ * Pass3 means a personal controller/terrain projection, not another world pass. */
+static void personal_view_begin(unsigned seat){
+  if(!view_ready() || seat==state.anchor || state.current!=state.anchor || view_bounds.native.pass)return;
+  const X3CoopViewState *v=X3CoopViewsState();if(!(v->valid&(1u<<seat)))return;
+  memcpy(view_bounds.camera,g_ram+0x1e58,64);view_bounds.native.pass=3;
+  X3CoopViewsAdoptPlayer(g_ram,&state,seat,false);
+}
+static void personal_view_end(void){
+  if(view_bounds.native.pass!=3)return;
+  memcpy(g_ram+0x1e58,view_bounds.camera,64);view_bounds.native.pass=0;
+}
 static void view_bounds_boundary(CpuState *cpu,uint32_t pc) {
-  if(cpu->D!=0x1e58)return;
+  if(cpu->D!=0x1e58 || view_bounds.native.pass==3)return;
   if((pc&65535)==0xe2a2 && !view_bounds.native.pass) {
     if((!view_ready() && !shared_camera_ready()) || state.current!=state.anchor || !partner_ready())return;
     /* For a shared view both bodies see the same pre-clamp candidate.
@@ -1178,11 +1191,13 @@ static void boundary(CpuState *cpu,uint32_t pc) {
       if(cpu->S!=terrain.entry.s){enabled=false;return;}
       if(terrain.pass==1 && !scene.phase && state.players[state.anchor^1].life==X3_COOP_ALIVE) {
         terrain.result=regs(cpu);terrain.pass=2;
+        personal_view_begin(state.anchor^1);
         X3CoopProject(&state,g_ram,state.anchor^1);
         restore(cpu,&terrain.entry);
         interp_bridge_pre_opcode_redirect(((unsigned)cpu->PB<<16)|0xb591);
       } else {
         if(terrain.pass==2) {
+          personal_view_end();
           X3CoopProject(&state,g_ram,state.anchor);
           restore(cpu,&terrain.result);
         }
@@ -1263,11 +1278,13 @@ static void boundary(CpuState *cpu,uint32_t pc) {
         fall_player(partner);
         X3CoopCapture(&state,g_ram);controller.pass=0;return;
       }
+      personal_view_begin(state.anchor^1);
       X3CoopProject(&state,g_ram,state.anchor^1);
       restore(cpu,&controller.entry);controller.pass=2;
       input(state.current);
       interp_bridge_pre_opcode_redirect(((unsigned)cpu->PB<<16)|0x8008);
     } else {
+      personal_view_end();
       X3CoopProject(&state,g_ram,state.anchor);
       restore(cpu,&controller.result);controller.pass=0;
     }
@@ -1517,7 +1534,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   if(!X3CoopPresentationLoad(sli))return false;
   sli->func(sli,&support,sizeof(support));sli->func(sli,rider_bits,sizeof(rider_bits));
   uint8_t menu_bytes[MENU_BYTES];PairedMenu paired;sli->func(sli,menu_bytes,sizeof(menu_bytes));
-  if(!X3CoopViewsLoad(views,sizeof(views),false) || !view_spawn_valid(&spawn) || bounds.native.pass>2)return false;
+  if(!X3CoopViewsLoad(views,sizeof(views),false) || !view_spawn_valid(&spawn) || bounds.native.pass>3)return false;
   if(!X3CoopDecode(&loaded,bytes,X3CoopEncodedSize()) || !refill_decode(&healing,refill_bytes,&loaded) ||
      !scene_decode(&scripted,scene_bytes,&loaded) || !participation_valid(participation,&scripted,&loaded) ||
      !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,rider_bits))return false;
@@ -1526,6 +1543,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
        world.active || support.native.pass || spawn.active || bounds.native.pass)))return false;
   if(scripted.phase && (scripted.kind==SCENE_STAGE_ENTRY || scripted.kind==SCENE_INTRO_RETIRED_X) &&
      (spawn.active || bounds.native.pass))return false;
+  if(bounds.native.pass==3 && (!views[0] || !loaded.initialized || (c.pass!=2 && t.pass!=2)))return false;
   state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;target=world;solid=support;
   refill=healing;scene=scripted;
   menu=paired;
@@ -1554,6 +1572,7 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
   if(!participation_valid(p,&scripted,&decoded))return false;
   unsigned pending=p[7];p+=8;
   if(!X3CoopViewsLoad(p,X3_COOP_VIEW_STATE_BYTES,false))return false;
+  uint8_t personal_mode=p[0];
   p+=X3_COOP_VIEW_STATE_BYTES;ViewSpawn spawn;memcpy(&spawn,p,sizeof(spawn));
   p+=sizeof(spawn);ViewBounds bounds;memcpy(&bounds,p,sizeof(bounds));
   p+=sizeof(bounds);
@@ -1579,8 +1598,9 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
     if(!guest || ram_at>size || size-ram_at<0x20000 ||
        scripted.stage!=((const uint8_t *)data)[ram_at+0x1fae])return false;
   }
-  if(bounds.native.pass>2)return false;
-  if(bounds.native.pass && (!decoded.initialized || decoded.wipe || bounds.native.entry.d!=0x1e58 ||
+  if(bounds.native.pass>3)return false;
+  if(bounds.native.pass==3 && (!personal_mode || !decoded.initialized || (c.pass!=2 && t.pass!=2)))return false;
+  if(bounds.native.pass && bounds.native.pass<3 && (!decoded.initialized || decoded.wipe || bounds.native.entry.d!=0x1e58 ||
       c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass || world.active || support.native.pass ||
       decoded.current!=(decoded.anchor^(bounds.native.pass==2))))return false;
   return view_spawn_valid(&spawn) && (!spawn.active || (decoded.initialized && !decoded.wipe));

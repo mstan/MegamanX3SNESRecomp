@@ -26,9 +26,9 @@ static void shared_pit_probe(CpuState *cpu,uint32_t pc){
 static void shared_pit_prepare(const char *ground,unsigned victim,uint8_t *base,uint8_t *work,size_t capacity){
     check(RtlLoadSnapshot(ground) && g_ram[0x1fae]==5,"authored pit starts from the real stage5 terrain map");
     size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
-    /* The live layout has a raised floor at928..1183, y2720, then an
-     * open column1184..1263 all the way below the original bottom. Place
-     * both on that real ledge and let movement/gravity enter the hole. */
+    /* Prepared native camera-boundary assistance probe. The stage5 opening
+     * is an E981 descent; retaining this camera bypasses its next room.
+     * It cannot qualify an authored pit death. */
     for(unsigned seat=0;seat<2;++seat){
       uint8_t *body=setup.players[seat].body;
       unsigned x=seat==victim?1168:1104,y=setup.players[seat].character==X3_COOP_ZERO?2695:2703;
@@ -38,17 +38,29 @@ static void shared_pit_prepare(const char *ground,unsigned victim,uint8_t *base,
     }
     shared_prepare(base,n,work,&setup);view_word(0x1e5d,1000);view_word(0x1e7a,1000);
 }
+/* Stage1 floor ends at1104; the actual gap1104..1199 has no lower-room
+ * command. E1FC only changes the minimumY and left limit, never the bottom. */
+static void true_pit_prepare(const char *path,unsigned victim,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(path) && g_ram[0x1fae]==1,"true authored pit loads the actual stage1 collision map");
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
+  for(unsigned seat=0;seat<2;++seat){uint8_t *b=setup.players[seat].body;unsigned x=seat==victim?1088:1024,y=setup.players[seat].character==X3_COOP_ZERO?1175:1183;
+    b[5]=b[0x22]=(uint8_t)x;b[6]=b[0x23]=(uint8_t)(x>>8);b[8]=b[0x24]=(uint8_t)y;b[9]=b[0x25]=(uint8_t)(y>>8);
+    b[4]=b[7]=b[2]=b[3]=0;b[0x88]=255;b[0x8a]=0;memset(b+0x1a,0,6);
+  }
+  shared_prepare(base,n,work,&setup);view_word(0x1e5d,896);view_word(0x1e7a,896);
+  const unsigned vertical[]={0x1e60,0x1e7c,0x1e6a,0x1e6c,0x1e78,0x1e7e};for(unsigned i=0;i<6;++i)view_word(vertical[i],1024);
+}
 static void native_shared_authored_pits(const char *ground,uint8_t *base,uint8_t *work,size_t capacity){
   check(interp_bridge_add_pre_opcode_hook(0x00e30a,shared_pit_probe),"original native pit-damage call is observed");
   for(unsigned victim=0;victim<2;++victim){
-    shared_pit_prepare(ground,victim,base,work,capacity);
+    true_pit_prepare(ground,victim,base,work,capacity);
     unsigned anchor=X3CoopRuntimeState()->anchor;
     shared_pit_victim=victim;shared_pit_damage=0;unsigned walked=0;
-    while(walked<64 && coop_x(victim)<1216 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE){
+    while(walked<64 && coop_x(victim)<1152 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE){
       frame(SNES_PAD_RIGHT<<(victim*12));++walked;
     }
-    check(coop_x(victim)>=1200 && coop_x(victim)<1248,"actual native movement enters the authored pit opening");
-    if(victim!=anchor)check(coop_x(anchor)==1104 && view_read(0x1e5d)>1000,
+    check(coop_x(victim)>=1136 && coop_x(victim)<1184,"actual native movement enters the authored pit opening");
+    if(victim!=anchor)check(coop_x(anchor)==1024 && view_read(0x1e5d)>=896,
         "actual partner-led motion advances the native shared camera while the world actor stands still");
     unsigned falling=0;
     while(falling<120 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE){frame(0);++falling;}
@@ -132,6 +144,7 @@ static void native_shared_camera_checks(uint8_t *original,size_t size,uint8_t *w
     size_t replay=RtlSaveSnapshotToMemory(work,capacity);
     same(expected,result,work,replay,"native catch-up and its unsafe refusal replay the complete machine");
   }
-  if(ground && *ground)native_shared_authored_pits(ground,base,work,capacity);
+  const char *true_pit=getenv("X3_COOP_SHARED_TRUE_PIT_STATE");
+  if(true_pit && *true_pit)native_shared_authored_pits(true_pit,base,work,capacity);
   free(base);check(RtlLoadSnapshotFromMemory(original,size),"shared camera probes restore their original gameplay");
 }

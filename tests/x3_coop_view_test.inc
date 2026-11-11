@@ -59,6 +59,7 @@ static bool view_has_enemy(unsigned x,unsigned y) {
 }
 static void native_view_checks(uint8_t *original,size_t original_size,uint8_t *work,uint8_t *expected,size_t capacity) {
   size_t offset=contact_context_offset(original,original_size);X3CoopState setup;
+  check(X3CoopRuntimeState()->anchor==0 && X3CoopRuntimeState()->current==0,"native P2 camera comparison starts with the explicitly installed seat0 world leader");
   check(X3CoopDecode(&setup,original+offset,X3CoopEncodedSize()),"independent-view setup decodes");
   setup.players[1].body[5]=0x30;setup.players[1].body[6]=7; /*1840*/
   setup.players[1].body[8]=0x70;setup.players[1].body[9]=4; /*1136*/
@@ -160,6 +161,7 @@ static void native_view_checks(uint8_t *original,size_t original_size,uint8_t *w
   view_native_call(0x00dfc6,0,false);
   X3CoopViewsEndFrame(g_ram,X3CoopRuntimeState(),false,false);
   const X3CoopViewState *result=X3CoopViewsState();
+  fprintf(stderr,"independent native camera reference roster%u expected%u,%u actual%u,%u world%u,%u body%u,%u tracking%u zones%u/%u/%u/%u\n",setup.players[0].character,reference[0],reference[1],result->camera[1][0],result->camera[1][1],view_read(0x1e5d),view_read(0x1e60),support_position(1,5),support_position(1,8),view_read(0x1e64),view_read(0x1e84),view_read(0x1e86),view_read(0x1e80),view_read(0x1e82));
   check(result->camera[1][0]==reference[0] && result->camera[1][1]==reference[1],
         "P2 camera follows the original native camera coordinates");
   for(unsigned i=0;i<4;++i)check(result->current[1][i]==reference[i+2],"P2 native camera-limit pan matches the single-seat reference");

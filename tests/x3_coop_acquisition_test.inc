@@ -177,7 +177,7 @@ static void native_persistent_pickup_checks(uint8_t *original,size_t size,uint8_
       X3CoopPlayer joining=X3CoopRuntimeState()->players[x];
       /* The authored subtank hangs above a pit. Use a short control window;
        * surviving that route or a safe rejoin location is not this probe. */
-      for(unsigned i=0;i<6;++i)frame(SNES_PAD_LEFT<<(x*12));
+      for(unsigned i=0;i<8;++i)frame(SNES_PAD_LEFT<<(x*12));
       if(!(support_position(x,5)+4<before && contact_hp(x)==hp)){
         const X3CoopPlayer *p=&X3CoopRuntimeState()->players[x];
         fprintf(stderr,"persistent rejoin kind%u mode%u x=%u->%u y=%u hp=%u->%u life%u state=%u/%u->%u/%u lock=%u->%u queue=%02x/%02x->%02x/%02x old=%02x/%02x frozen=%u\n",

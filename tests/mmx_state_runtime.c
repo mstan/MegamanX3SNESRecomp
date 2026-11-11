@@ -9,6 +9,9 @@ static unsigned coop_x(unsigned seat) {
   const uint8_t *body=X3CoopRuntimeState()->players[seat].body;
   return body[5]|body[6]<<8;
 }
+static void door_install_player(const X3CoopState *setup);
+static unsigned view_read(unsigned address);
+static void view_word(unsigned address,unsigned value);
 #include "x3_coop_contact_test.inc"
 #include "x3_coop_target_test.inc"
 #include "x3_coop_support_test.inc"
@@ -28,8 +31,11 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_flags_test.inc"
 #include "x3_coop_shared_camera_test.inc"
 #include "x3_coop_hazard_test.inc"
+#include "x3_coop_team_test.inc"
+#include "x3_coop_campaign_test.inc"
 #include "x3_coop_learner_test.inc"
 #include "x3_coop_intro_test.inc"
+#include "x3_coop_rewind_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -94,6 +100,12 @@ int main(int argc,char **argv) {
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
     }
+    fixture=getenv("X3_COOP_REWIND_STATE");
+    if(fixture && *fixture){
+      const char *reversed=getenv("X3_COOP_REWIND_REVERSED_STATE");
+      check(reversed && *reversed,"initialized rewind supplies both actual rosters");
+      native_initialized_rewind_checks(fixture,reversed,saved,after,damaged,cap);
+    }
     fixture=getenv("X3_COOP_CONTACT_STATE");
     if(fixture && *fixture){
       const char *reversed=getenv("X3_COOP_CONTACT_REVERSED_STATE");
@@ -101,6 +113,15 @@ int main(int argc,char **argv) {
       for(unsigned roster=0;roster<2;++roster){
         check(RtlLoadSnapshot(roster?reversed:fixture),"native register comparison fixture loads");
         size=RtlSaveSnapshotToMemory(saved,cap);native_contact_register_checks(saved,size);
+      }
+    }
+    fixture=getenv("X3_COOP_IMMUNITY_STATE");
+    if(fixture && *fixture){
+      const char *reversed=getenv("X3_COOP_IMMUNITY_REVERSED_STATE");
+      check(reversed && *reversed,"native immunity supplies both actual roster fixtures");
+      for(unsigned roster=0;roster<2;++roster){
+        check(RtlLoadSnapshot(roster?reversed:fixture),"native immunity actual roster loads");
+        size=RtlSaveSnapshotToMemory(saved,cap);native_contact_immunity_checks(saved,size,after,damaged,cap);
       }
     }
     fixture=getenv("X3_COOP_INTRO_STATE");
@@ -144,6 +165,34 @@ int main(int argc,char **argv) {
       const char *reversed=getenv("X3_COOP_SPIKE_REVERSED_STATE");
       check(reversed && *reversed,"spike coverage supplies both actual roster fixtures");
       native_spike_checks(fixture,reversed,saved,after,cap);
+    }
+    fixture=getenv("X3_COOP_INDEPENDENT_PIT_STATE");
+    if(fixture && *fixture){
+      const char *reversed=getenv("X3_COOP_INDEPENDENT_PIT_REVERSED_STATE");
+      check(reversed && *reversed,"separated pit coverage supplies both actual rosters");
+      native_independent_pit_checks(fixture,reversed,saved,after,cap);
+    }
+    fixture=getenv("X3_COOP_LAST_TRUE_PIT_STATE");
+    if(fixture && *fixture){
+      const char *reversed=getenv("X3_COOP_LAST_TRUE_PIT_REVERSED_STATE");
+      check(reversed && *reversed,"last true pit supplies both actual rosters");
+      native_last_true_pit_checks(fixture,reversed,saved,after,cap);
+    }
+    fixture=getenv("X3_COOP_TEAM_STATE");
+    if(fixture && *fixture){
+      const char *reversed=getenv("X3_COOP_TEAM_REVERSED_STATE");
+      check(reversed && *reversed,"team retry coverage supplies both actual native rosters");
+      native_team_retry_checks(fixture,reversed,saved,after,damaged,cap);
+    }
+    fixture=getenv("X3_COOP_CAMPAIGN_SURVIVOR_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"authored earned-intro boss survivor fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);native_campaign_survivor_checks(saved,size,after);
+    }
+    fixture=getenv("X3_COOP_BOSS_RETRY_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"authored boss retry fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);native_boss_retry_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_FLAGS_STATE");
     if(fixture && *fixture){
@@ -215,6 +264,21 @@ int main(int argc,char **argv) {
       native_weapon_pickup_checks(saved,size,after,damaged,cap);
       for(unsigned mode=0;mode<4;++mode)competing_pickup_checks(saved,size,after,damaged,cap,mode);
     }
+    fixture=getenv("X3_COOP_ACTIVATION_STATE");
+    if(fixture && *fixture){
+      const char *reversed=getenv("X3_COOP_ACTIVATION_REVERSED_STATE");check(reversed && *reversed,"activation/display qualification supplies both actual rosters");
+      for(unsigned roster=0;roster<2;++roster){
+        check(RtlLoadSnapshot(roster?reversed:fixture),"authored independent activation loads its actual roster");size=RtlSaveSnapshotToMemory(saved,cap);X3CoopState leader=*X3CoopRuntimeState();leader.current=leader.anchor=0;check(X3CoopEncode(&leader,saved+contact_context_offset(saved,size),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(saved,size),"activation comparison explicitly selects seat0 as the native world leader");door_install_player(&leader);size=RtlSaveSnapshotToMemory(saved,cap);native_view_checks(saved,size,after,damaged,cap);
+        X3CoopState setup=*X3CoopRuntimeState();
+        for(unsigned seat=0;seat<2;++seat){uint8_t *b=setup.players[seat].body;unsigned x=seat?1840:736,y=1136;b[5]=b[0x22]=(uint8_t)x;b[6]=b[0x23]=(uint8_t)(x>>8);b[8]=b[0x24]=(uint8_t)y;b[9]=b[0x25]=(uint8_t)(y>>8);b[2]=b[3]=b[4]=b[7]=0;memset(b+0x1a,0,6);b[0x88]=255;}
+        size=RtlSaveSnapshotToMemory(saved,cap);check(X3CoopEncode(&setup,saved+contact_context_offset(saved,size),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(saved,size),"actual two-region position prerequisite restores");door_install_player(&setup);X3CoopViewsConfigure(true);
+        X3CoopViewState views={0};views.independent=views.initialized=1;views.stage=1;views.valid=views.camera_valid=3;
+        for(unsigned seat=0;seat<2;++seat){views.camera[seat][0]=(uint16_t)(seat?1728:608);views.camera[seat][1]=1024;views.limits[seat][1]=views.current[seat][1]=8192;views.limits[seat][2]=views.current[seat][2]=1024;views.limits[seat][3]=views.current[seat][3]=1024;}X3CoopViewsSetState(&views);
+        view_word(0x1e5d,views.camera[setup.anchor][0]);view_word(0x1e7a,views.camera[setup.anchor][0]);view_word(0x1e66,0);view_word(0x1e68,8192);view_word(0x1e6e,0);view_word(0x1e70,8192);const unsigned vertical[]={0x1e60,0x1e7c,0x1e6a,0x1e6c,0x1e78,0x1e7e};for(unsigned i=0;i<6;++i)view_word(vertical[i],1024);
+        for(unsigned i=0;i<30;++i)frame(0);check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"both real actors survive their independent authored regions");size=RtlSaveSnapshotToMemory(saved,cap);
+        independent_display_checks(saved,size,after,damaged,cap);independent_route_checks(saved,size,after,damaged,cap);
+      }
+    }
     fixture=getenv("X3_COOP_INDEPENDENT_STATE");
     if(fixture && *fixture) {
       X3CoopRuntimeEnable(true);
@@ -231,6 +295,8 @@ int main(int argc,char **argv) {
       native_display_checks("enemy",saved,size,after,damaged,cap);
       native_target_checks(saved,size,after,cap);
     }
+    fixture=getenv("X3_COOP_SEPARATE_PLATFORM_STATE");
+    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_SEPARATE_PLATFORM_REVERSED_STATE");check(reversed && *reversed,"separate authored supports supply both real rosters");native_separate_authored_support_checks(fixture,reversed,saved,after,cap);}
     fixture=getenv("X3_COOP_PLATFORM_STATE");
     if(fixture && *fixture) {
       X3CoopRuntimeEnable(true);
@@ -238,6 +304,11 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       for(unsigned reversed=0;reversed<2;++reversed)native_persistent_pickup_checks(saved,size,after,damaged,cap,5,2944,1912,0x20,reversed);
       authored_support_checks(saved,size,after,cap);
+      const char *support_reversed=getenv("X3_COOP_PLATFORM_REVERSED_STATE");
+      if(support_reversed && *support_reversed){
+        check(RtlLoadSnapshot(support_reversed),"authored support loads the actual reversed roster");
+        size=RtlSaveSnapshotToMemory(saved,cap);authored_support_checks(saved,size,after,cap);
+      }
     }
     fixture=getenv("X3_COOP_CAPSULE_STATE");
     if(fixture && *fixture){

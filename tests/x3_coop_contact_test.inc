@@ -198,3 +198,30 @@ static void native_contact_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
         "player presentation restores exact emulated CGRAM");
   check(RtlLoadSnapshotFromMemory(snapshot,size),"contact probes restore their starting machine");
 }
+
+/* Native hurt protection belongs to each projected body, including a miss
+ * followed by a successful partner contact. Geometry is an isolated contract. */
+static void native_contact_immunity_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *prepared,size_t capacity){
+  for(unsigned mask=0;mask<4;++mask){
+    check(RtlLoadSnapshotFromMemory(original,size),"native per-body immunity restores its real roster");X3CoopState setup=*X3CoopRuntimeState();
+    unsigned x=setup.players[0].body[5]|setup.players[0].body[6]<<8,y=setup.players[1].body[8]|setup.players[1].body[9]<<8;
+    for(unsigned seat=0;seat<2;++seat){setup.players[seat].body[5]=(uint8_t)x;setup.players[seat].body[6]=(uint8_t)(x>>8);
+      setup.players[seat].body[0x27]=setup.players[seat].maximum_health;setup.players[seat].body[0x26]=0;setup.players[seat].body[0x8a]=0;setup.players[seat].body[0x88]=(mask&(1u<<seat))?64:0;}
+    memcpy(work,original,size);check(X3CoopEncode(&setup,work+contact_context_offset(work,size),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,size),"personal hurt-protection and overlapping-body prerequisites restore");
+    door_install_player(&setup);check(g_ram[X3_COOP_BODY+0x88]==setup.players[setup.current].body[0x88],"native immunity setup installs its actual prepared hurt protection");contact_geometry(0xd18,x,y);
+    size_t n=RtlSaveSnapshotToMemory(prepared,capacity);unsigned hp[2],inv[2],repeat_hp[2];
+    for(unsigned seat=0;seat<2;++seat){check(RtlLoadSnapshotFromMemory(prepared,n),"single-body immunity reference restores the exact contact");X3CoopState solo=setup;
+      X3CoopRuntimeEnable(false);check(X3CoopProject(&solo,g_ram,seat),"single-body native immunity reference projects its owner");contact_native_call(0xd18,0x04cb31);
+      hp[seat]=g_ram[X3_COOP_BODY+0x27]&127;inv[seat]=g_ram[X3_COOP_BODY+0x88];
+      check(mask&(1u<<seat)?hp[seat]==setup.players[seat].maximum_health:hp[seat]<setup.players[seat].maximum_health,"original native contact honors the selected body's hurt protection");
+      contact_native_call(0xd18,0x04cb31);repeat_hp[seat]=g_ram[X3_COOP_BODY+0x27]&127;
+    }
+    check(RtlLoadSnapshotFromMemory(prepared,n),"paired immunity restores its matched original contact");contact_native_call(0xd18,0x04cb31);
+    const X3CoopState *state=X3CoopRuntimeState();
+    for(unsigned seat=0;seat<2;++seat){const uint8_t *body=state->current==seat?g_ram+X3_COOP_BODY:state->players[seat].body;
+      check(contact_hp(seat)==hp[seat] && body[0x88]==inv[seat],"paired contact preserves each native victim's health and independent hurt protection");}
+    contact_native_call(0xd18,0x04cb31);
+    check(contact_hp(0)==repeat_hp[0] && contact_hp(1)==repeat_hp[1],"repeated solid contact retains each original body's native hurt-protection outcome");
+  }
+  check(RtlLoadSnapshotFromMemory(original,size),"native immunity restores the original gameplay machine");
+}
