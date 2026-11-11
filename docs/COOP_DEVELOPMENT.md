@@ -2551,3 +2551,80 @@ threshold or accepting broader placement/hazard criteria.
 
 Actual78/180 accepted,102open/partial,1/15rollups. A02-A05/A09-A13, authored
 vertical/platform/vehicle/campaign cases and final presentation remain open.
+
+
+### Charged Gravity Well qualification correction
+
+C04 and C10 are reopened. The old fixed180-frame hold reached native charge8
+but released while the normal Gravity Well remained active. The actual
+current-build capture in qa-state/lift-visual/gravity-arena-cut.sav has
+body35=1 and main projectile class12, not charged class21. Native04:A4CA
+correctly refuses this charged allocation while the ordinary shot remains.
+Consequently the earlier charged-Gravity subcases do not establish those
+criteria; the other recorded cases remain useful individual evidence. This
+is a qualification gap, not evidence of an introduced gameplay defect.
+
+The revised input waits for native shot occupancy to clear before releasing
+Gravity Well and explicitly requires each special's actual charged source
+type. It replays the original reference's exact input schedule. C09's42
+fixed-field native-update comparisons on state SHA256
+5510eaef241faa755283ecacf0d1713b89af9802b198acaffdbd4e02205daf32 pass,
+but its Gravity case has the same gap and C09 remains unaccepted. The original
+and paired lift-activation attempts using that premature release also failed;
+they are unqualified prerequisites, not a platform regression.
+
+Actual76/180 accepted,104open/partial,1/15rollups. No production code changed
+for this qualification repair.
+
+
+### Actual charged-source requalification and native hurt lifetime — C04/C09/C10
+
+C04 and C10 are accepted again; C09 is now accepted. The native charged-source
+gate exits0 on state SHA256
+d7716b027a2a5b1dae37ac12b4f8d65b85a04ed8774baad0608880f5c412df9d
+(qa-state/native-charged-source-roster-receipt.json). All16 boss-weapon
+charged cases, eight slots/both rosters, explicitly observe the actual charged
+projectile class16..23. Gravity Well needs256 held frames here, spends2 units
+including its preceding normal shot, and is compared for676 frames. Other
+charged slots retain180/420 frames. Every native command, charge, palette,
+owned pool, energy and damage sample agrees; complete paired futures replay
+exactly. The unchanged normal/empty/Hyper Cannon cases retain their earlier
+independent evidence. This closes the qualification gap without changing
+production weapon admission, charge timing or damage.
+
+The actual charged Gravity Well hurt comparison also exits0 on d7716b
+(native-charged-gravity-hurt). Both seats take original native2HP nonfatal
+contact damage while the real class21 allocation is live. Its actual native
+cancellation and96 subsequent complete gameplay updates match the original.
+Together with the other40 original X/Zero cases in native-fixed-view-original
+on5510eaef241faa755283ecacf0d1713b89af9802b198acaffdbd4e02205daf32,
+C09 covers all9 X slots in normal/charged-or-automatic modes/both rosters and
+six actual Zero charge/combo/saber cuts. Contact preserves the other complete
+personal context. Each subsequent update compares command, charge, pose,
+palette, complete auxiliary/shot pools, all40 shared effects, actual movement
+and ongoing native energy costs. Two paired futures replay the full machine.
+
+These lifetime comparisons use the actual00:D957..DA3A gameplay scheduler with
+exactly one native world tick, balanced caller and retained elapsed guest time.
+Both counterfactuals have the same explicitly fixed camera field; changing a
+shared camera into a solo-following field otherwise changes legitimate native
+culling. Native VBlank throughput/lag and moving-camera presentation are
+separate Q02/Q03/V criteria. Failed unmatched-field and host-frame-phase probes
+are retained, not masked or called native lifetime defects.
+
+Native-charged-gravity-lifecycle exits0 on d7716b: public withdrawal waits until
+f654 after the real scripted cast releases native control; return preserves
+resources and fires again with no stale protection. Real stage construction
+starts from the live class21 cut atf256 and clears its sources. Strengthened
+native-live-gravity-death-retry also exits0 on state SHA256
+27f08c935e6e0fb62f612432eb7dd0a8e885e4fdc7a35959a982bdd3423f3a6e:
+both roster deaths/retries now begin atf256 with the real source live, use
+original fatal contact, retain the survivor, then debit one life/reconstruct
+both native bodies on team retry. Earlier late fatal cuts after native cast
+retirement remain recorded but are superseded for active-source coverage.
+Other C10 lifecycle cases remain independently qualified.
+
+Actual79/180 accepted,101open/partial,1/15rollups. P05 remains open: actual
+Gravity Well now activates the authored stage5 lift, but its stop/reversal
+source comparison still has an unresolved exact mismatch. No platform
+correctness or visual acceptance follows from successful activation.

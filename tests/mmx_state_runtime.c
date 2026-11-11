@@ -13,6 +13,8 @@ static unsigned coop_x(unsigned seat) {
 static void door_install_player(const X3CoopState *setup);
 static unsigned view_read(unsigned address);
 static void view_word(unsigned address,unsigned value);
+static void native_gameplay_update(unsigned keys,bool original);
+static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned seat,unsigned index,unsigned mode,uint8_t *work,uint8_t *after,size_t capacity);
 #include "x3_coop_contact_test.inc"
 #include "x3_coop_target_test.inc"
 #include "x3_coop_support_test.inc"

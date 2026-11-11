@@ -123,6 +123,11 @@ static void native_concurrent_combat_checks(const char *normal,const char *rever
     for(unsigned col=0;col<255;++col){unsigned first=view_read(0xf800+2*col),end=view_read(0xf802+2*col);if(first<0xfa02 || end>0xfffc || end<first || (end-first)%5)continue;for(unsigned at=first;at<end;at+=5)g_ram[at]=1;}
     view_word(0x1e5d,256);view_word(0x1e7a,256);const unsigned vertical[]={0x1e60,0x1e7c,0x1e6a,0x1e6c,0x1e78,0x1e7e};for(unsigned i=0;i<6;++i)view_word(vertical[i],1024);
     for(unsigned i=0;i<12;++i)frame(0);check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"both native combat actors settle on actual stage1 ground");n=RtlSaveSnapshotToMemory(base,capacity);
+    if(getenv("X3_COOP_COMBAT_HURT")){
+      unsigned zero=setup.players[0].character==X3_COOP_ZERO?0:1;const unsigned cuts[3]={200,228,305};
+      for(unsigned phase=0;phase<3;++phase){check(RtlLoadSnapshotFromMemory(base,n),"Zero nonfatal hurt restores the same quiet native stage");for(unsigned f=0;f<cuts[phase];++f)frame((uint32_t)combat_buttons(4,zero,f)<<(zero*12));size_t cut=RtlSaveSnapshotToMemory(work,capacity);native_weapon_hurt_lifetime(work,cut,zero,0,phase,future,probe,capacity);fprintf(stderr,"native Zero hurt PASS roster%u phase%u charged/combo/saberCut%u\n",roster,phase,cuts[phase]);}
+      continue;
+    }
     if(getenv("X3_COOP_COMBAT_PREPARE_GUI")){
       X3CoopState visual=*X3CoopRuntimeState();visual.players[1].body[5]=visual.players[1].body[0x22]=0;visual.players[1].body[6]=visual.players[1].body[0x23]=2;
       memcpy(work,base,n);check(X3CoopEncode(&visual,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"visual native combat positions restore");door_install_player(&visual);X3CoopViewsConfigure(true);for(unsigned f=0;f<12;++f)frame(0);

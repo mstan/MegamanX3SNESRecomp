@@ -1,7 +1,10 @@
 /* Matched native X weapon rules on the earned Buffalo fixture. Enemy AI is
  * frozen with its retail freeze flag; health/cooldown prerequisites isolate
  * damage amounts. Native cooldown admission and boss AI are separate gates. */
-static unsigned weapon_buttons(unsigned mode,unsigned f){return mode==1?(f<180?SNES_PAD_Y:0):(f%8==0?SNES_PAD_Y:0);}
+static const uint8_t *weapon_body(unsigned seat,bool original){const X3CoopState *s=X3CoopRuntimeState();return original || s->current==seat?g_ram+X3_COOP_BODY:s->players[seat].body;}
+static bool weapon_charge_clear(unsigned seat,bool original){const uint8_t *b=weapon_body(seat,original);return !b[0x35] && !b[0x7d] && !b[0xaa];}
+static bool weapon_charged_source(unsigned seat,unsigned index,bool original){const X3CoopState *s=X3CoopRuntimeState();const uint8_t *shots=original || s->current==seat?g_ram+X3_COOP_SHOTS:s->players[seat].shots;for(unsigned i=0;i<X3_COOP_SHOT_BYTES;i+=64)if(shots[i] && shots[i+10]==index+15)return true;return false;}
+static unsigned weapon_buttons(unsigned mode,unsigned f,unsigned release){return mode==1?(f<release?SNES_PAD_Y:0):(f%8==0?SNES_PAD_Y:0);}
 static void weapon_frame(unsigned input){
   g_ram[0x1f27]=1;g_ram[0xd3f]=127;g_ram[0xd48]=0;
   frame(input);CpuState caller=g_cpu;contact_native_call(0xd18,0x04cb74);
@@ -59,22 +62,58 @@ static void weapon_transition(const uint8_t *cut,size_t cn,unsigned x,unsigned i
   for(unsigned seat=0;seat<2;++seat){const X3CoopPlayer *p=&X3CoopRuntimeState()->players[seat];bool fired=false;for(unsigned i=0;i<X3_COOP_SHOT_BYTES;i+=64)fired|=p->shots[i]!=0;check(fired,"each reconstructed actor actually fires a fresh native buster after weapon stage/retry cleanup");}
   fprintf(stderr,"native weapon %s PASS index%u mode%u seat%u\n",kind,index,mode,x);
 }
+static uint16_t weapon_lifetime_camera[2];
+static void native_gameplay_update(unsigned keys,bool original){
+  RtlSetPadState(0,(uint16_t)(keys&0xfff));RtlSetPadState(1,(uint16_t)((keys>>12)&0xfff));
+  if(original){unsigned previous=view_read(X3_COOP_BODY+0x36),held=X3CoopActions(RtlGetPadState(0),g_ram+0xffc0);view_word(X3_COOP_BODY+0x36,held);view_word(X3_COOP_BODY+0x38,previous);view_word(X3_COOP_BODY+0x3a,held&~previous);}
+  X3CoopRuntimeFrame();CpuState caller=g_cpu;unsigned clock=g_ram[0x9cc];g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P|=0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);
+  check(interp_bridge_run(&g_cpu,0x00d957) && g_cpu.S==caller.S,"one actual complete gameplay scheduler update returns with a balanced caller");
+  uint64_t elapsed=g_cpu.master_cycles,coprocessor=g_cpu.coprocessor_master_cycles;uint32_t cycles=g_cpu.cycles;g_cpu=caller;g_cpu.master_cycles=elapsed;g_cpu.coprocessor_master_cycles=coprocessor;g_cpu.cycles=cycles;
+  check((uint8_t)(g_ram[0x9cc]-clock)==1,"native scheduler comparison completes exactly one world update");
+}
+static void weapon_complete_world_update(unsigned keys,bool original){
+  /* Match the native field in both counterfactuals. A shared camera and a
+   * solo following camera otherwise give intentionally different culling. */
+  const unsigned horizontal[]={0x1e5d,0x1e7a,0x1e66,0x1e68,0x1e6e,0x1e70},vertical[]={0x1e60,0x1e7c,0x1e6a,0x1e6c,0x1e78,0x1e7e};for(unsigned i=0;i<6;++i){view_word(horizontal[i],weapon_lifetime_camera[0]);view_word(vertical[i],weapon_lifetime_camera[1]);}
+  native_gameplay_update(keys,original);
+}
+static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned x,unsigned index,unsigned mode,uint8_t *work,uint8_t *after,size_t capacity){
+  check(RtlLoadSnapshotFromMemory(cut,cn),"native hurt lifetime restores the actual cast before withdrawal");X3CoopViewsConfigure(false);weapon_protect(x,0,work,capacity);for(unsigned f=0;f<2;++f){g_ram[0x1f27]=g_ram[0x1f26]=1;frame(0);}weapon_lifetime_camera[0]=(uint16_t)view_read(0x1e5d);weapon_lifetime_camera[1]=(uint16_t)view_read(0x1e60);
+  size_t n=RtlSaveSnapshotToMemory(work,capacity),finish=0;uint8_t *base=malloc(n),*shared=malloc(96*1280);CombatSample *reference=calloc(96,sizeof(*reference));check(base && shared && reference,"native hurt lifetime references allocate");memcpy(base,work,n);X3CoopState setup;check(X3CoopDecode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()),"native hurt reference decodes both complete captured bodies");unsigned hp=contact_hp(x),energy_address=index?0x1fbc+(index-1)*2:0x1fbc;uint8_t source[64],entry[64],native_energy[96];unsigned original_hp=0;uint16_t native_view[96][3],native_actor[96][2];
+  memcpy(entry,setup.players[x].body,64);entry[0]=entry[0xe]=1;entry[0x26]=2;entry[0x27]=8;entry[0x30]=0;
+  for(unsigned paired=0;paired<3;++paired){
+    check(RtlLoadSnapshotFromMemory(base,n),"hurt comparison restores the same live attack and expired protection");if(!paired){X3CoopState solo=setup;solo.current=(uint8_t)x;door_install_player(&solo);X3CoopRuntimeEnable(false);}
+    unsigned px=view_read(X3_COOP_BODY+5),py=view_read(X3_COOP_BODY+8);if(paired){px=support_position(x,5);py=support_position(x,8);}
+    uint8_t previous[64];memcpy(previous,g_ram+0xd58,64);memcpy(g_ram+0xd58,entry,64);view_word(0xd5d,px);view_word(0xd60,py);g_ram[0x1f1d]=0;CpuState caller=g_cpu;contact_native_call(0xd58,0x04cb31);uint64_t elapsed=g_cpu.master_cycles;uint32_t cycles=g_cpu.cycles;g_cpu=caller;g_cpu.master_cycles=elapsed;g_cpu.cycles=cycles;
+    unsigned got=paired?contact_hp(x):(g_ram[X3_COOP_BODY+0x27]&127);if(!paired){original_hp=got;memcpy(source,g_ram+0xd58,64);}else{check(got==original_hp && !memcmp(source,g_ram+0xd58,64),"nonfatal contact preserves the original native hurt/source response beside the active partner");check(!memcmp(&setup.players[x^1],&X3CoopRuntimeState()->players[x^1],sizeof(X3CoopPlayer)),"native hurt does not cancel or mutate the other complete personal context");}memcpy(g_ram+0xd58,previous,64);
+    check(got && got<hp,"real native contact injures the living weapon creator without supplying hurt or cancellation flags");
+    bool moved=false;for(unsigned f=0;f<96;++f){unsigned input=(f<32?SNES_PAD_LEFT:SNES_PAD_RIGHT)|(f>=64 && f<80?SNES_PAD_B:0);g_ram[0x1f27]=g_ram[0x1f26]=1;if(getenv("X3_COOP_WEAPON_NATIVE_TICKS"))weapon_complete_world_update((uint32_t)input<<(paired?x*12:0),!paired);else frame((uint32_t)input<<(paired?x*12:0));CombatSample sample;combat_read(&sample,x,!paired);
+      if(!paired){reference[f]=sample;native_view[f][0]=(uint16_t)view_read(0x1e5d);native_view[f][1]=(uint16_t)view_read(0x1e60);native_view[f][2]=g_ram[0x9cc];}else if(memcmp(reference+f,&sample,sizeof(sample))){unsigned difference=0;while(difference<sizeof(sample) && ((uint8_t *)(reference+f))[difference]==((uint8_t *)&sample)[difference])++difference;fprintf(stderr,"hurt lifetime mismatch index%u mode%u seat%u f%u byte%u expected%u actual%u controls%zu palette%zu aux%zu shots%zu current%u xy%u,%u camera%u,%u protection%u/%u\n",index,mode,x,f,difference,((uint8_t *)(reference+f))[difference],((uint8_t *)&sample)[difference],offsetof(CombatSample,controls),offsetof(CombatSample,palette),offsetof(CombatSample,aux),offsetof(CombatSample,shots),X3CoopRuntimeState()->current,support_position(x,5),support_position(x,8),view_read(0x1e5d),view_read(0x1e60),X3CoopRuntimeState()->players[x].body[0x88],X3CoopRuntimeState()->players[x].body[0x8a]);fprintf(stderr,"original camera%u,%u clock%u pairedclock%u source headers\n",native_view[f][0],native_view[f][1],native_view[f][2],g_ram[0x9cc]);for(unsigned i=0;i<32;++i)fprintf(stderr,"%u:%02x/%02x ",i,reference[f].shots[i],sample.shots[i]);fprintf(stderr,"\n");check(false,"hurt/movement attack commands, palette and complete owned pools retain their original native lifetime every frame");}
+      if(!paired){memcpy(shared+f*1280,g_ram+0x1818,1280);native_energy[f]=g_ram[energy_address];native_actor[f][0]=(uint16_t)view_read(X3_COOP_BODY+5);native_actor[f][1]=(uint16_t)view_read(X3_COOP_BODY+8);}else{check(native_actor[f][0]==support_position(x,5) && native_actor[f][1]==support_position(x,8),"actual hurt recovery and movement retain the original native body position on every update");check(native_energy[f]==g_ram[energy_address],"ongoing native attack costs match the original on every hurt/movement update");if(memcmp(shared+f*1280,g_ram+0x1818,1280)){fprintf(stderr,"shared hurt lifetime mismatch index%u mode%u seat%u f%u\n",index,mode,x,f);check(false,"all forty native shared effect records retain their original hurt/movement lifetime");}}
+      unsigned now=paired?support_position(x,5):view_read(X3_COOP_BODY+5);moved|=now!=px;
+    }
+    check(moved,"actual native hurt recovery admits subsequent movement");
+    if(paired==1)finish=RtlSaveSnapshotToMemory(after,capacity);if(paired==2)same(after,finish,work,RtlSaveSnapshotToMemory(work,capacity),"actual nonfatal hurt, native movement and complete owned/shared lifetime replay the entire machine");
+  }
+  fprintf(stderr,"native weapon hurt lifetime PASS index%u mode%u seat%u HP%u/%u frames96\n",index,mode,x,hp,original_hp);free(base);free(shared);free(reference);
+}
 static void native_weapon_withdrawal(const uint8_t *start,size_t sn,unsigned x,unsigned index,unsigned mode,uint8_t *work,uint8_t *after,size_t capacity){
   check(RtlLoadSnapshotFromMemory(start,sn),"live native weapon retirement restores its actual selected arena");g_ram[0x1f27]=0;
-  unsigned address=0x1fbc+(index-1)*2,frames=0,sources=0;bool retired=false,observed=false;X3CoopPlayer before={0},other={0};unsigned reserve=0;size_t cut_size=0;
-  for(;frames<720;++frames){
+  unsigned address=0x1fbc+(index-1)*2,frames=0,sources=0,release=180;bool retired=false,observed=false,charged_source=false;X3CoopPlayer before={0},other={0};unsigned reserve=0;size_t cut_size=0;
+  for(;frames<1200;++frames){
     if(frames%120==0)weapon_protect(x,255,work,capacity);
-    unsigned buttons=mode==1?(frames<180?SNES_PAD_Y:0):(frames==0?SNES_PAD_Y:0);weapon_retire_frame(buttons<<(x*12));
+    if(mode==1 && index==6 && frames>=180 && release==frames && !weapon_charge_clear(x,false))++release;
+    unsigned buttons=mode==1?(frames<release?SNES_PAD_Y:0):(frames==0?SNES_PAD_Y:0);weapon_retire_frame(buttons<<(x*12));charged_source|=index<=8 && weapon_charged_source(x,index,false);
     check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"isolated actual weapon cast retains two living participants");
-    if((g_ram[address]&31)==28 || (mode==1 && frames<180))continue;
+    if((g_ram[address]&31)==28 || (mode==1 && (frames<release || (index<=8 && !charged_source))))continue;
     size_t n=RtlSaveSnapshotToMemory(work,capacity);cut_size=n;sources=weapon_sources(x,work,n);observed|=sources!=0;
     before=X3CoopRuntimeState()->players[x];other=X3CoopRuntimeState()->players[x^1];reserve=g_ram[address];
     const char *output=getenv("X3_COOP_WEAPON_PREPARE_GUI");if(output && *output){check(RtlSaveSnapshot(output),"actual native weapon cast exports its current-build GUI fixture");return;}
-    if(X3CoopRuntimeWithdraw(x)){retired=true;break;}
+    const char *kind=getenv("X3_COOP_WEAPON_RETIREMENT");if(!strcmp(kind,"hurt") || !strcmp(kind,"stage") || (index==6 && mode==1 && strcmp(kind,"withdrawal")) || X3CoopRuntimeWithdraw(x)){retired=true;break;}
   }
   fprintf(stderr,"native weapon withdrawal index%u mode%u seat%u wait%u observed%u live%u counters35/7d/89/aa/b7=%u/%u/%u/%u/%u\n",index,mode,x,frames,observed,sources,before.body[0x35],before.body[0x7d],before.body[0x89],before.body[0xaa],before.body[0xb7]);
   check(retired,"actual native weapon cast reaches safe public withdrawal without an infinite attack/freeze lock");
-  const char *kind=getenv("X3_COOP_WEAPON_RETIREMENT");if(strcmp(kind,"withdrawal")){weapon_transition(work,cut_size,x,index,mode,kind,after,work,capacity);return;}
+  const char *kind=getenv("X3_COOP_WEAPON_RETIREMENT");if(!strcmp(kind,"hurt")){native_weapon_hurt_lifetime(work,cut_size,x,index,mode,after,work,capacity);return;}if(strcmp(kind,"withdrawal")){weapon_transition(work,cut_size,x,index,mode,kind,after,work,capacity);return;}
   const X3CoopPlayer *p=&X3CoopRuntimeState()->players[x],*survivor=&X3CoopRuntimeState()->players[x^1];
   check(p->life==X3_COOP_ABSENT && survivor->life==X3_COOP_ALIVE && !X3CoopRuntimeState()->wipe,"weapon retirement withdraws only its living creator");
   bool empty=true;for(unsigned i=0;i<X3_COOP_SHOT_BYTES;++i)empty&=!p->shots[i];for(unsigned i=0;i<X3_COOP_AUX_BYTES;++i)empty&=!p->auxiliaries[i];
@@ -203,7 +242,7 @@ static void native_buffalo_hostile_fixture(const uint8_t *base,size_t bn,unsigne
   const char *prefix=getenv("X3_COOP_HOSTILE_OUTPUT");check(prefix && *prefix,"hostile-source preparation has an explicit private output prefix");char filename[1024];int used=snprintf(filename,sizeof(filename),"%s-roster%u.sav",prefix,roster);check(used>0 && (size_t)used<sizeof(filename) && RtlSaveSnapshot(filename),"actual emitted hostile source saves through the existing test interface");
 }
 static void native_acquired_weapon_checks(const char *fixture,uint8_t *base,uint8_t *work,uint8_t *after,size_t capacity){
-  enum {FRAMES=420};CombatSample *trace=malloc(FRAMES*sizeof(*trace));uint8_t energy[FRAMES];uint8_t *start=malloc(capacity);check(trace && start,"native acquired-weapon comparison buffers allocate");
+  enum {FRAMES=1200};CombatSample *trace=malloc(FRAMES*sizeof(*trace));uint8_t energy[FRAMES];uint16_t buttons[FRAMES];uint8_t *start=malloc(capacity);check(trace && start,"native acquired-weapon comparison buffers allocate");
   unsigned first=getenv("X3_COOP_WEAPON_FIRST")?(unsigned)atoi(getenv("X3_COOP_WEAPON_FIRST")):1,last=getenv("X3_COOP_WEAPON_LAST")?(unsigned)atoi(getenv("X3_COOP_WEAPON_LAST")):9,modes=getenv("X3_COOP_WEAPON_MODES")?(unsigned)atoi(getenv("X3_COOP_WEAPON_MODES")):3;
   check(first>=1 && last<=9 && first<=last && modes>=1 && modes<=3,"native weapon selection bounds are valid");
   for(unsigned roster=0;roster<2;++roster){
@@ -226,16 +265,16 @@ static void native_acquired_weapon_checks(const char *fixture,uint8_t *base,uint
       size_t sn=RtlSaveSnapshotToMemory(start,capacity);unsigned frames=mode==1?420:240,ran=0,damage=0,spent=0,charge=0,moving=0;
       if(getenv("X3_COOP_WEAPON_RETIREMENT")){native_weapon_withdrawal(start,sn,x,index,mode,work,after,capacity);continue;}
       memcpy(work,start,sn);X3CoopState solo=*X3CoopRuntimeState();solo.current=(uint8_t)x;check(X3CoopEncode(&solo,work+contact_context_offset(work,sn),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,sn),"single X weapon reference selects the same actual native body");door_install_player(&solo);X3CoopRuntimeEnable(false);
-      for(unsigned f=0;f<frames;++f){weapon_frame(weapon_buttons(mode,f));weapon_sample(&trace[f],x,true);energy[f]=g_ram[address];if(trace[f].charge[1]>charge)charge=trace[f].charge[1];if(f)for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)if(trace[f].shots[j] && trace[f-1].shots[j] && memcmp(trace[f].shots+j+5,trace[f-1].shots+j+5,5))++moving;damage+=trace[f].hit[0];ran=f+1;if(!(g_ram[0xd3f]&127))break;}
+      unsigned release=180;bool charged_source=false;for(unsigned f=0;f<frames;++f){if(mode==1 && index==6 && f>=180 && release==f && !weapon_charge_clear(x,true)){++release;frames=release+420;check(frames<=FRAMES,"normal Gravity Well retires within the bounded charged-input setup");}buttons[f]=(uint16_t)weapon_buttons(mode,f,release);weapon_frame(buttons[f]);charged_source|=index<=8 && weapon_charged_source(x,index,true);weapon_sample(&trace[f],x,true);energy[f]=g_ram[address];if(trace[f].charge[1]>charge)charge=trace[f].charge[1];if(f)for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)if(trace[f].shots[j] && trace[f-1].shots[j] && memcmp(trace[f].shots+j+5,trace[f-1].shots+j+5,5))++moving;damage+=trace[f].hit[0];ran=f+1;if(!(g_ram[0xd3f]&127))break;}
       spent=(mode==2?0:28)-(g_ram[address]&31);fprintf(stderr,"native original weapon roster%u index%u mode%u frames%u spent%u damage%u peakCharge%u movingSamples%u\n",roster,index,mode,ran,spent,damage,charge,moving);
       if(index==1 && mode!=2)check(moving>0,"actual native Acid Burst projectiles move while only enemy AI is frozen");
-      if(mode==1 && index<=8)check(charge>=4,"native charged special actually reaches its original charge threshold before release");
+      if(mode==1 && index<=8){fprintf(stderr,"native charged source index%u release%u observed%u\n",index,release,charged_source);check(charge>=4 && charged_source,"native charged special reaches its threshold and actually creates its original charged projectile type");}
       check(mode==2?!(g_ram[address]&31):spent>0,"native weapon actually casts and spends energy, or retains the empty native meter");
       check(RtlLoadSnapshotFromMemory(start,sn),"paired acquired weapon restores the identical actual prerequisites");
-      for(unsigned f=0;f<ran;++f){weapon_frame(weapon_buttons(mode,f)<<(x*12));CombatSample actual;weapon_sample(&actual,x,false);
+      for(unsigned f=0;f<ran;++f){weapon_frame(buttons[f]<<(x*12));CombatSample actual;weapon_sample(&actual,x,false);
         if(memcmp(&trace[f],&actual,sizeof(actual)) || energy[f]!=g_ram[address]){unsigned at=0;while(at<sizeof(actual) && ((uint8_t*)&trace[f])[at]==((uint8_t*)&actual)[at])++at;fprintf(stderr,"native weapon mismatch roster%u index%u mode%u frame%u byte%u expected%02x actual%02x energy%02x/%02x damage%u/%u\n",roster,index,mode,f,at,at<sizeof(actual)?((uint8_t*)&trace[f])[at]:0,at<sizeof(actual)?((uint8_t*)&actual)[at]:0,energy[f],g_ram[address],trace[f].hit[0],actual.hit[0]);check(false,"native acquired weapon commands, charge, energy, effects, damage and complete owned pools match original X on every frame");}}
       check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"acquired native weapon casting retains both living participants");
-      size_t future=RtlSaveSnapshotToMemory(work,capacity);check(RtlLoadSnapshotFromMemory(start,sn),"acquired weapon restores for full-machine replay");for(unsigned f=0;f<ran;++f)weapon_frame(weapon_buttons(mode,f)<<(x*12));same(work,future,after,RtlSaveSnapshotToMemory(after,capacity),"actual native acquired-weapon use and the full machine replay exactly");
+      size_t future=RtlSaveSnapshotToMemory(work,capacity);check(RtlLoadSnapshotFromMemory(start,sn),"acquired weapon restores for full-machine replay");for(unsigned f=0;f<ran;++f)weapon_frame(buttons[f]<<(x*12));same(work,future,after,RtlSaveSnapshotToMemory(after,capacity),"actual native acquired-weapon use and the full machine replay exactly");
       fprintf(stderr,"native paired weapon PASS roster%u index%u mode%u frames%u spent%u damage%u\n",roster,index,mode,ran,spent,damage);
     }
   }
