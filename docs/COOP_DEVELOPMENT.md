@@ -2922,3 +2922,27 @@ Native-session-policy-digest also exits0 on the same85a7aea3 GUI, retaining
 N01's actual full/reversed and stock/normal behavior after the confirmation
 change. These checks do not close the independent online HUD, death/wipe,
 menu, scene or disconnect criteria. Actual85/180 accepted,95open,1/15rollups.
+
+
+### Either living region earns native checkpoints
+
+The original3D:FF1D special task compared only the shared-window actor. With
+both players living, the distant non-anchor could cross stage5 checkpoint1
+at2944,1152 without earning it; actual native input reached3001,1199 after120
+frames while1FB5 stayed0. The task now compares either eligible living body
+inside its own exact native culling rectangle. Its original constructor,
+checkpoint ordering, commit and deletion still execute once, with no actor
+projection, world replay or new serialized state. The generated checkpoint
+entry is routed through the existing observable interpreter bridge.
+
+Native-checkpoint-controls and native-checkpoint-fallen-regate both exit0 on
+state SHA256 b3d6717f2fedd21a080de2cc16a6de4da611d6ebb28bb12321397ebf6fdcaeca.
+All eight actual target/roster/entrant cases now cross the two authored stage5
+lines with the other living anchor remaining in its original distant region.
+Each crossing repeats on the same input frame and restores the entire machine
+exactly. Direct native-handler controls prove a beyond-line body in a distant
+region cannot earn the local checkpoint, and equality at the forward line
+does not count as crossing. The affected eight fallen-partner cases still
+preserve the complete fallen context, HP, life count and forbidden rejoin.
+This repairs a checkpoint ownership defect; broader S06/N09 and activation
+frontier criteria remain open. Actual acceptance stays85/180,95open,1/15.

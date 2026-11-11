@@ -828,6 +828,31 @@ static void target_query(CpuState *cpu,uint32_t pc) {
   cpu->_flag_Z=cpu->A==0;cpu->_flag_N=(cpu->A&32768)!=0;cpu_mirrors_to_p(cpu);
   interp_bridge_pre_opcode_redirect((pc&0xff0000)|((pc+3)&65535));
 }
+/* The checkpoint task reads the body in the shared window. Its comparison
+ * may admit either living actor in the task's actual native culling region;
+ * a distant actor in another view must not commit this checkpoint. */
+static void checkpoint_query(CpuState *cpu,uint32_t pc){
+  (void)pc;unsigned d=cpu->D;
+  if(!X3CoopRuntimeReady() || state.wipe || d<0x1d18 || d>=0x1e18 ||
+     (d-0x1d18)%16 || !g_ram[d] || g_ram[d+10]!=11)return;
+  unsigned parameter=g_ram[d+11],axis=(parameter&64)?8:5,chosen=2;
+  uint16_t value=cpu->A,position=0;
+  for(unsigned i=0;i<2;++i){unsigned seat=state.current^i;
+    const uint8_t *body=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+    if(state.players[seat].life!=X3_COOP_ALIVE || !(body[0x27]&127))continue;
+    X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,seat,false);
+    /* Exact02:D58A region: [-64,320) by [-64,288). */
+    if((uint16_t)(word(g_ram+d+5)-view.x+64)>=384 ||
+       (uint16_t)(word(g_ram+d+8)-view.y+64)>=352)continue;
+    uint16_t candidate=(uint16_t)word(body+axis);bool carry=value>=candidate;
+    if(chosen==2){chosen=seat;position=candidate;}
+    if(carry==((parameter&128)!=0)){chosen=seat;position=candidate;break;}
+  }
+  if(chosen<2){cpu->_flag_C=value>=position;cpu->_flag_Z=value==position;
+    cpu->_flag_N=((uint16_t)(value-position)&32768)!=0;}
+  else cpu->_flag_C=(parameter&128)==0;
+  cpu_mirrors_to_p(cpu);
+}
 static void world_gravity_query(CpuState *cpu,uint32_t pc){
   if(!X3CoopRuntimeReady())return;
   /* Native02:DDD3 polls X's first Gravity Well slot for shared reactions.
@@ -1433,6 +1458,8 @@ void X3CoopRuntimeFrame(void) {
       0x02d6da,0x02d6ef,0x038f70,0x038fe1};
   for(unsigned i=0;i<sizeof(draw_pcs)/sizeof(*draw_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(draw_pcs[i],draw_boundary))enabled=false;
+  if(!interp_bridge_add_pre_opcode_hook(0x3dff43,checkpoint_query) ||
+     !interp_bridge_add_pre_opcode_hook(0x3dff4a,checkpoint_query))enabled=false;
   static const uint32_t target_pcs[]={0x00dd1a,0x00dcb3,0x00dccf,0x00dcf3,0x00dc68,0x00dc8c,
       0x00dafa,0x00daaf,0x00dad3};
   for(unsigned i=0;i<sizeof(target_pcs)/sizeof(*target_pcs);++i)
