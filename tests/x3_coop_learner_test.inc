@@ -53,8 +53,9 @@ static void native_learner_checks(uint8_t *original,size_t size,uint8_t *work,ui
       same(expected,observed,work,RtlSaveSnapshotToMemory(work,capacity),"learner native contact replays the complete machine");
     }
   }
-  const char *ground=getenv("X3_COOP_LEARNER_GROUND_STATE");
-  if(ground && *ground){
+  for(unsigned roster=0;roster<2;++roster){
+    const char *ground=getenv(roster?"X3_COOP_LEARNER_REVERSED_GROUND_STATE":"X3_COOP_LEARNER_GROUND_STATE");
+    if(!ground || !*ground)continue;
     shared_pit_prepare(ground,1,base,work,capacity);
     size_t n=RtlSaveSnapshotToMemory(base,capacity);base[learner_profile(base,n)+6]|=2;
     check(RtlLoadSnapshotFromMemory(base,n),"learner starts before the same real authored pit");
@@ -76,7 +77,7 @@ static void native_learner_checks(uint8_t *original,size_t size,uint8_t *work,ui
     check(RtlLoadSnapshotFromMemory(pending,interrupted),"actual learner pit approach restores");
     for(unsigned f=0;f<falling+8;++f)frame(0);
     same(expected,result,work,RtlSaveSnapshotToMemory(work,capacity),"actual native pit rescue replays identically");
-    fprintf(stderr,"learner real pit walk%u fall%u hp%u returns beside P1\n",walked,falling,hp);
+    fprintf(stderr,"learner roster%u real pit walk%u fall%u hp%u returns beside P1\n",roster,walked,falling,hp);
 
     check(RtlLoadSnapshotFromMemory(pending,interrupted),"same pit approach restores for unsafe rescue test");
     unsigned ground_y=support_position(0,8);shared_pit_damage=0;
