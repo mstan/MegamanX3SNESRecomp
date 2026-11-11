@@ -10,11 +10,15 @@
 #include "sha256.h"
 #include "x3_coop_runtime.h"
 #include "x3_coop_view.h"
+#include "x3_coop_menu.h"
 
 static const char x3_net_package[]="megaman-x3.coop";
 static const uint8_t x3_net_rom[32]={MMX_ROM_SHA256_BYTES};
 static uint8_t x3_net_executable[32];
 static uint32_t x3_net_sim_settings;
+#if SNESRECOMP_TRACE
+static void x3_net_diagnostic_exit(void);
+#endif
 
 static uint32_t x3_net_word(const uint8_t *bytes){
   return (uint32_t)bytes[0]|(uint32_t)bytes[1]<<8|(uint32_t)bytes[2]<<16|(uint32_t)bytes[3]<<24;
@@ -107,6 +111,10 @@ static int x3_net_ready(char *reason,size_t cap){
    * selected setting, but require the same choice before either frame0. */
   x3_net_sim_settings=g_config.no_sprite_limits?1u:0u;
   snes_state_digest_set_extra(X3CoopRuntimeDigest);
+#if SNESRECOMP_TRACE
+  const char *qa=getenv("SNESRECOMP_X3_NET_QA");static bool exit_registered;
+  if(!exit_registered && qa && !strcmp(qa,"1")){atexit(x3_net_diagnostic_exit);exit_registered=true;}
+#endif
   x3_net_capabilities();return 1;
 }
 static void x3_net_view(void){
@@ -122,6 +130,10 @@ static void x3_net_view(void){
 }
 #if SNESRECOMP_TRACE
 extern uint8_t g_ram[0x20000];
+static void x3_net_diagnostic_exit(void){
+  const X3CoopState *s=X3CoopRuntimeState();
+  fprintf(stderr,"[x3-net-qa-exit] initialized=%u life=%u/%u wipe=%u lives=%u hp=%u/%u stage=%u\n",s->initialized,s->players[0].life,s->players[1].life,s->wipe,g_ram[0x1fb4],s->players[0].body[0x27]&127,s->players[1].body[0x27]&127,g_ram[0x1fae]);
+}
 static bool x3_net_qa(void){
   static int enabled=-1;
   if(enabled<0){const char *value=getenv("SNESRECOMP_X3_NET_QA");enabled=value && !strcmp(value,"1");}
@@ -129,6 +141,27 @@ static bool x3_net_qa(void){
 }
 static bool x3_net_combat_qa(void){
   static int enabled=-1;if(enabled<0){const char *value=getenv("SNESRECOMP_X3_NET_QA_COMBAT");enabled=value && !strcmp(value,"1");}return enabled!=0;
+}
+static bool x3_net_menu_qa(void){
+  const char *value=getenv("SNESRECOMP_X3_NET_QA_MENU");return value && !strcmp(value,"1");
+}
+static uint16_t x3_net_menu_pad(uint32_t tick,int seat){
+  unsigned action=0;const X3CoopState *s=X3CoopRuntimeState();bool x=s->players[seat].character==X3_COOP_X;
+  if(tick>=4020 && tick<4022)action=0x1000;
+  if(tick>=4140 && tick<4142)action=0x0400;
+  if(x && tick>=4160 && tick<4162)action=0x4000;
+  if(tick>=4180 && tick<4182)action=x?0x0400:0x0800;
+  if(tick>=4200 && tick<4202)action=0x4000;
+  if(seat==1 && tick>=4210 && tick<4212)action=0x1000|0x0400;
+  if(seat==1 && tick>=4220 && tick<4222)action=0x4000;
+  if(tick>=4320 && tick<4322)action=0x4000;
+  if(tick>=4340 && tick<4342)action=0x1000;
+  if(tick>=4480 && tick<4540)action=0x0100;
+  uint16_t pad=0;for(unsigned bit=0;bit<12;++bit)if(X3CoopActions((uint16_t)(1u<<bit),g_ram+0xffc0)&action)pad|=(uint16_t)(1u<<bit);
+  return pad;
+}
+static bool x3_net_world_qa(void){
+  const char *value=getenv("SNESRECOMP_X3_NET_QA_WORLD");return value && (!strcmp(value,"death") || !strcmp(value,"checkpoint") || !strcmp(value,"door"));
 }
 static uint16_t x3_net_diagnostic_pad(uint32_t tick,int seat,uint16_t live){
   if(!x3_net_qa())return live;
@@ -150,6 +183,13 @@ static uint16_t x3_net_diagnostic_pad(uint32_t tick,int seat,uint16_t live){
   static uint32_t enrolled;
   if(!enrolled)enrolled=tick;
   uint32_t age=tick-enrolled;
+  if(x3_net_world_qa()){
+    const char *world=getenv("SNESRECOMP_X3_NET_QA_WORLD");
+    if(!strcmp(world,"door"))return tick>=6400 && tick<6424?0x080:0;
+    if(!strcmp(world,"checkpoint")){unsigned age=tick-5410;if(seat==1 && age<120)return (uint16_t)(0x080|(age<4?0x100:0)|(age%32<4?1:0));return getenv("SNESRECOMP_X3_NET_QA_CAPTURE") && seat==0 && tick>=5540 && tick<5600?0x080:0;}
+    return seat==0 && tick>=5480 && tick<5504?0x080:tick>=6400 && tick<6424?0x040:0;
+  }
+  if(x3_net_menu_qa())return x3_net_menu_pad(tick,seat);
   if(x3_net_combat_qa())return age>=16 && (age<232 || (age<360 && age%4==0))?0x002:0;
   if(seat==1 && age>=60 && age<110)return 0x040;
   if(seat==0 && age>=140 && age<180)return 0x080;
@@ -162,8 +202,10 @@ static void x3_net_diagnostic_progress(void){
   static uint32_t reported,enrolled;
   if(s->initialized && !enrolled)enrolled=tick;
   int age=enrolled?(int)(tick-enrolled):-1;
+  bool world_cut=x3_net_world_qa() && (tick==3902 || tick==5398 || tick==5402 || tick==5480 || tick==5510 || tick==5598 || tick==5602 || tick==5650 || tick==5800 || tick==6000 || tick==6200 || tick==6300 || tick==6398 || tick==6500);
+  bool menu_cut=x3_net_menu_qa() && (tick==3902 || tick==4018 || tick==4100 || tick==4144 || tick==4164 || tick==4184 || tick==4198 || tick==4204 || tick==4214 || tick==4224 || tick==4280 || tick==4324 || tick==4344 || tick==4420 || tick==4540);
   bool combat_cut=x3_net_combat_qa() && (age==16 || age==200 || age==228 || age==232 || age==233 || age==236 || age==240 || age==260 || age==300 || age==340 || age==360 || age==400 || age==480);
-  if(!combat_cut && age!=0 && age!=50 && age!=130 && age!=210 && tick%600)return;
+  if(!world_cut && !menu_cut && !combat_cut && age!=0 && age!=50 && age!=130 && age!=210 && tick%600)return;
   if(tick==reported)return;
   reported=tick;
   uint8_t personal[4096];size_t personal_size=X3CoopEncodedSize();uint32_t personal_hash=2166136261u;
@@ -173,6 +215,13 @@ static void x3_net_diagnostic_progress(void){
       X3Display_PresentationSeat(),s->initialized,s->players[0].life,s->players[1].life,
       s->players[0].body[5]+256u*s->players[0].body[6],s->players[1].body[5]+256u*s->players[1].body[6],
       g_ram[0xd1],g_ram[0xd2],g_ram[0xd3],g_ram[0x1fae],s->players[0].character,s->players[1].character,X3CoopRuntimeStockZero(),personal_hash);
+  if(x3_net_world_qa()){
+    fprintf(stderr,"[x3-net-world] tick=%u life=%u/%u wipe=%u lives=%u checkpoint=%u anchor=%u phase=%u/%u scene=%u hp=%u/%u display=%u digest=%08x episodes=%u resim=%llu desync=%u\n",tick,s->players[0].life,s->players[1].life,s->wipe,g_ram[0x1fb4],g_ram[0x1fb5],s->anchor,g_ram[0xd1],g_ram[0xd2],X3CoopRuntimeSceneActive(),s->players[0].body[0x27]&127,s->players[1].body[0x27]&127,g_ppu->inidisp,X3CoopRuntimeDigest(),snes_netplay_rb_episode_count(),(unsigned long long)snes_netplay_rb_resim_ticks(),snes_netplay_rb_desync_count());
+  }
+  if(x3_net_menu_qa()){
+    X3CoopMenuInfo info={0};bool active=X3CoopMenuRead(&info);
+    fprintf(stderr,"[x3-net-menu] tick=%u active=%u owner=%u cursor=%u/%u selection=%u/%u healing=%u/%u hp=%u/%u tanks=%u/%u paused=%u clock=%u digest=%08x episodes=%u resim=%llu desync=%u\n",tick,active,info.owner,info.cursor[0],info.cursor[1],info.selection[0],info.selection[1],info.healing[0],info.healing[1],s->players[0].body[0x27]&127,s->players[1].body[0x27]&127,g_ram[0x1fb7]&31,g_ram[0x1fb8]&31,g_ram[0x1f37],g_ram[0x9cc],X3CoopRuntimeDigest(),snes_netplay_rb_episode_count(),(unsigned long long)snes_netplay_rb_resim_ticks(),snes_netplay_rb_desync_count());
+  }
   if(x3_net_combat_qa()){
     unsigned shots[2]={0,0};for(unsigned seat=0;seat<2;++seat)for(unsigned i=0;i<X3_COOP_SHOT_BYTES;i+=64)shots[seat]+=s->players[seat].shots[i]!=0;
     uint32_t fx=2166136261u;for(unsigned i=0x1818;i<0x1d18;++i){fx^=g_ram[i];fx*=16777619u;}

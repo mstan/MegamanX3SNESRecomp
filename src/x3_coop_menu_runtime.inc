@@ -13,6 +13,22 @@ static PairedMenu menu;
 static bool menu_pending(void){return menu.phase!=0;}
 void X3CoopRuntimeInputFrame(uint32_t serial){
   if(!enabled || (menu.valid && menu.frame==serial))return;
+#if SNESRECOMP_TRACE
+  net_world_prerequisites(serial);
+  /* Fixed simulation-frame prerequisites for the actual two-peer menu gate.
+   * The frame serial is already part of the rollback snapshot. Replaying this
+   * frame reapplies the same low HP/acquired reserve, never a healing result. */
+  if(serial==3900 && state.initialized && !scene.phase){
+    const char *qa=getenv("SNESRECOMP_X3_NET_QA"),*healing=getenv("SNESRECOMP_X3_NET_QA_MENU");
+    if(qa && !strcmp(qa,"1") && healing && !strcmp(healing,"1")){
+      X3CoopCapture(&state,g_ram);
+      for(unsigned seat=0;seat<2;++seat){state.players[seat].body[0x27]=1;state.players[seat].body[0x88]=255;}
+      g_ram[X3_COOP_BODY+0x27]=1;g_ram[X3_COOP_BODY+0x88]=255;
+      g_ram[0x1fbc]=0x5c;g_ram[0x1fb7]=0x8e;g_ram[0x1fb8]=0x83;g_ram[0x1fb9]=g_ram[0x1fba]=0x80;
+      fprintf(stderr,"[x3-net-menu-prerequisite] serial=%u hp=1/1 reserves=14/3\n",serial);
+    }
+  }
+#endif
   menu.valid=1;menu.frame=serial;
   for(unsigned seat=0;seat<2;++seat){
     unsigned held=X3CoopActions(RtlGetPadState(seat),g_ram+0xffc0);

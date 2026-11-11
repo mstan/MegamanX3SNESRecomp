@@ -1392,6 +1392,52 @@ static void boundary(CpuState *cpu,uint32_t pc) {
     }
   }
 }
+#if SNESRECOMP_TRACE
+/* Native two-peer death gate: bypass travel using the original stage request,
+ * then place bodies above authored spikes. Native collision, lifecycle, fades,
+ * resource debit and retry decide every result. The existing frame serial
+ * makes these prerequisites replayable with ordinary rollback snapshots. */
+static void net_world_prerequisites(uint32_t serial){
+  const char *qa=getenv("SNESRECOMP_X3_NET_QA"),*world=getenv("SNESRECOMP_X3_NET_QA_WORLD");
+  if(!qa || strcmp(qa,"1") || !world || (strcmp(world,"death") && strcmp(world,"checkpoint") && strcmp(world,"door")))return;
+  bool checkpoint=!strcmp(world,"checkpoint"),door=!strcmp(world,"door");
+  if(serial==3900){
+    g_ram[0x1fae]=door?1:5;g_ram[0x1faf]=g_ram[0x1fb3]=0;
+    g_ram[0x1fb5]=g_ram[0x1fb6]=0;g_ram[0x1ebf]=1;
+    g_ram[0xd1]=2;g_ram[0xd2]=4;g_ram[0xd3]=0;
+    fprintf(stderr,"[x3-net-world-prerequisite] serial=%u native-stage-request=%u\n",serial,g_ram[0x1fae]);
+  }
+  if(checkpoint || door){
+    if(serial!=5400 || !X3CoopRuntimeReady() || scene.phase || g_ram[0x1fae]!=(door?1:5))return;
+    X3CoopCapture(&state,g_ram);X3CoopProject(&state,g_ram,0);state.anchor=0;
+    unsigned px=door?2544:2908,py=door?1435:1112;
+    uint8_t *b=state.players[1].body;putword(b+5,px);putword(b+0x22,px);putword(b+8,py);putword(b+0x24,py);
+    b[2]=b[3]=b[4]=b[7]=0;memset(b+0x1a,0,6);b[0x88]=255;
+    state.players[0].body[0x88]=g_ram[X3_COOP_BODY+0x88]=255;
+    X3CoopViewState views=*X3CoopViewsState();views.independent=views.initialized=1;views.stage=door?1:5;views.valid=views.camera_valid=3;
+    unsigned cy=door?1280:1024;views.camera[1][0]=door?2416:2816;views.camera[1][1]=(uint16_t)cy;views.limits[1][0]=views.current[1][0]=0;views.limits[1][1]=views.current[1][1]=8192;
+    views.limits[1][2]=views.current[1][2]=views.limits[1][3]=views.current[1][3]=(uint16_t)cy;X3CoopViewsSetState(&views);
+    fprintf(stderr,"[x3-net-world-prerequisite] serial=%u non-anchor-approach=%s\n",serial,door?"door":"checkpoint");return;
+  }
+  if((serial!=5400 && serial!=5600) || !X3CoopRuntimeReady() || scene.phase || g_ram[0x1fae]!=5)return;
+  X3CoopCapture(&state,g_ram);
+  for(unsigned seat=0;seat<2;++seat){
+    if(serial==5600 && seat!=0)continue;
+    uint8_t *b=state.players[seat].body;bool hazard=serial==5600 || seat==1;
+    unsigned x=hazard?1680:1568,y=state.players[seat].character==X3_COOP_ZERO?(hazard?1392:1367):(hazard?1400:1375);
+    putword(b+5,x);putword(b+0x22,x);putword(b+8,y);putword(b+0x24,y);
+    b[2]=b[3]=b[4]=b[7]=0;memset(b+0x1a,0,6);
+  }
+  memcpy(g_ram+X3_COOP_BODY,state.players[state.current].body,X3_COOP_BODY_BYTES);
+  X3CoopViewState views={0};views.independent=views.initialized=1;views.stage=5;views.valid=views.camera_valid=3;
+  for(unsigned seat=0;seat<2;++seat){views.camera[seat][0]=1456;views.camera[seat][1]=1280;views.limits[seat][1]=views.current[seat][1]=8192;views.limits[seat][2]=views.current[seat][2]=views.limits[seat][3]=views.current[seat][3]=1280;}
+  X3CoopViewsSetState(&views);putword(g_ram+0x1e5d,1456);putword(g_ram+0x1e7a,1456);
+  putword(g_ram+0x1e66,0);putword(g_ram+0x1e68,8192);putword(g_ram+0x1e6e,0);putword(g_ram+0x1e70,8192);
+  const unsigned vertical[]={0x1e60,0x1e7c,0x1e6a,0x1e6c,0x1e78,0x1e7e};
+  for(unsigned i=0;i<6;++i)putword(g_ram+vertical[i],1280);
+  fprintf(stderr,"[x3-net-world-prerequisite] serial=%u spike-approach=%u\n",serial,serial==5400?1:0);
+}
+#endif
 #include "x3_coop_menu_runtime.inc"
 void X3CoopRuntimeEnable(bool value) {
   if(enabled && !value && !g_ram[0x1f63])primary_input_restore();

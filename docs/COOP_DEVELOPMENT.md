@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 85/180; 95 open/partial. Accepted areas: 1/15
+**Accepted touch points: 89/180; 91 open/partial. Accepted areas: 1/15
 (snapshot/rewind/rollback).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -62,7 +62,7 @@ campaign or co-op gameplay acceptance.
 | Menus/resources | M01-M11 accepted (11/12); transition/menu overlap remains open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
-| Netplay | N01/N02/N04-N06/N11/N12 accepted (7/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
+| Netplay | N01-N08/N10-N12 accepted (11/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
 
@@ -2946,3 +2946,152 @@ does not count as crossing. The affected eight fallen-partner cases still
 preserve the complete fallen context, HP, life count and forbidden rejoin.
 This repairs a checkpoint ownership defect; broader S06/N09 and activation
 frontier criteria remain open. Actual acceptance stays85/180,95open,1/15.
+
+
+### Actual online paired menus and shared reserves — N08
+
+N08 is accepted by native-online-menu-qualified and native-online-menu-reversed
+(both child0), GUI SHA256
+5276b9e64211074e77a4fa612d06b576098703eca48e9948beb39b5d150860a3.
+Both real peers cold-boot through the native introduction in normal and reversed
+rosters. Fixed-frame TRACE preparation supplies only low HP, acquired X weapon
+and shared full/partial reserves; real controller actions perform every pause,
+selection, navigation, tank request and resume. The existing rollback frame
+serial makes those prerequisites replayable without a second test clock.
+
+Both panels independently select/navigate, converge on tank0, and compete in
+the same native update. Seat0 wins that reserve once. Its live native healing
+refuses the partner's Start while allowing navigation to tank1 and a separate
+partial heal. The native full tank restores X to16 or Zero to28; tank1 restores
+the partner from1 to4. Both reserves end empty without underflow, and empty
+requests do not heal. The world clock stays239(normal)/237(reversed) through
+all sampled interactive/healing cuts. Simultaneous Start completes one exit;
+both actual bodies then move from2656 to2733/2735 under real Right input.
+
+A25ms UDP delay plus asymmetric300ms hold runs in each case. The normal case
+performs one actual rollback/resimulated tick; the reversed case needs no
+resimulation. Complete RuntimeSave digests and menu/health/reserve/navigation
+fields match on all15 compared simulation ticks. There is no reported desync.
+Final digests are0627e8da(normal) andb28f09d1(reversed). Evidence remains in
+net-lan/online-menu85-qualified-{x,zero}/observations.json and both peer logs.
+The first staging attempt used the package directory instead of the mod root
+and failed before launching a game. The first complete run's assertions used
+unapplied input cuts and an incorrect full-tank endpoint; actual native reserve
+semantics and the configured network input delay informed the corrected checks.
+No menu correctness change was required. Actual86/180 accepted,94open,1/15.
+
+
+### Actual online survivor death and native team retry — N07
+
+N07 is accepted on GUI SHA256
+48cf3e5d443699b5e2acba6bf23e139bee1e19aa4ddf6530b2214d3f2f1a5afd.
+The two real peers cold-boot normally, then request the native stage5 constructor
+at the existing serialized frame3900. Travel and later spike approaches are
+positioning prerequisites. No death, fallen, wipe, fade, checkpoint, life debit
+or retry-completion result is supplied. Each roster runs the same actual native
+spike row, first under guest/seat1, later under the surviving host/seat0.
+
+At tick5480 both peers retain a living host and fallen guest with two lives,
+bright gameplay and no team wipe. Real host Right input moves1568to1598 while
+the guest stays fallen. After the survivor approaches the real spikes, both
+peers have two fallen actors and one wipe at5650; the original fade reaches
+black at6000 with the shared life count2to1. By6200 the native stage entry
+restores both original characters and16/28 or28/16HP. The actual current-build
+arrival ends, and real Left input moves both384to353 while lives remain1.
+Normal/reversed final full co-op digests are d00668f4/e38fb9ee. All13 compared
+post-setup simulation cuts match, with no reported desync under25ms delay and
+one300ms asymmetric packet hold. The reversed retry restores its original
+X/seat1 anchor; the earlier survivor correctly owned recovery before the wipe.
+
+Native-online-death-reversed exits0. The normal native-online-death run
+completed every gameplay cut but its initial assertion reversed the engine's
+physical Left/Right bit labels. The corrected exact same acceptance checks
+validate its retained observations with verify-online-death85.py(child0); no
+new gameplay or altered expected lifecycle was substituted. Evidence remains
+net-lan/online-death85-{x,zero}/observations.json with both peer logs. Four
+CTests pass. Actual87/180 accepted,93open,1/15rollups. N03/N09/N10 remain open.
+
+
+The same checkpoint repair also passes actual remote peer qualification:
+native-online-checkpoint exits0 on GUI SHA256
+198c3dad62d04f83ddb58ec25e1cd439069cce9e4d70fdfee751c1c08f6ce033.
+Both peers run the real native stage5 constructor. Guest Zero approaches the
+authored line while host X and its independent camera remain at the native
+entry. Actual guest Right/jump/dash crosses2944 and earns checkpoint1 once;
+X stays384, both remain living, life count stays2 and anchor stays0. Allfive
+pre/post-crossing complete co-op digests agree, ending05c7ffb1 at5598, with
+no desync under the same25ms/300ms UDP treatment. This is N09's checkpoint
+portion, not acceptance of its remaining doors/scripts/reward transitions.
+
+
+### Bounded online peer loss preserves fallen status — N10
+
+N10 is accepted by native-online-disconnect-guest and
+native-online-disconnect-host-retry(both child0), GUI SHA256
+0ed7d8a405f651dcaa7a541ea651f9eb174d34a422b482fce7f0e5b56183eb04.
+Each actual two-process session first reaches stage5 through the native loader
+and earns guest death on the authored spikes. Both peers have life states
+1/2 at5480, before any team wipe or life debit. One test-owned peer is then
+terminated: one case leaves the living host; the other leaves the fallen guest.
+
+The remaining real process reports exactly one packet_silence diagnostic with
+its1500ms budget, transport, session/seat, simulation tick5515, last remote
+wire5508, prediction-cap stall, packet counts and timing. It exits normally
+with code0 after1.812s(host) or1.797s(guest), including teardown. A read-only
+TRACE exit observation retains initialized life1/2, wipe0, two lives and
+HP16/0 in stage5. Neither departure revives the fallen actor, starts a retry
+or resumes disconnected simulation. The first host setup found occupied
+system UDP ports and failed before play; its replacement used checked free
+ports without stopping the unrelated port owners. Evidence remains in
+net-lan/online-disconnect87-guest/observations.json and
+net-lan/online-disconnect87-retry-host/observations.json with their process logs.
+This qualifies the direct-session coherent exit path; existing pre-frame-zero
+refusal evidence remains separate. Actual88/180 accepted,92open,1/15rollups.
+
+
+### Actual independent peer cameras and private native HUDs — N03
+
+N03 is accepted by native-online-private-both and
+native-online-private-reversed(both child0), GUI SHA256
+7c0061369118ff52d69418cce0fc942355b47f9ff23e4cdb168d904c719e3d71.
+Both real peers use their assigned independent view in both roster mappings.
+The actual native stage5 constructor precedes route positioning. Guest input
+first crosses the authored checkpoint and moves its private camera from2816
+to2873 atY1024 while the host remains at384/camera256,Y2560. The host then
+moves under actual Right input to467/camera339 while the guest stays3001
+in its own room. Both actors remain living with their native16/28HP, life
+count2 and checkpoint1. All eight compared complete co-op digest cuts agree,
+ending2e0171fd(normal) and65d9c24d(reversed); there is no reported desync.
+
+The existing network guard keeps the mutation-capable TCP debugger disabled.
+A bounded read-only TRACE wrapper instead retains the actual desktop draw
+callback output, including its native-field fallback at256px. Each process
+records32 real presented frames across both movements. These show the proper
+X or Zero body, distinct native room content, independently scrolling scenery,
+and the owning native meter/badge in each seat. The reversed case visibly
+swaps both body and appropriate16/28HP HUD. Native meter/badge pixels stay
+identical across all31 post-positioning frames per peer; the same character
+also matches pixel-exactly after moving to the other peer/room.
+
+Evidence is net-lan/online-private87-both-{x,zero}/observations.json, both
+capture sets and private-views87-meter-observation.json. Normal motion clips
+are retained with the actual source frames; this narrow peer-camera check
+does not accept the full V14 moving-scene review or remaining presentation
+families. The earlier first capture kept the host stationary and was retained
+as preparation, then extended to measure both actors and reversed ownership.
+Actual89/180 accepted,91open,1/15rollups; N09 remains open.
+
+
+N09's authored gate/following-script portion also passes native-online-door
+(child0), GUI SHA256
+ec99ad610a5b9e0d2c375ef3f5ee7a2b4cc74bd0816efddd73c6f448f219197d.
+The native stage1 constructor precedes guest Zero's real3C:D27C gate approach.
+Original allocation/admission adopts guest anchor1; one forced walk and native
+following miniboss introduction retain the scene through6000. By6200 both
+participants arrive at2577 with their original16/28HP and scene control released.
+Subsequent native hostile damage to Zero agrees on both peers, then actual
+Right input moves both bodies. All13 compared complete co-op digest cuts agree,
+endingf1854b04 at6500, with no desync, wipe or life debit. Positioning bypasses
+prior travel, while original admission, script, locks and cleanup decide results.
+Evidence remains net-lan/online-door88-x/observations.json with both process logs.
+Remote reward coverage remains open underN09; no acceptance increment follows.

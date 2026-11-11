@@ -34,6 +34,28 @@ static void diagnostic_prepare_frame(int dw,int dh,int *w,int *h) {
   int extra; MmxReplayViewport(w,&extra);
   X3Display_SetCoopPanelWidth(coop && *w>0 && *w%panes==0?(unsigned)(*w/panes):256);
 }
+/* Read-only capture of the actual compositor output for private peer QA. */
+static int diagnostic_draw_frame(uint8_t *dst,size_t pitch,const uint8_t *field,int width,int height,double alpha){
+  int drawn=X3Display_DrawCoopFrame(dst,pitch,field,width,height,alpha);
+#if defined(SNES_HAS_LOBBY_CLIENT) && defined(SNESRECOMP_NET_ROLLBACK) && SNESRECOMP_TRACE
+  const char *directory=getenv("SNESRECOMP_X3_NET_QA_CAPTURE");static uint32_t last;
+  uint32_t tick=snes_netplay_sim_tick();
+  if(directory && *directory && x3_net_qa() && ((tick>=5400 && tick<=5480) || (tick>=5520 && tick<=5680)) && !(tick%8) && tick!=last && width>0 && width<=kPpuMaxFrameWidth){
+    last=tick;char path[4096];int n=snprintf(path,sizeof(path),"%s/%05u.ppm",directory,tick);
+    if(n>0 && (size_t)n<sizeof(path)){
+      FILE *f=fopen(path,"wb");
+      if(f){const uint8_t *source=drawn?dst:field;size_t source_pitch=drawn?pitch:256u*4;uint8_t row[kPpuMaxFrameWidth*3];
+        fprintf(f,"P6\n%d %d\n255\n",width,height);
+        for(int y=0;y<height;++y){for(int x=0;x<width;++x){const uint8_t *pixel=source+(size_t)y*source_pitch+(size_t)x*4;row[x*3]=pixel[2];row[x*3+1]=pixel[1];row[x*3+2]=pixel[0];}fwrite(row,3,(size_t)width,f);}
+        fclose(f);const X3CoopState *s=X3CoopRuntimeState();unsigned seat=(unsigned)X3Display_PresentationSeat();
+        X3CoopView view=X3CoopViewsForPlayer(g_ram,s,seat,false);
+        fprintf(stderr,"[x3-net-view-capture] tick=%u seat=%u camera=%d,%d size=%d,%d private=%u path=%s\n",tick,seat,view.x,view.y,width,height,X3Display_RenderedPrivateFrame(),path);
+      }
+    }
+  }
+#endif
+  return drawn;
+}
 static void diagnostic_after_frame(const SnesDesktopHostFrameStats *stats) {
   (void)stats;
 #if defined(SNES_HAS_LOBBY_CLIENT) && defined(SNESRECOMP_NET_ROLLBACK) && SNESRECOMP_TRACE
@@ -69,7 +91,7 @@ static int MmxDiagnosticDesktopMain(const SnesDesktopHostGame *base,int argc,cha
   diagnostic_game=&game;diagnostic_native_widescreen=game.native_widescreen;
   diagnostic_prepare=game.prepare_frame;
   game.prepare_frame=diagnostic_prepare_frame;
-  game.draw_frame=X3Display_DrawCoopFrame;
+  game.draw_frame=diagnostic_draw_frame;
   game.compute_viewport=diagnostic_viewport;
   game.window_base_width=X3CoopSettingsWindowWidth;
   game.after_run_frame=diagnostic_after_frame;
