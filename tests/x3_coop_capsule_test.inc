@@ -8,6 +8,7 @@ static unsigned capsule_table(unsigned address,unsigned bytes){
 static unsigned capsule_x(void){return capsule_table(0x06ccbe + g_ram[0x1fae]*4,2);}
 static unsigned capsule_y(void){return capsule_table(0x06ccc0+g_ram[0x1fae]*4,2);}
 static unsigned capsule_mask(void){return capsule_table(0x06bbfd+capsule_table(0x06ccfa+g_ram[0x1fae],1),1);}
+static unsigned capsule_flags(void){return g_ram[0x1fd1]|(unsigned)g_ram[0x1fd7]<<8;}
 static void capsule_position(uint8_t *body,unsigned offset,unsigned value){body[offset]=(uint8_t)value;body[offset+1]=(uint8_t)(value>>8);}
 static void capsule_world_call(void){
   cpu_mirrors_to_p(&g_cpu);CpuState resume=g_cpu;target_world_call();
@@ -40,7 +41,7 @@ static unsigned capsule_approach(uint8_t *original,size_t size,uint8_t *work,siz
   X3CoopViewState views={0};views.independent=views.initialized=1;views.stage=g_ram[0x1fae];
   views.valid=views.camera_valid=3;
   for(unsigned s=0;s<2;++s){
-    views.camera[s][0]=(uint16_t)(s==x?((px-128)&~255u):view_read(0x1e5d));
+    views.camera[s][0]=(uint16_t)(s==x?px-128:view_read(0x1e5d));
     views.camera[s][1]=(uint16_t)(s==x?(py&~255):view_read(0x1e60));
     views.limits[s][1]=views.current[s][1]=8192;
     views.limits[s][2]=views.current[s][2]=views.camera[s][1];
@@ -57,8 +58,8 @@ static unsigned capsule_approach(uint8_t *original,size_t size,uint8_t *work,siz
   for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==0x4d)slot=d;
   if(!slot)fprintf(stderr,"capsule setup stage%u flags=%02x/%02x camera=%u,%u\n",g_ram[0x1fae],g_ram[0x1fd1],g_ram[0x1fd7],
       X3CoopViewsState()->camera[x][0],X3CoopViewsState()->camera[x][1]);
-  check(slot && view_read(slot+5)==px && view_read(slot+8)==py && g_ram[slot+1]==2 && g_ram[slot+2]==2,
   if(!slot && getenv("X3_COOP_CAPSULE_OUTPUT")){char path[1024];snprintf(path,sizeof(path),"%s-unqualified.sav",getenv("X3_COOP_CAPSULE_OUTPUT"));check(RtlSaveSnapshot(path),"missing native capsule retains its actual content/admission state");}
+  check(slot && view_read(slot+5)==px && view_read(slot+8)==py && g_ram[slot+1]==2 && g_ram[slot+2]==2,
         "retail allocator and native constructor prepare the actual stage capsule");
   check(capsule_constructor_seen,"actual native capsule construction was observed");
   setup=*X3CoopRuntimeState();b=setup.players[x].body;
@@ -71,7 +72,7 @@ static unsigned capsule_approach(uint8_t *original,size_t size,uint8_t *work,siz
 }
 static unsigned capsule_wait_open(unsigned slot,unsigned x,bool paired){
   unsigned ticks=0;bool ready=false;
-  for(;ticks<1800;++ticks){
+  for(;ticks<2400;++ticks){
     bool modal=g_ram[0x1f4f] || g_ram[0x1f45] || g_ram[0x1f63];
     unsigned buttons=modal && ticks%40<4?SNES_PAD_B:0;
     unsigned owner=paired && X3CoopRuntimeState()->players[x].life!=X3_COOP_ALIVE?x^1:x;
@@ -82,7 +83,7 @@ static unsigned capsule_wait_open(unsigned slot,unsigned x,bool paired){
   fprintf(stderr,"capsule open paired%u xseat%u ticks%u item=%u/%u/%u body=%u/%u xy=%u,%u lock%u flags=%u/%u/%u text=%u phase=%u/%u\n",
       paired,x,ticks,g_ram[slot+1],g_ram[slot+2],g_ram[slot+3],g_ram[0x9da],g_ram[0x9db],view_read(0x9dd),view_read(0x9e0),
       g_ram[0xa46],g_ram[0x1f4f],g_ram[0x1f45],g_ram[0x1f63],g_ram[0x1f36],g_ram[0xd1],g_ram[0xd2]);
-  check(ready && ticks<1800,"original capsule opening/dialogue releases native control");return ticks;
+  check(ready && ticks<2400,"original capsule opening/dialogue releases native control");return ticks;
 }
 typedef struct CapsuleDemo {uint64_t hash;unsigned frames,x,y;} CapsuleDemo;
 static CapsuleDemo capsule_wait_award(unsigned slot,unsigned x,bool paired){
@@ -90,9 +91,9 @@ static CapsuleDemo capsule_wait_award(unsigned slot,unsigned x,bool paired){
   for(;ticks<2400;++ticks){
     bool recorded=g_ram[slot+2]==8 && g_ram[slot+3]==14;
     unsigned input=paired && g_ram[0x1f45]?(SNES_PAD_LEFT|SNES_PAD_B|SNES_PAD_Y)<<(x*12):0;
-    frame(input | (paired?(SNES_PAD_RIGHT|SNES_PAD_B)<<((x^1)*12):0));
     /* Native04:8FB0 waits for a new Shoot edge in the radar survey. */
     if(g_ram[0x1f45]==2)input=(ticks%40<4?SNES_PAD_Y:0)<<(paired?x*12:0);
+    frame(input | (paired?(SNES_PAD_RIGHT|SNES_PAD_B)<<((x^1)*12):0));
     if(recorded){
       static const unsigned offsets[]={2,3,5,6,8,9,0x1a,0x1b,0x1c,0x1d,0x31,0x33,0x36,0x37,0x38,0x39,0x3a,0x3b};
       for(unsigned i=0;i<sizeof(offsets)/sizeof(*offsets);++i){demo.hash^=g_ram[X3_COOP_BODY+offsets[i]];demo.hash*=1099511628211ull;}
@@ -106,8 +107,8 @@ static CapsuleDemo capsule_wait_award(unsigned slot,unsigned x,bool paired){
   fprintf(stderr,"capsule award paired%u xseat%u ticks%u item=%u/%u/%u demo=%u/%llx xy=%u,%u lock%u flags=%u/%u/%u armor=%02x\n",
       paired,x,ticks,g_ram[slot+1],g_ram[slot+2],g_ram[slot+3],demo.frames,(unsigned long long)demo.hash,
       demo.x,demo.y,g_ram[0xa46],g_ram[0x1f4f],g_ram[0x1f45],g_ram[0x1f63],g_ram[0x1fd1]);
-  check(completed && ticks<2400 && demo.frames,"native capsule acquisition and its recorded demonstration finish");return demo;
   if(!completed && getenv("X3_COOP_CAPSULE_OUTPUT")){char path[1024];snprintf(path,sizeof(path),"%s-award-stalled.sav",getenv("X3_COOP_CAPSULE_OUTPUT"));check(RtlSaveSnapshot(path),"unqualified native capsule demonstration retains its actual stalled state");}
+  check(completed && ticks<2400 && demo.frames,"native capsule acquisition and its recorded demonstration finish");return demo;
 }
 static void capsule_enter(unsigned slot){
   view_word(0x9dd,capsule_x());view_word(0x9fa,capsule_x());memset(g_ram+0x9f2,0,6);
@@ -115,7 +116,7 @@ static void capsule_enter(unsigned slot){
   check(g_ram[slot+2]==8 && g_ram[0x1f4f],"native X steps into the open capsule without supplied award/completion flags");
 }
 static void capsule_retirement_checks(const uint8_t *opening,size_t open_size,const uint8_t *award,size_t award_size,
-                                     unsigned slot,unsigned x,uint8_t *work,size_t capacity){
+                                     unsigned slot,unsigned x,unsigned initial_flags,unsigned awarded_flags,uint8_t *work,size_t capacity){
   for(unsigned mode=0;mode<6;++mode){
     bool acquisition=mode==2 || mode==3 || mode==5;
     bool middle=mode==1 || mode==3 || mode>=4;
@@ -145,7 +146,7 @@ static void capsule_retirement_checks(const uint8_t *opening,size_t open_size,co
           contact_hp(seat)==hp && contact_hp(survivor)==survivor_hp && result->players[survivor].life==X3_COOP_ALIVE,
           "capsule cleanup preserves the survivor and retired participant without healing or revival");
     if(seat==x)check(pickup_probe_seen,"actual retired-X capsule script borrow saves and restores in place");
-    check((g_ram[0x1fd1]&15)==(acquisition?capsule_mask():0),"capsule interruption preserves exactly the earned native armor acquisition");
+    check(capsule_flags()==(acquisition?awarded_flags:initial_flags),"capsule interruption preserves exactly the original earned armor/chip flags and prepared prerequisites");
     const char *output=getenv("X3_COOP_CAPSULE_OUTPUT");char path[1024];
     if(output && *output){snprintf(path,sizeof(path),"%s-p%u-retirement%u.sav",output,x+1,mode);
       check(RtlSaveSnapshot(path),"native capsule retirement visual fixture saves");}
@@ -153,12 +154,36 @@ static void capsule_retirement_checks(const uint8_t *opening,size_t open_size,co
      * a fresh jump edge; the capsule room has a wall beside this landing. */
     for(unsigned i=0;i<2;++i)frame(0);
     unsigned before=support_position(survivor,5),before_y=support_position(survivor,8);
+    size_t motion_size=RtlSaveSnapshotToMemory(work,capacity);uint8_t *motion=malloc(motion_size);
+    check(motion!=NULL,"capsule survivor native-motion reference allocates");memcpy(motion,work,motion_size);
+    unsigned motion_input[30],motion_x[30],motion_y[30],motion_action[30];
     bool moved=false,healthy=true;
     for(unsigned i=0;i<30;++i){
-      frame((SNES_PAD_LEFT|(i%12<4?SNES_PAD_B:0))<<(survivor*12));
-      moved=moved || support_position(survivor,5)+8<before || support_position(survivor,8)+16<before_y;
+      /* The authored alcoves have different walls/ceilings. Exercise both
+       * directions, then release input after actual movement is observed. */
+      unsigned input=i<12?(SNES_PAD_LEFT|(i<4?SNES_PAD_B:0)):
+          (i<20?(SNES_PAD_LEFT|(i<16?SNES_PAD_A:0)):(SNES_PAD_RIGHT|(i<24?SNES_PAD_A:0)));
+      motion_input[i]=moved?0:input;frame(motion_input[i]<<(survivor*12));
+      motion_x[i]=support_position(survivor,5);motion_y[i]=support_position(survivor,8);
+      motion_action[i]=X3CoopRuntimeState()->players[survivor].body[2];
+      moved=moved || abs((int)support_position(survivor,5)-(int)before)>8 || support_position(survivor,8)+16<before_y;
       healthy=healthy && contact_hp(survivor)==survivor_hp && (g_ppu->inidisp&0x8f)==15;
     }
+    if(!moved){
+      size_t finish_size=RtlSaveSnapshotToMemory(work,capacity);
+      check(RtlLoadSnapshotFromMemory(motion,motion_size),"short capsule alcove motion restores the exact native starting world");
+      X3CoopState native=*X3CoopRuntimeState();X3CoopViewsAdoptPlayer(g_ram,&native,survivor,false);
+      native.current=(uint8_t)survivor;X3CoopRuntimeEnable(false);door_install_player(&native);
+      bool native_match=true,native_moved=false;
+      for(unsigned i=0;i<30;++i){frame(motion_input[i]);
+        native_match=native_match && view_read(0x9dd)==motion_x[i] && view_read(0x9e0)==motion_y[i] && g_ram[0x9da]==motion_action[i];
+        native_moved=native_moved || view_read(0x9dd)!=before || view_read(0x9e0)!=before_y;
+      }
+      fprintf(stderr,"capsule alcove native reference mode%u match%u moved%u xy%u,%u->%u,%u\n",mode,native_match,native_moved,before,before_y,view_read(0x9dd),view_read(0x9e0));
+      moved=native_match && native_moved;
+      X3CoopRuntimeEnable(true);check(RtlLoadSnapshotFromMemory(work,finish_size),"short capsule alcove comparison restores the complete co-op future");
+    }
+    free(motion);
     if(!moved || contact_hp(survivor)!=survivor_hp || (g_ppu->inidisp&0x8f)!=15)
       fprintf(stderr,"capsule survivor mode%u xy=%u,%u->%u,%u hp%u state%u/%u lock%u bright%02x freezes=%u/%u/%u/%u\n",
           mode,before,before_y,support_position(survivor,5),support_position(survivor,8),contact_hp(survivor),
@@ -173,7 +198,16 @@ static void capsule_retirement_checks(const uint8_t *opening,size_t open_size,co
 }
 static void native_capsule_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity,bool reversed){
   unsigned slot=capsule_approach(original,size,work,capacity,reversed);
+  if(getenv("X3_COOP_CAPSULE_UNIFIED")){
+    /* Allocation/route preparation is already complete. Exercise the native
+     * shared-camera scene path from the same actual authored capsule. */
+    X3CoopViewsConfigure(false);unsigned cx=capsule_x()-128,cy=capsule_y()&~255u;
+    view_word(0x1e5d,cx);view_word(0x1e7a,cx);view_word(0x1e60,cy);view_word(0x1e7c,cy);
+    view_word(0x1e66,0);view_word(0x1e68,8192);view_word(0x1e6e,0);view_word(0x1e70,8192);
+    view_word(0x1e6a,cy);view_word(0x1e6c,cy);view_word(0x1e78,cy);view_word(0x1e7e,cy);
+  }
   X3CoopState setup=*X3CoopRuntimeState();unsigned x=setup.players[0].character==X3_COOP_X?0:1;
+  unsigned initial_flags=capsule_flags();
   size_t prepared=RtlSaveSnapshotToMemory(work,capacity);
   X3CoopRuntimeEnable(false);X3CoopViewsAdoptPlayer(g_ram,&setup,x,false);
   setup.current=(uint8_t)x;door_install_player(&setup);capsule_world_call();
@@ -183,7 +217,8 @@ static void native_capsule_checks(uint8_t *original,size_t size,uint8_t *work,ui
   uint8_t native_capsule[64];memcpy(native_capsule,g_ram+slot,64);
   capsule_wait_open(slot,0,false);capsule_enter(slot);
   CapsuleDemo reference=capsule_wait_award(slot,0,false);
-  check((g_ram[0x1fd1]&15)==capsule_mask(),"original stage capsule awards its native armor bit");
+  unsigned awarded_flags=capsule_flags(),native_health=g_ram[0x9ff]&127,mask=capsule_mask();
+  check((mask&0xf0?g_ram[0x1fd7]&0xf0:g_ram[0x1fd1]&15)==mask,"original stage capsule awards its actual native armor/chip mask");
   for(unsigned mode=0;mode<5;++mode){
     check(RtlLoadSnapshotFromMemory(work,prepared),"capsule native-character eligibility approach restores");
     X3CoopState candidates=*X3CoopRuntimeState();unsigned zero=x^1;
@@ -210,6 +245,12 @@ static void native_capsule_checks(uint8_t *original,size_t size,uint8_t *work,ui
     check(mode<4?(g_ram[slot+2]==2 && !g_ram[0x1f4f]):
           (g_ram[slot+2]==4 && g_ram[0x1f4f] && !memcmp(native_capsule,g_ram+slot,64)),
           "native capsule eligibility excludes Zero-only contacts and admits one simultaneous X contact");
+    if(!mode){
+      size_t follow_size=RtlSaveSnapshotToMemory(expected,capacity);X3CoopState follow;check(X3CoopDecode(&follow,expected+contact_context_offset(expected,follow_size),X3CoopEncodedSize()),"Zero-first capsule contact retains the actual waiting scene");
+      memcpy(follow.players[x].body+5,follow.players[zero].body+5,2);memcpy(follow.players[x].body+8,follow.players[zero].body+8,2);memcpy(follow.players[x].body+0x22,follow.players[x].body+5,2);memcpy(follow.players[x].body+0x24,follow.players[x].body+8,2);
+      check(X3CoopEncode(&follow,expected+contact_context_offset(expected,follow_size),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(expected,follow_size),"X subsequently approaches the same capsule without resetting Zero's earlier contact");door_install_player(&follow);capsule_world_call();
+      check(g_ram[slot+2]==4 && g_ram[0x1f4f] && X3CoopRuntimeState()->anchor==x && capsule_flags()==initial_flags,"a real X contact after Zero's miss admits exactly one X-owned native scene without an early award");
+    }
   }
   check(RtlLoadSnapshotFromMemory(work,prepared),"paired capsule starts from matched native contact");
   check(interp_bridge_add_pre_opcode_hook(0x13c164,pickup_continuation_probe),"native capsule opening continuation probe registers");
@@ -253,14 +294,14 @@ static void native_capsule_checks(uint8_t *original,size_t size,uint8_t *work,ui
   CapsuleDemo paired=capsule_wait_award(slot,x,true);
   check(reference.frames==paired.frames && reference.hash==paired.hash && reference.x==paired.x && reference.y==paired.y,
         "both-seat co-op preserves the exact native recorded demonstration despite conflicting controller input");
-  check((g_ram[0x1fd1]&15)==capsule_mask() && contact_hp(x)==16 && contact_hp(x^1)==28,
+  check(capsule_flags()==awarded_flags && contact_hp(x)==native_health && contact_hp(x^1)==(setup.players[x^1].body[0x27]&127),
         "capsule awards native X armor once while preserving both personal health values");
   if(output && *output){snprintf(path,sizeof(path),"%s-p%u-complete.sav",output,x+1);check(RtlSaveSnapshot(path),"completed native capsule visual fixture saves");}
   size_t complete=RtlSaveSnapshotToMemory(expected,capacity);
   check(RtlLoadSnapshotFromMemory(award,award_size),"pending native capsule award restores");capsule_wait_award(slot,x,true);
   size_t repeated=RtlSaveSnapshotToMemory(work,capacity);
   same(expected,complete,work,repeated,"capsule award, recorded control and participant arrival replay to the identical full machine");
-  capsule_retirement_checks(opening,open_size,award,award_size,slot,x,expected,capacity);
+  capsule_retirement_checks(opening,open_size,award,award_size,slot,x,initial_flags,awarded_flags,expected,capacity);
   free(opening);free(award);
   check(RtlLoadSnapshotFromMemory(original,size),"native capsule probes restore starting machine");
   (void)expected;

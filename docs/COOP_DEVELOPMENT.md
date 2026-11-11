@@ -44,23 +44,24 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted areas: 0/15.** Component checks and a successful build are not
+**Accepted touch points: 81/180; 99 open/partial. Accepted areas: 1/15
+(snapshot/rewind/rollback).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
 | Area | Status | Acceptance |
 | --- | --- | --- |
-| Individual death | D01-D05/D07/D09/D14/D16 accepted (9/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
+| Individual death | D01-D05/D07/D09/D11/D14-D16 accepted (11/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F02-F07/F09 accepted (7/10); checkpoints, difficult placement and reconnect/options remain open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
-| Separated spawning | A06-A08 accepted (3/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | P01-P04 accepted (4/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
-| Enemy interactions | E01/E04/E11 accepted (3/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
-| Combat ownership | C01/C02 accepted (2/12); other attacks, native combo/hit windows and lifecycle cases open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
-| Doors/scripts | Stage1 entrance/transport and stage5/stage8 capsule tasks pass focused both-roster/API-retirement checks; visuals, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
+| Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
+| Supports/hazards | P01-P05 accepted (5/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
+| Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
+| Combat ownership | C01-C05/C07/C09/C10/C12 accepted (9/12); armored parts, attack origins and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
+| Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M11 accepted (11/12); transition/menu overlap remains open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
-| Rollback/state | R01/R04-R10 accepted (8/10); remaining interrupted-state and malformed-input coverage open | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
+| Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
 | Netplay | N02/N04/N05/N11/N12 accepted (5/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
@@ -2740,3 +2741,60 @@ resolver supplies the same eight pieces, coordinates, native OAM attributes
 and nonzero E4 colors; their background occlusion still needs a valid complete
 native field/route comparison. Temporary renderer diagnostics were removed.
 Actual acceptance stays80/180,100open/partial,1/15rollups.
+
+
+### All native capsule families and Zero-first ownership — S08
+
+S08 is accepted on state SHA256
+80a3726016324f7adf611770cea75fcc0fe3f4c8d72fd12be61da8df4ec80483,
+production HEADba79a80/engine614694ab. Native-capsule-matched exits0 for
+stages6/10; native-capsule-family-gate exits0 for stages1/2/3/4/5/7/8.
+These cover all four ordinary parts, four chips and the golden capsule from
+the actual cartridge tables, in both roster assignments. The test supplies
+only each chip's base armor/no-existing-chip requirements, or the golden
+capsule's actual all-parts/hearts/full-health prerequisites. Acquired chip
+flags are never supplied as the result.
+
+An actual Zero contact leaves the same capsule waiting. A subsequent X
+contact, without resetting that earlier native world update, admits exactly
+one X-owned scene with no early award. Fallen, absent and zero-HP X cannot
+lend eligibility to Zero. Simultaneous contact produces the same complete
+64-byte capsule update as original X. The actual native acquisition then
+compares both flag banks1FD1/1FD7 exactly with its single-player reference,
+retains each player's original health, and reproduces the original recorded
+control trace despite conflicting live inputs. Opening and award futures
+replay to the identical complete machine. Six API-retirement cuts per roster
+preserve earned flags, survivor health/brightness and fallen/absent status.
+API retirement remains distinct from authored scene hazards.
+
+Native-capsule-unified exits0 on state SHA256
+1d2ad73e50a2b96ffb33ffc61b3e14976a70b478f70d3e0a45cdf39711e1ad74:
+body and helmet scenes, both rosters, the same eligibility, actual acquisition,
+native demonstration, replay and retirement checks with independent views
+disabled. Allocation/route preparation precedes this camera-policy switch;
+Unified spawn/frontier admission is not claimed by this scene check. Four
+CTests pass after temporary diagnostics were removed.
+
+The chip traces are stage1:65/f0370716aa992c49, stage3:209/e4bb2e9564be5a07,
+stage6:65/64ce8a31a9307b8a, stage4:273/371bef0991c685b0 and
+golden:65/34f28e1135300070. The four ordinary traces remain those recorded
+above. Preparation now keeps the capsule event inside its unrounded camera
+field. The opening bound2400 accommodates stage3's original1798-frame
+dialogue plus participant transport, retaining the same actual completion
+conditions.
+
+Stage6/golden alcoves limit an opening survivor's movement to seven pixels.
+Actual jump/dash input in both directions matches the original single-player
+X/Y and action on every one of30 updates in both rosters, including real
+movement. This is native terrain behavior, not a scene lock. Other cases
+retain their ordinary movement and health/brightness checks. No production
+terrain, capsule timing or eligibility change was needed.
+
+S09/V presentation remains open. Explicit native sprite/CHR loading and
+original foreground row streaming repair the teleported reference's skipped
+asset prerequisites; with that foreground present the original also hides
+Dr.Light. This does not establish a private-only occlusion defect. Full
+native room/resource admission and moving scene presentation still need a
+valid route. Diagnostic code was removed from production/test sources and
+retained only with the private QA evidence. Actual81/180 accepted,99open,
+1/15rollups; no release delivery is implied.

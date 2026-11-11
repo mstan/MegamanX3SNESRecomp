@@ -71,3 +71,11 @@ not infer the defect from a commit subject or transfer X1 addresses into X3.
 | Additional support reference | Parent behavior and correction | X3 disposition |
 | --- | --- | --- |
 | X1 `72a6cef`, `63a2c1e` | The parent returned the second rider’s result when only that rider boarded, although the elevator’s later carry still changed the first projected body. The correction always returns the first result and defers the partner’s displacement until frame end. The next fix admits both the top and column into collision checks while retaining the actual top slot separately, so a later column query cannot replace its deferred carry source. | X3 pairs its actual BFAE landing and C07F carry boundaries immediately and serializes rider masks by native object slot. Its authored class26 same-frame landing/departure and two distinct support/child cases already cover P01-P04/R05. The X1 class59/5A allowlist and deferred frame-end mechanism are superseded rather than copied; The native class37 lift now also matches both original rider references through its actual60-update stop and reversal under P05; destruction families remain open under P16. |
+
+S08 follow-up: all nine native capsule variants now pass the actual X/Zero
+eligibility and Zero-first/simultaneous contact checks in both rosters. Body
+and helmet also pass the Unified scene path after explicit allocation
+preparation. Original acquisition flag banks, native recorded control,
+retirement and exact replay retain X ownership. The remaining S09/V route
+and presentation requirements are independent; see COOP_DEVELOPMENT.md for
+the frozen binaries and qualified scope.
