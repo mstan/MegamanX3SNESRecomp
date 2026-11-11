@@ -55,7 +55,7 @@ campaign or co-op gameplay acceptance.
 | Separated spawning | A06-A08 accepted (3/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | P01-P04 accepted (4/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01/E04/E11 accepted (3/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
-| Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
+| Combat ownership | C01/C02 accepted (2/12); other attacks, native combo/hit windows and lifecycle cases open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | Stage1 entrance/transport and stage5/stage8 capsule tasks pass focused both-roster/API-retirement checks; visuals, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M11 accepted (11/12); transition/menu overlap remains open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
@@ -2126,3 +2126,27 @@ participant-retirement cases; the broad and intro gates remain child0.
 Actual60/180 accepted,120open/partial,0/15rollups. All final owner/presentation,
 remaining authored campaign, online behavior, performance and package gates
 remain required. No delivery archive or remote repository was changed.
+
+
+### Native simultaneous firing and independent charge
+
+C01 and C02 are accepted by `native-concurrent-combat-receipt.json`(child0),
+state SHA25616152ad5f15dfe0453d56d3452e5f42fa7127d1fe9a276e34c3955ec1ba5c994.
+Both actual rosters run240frames per scenario: simultaneous rapid taps,
+staggered full-charge releases, P1 charging beside P2 taps and the opposite
+assignment. Each actor's original single-player reference runs from the same
+ground/camera/input prerequisite. Every command, native charge-counter pair,
+64palette bytes,480auxiliary bytes and576projectile bytes equals that actor's
+original trace on every paired frame. Simultaneous taps reach the original
+three-shot active limit in both seats. Staggered/asymmetric holds reach the
+actual original X/Zero charge levels without arming, cancelling or recoloring
+the other actor. Every240-frame result also reproduces the complete machine
+from its starting snapshot; the native world ticks once per frame.
+
+This isolates native combat by clearing shared hostile/item slots and setting
+local spawn-visit prerequisites, with both actors on actual stage1 ground at
+x384. It does not claim authored enemy/boss behavior, persistent acquisition,
+Zero's complete saber chain or nonzero hit-history retention under other weapon
+pressure; C03-C12 remain open. No runtime correction was required.
+
+Actual62/180 accepted,118open/partial,0/15rollups.
