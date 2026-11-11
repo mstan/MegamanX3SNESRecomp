@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 82/180; 98 open/partial. Accepted areas: 1/15
+**Accepted touch points: 83/180; 97 open/partial. Accepted areas: 1/15
 (snapshot/rewind/rollback).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -52,7 +52,7 @@ campaign or co-op gameplay acceptance.
 | --- | --- | --- |
 | Individual death | D01-D05/D07/D09/D11/D14-D16 accepted (11/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
-| Fallen persistence | F01-F07/F09 accepted (8/10); difficult placement and reconnect/options remain open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
+| Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | P01-P05 accepted (5/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
@@ -2819,3 +2819,29 @@ no retry/life debit occurs, and public rejoin remains forbidden. Each actual
 pending crossing replays to the identical complete machine and crossing
 frame. No production change was required. Actual82/180 accepted,98open,
 1/15rollups.
+
+
+### Difficult native return placement — F08
+
+F08 is accepted by native-difficult-return and native-difficult-support
+(both child0), state SHA256
+b5f9d1202bcc9f64e54ab785ae78ece61f5f7ecd9964218369fb219bf9272a02.
+The actual stage5 plateau ends atx1632 beside the authored spike field.
+With the survivor atx1612, public withdrawal/return chooses the clear plateau
+atx1580 for either returning character in either roster. Both keep their
+original health through60 real native terrain updates, and each complete
+return future replays exactly. No damage protection, map edits or supplied
+landing result is used in these placement cases.
+
+The same native stage has a32px-high passage atx3064/floor960. Original X
+settles there under the authored roof; Zero's public return is refused in
+both seats. The entire machine remains byte-identical on refusal, then the
+survivor continues60 native frames without damage or unintended enrollment.
+
+The real class26 support at1224,1464 is admitted from its cartridge event
+and runs the existing matched original/co-op45-update approach. AtY1434,
+both actual riders have native surface contact. Either can withdraw in either
+roster; a floating NPC is never accepted as an ordinary terrain landing for
+the returning participant. All four refusals leave the complete machine
+unchanged. The original two-rider future is restored afterward. No production
+landing-policy change was needed. Actual83/180 accepted,97open,1/15rollups.

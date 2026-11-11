@@ -205,3 +205,40 @@ static void native_return_checks(uint8_t *original,size_t size,uint8_t *work,uin
   return_corridor_check(original,size);
   native_participation_controls(original,size,work,expected,capacity);
 }
+
+/* Authored stage5 spike edge and32px roof. Placement is a prerequisite;
+ * native terrain settles the survivor before public withdrawal/return. */
+static void native_difficult_return_checks(const char *fixture,uint8_t *base,uint8_t *work,uint8_t *after,size_t capacity){
+  for(unsigned mode=0;mode<2;++mode)for(unsigned reversed=0;reversed<2;++reversed)for(unsigned absent=0;absent<2;++absent){
+    check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==5,"difficult return loads actual stage5 terrain");
+    size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
+    if(reversed){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
+    unsigned survivor=absent^1;if(mode && setup.players[survivor].character!=X3_COOP_X)continue;
+    unsigned px=mode?3064:1612,floor=mode?960:1392;setup.current=setup.anchor=(uint8_t)survivor;
+    uint8_t *b=setup.players[survivor].body;unsigned shape=setup.players[survivor].character==X3_COOP_ZERO?0xb40e:0xb404;
+    const uint8_t *rect=g_snes->cart->rom+0x30000+(shape&32767);team_hazard_body(b,px,floor-(int8_t)rect[6]-rect[8]-1);b[0x20]=(uint8_t)shape;b[0x21]=(uint8_t)(shape>>8);
+    check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"difficult return installs only native roster/approach coordinates");door_install_player(&setup);
+    check(X3CoopRuntimeWithdraw(absent),"difficult return participant withdraws through the public runtime API");
+    X3CoopViewsConfigure(true);X3CoopViewState views={0};views.independent=views.initialized=1;views.stage=5;views.valid=views.camera_valid=3;
+    unsigned cx=px-128,cy=floor&~255u;for(unsigned seat=0;seat<2;++seat){views.camera[seat][0]=(uint16_t)cx;views.camera[seat][1]=(uint16_t)cy;views.limits[seat][1]=views.current[seat][1]=8192;views.limits[seat][2]=views.current[seat][2]=(uint16_t)cy;views.limits[seat][3]=views.current[seat][3]=(uint16_t)cy;}X3CoopViewsSetState(&views);
+    view_word(0x1e5d,cx);view_word(0x1e7a,cx);view_word(0x1e60,cy);view_word(0x1e7c,cy);view_word(0x1e66,0);view_word(0x1e68,8192);view_word(0x1e6e,0);view_word(0x1e70,8192);view_word(0x1e6a,cy);view_word(0x1e6c,cy);view_word(0x1e78,cy);view_word(0x1e7e,cy);
+    unsigned hp=contact_hp(survivor);for(unsigned f=0;f<3;++f)frame(0);
+    check(X3CoopRuntimeState()->players[survivor].life==X3_COOP_ALIVE && contact_hp(survivor)==hp && support_position(survivor,5)==px,"real native survivor settles on the authored spike-edge/low-roof approach without protection or damage");
+    n=RtlSaveSnapshotToMemory(base,capacity);unsigned personal_hp=X3CoopRuntimeState()->players[absent].body[0x27]&127;bool first=false;size_t finish=0;
+    for(unsigned run=0;run<2;++run){check(RtlLoadSnapshotFromMemory(base,n),"difficult return restores the same actual terrain/body approach");bool returned=X3CoopRuntimeRejoin(absent);
+      fprintf(stderr,"difficult native return mode%u roster%u absent%u returned%u xy%u,%u source%u,%u\n",mode,reversed,absent,returned,support_position(absent,5),support_position(absent,8),support_position(survivor,5),support_position(survivor,8));
+      if(!returned){same(base,n,work,RtlSaveSnapshotToMemory(work,capacity),"unsafe difficult return refuses before changing the complete machine");}
+      else{check(!mode && support_position(absent,5)<1632,"return beside authored spikes chooses the safe plateau rather than the hazard or low roof");}
+      for(unsigned f=0;f<60;++f)frame(0);
+      const X3CoopState *s=X3CoopRuntimeState();check(s->players[survivor].life==X3_COOP_ALIVE && contact_hp(survivor)==hp && s->players[absent].life==(returned?X3_COOP_ALIVE:X3_COOP_ABSENT) && (s->players[absent].body[0x27]&127)==personal_hp && !s->wipe,"native physics retains the safe returned actor or unchanged absence beside hazards/low ceilings without healing or damage");
+      if(!run){first=returned;finish=RtlSaveSnapshotToMemory(after,capacity);}else{check(returned==first,"difficult return makes the same native placement decision");same(after,finish,work,RtlSaveSnapshotToMemory(work,capacity),"difficult return and sixty native terrain updates replay the full machine exactly");}
+    }
+  }
+}
+static void native_return_on_support(size_t capacity){
+  uint8_t *base=malloc(capacity),*work=malloc(capacity);check(base && work,"moving support return reference allocates");size_t n=RtlSaveSnapshotToMemory(base,capacity);
+  for(unsigned absent=0;absent<2;++absent){check(RtlLoadSnapshotFromMemory(base,n),"difficult support return restores its actual moving platform and two riders");check(X3CoopRuntimeWithdraw(absent),"native moving-support rider withdraws through the public runtime API");size_t waiting=RtlSaveSnapshotToMemory(work,capacity);uint8_t *unchanged=malloc(waiting);check(unchanged!=NULL,"unsafe support return reference allocates");memcpy(unchanged,work,waiting);
+    bool returned=X3CoopRuntimeRejoin(absent);fprintf(stderr,"difficult native support return roster%u absent%u returned%u rider%u,%u\n",X3CoopRuntimeState()->players[0].character,absent,returned,support_position(absent^1,5),support_position(absent^1,8));check(!returned,"floating moving support cannot masquerade as a clear native terrain landing");same(unchanged,waiting,work,RtlSaveSnapshotToMemory(work,capacity),"unsafe moving-support return leaves the entire machine unchanged");free(unchanged);
+  }
+  check(RtlLoadSnapshotFromMemory(base,n),"moving-support return probes restore the original rider future");free(base);free(work);
+}

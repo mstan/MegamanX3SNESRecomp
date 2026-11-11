@@ -14,6 +14,8 @@ static void door_install_player(const X3CoopState *setup);
 static unsigned view_read(unsigned address);
 static void view_word(unsigned address,unsigned value);
 static void native_gameplay_update(unsigned keys,bool original);
+static void native_return_on_support(size_t capacity);
+static void team_hazard_body(uint8_t *b,unsigned x,unsigned y);
 static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned seat,unsigned index,unsigned mode,uint8_t *work,uint8_t *after,size_t capacity);
 #include "x3_coop_contact_test.inc"
 #include "x3_coop_target_test.inc"
@@ -317,7 +319,7 @@ int main(int argc,char **argv) {
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_SEPARATE_PLATFORM_REVERSED_STATE");check(reversed && *reversed,"separate authored supports supply both real rosters");native_separate_authored_support_checks(fixture,reversed,saved,after,damaged,cap);}
     fixture=getenv("X3_COOP_PLATFORM_STATE");
     if(fixture && *fixture) {
-      if(getenv("X3_COOP_PLATFORM_TURN")){
+      if(getenv("X3_COOP_PLATFORM_TURN") || getenv("X3_COOP_DIFFICULT_SUPPORT")){
         for(unsigned roster=0;roster<2;++roster){check(RtlLoadSnapshot(fixture),"support reversal restores the same native world for either roster");size=RtlSaveSnapshotToMemory(saved,cap);X3CoopState setup;check(X3CoopDecode(&setup,saved+contact_context_offset(saved,size),X3CoopEncodedSize()),"support reversal decodes its actual native bodies");if(roster){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;setup.current^=1;setup.anchor^=1;}check(X3CoopEncode(&setup,saved+contact_context_offset(saved,size),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(saved,size),"support reversal installs the complete matched roster");door_install_player(&setup);size=RtlSaveSnapshotToMemory(saved,cap);authored_support_checks(saved,size,after,cap);}
       }else{
       X3CoopRuntimeEnable(true);
@@ -332,6 +334,8 @@ int main(int argc,char **argv) {
       }
       }
     }
+    fixture=getenv("X3_COOP_DIFFICULT_RETURN_STATE");
+    if(fixture && *fixture)native_difficult_return_checks(fixture,saved,damaged,after,cap);
     fixture=getenv("X3_COOP_CHECKPOINT_STATE");
     if(fixture && *fixture)native_checkpoint_persistence_checks(fixture,saved,damaged,after,cap);
     fixture=getenv("X3_COOP_CAPSULE_STATE");
