@@ -1208,10 +1208,12 @@ reduces the boss to0. The original death, graphics upload and reward finish;
 exit flag was written. Evidence: `public-boss-server-native-window-result.log`,
 `public-boss-server-victory-result.log` and `boss-reversed` captures under
 `build-coop/qa-state`, on GUI SHA256 `d55f864b265d71da6c1f97e96575e87ff5485b39e2e56292d347d28589449769`.
-The checkpoint setup retained intro campaign mode1 at1FD5. Input at the
-password returned to the intro; that setup does not qualify ordinary stage
-selection or the next-stage transition. A valid native campaign prerequisite
-and broader targeting, survivor and exit cases remain open.
+That early checkpoint setup had not earned the intro-completion prerequisite
+at1FD3. Input at the password returned to the intro, so that setup does not
+qualify ordinary stage selection. Native00:9A4B also sets1FD5 for stages whose
+clear bit is already set; it is not solely an intro-mode flag. The later
+earned-intro campaign and survivor evidence below supersedes this setup gap.
+Broader authored targeting and campaign cases remain open.
 
 ### Adaptive co-op display and LAN pilots
 
@@ -1289,3 +1291,70 @@ passes the learner-both-rosters and adaptive complete-machine comparison
 (`intro-resume-state-server-result.log`). Both co-op CTests pass. These focused
 results do not close online combat, delayed-input rollback, scenes, menus or
 owner checks. All15 final rollups and the full180-point acceptance remain open.
+
+
+## Current 180-point acceptance disposition
+
+The controlling180 IDs remain unchanged. Three IDs are accepted;177 remain
+open (including partially exercised IDs). No final rollup is complete:0/15.
+A failed setup is retained as setup evidence and does not establish a game
+defect or qualify a gameplay ID.
+
+| ID | Decision and concrete evidence | Identity |
+| --- | --- | --- |
+| F09 | Passed: living P2 learner damage protection and actual stage5 pit rescue in both rosters, unsafe return refusal, P1-death survivor, previously fallen exclusion and deterministic replay; native safe shared catch-up also retains personal state. `intro-resume-state-server-result.log`, `adaptive-learner-final-server-result.log`, `native-shared-camera-server-final-result.log`. | Current state091bd59c...; fixes681a7b8/6e11ade/2171edb. |
+| N02 | Passed: real PC/SERVER LAN runs the native title/opening/dialogue, enrolls both actors and admits independent seat movement with agreed world progression and no reported desync. `x3-cross3-local-result.log`, `x3-cross3-server-result.log`. | GUI2819182c...; source1cbcb6f. |
+| N04 | Passed: two real processes negotiate Unified, use shared view-1 on both peers and agree on native intro progression and both seats movements. No local presentation option selects a different simulation. `x3-unified-server-result.log`. | Same GUI2819182c... and portable profile0. |
+
+Online delayed transport passes25ms each way and a300ms guest-input hold.
+It causes no actual misprediction, so it is not rollback proof. The existing
+recomp-net validation injector then produces22 real resimulation episodes
+and22 committed repairs on each peer, including living P2 movement. One
+late row at3735 was initially outside the open episode and is explicitly
+retried and committed in epoch89. No post-fork/lost-correction result remains.
+Both peers agree at common tick4200 on X2710/Zero2587 and live stage0; local
+first-predicted enrollment ages differ after rollback and are not compared as
+simulation clocks. `x3-forced2-server-result.log` passes. The first forced run
+failed that unsuitable age/tick comparison; its evidence remains. Online
+combat, menus, wipes and scene cases under N06-N09 remain open.
+
+Actual native Maoh clear (HP1 assisted head shot) and original Zero dialogue
+now earn intro completion at1FD3 and enter the real campaign. Blast Hornet
+then awards its native1FBE weapon and returns to an actual next stage. The
+P2 Zero leading final door admits both; a real boss contact with X prepared
+at1HP leaves X fallen and Zero alive at20HP. Zero finishes with an original
+left-facing buster shot, earns the same reward and enters the next native
+stage with X still fallen and Zero alive at28HP. No death, reward, clear or
+exit flag is written. Only position/health and bossHP1 are assisted; checkpoint2
+bypasses earlier travel. Evidence: `intro-maoh-finish-server-result.log`,
+`campaign-hornet-survivor-server-result.log`,
+`campaign-hornet-survivor-clear-server-result.log`, `hornet-survivor-*` captures
+and slots8/9 retained in `boss-reversed`. The P2 script syntax requires every
+button token to carry its prefix; the earlier unqualified Y was a QA input
+error. Full G01/G09/F03/F04/S14 acceptance still needs their remaining cases.
+
+
+The other seven native Maverick clears pass on the same exact GUI. Each
+route uses the earned-intro baseline, the original stage loader and checkpoint2
+(traversal bypass), an actual P2-led final door, and the original boss at32HP.
+Positioned X fires his normal buster with only bossHP1 and personal-health
+assistance. Every main actor reaches original primary04 withHP0. Its own
+weapon byte changes00→DC, and the original reward/confirmation flow enters
+the next campaign stage with X16HP and Zero28HP, both alive.
+
+| Native stage / boss | Main class | Earned native weapon byte |
+| --- | --- | --- |
+| 2 / Blizzard Buffalo | 52 | 1FC8:00→DC |
+| 3 / Gravity Beetle | 59 | 1FC6:00→DC |
+| 4 / Toxic Seahorse | 57 | 1FBC:00→DC |
+| 5 / Volt Catfish | 58 | 1FC0:00→DC |
+| 6 / Crush Crawfish | 54 | 1FC2:00→DC |
+| 7 / Tunnel Rhino | 55 | 1FCA:00→DC |
+| 8 / Neon Tiger | 56 | 1FC4:00→DC |
+
+Evidence: `campaign-maverick-entries-server-result.log` and
+`campaign-maverick-clears-server-result.log` (both child0); unique ready/clear
+current-build snapshots, after-shots and transition WRAM plus images under
+`build-coop/qa-state/boss-reversed`. This qualifies the eight original arena
+admissions/finishing-hit/reward/return paths as subcases, not the entire authored
+stage/targeting/capture/survivor contract of G02-G09. Those IDs remain open.
