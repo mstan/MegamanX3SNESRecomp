@@ -178,7 +178,7 @@ static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modif
 
 /* Two distinct stage5 ROM records,3C:E12C and3C:E1BB, live in vertically
  * separated rooms. Teleports/camera prerequisites bypass admission traversal. */
-static void native_separate_authored_support_checks(const char *normal,const char *reversed,uint8_t *base,uint8_t *work,size_t capacity){
+static void native_separate_authored_support_checks(const char *normal,const char *reversed,uint8_t *base,uint8_t *work,uint8_t *replay,size_t capacity){
   for(unsigned roster=0;roster<2;++roster){
     check(RtlLoadSnapshot(roster?reversed:normal) && g_ram[0x1fae]==5,"separate supports load the actual stage5 roster");
     size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
@@ -203,5 +203,10 @@ static void native_separate_authored_support_checks(const char *normal,const cha
     check((uint8_t)(g_ram[0x9cc]-tick)==45,"separate support rooms advance the shared world once");size_t end=RtlSaveSnapshotToMemory(work,capacity);
     for(unsigned seat=0;seat<2;++seat){/*07:E649 stores an allocated shared child slot in3E. With two real supports, slot addresses differ; validate its complete target and parent instead. */unsigned child=view_read(slot[seat]+0x3e);check(child>=0x1800 && child+32<=0x1e00 && g_ram[child] && g_ram[child+10]==0x1e && view_read(child+0x1b)==slot[seat] && !memcmp(child_record[seat],g_ram+child,32),"each separated support retains its original native child behavior and actual parent identity");record[seat][0x3e]=g_ram[slot[seat]+0x3e];record[seat][0x3f]=g_ram[slot[seat]+0x3f];check(!memcmp(record[seat],g_ram+slot[seat],64),"each separated support matches one original native simulation after resolving its allocated child pointer");check((work[end-X3_COOP_MENU_STATE_BYTES-31+(slot[seat]-0xd18)/64]&3)==(1u<<seat),"two authored supports retain independent actual rider histories");}
     fprintf(stderr,"separate authored supports roster%u slots%04x/%04x riderY%u/%u platformY%u/%u\n",roster,slot[0],slot[1],support_position(0,8),support_position(1,8),view_read(slot[0]+8),view_read(slot[1]+8));
+    size_t active=RtlSaveSnapshotToMemory(base,capacity);unsigned input=SNES_PAD_LEFT|SNES_PAD_B|(SNES_PAD_RIGHT<<12);
+    for(unsigned f=0;f<24;++f)frame(input);size_t result=RtlSaveSnapshotToMemory(work,capacity);
+    check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual support departure retains both living actors");
+    check(RtlLoadSnapshotFromMemory(base,active),"actual two-rider moving support snapshot restores");same(base,active,replay,RtlSaveSnapshotToMemory(replay,capacity),"restored authored support riders, native children, views and the complete machine match immediately");
+    for(unsigned f=0;f<24;++f)frame(input);same(work,result,replay,RtlSaveSnapshotToMemory(replay,capacity),"active authored support restore replays both departures and ownership histories exactly");
   }
 }

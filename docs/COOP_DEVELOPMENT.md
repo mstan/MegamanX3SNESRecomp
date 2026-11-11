@@ -60,7 +60,7 @@ campaign or co-op gameplay acceptance.
 | Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M11 accepted (11/12); transition/menu overlap remains open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
-| Rollback/state | R01/R04/R06-R10 accepted (7/10); remaining interrupted-state and malformed-input coverage open | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
+| Rollback/state | R01/R04-R10 accepted (8/10); remaining interrupted-state and malformed-input coverage open | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
 | Netplay | N02/N04/N05/N11/N12 accepted (5/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
@@ -2168,3 +2168,21 @@ pass/profile/orphan combinations. Current-build correctness is covered; no
 old-state conversion or backward compatibility requirement is introduced.
 
 Actual63/180 accepted,117open/partial,0/15rollups.
+
+
+### Active authored rider and lifecycle snapshot ownership
+
+R05 is accepted from `native-support-replay-receipt.json`(child0), state
+SHA256058a669d476f45d016757be00ef1118f711986742b7ffae130f0ac35d672a3e5,
+combined with the qualified current-runtime arrival, public withdrawal/rejoin
+and actual intro-capture restore/replay cases. Both real rosters save while
+two actors actually ride separate authored moving supports. Immediate load
+restores the complete machine, native trail children, private cameras and
+rider ownership exactly.24frames of actual jump/departure and partner movement
+then replay the entire machine and both ownership histories identically.
+The broad actual participation/arrival checks retain pending input/hold state;
+intro capture/rescue/helper cases retain the actual captured actor and script
+owner through restore. No checkpoint/rejoin revival or old-state conversion
+is introduced. R02/R03 interrupted-pass replay remains open.
+
+Actual64/180 accepted,116open/partial,0/15rollups.

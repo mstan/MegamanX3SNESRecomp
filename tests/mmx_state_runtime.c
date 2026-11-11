@@ -302,7 +302,7 @@ int main(int argc,char **argv) {
       native_target_checks(saved,size,after,cap);
     }
     fixture=getenv("X3_COOP_SEPARATE_PLATFORM_STATE");
-    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_SEPARATE_PLATFORM_REVERSED_STATE");check(reversed && *reversed,"separate authored supports supply both real rosters");native_separate_authored_support_checks(fixture,reversed,saved,after,cap);}
+    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_SEPARATE_PLATFORM_REVERSED_STATE");check(reversed && *reversed,"separate authored supports supply both real rosters");native_separate_authored_support_checks(fixture,reversed,saved,after,damaged,cap);}
     fixture=getenv("X3_COOP_PLATFORM_STATE");
     if(fixture && *fixture) {
       X3CoopRuntimeEnable(true);
