@@ -113,7 +113,7 @@ static void combat_effect_pressure(uint8_t *base,uint8_t *work,uint8_t *after,si
 }
 static void native_concurrent_combat_checks(const char *normal,const char *reversed,uint8_t *base,uint8_t *work,uint8_t *future,size_t capacity){
   enum {FRAMES=420};CombatSample *trace=malloc(2*FRAMES*sizeof(*trace));uint8_t *probe=malloc(capacity);check(probe!=NULL,"native damage-window scratch allocates");check(trace!=NULL,"native combat comparison traces allocate");
-  for(unsigned roster=0;roster<2;++roster){
+  for(unsigned roster=0;roster<(getenv("X3_COOP_COMBAT_PREPARE_GUI")?1:2);++roster){
     check(RtlLoadSnapshot(roster?reversed:normal) && g_ram[0x1fae]==1,"native concurrent combat loads the actual stage1 roster");
     size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();setup.current=setup.anchor=0;
     for(unsigned seat=0;seat<2;++seat){X3CoopPlayer *p=&setup.players[seat];uint8_t *b=p->body;unsigned x=384,y=p->character==X3_COOP_ZERO?1175:1183;
@@ -123,6 +123,11 @@ static void native_concurrent_combat_checks(const char *normal,const char *rever
     for(unsigned col=0;col<255;++col){unsigned first=view_read(0xf800+2*col),end=view_read(0xf802+2*col);if(first<0xfa02 || end>0xfffc || end<first || (end-first)%5)continue;for(unsigned at=first;at<end;at+=5)g_ram[at]=1;}
     view_word(0x1e5d,256);view_word(0x1e7a,256);const unsigned vertical[]={0x1e60,0x1e7c,0x1e6a,0x1e6c,0x1e78,0x1e7e};for(unsigned i=0;i<6;++i)view_word(vertical[i],1024);
     for(unsigned i=0;i<12;++i)frame(0);check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"both native combat actors settle on actual stage1 ground");n=RtlSaveSnapshotToMemory(base,capacity);
+    if(getenv("X3_COOP_COMBAT_PREPARE_GUI")){
+      X3CoopState visual=*X3CoopRuntimeState();visual.players[1].body[5]=visual.players[1].body[0x22]=0;visual.players[1].body[6]=visual.players[1].body[0x23]=2;
+      memcpy(work,base,n);check(X3CoopEncode(&visual,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"visual native combat positions restore");door_install_player(&visual);X3CoopViewsConfigure(true);for(unsigned f=0;f<12;++f)frame(0);
+      check(RtlSaveSnapshot(getenv("X3_COOP_COMBAT_PREPARE_GUI")),"current native two-view combat fixture saves through the test interface");continue;
+    }
     for(unsigned mode=getenv("X3_COOP_COMBAT_COMBO_ONLY")?4:0;mode<((getenv("X3_COOP_COMBAT_RETIREMENT_ONLY") || getenv("X3_COOP_COMBAT_POOL_ONLY"))?0:getenv("X3_COOP_COMBAT_COMBO_ONLY")?5:4);++mode){
       unsigned frames=mode==4?420:240;
       unsigned peaks[2]={0,0},maxcharge[2]={0,0},saber_hits=0,saber_first=FRAMES,saber_last=0;uint64_t actions[2]={0,0},kinds[2]={0,0};

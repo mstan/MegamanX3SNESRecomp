@@ -38,6 +38,7 @@ static void view_word(unsigned address,unsigned value);
 #include "x3_coop_intro_test.inc"
 #include "x3_coop_rewind_test.inc"
 #include "x3_coop_combat_test.inc"
+#include "x3_coop_weapon_test.inc"
 #include "x3_coop_preflight_test.inc"
 #include "x3_coop_midpass_test.inc"
 int main(int argc,char **argv) {
@@ -104,6 +105,8 @@ int main(int argc,char **argv) {
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
     }
+    fixture=getenv("X3_COOP_WEAPON_STATE");
+    if(fixture && *fixture)native_acquired_weapon_checks(fixture,saved,after,damaged,cap);
     fixture=getenv("X3_COOP_MIDPASS_STATE");
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_MIDPASS_REVERSED_STATE");check(reversed && *reversed,"interrupted native passes supply both actual rosters");native_interrupted_pass_checks(fixture,reversed,saved,after,damaged,cap);}
     fixture=getenv("X3_COOP_PREFLIGHT_STATE");

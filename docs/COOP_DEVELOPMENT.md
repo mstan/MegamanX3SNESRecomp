@@ -2294,3 +2294,45 @@ The actual411-frame arms demonstration matches the original action trace.
 Actual70/180 accepted,110open/partial,1/15rollups. C04/C10 complete weapon and
 transition qualification, other campaign/visual/online/runtime criteria, owner
 validation and release delivery remain open.
+
+
+### Acquired native X weapons and actual built combat capture
+
+C04 is accepted across all nine native weapon slots(eight boss weapons plus
+Hyper Cannon), normal/charged or native automatic-charge behavior, and empty
+meters in both actual rosters:54 scenarios. native-acid-active child0, state
+SHA256c7fc0edb7d5ce8a2ad8ebe409154601afb9fb38ecf124886a6197e500be1301c,
+covers Acid Burst normal/charged; native-weapons-rest child0 on the same binary
+covers slots2..9 in all three modes; native-acid-empty child0, state
+SHA2562dca831d7bb3d0205fd8d0f6e255786a4d0468c63d037de5f3a2ddb37059ee6b,
+completes Acid Burst empty meters. Native input refuses unearned selections,
+selects the acquired slot for X while Zero retains selection0, and preserves
+original per-frame commands, charge, palette, all private pools, energy and
+damage outcomes. Every complete paired future replays exactly. Charged specials
+actually reach native charge8; Hyper Cannon uses its native automatic path.
+Normal/charged Acid Burst spends10/3 and deals10/3 in this controlled target
+setup, identically in each roster. Empty meters spend0 and produce no damage.
+
+The earned-intro Buffalo fixture supplies the real initialized target. Armor/
+weapon flags and protection are prepared prerequisites, not acquisition proof.
+Enemy AI alone is frozen through retail1F27; the first setup incorrectly used
+1F25, which freezes player shots/effects, and is unqualified. Motion/charge
+checks reject that setup. Target health127 and cleared hurt cooldown before
+each frame isolate native damage amounts; this bypass does not accept C05 or
+boss AI/campaign criteria. Original Buffalo damage row19 at06:E771 and
+04:CFEC's deflection response explain native zero responses for the relevant
+projectiles; both normal and charged Gravity Well retain native zero damage
+to this boss. Those outcomes are preserved rather than replaced by new damage.
+
+The committed runtime also passes actual muted TCP GUI combat on executable
+SHA256ff854fbc5b822af070e1712fab3163560216db29e9ef4ad5e22b553a9d071e0c:
+native-owned-visual-full receipt0,444frames/7.4s at60fps, independent movement
+followed by the full420-frame concurrent charge/combo cycle. Both actors end
+alive, full health and idle. Charge/saber/recovery keyframes were inspected;
+the native video and keys remain in qa-state/owned-visual. This is supporting
+visual evidence, not acceptance of the complete V14/human checks.444 intermediate
+BMPs remain there because native shell cleanup was rejected before execution;
+retain them for now and remove through an allowed audited cleanup at completion.
+
+Actual71/180 accepted,109open/partial,1/15rollups. C10 complete weapon retirement
+and transition coverage remains open.
