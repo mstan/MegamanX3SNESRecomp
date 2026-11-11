@@ -1358,3 +1358,53 @@ current-build snapshots, after-shots and transition WRAM plus images under
 `build-coop/qa-state/boss-reversed`. This qualifies the eight original arena
 admissions/finishing-hit/reward/return paths as subcases, not the entire authored
 stage/targeting/capture/survivor contract of G02-G09. Those IDs remain open.
+
+
+## Native intro roster ownership and actual rescue
+
+The intro's native Zero construction now belongs to the existing Zero seat;
+captured X retains his own context. Original03:AC57 transfers the temporary
+body after its selector/health writes. The real X rescue is03:AD70, with
+construction bounded by03:AD7F/AD87.03:B2A7 is a different stock exchange path
+and is not the intro release. Pending native constructions retain the outgoing
+contexts through snapshot capture. The existing scene wire has no added bytes.
+
+The original rescue-room door runs inside this intro ownership, keeping X
+parked. A retired capture actor's reused slot no longer retains unrelated
+enemies. Native Mac(class62/sub1) and restraint(class4C) both reach primary04/
+HP80 after actual Zero shots. HP1 assistance survives idle frames first; position
+and personal-health assistance bypass prior traversal/combat difficulty. No
+capture, defeat, rescue or progression result is written by the QA route.
+
+Exact GUI1bbf7377e6d8cb20025bc5d9db389d78f632fe1358751e0a6d24888a73abec54
+passes the native restraint hit, original release/dialogue and roster return:
+X remains X at16HP, Zero remains Zero at28HP, both alive, scene cleared.
+Evidence: native-rescue-return-server-result.log (child0), following the
+original Mac/restraint hits in native-rescue-exact-server-result.log. The first
+unfixed release showed native X control but left that body assigned to Zero;
+that was a failure, not acceptance. The final roster assertion detects it.
+
+State e525061de96eafbaf84669f2a3020cae522006af91806ca3ae456403c18587a3 passes
+both roster orders, original capture/dialogue, X11HP/Zero19HP construction,
+actual Zero movement, complete-machine replay and invalid-phase transactional
+refusal. It also passes the actual restraint finishing shot and X release in
+both rosters. Original03:AEC6 refills X to his own maximum; Zero stays at19HP.
+That authored X-only refill is preserved. Both release replays match the whole
+machine. The same run retains the learner/adaptive regressions.
+Evidence: intro-qualified-state-server-result.log (child0).
+
+Standing action alone is too early for an intro control assertion: the native
+CPU can still be in graphics decompression at00:8450..845E. The test requires
+actual movement and replays the pending native work. Likewise CC8=FF/04/02/00
+is present during actual Mac combat; waiting for CC8=0 there let Zero die from
+real attacks. The retained focus run proves a separate unresolved case: after
+helper Zero falls, the generic scene fallback projects captured X into the
+arena with action66 and no control. G01 remains open for that survivor case,
+fallen/absent/stock participation and interrupted-constructor qualification.
+
+The supported recipe emits64 routed variants. A fresh generated tree matches
+the compiled source tree byte-for-byte after publishing its two generated
+identity metadata updates: intro-qualified-regen-compare-result.log (child0).
+The hook postprocessor removes retired routes/includes; its regression test
+and all4 CTests pass. The preceding dirty build is not a release. Overall
+acceptance remains F09/N02/N04 only:3/180 IDs,177 open/partial,0/15 rollups.

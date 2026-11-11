@@ -25,6 +25,11 @@ class CompiledBoundaries(unittest.TestCase):
         with self.assertRaises(ValueError):
             HOOKS.apply("RecompReturn bank_04_8000_M1X1(CpuState *cpu) {\n}\n")
 
+    def test_retired_boundary_has_no_stale_bridge_or_include(self):
+        original = "RecompReturn bank_03_B2A7_M1X1(CpuState *cpu) {\n  g_cpu_entry_s[g_recomp_stack_top - 1] = _entry_s;\n}\n"
+        stale = HOOKS.MARKER + ' #include "snes/interp_bridge.h"\n' + original
+        self.assertEqual(HOOKS.apply(stale), (original, 0))
+
 
 if __name__ == "__main__":
     unittest.main()

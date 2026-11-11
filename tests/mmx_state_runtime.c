@@ -28,6 +28,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_flags_test.inc"
 #include "x3_coop_shared_camera_test.inc"
 #include "x3_coop_learner_test.inc"
+#include "x3_coop_intro_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -91,6 +92,18 @@ int main(int argc,char **argv) {
       for(int i=0;i<30;++i)frame(SNES_PAD_RIGHT<<12);
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
+    }
+    fixture=getenv("X3_COOP_INTRO_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"actual native intro capture fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_intro_checks(saved,size,after,damaged,cap);
+    }
+    fixture=getenv("X3_COOP_INTRO_RESCUE_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"actual native intro restraint fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_intro_rescue_checks(saved,size,after,damaged,cap);
     }
     fixture=getenv("X3_COOP_FLAGS_STATE");
     if(fixture && *fixture){

@@ -42,7 +42,9 @@ typedef struct PickupRefill {uint16_t slot;uint8_t seat,active;} PickupRefill;
 static PickupRefill refill;
 /* One native script owns the shared world. The other living participant is
  * parked until its original cleanup, then arrives at the same safe floor. */
-enum { SCENE_DOOR,SCENE_CAPSULE_OPEN,SCENE_CAPSULE_AWARD,SCENE_STAGE_ENTRY };
+enum { SCENE_DOOR,SCENE_CAPSULE_OPEN,SCENE_CAPSULE_AWARD,SCENE_STAGE_ENTRY,
+       SCENE_INTRO_CAPTURE,SCENE_INTRO_ZERO,SCENE_INTRO_RETURN,
+       SCENE_INTRO_ZERO_CONSTRUCT,SCENE_INTRO_X_CONSTRUCT };
 typedef struct NativeScene {uint16_t slot;uint8_t owner,phase,tick,stage,both,kind;uint16_t raw[2];} NativeScene;
 static NativeScene scene;
 enum { PARTICIPATION_HOLD=90, PROFILE_STOCK=1, PROFILE_LEARNER=2 };
@@ -156,7 +158,7 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
    * its recipient's view must not cull the item before that cleanup. */
   bool retain_refill=enabled && state.initialized && refill.active &&
       refill.slot==cpu->D && at==0x02d58a;
-  bool retain_door=enabled && state.initialized && scene.phase && scene.slot==cpu->D &&
+  bool retain_door=enabled && state.initialized && scene.phase && scene.kind<=SCENE_CAPSULE_AWARD && scene.slot==cpu->D &&
       at==0x02d58a && g_ram[cpu->D+1]<10;
   if(!view_ready() && !retain_refill && !retain_door)return;
   if(at==0x00de43) {
@@ -605,7 +607,15 @@ static void participation_tick(void){
     }
   }
 }
+#include "x3_coop_intro.inc"
 static bool scene_finished(void){
+  if(scene.kind==SCENE_INTRO_CAPTURE || scene.kind==SCENE_INTRO_ZERO || intro_constructing())return false;
+  if(scene.kind==SCENE_INTRO_RETURN){
+    for(unsigned a=0x1f25;a<=0x1f2b;++a)if(g_ram[a])return false;
+    return !g_ram[0xcc8] && !g_ram[0x1f22] && !g_ram[0x1f45] && !g_ram[0x1f4f] &&
+      !g_ram[0x1f63] && !g_ram[X3_COOP_BODY+0x6e] && !(g_ram[X3_COOP_BODY+0xa3]&128) &&
+      !g_ram[X3_COOP_BODY+0xb6] && g_ram[X3_COOP_BODY+2]<0x1c;
+  }
   if(state.players[scene.owner].life==X3_COOP_ALIVE && g_ram[X3_COOP_BODY+0x6e])return false;
   if(scene.kind==SCENE_DOOR)return !g_ram[0x1f28] && (!g_ram[scene.slot] || g_ram[scene.slot+1]>=10);
   /* Opening releases X to step into the pod. Acquisition retains the other
@@ -715,23 +725,23 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   if(!X3CoopRuntimeReady())return;
   unsigned at=pc&0xffff,d=cpu->D;
   if(at==0xdd1a || at==0xdcb3 || at==0xdafa) {
-    bool capsule=native_capsule(d),x_only=x_pickup(d) || capsule;
+    bool capsule=native_capsule(d),intro=intro_capture_actor(d),x_only=x_pickup(d) || capsule || intro;
     bool pickup=at==0xdafa && (x_only || shared_pickup(d));
     bool door=at==0xdafa && native_door(d) && g_ram[d+1]<=2;
-    bool pending=(pickup && refill.active && refill.slot==d) || (capsule && !g_ram[d+1]) ||
+    bool pending=(pickup && refill.active && refill.slot==d) || ((capsule || intro) && !g_ram[d+1]) ||
         (scene.phase && scene.kind && state.players[scene.owner].life!=X3_COOP_ALIVE);
     if(state.wipe || target.active || (!pickup && !door && !enemy_actor(d)) || !g_ram[d] ||
-       (!pickup && !door && !capsule && !pending && !(g_ram[d+0x27]&127)) ||
+       (!pickup && !door && !capsule && !intro && !pending && !(g_ram[d+0x27]&127)) ||
        ((g_ram[0x1f22] || g_ram[0x1f24]) && !pending) || controller.pass || terrain.pass ||
        contact.native.pass || objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
     /* Keep native X eligibility for weapon energy and persistent heart/tank
      * acquisitions, including when Zero is nearer or owns the shared world. */
-    unsigned seat=capsule?(state.players[0].character==X3_COOP_X?0:1):scene.phase?scene.owner:pending?refill.seat:pickup && x_only?
+    unsigned seat=(capsule || intro)?(state.players[0].character==X3_COOP_X?0:1):scene.phase?scene.owner:pending?refill.seat:pickup && x_only?
         (state.players[0].character==X3_COOP_X?0:1):
         X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
     bool retired=state.players[seat].life!=X3_COOP_ALIVE;
     if(retired && !pending)return;
-    if(!pickup && !door && !capsule && seat==state.anchor)return;
+    if(!pickup && !door && !capsule && !intro && seat==state.anchor)return;
     target=(WorldTarget){(uint16_t)d,cpu->S,1,(uint8_t)seat};
     if(retired)X3CoopProjectRetired(&state,g_ram,seat);
     else X3CoopProject(&state,g_ram,seat);
@@ -740,6 +750,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   /* Native item/enemy/hostile-shot continuations follow the actual RTS;
    * the original JSR frame has been consumed. */
   if(target.active && d==target.slot && cpu->S==(uint16_t)(target.s+2)) {
+    intro_capture_begin(d);
     if(scene.phase && scene.kind && target.seat==scene.owner && state.players[scene.owner].life!=X3_COOP_ALIVE &&
        enemy_actor(d) && (g_ram[d+10]==0x4d || g_ram[d+10]==0x4e || g_ram[d+10]==0x5c)){
       /* Script-owned armor/palette/action writes survive retirement, while
@@ -905,6 +916,10 @@ static void door_boundary(CpuState *cpu,uint32_t pc){
   unsigned at=pc&65535,d=cpu->D;NativePass *p=&contact.native;
   if(!X3CoopRuntimeReady() || state.wipe)return;
   if(at==0xe0ae){
+    /* Story Zero crosses the original rescue-room door while X remains
+     * captured. Keep that native door inside the existing intro ownership;
+     * a second co-op scene would release or wait for the captive actor. */
+    if(scene.phase && scene.kind==SCENE_INTRO_ZERO)return;
     if(scene.phase && scene.slot!=d){interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xe0f0);return;}
       /* A single participant still needs scene ownership through the native
        * forced walk/intro. Only the optional contact retry needs a partner. */
@@ -1283,6 +1298,9 @@ bool X3CoopRuntimeLearner(void){return enabled && learner_enabled;}
 void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
   X3CoopViewsSetRom(g_snes->cart->rom,g_snes->cart->romImageSize);
+  static const uint32_t intro_pcs[]={0x03ac67,0x03ac8c,0x03ad7f,0x03ad87};
+  for(unsigned i=0;i<sizeof(intro_pcs)/sizeof(*intro_pcs);++i)
+    if(!interp_bridge_add_pre_opcode_hook(intro_pcs[i],intro_boundary))enabled=false;
   if(!interp_bridge_add_pre_opcode_hook(0x048008,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x0480bc,boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x04809e,boundary) ||
@@ -1352,7 +1370,7 @@ void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   uint8_t bytes[4096]={0};
   /* Arrival temporarily owns a newly constructed native X. Retained personal
    * contexts do not own that body until the ordinary gameplay rebind. */
-  if(!stage_pending())X3CoopCapture(&state,g_ram);
+  if(!stage_pending() && !intro_constructing())X3CoopCapture(&state,g_ram);
   X3CoopEncode(&state,bytes,X3CoopEncodedSize());
   sli->func(sli,bytes,X3CoopEncodedSize());
   sli->func(sli,&controller,sizeof(controller));
@@ -1430,16 +1448,20 @@ static bool refill_decode(PickupRefill *out,const uint8_t bytes[8],const X3CoopS
   *out=r;return true;
 }
 static bool scene_decode(NativeScene *out,const uint8_t bytes[16],const X3CoopState *s){
-  if(memcmp(bytes,"X3S2",4) || bytes[6]>1 || bytes[7]>3 || bytes[8]>7 || bytes[9]>14 || bytes[10]>1 || bytes[11]>SCENE_STAGE_ENTRY)return false;
+  if(memcmp(bytes,"X3S2",4) || bytes[6]>1 || bytes[7]>3 || bytes[8]>7 || bytes[9]>14 || bytes[10]>1 || bytes[11]>SCENE_INTRO_X_CONSTRUCT)return false;
   NativeScene next={(uint16_t)word(bytes+4),bytes[6],bytes[7],bytes[8],bytes[9],bytes[10],bytes[11],
       {(uint16_t)word(bytes+12),(uint16_t)word(bytes+14)}};
   if(((next.raw[0]|next.raw[1])&15) || (!next.kind && (next.raw[0] || next.raw[1])))return false;
   bool stage=next.kind==SCENE_STAGE_ENTRY;
+  if(next.kind>=SCENE_INTRO_CAPTURE && (next.stage ||
+      ((next.kind==SCENE_INTRO_ZERO || next.kind>=SCENE_INTRO_ZERO_CONSTRUCT) && next.phase!=2) ||
+      (next.kind==SCENE_INTRO_CAPTURE && next.phase>2)))return false;
   if(stage && (next.phase!=2 || next.tick || next.raw[0] || next.raw[1] ||
       s->wipe || next.owner!=s->anchor || s->current!=s->anchor))return false;
   bool slot=stage?!next.slot:next.kind?enemy_actor(next.slot) && !hostile_projectile(next.slot):item_actor(next.slot);
   if(next.phase?(!s->initialized || !slot || (next.phase==2 && next.tick) ||
-      (next.kind && !stage && s->players[next.owner].character!=X3_COOP_X)):
+      (next.kind && !stage && next.kind!=SCENE_INTRO_ZERO && next.kind!=SCENE_INTRO_X_CONSTRUCT &&
+       s->players[next.owner].character!=X3_COOP_X)):
       (next.slot || next.owner || next.tick || next.stage || next.kind))return false;
   if(next.phase && s->players[next.owner].life==X3_COOP_ALIVE && next.owner!=s->anchor)return false;
   *out=next;return true;

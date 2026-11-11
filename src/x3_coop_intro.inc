@@ -1,0 +1,63 @@
+/* The original intro reuses its single player body for story Zero, then X.
+ * Transfer that native construction to the matching existing seat. The
+ * captured participant remains alive, parked and hidden until actual rescue. */
+static bool intro_capture_actor(unsigned d){
+  return !g_ram[0x1fae] && enemy_actor(d) && g_ram[d+10]==0x62 &&
+      !g_ram[d+11] && g_ram[d+1]<4 &&
+      (!scene.phase || scene.kind==SCENE_INTRO_CAPTURE);
+}
+static bool intro_constructing(void){
+  return scene.phase && (scene.kind==SCENE_INTRO_ZERO_CONSTRUCT || scene.kind==SCENE_INTRO_X_CONSTRUCT);
+}
+static void intro_capture_begin(unsigned d){
+  if(scene.phase || !intro_capture_actor(d) || g_ram[X3_COOP_BODY+2]!=0x66 ||
+      state.players[state.current].character!=X3_COOP_X ||
+      state.players[state.current].life!=X3_COOP_ALIVE ||
+      state.players[state.current^1].life!=X3_COOP_ALIVE)return;
+  X3CoopViewsAdoptPlayer(g_ram,&state,state.current,false);
+  state.anchor=state.current;target.seat=state.current;
+  scene_begin(d,SCENE_INTRO_CAPTURE);
+}
+static void intro_change_owner(unsigned seat,unsigned kind){
+  /* Do not project the old body over the original initializer's inputs.
+   * The outgoing participant was captured before construction started. */
+  state.current=state.anchor=(uint8_t)seat;
+  scene.owner=(uint8_t)seat;scene.kind=(uint8_t)kind;scene.phase=2;scene.tick=0;
+  if(target.active)target.seat=(uint8_t)seat;
+}
+static void intro_boundary(CpuState *cpu,uint32_t pc){
+  (void)cpu;
+  if(!X3CoopRuntimeReady() || !scene.phase || g_ram[0x1fae])return;
+  unsigned x=state.players[0].character==X3_COOP_X?0:1,zero=x^1;
+  switch(pc&0x7fffff){
+    case 0x03ac67:
+      if(scene.kind!=SCENE_INTRO_CAPTURE)return;
+      X3CoopCapture(&state,g_ram);
+      /* A host frame may end between individual initializer instructions.
+       * Retain both original contexts until the new selector/health exist. */
+      scene.kind=SCENE_INTRO_ZERO_CONSTRUCT;scene.phase=2;scene.tick=0;
+      break;
+    case 0x03ac8c:
+      if(scene.kind==SCENE_INTRO_ZERO_CONSTRUCT && state.players[zero].life==X3_COOP_ALIVE){
+        /* Native story construction must not refill an existing partner. */
+        g_ram[X3_COOP_BODY+0x27]=state.players[zero].body[0x27];
+        g_ram[0x1fd2]=state.players[zero].maximum_health;
+        intro_change_owner(zero,SCENE_INTRO_ZERO);
+      }
+      break;
+    case 0x03ad7f:
+      if(scene.kind!=SCENE_INTRO_ZERO)return;
+      if(state.players[x].life==X3_COOP_ALIVE){
+        X3CoopCapture(&state,g_ram);
+        scene.kind=SCENE_INTRO_X_CONSTRUCT;scene.phase=2;scene.tick=0;
+      }
+      break;
+    case 0x03ad87:
+      if(scene.kind==SCENE_INTRO_X_CONSTRUCT){
+        g_ram[X3_COOP_BODY+0x27]=state.players[x].body[0x27];
+        g_ram[0x1fd2]=state.players[x].maximum_health;
+        intro_change_owner(x,SCENE_INTRO_RETURN);
+      }
+      break;
+  }
+}
