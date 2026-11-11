@@ -1313,7 +1313,7 @@ bool X3CoopRuntimeLearner(void){return enabled && learner_enabled;}
 void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
   X3CoopViewsSetRom(g_snes->cart->rom,g_snes->cart->romImageSize);
-  static const uint32_t intro_pcs[]={0x03ac67,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03aed9};
+  static const uint32_t intro_pcs[]={0x03ac57,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03aed9};
   if(!interp_bridge_add_pre_opcode_hook(0x00e49e,intro_input_boundary))enabled=false;
   for(unsigned i=0;i<sizeof(intro_pcs)/sizeof(*intro_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(intro_pcs[i],intro_boundary))enabled=false;

@@ -26,8 +26,7 @@ static void intro_input_boundary(CpuState *cpu,uint32_t pc){
 static void intro_capture_begin(unsigned d){
   if(scene.phase || !intro_capture_actor(d) || g_ram[X3_COOP_BODY+2]!=0x66 ||
       state.players[state.current].character!=X3_COOP_X ||
-      state.players[state.current].life!=X3_COOP_ALIVE ||
-      state.players[state.current^1].life!=X3_COOP_ALIVE)return;
+      state.players[state.current].life!=X3_COOP_ALIVE)return;
   X3CoopViewsAdoptPlayer(g_ram,&state,state.current,false);
   state.anchor=state.current;target.seat=state.current;
   scene_begin(d,SCENE_INTRO_CAPTURE);
@@ -57,19 +56,28 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
   if(!enabled || !state.initialized || !scene.phase || g_ram[0x1fae])return;
   unsigned x=state.players[0].character==X3_COOP_X?0:1,zero=x^1;
   switch(pc&0x7fffff){
-    case 0x03ac67:
+    case 0x03ac57:
       if(scene.kind!=SCENE_INTRO_CAPTURE)return;
+      /* The first constructor calls already replace the native X palette
+       * and graphics. Retain X before those calls, not after their return. */
       X3CoopCapture(&state,g_ram);
       /* A host frame may end between individual initializer instructions.
        * Retain both original contexts until the new selector/health exist. */
       scene.kind=SCENE_INTRO_ZERO_CONSTRUCT;scene.phase=2;scene.tick=0;
       break;
     case 0x03ac8c:
-      if(scene.kind==SCENE_INTRO_ZERO_CONSTRUCT && state.players[zero].life==X3_COOP_ALIVE){
+      if(scene.kind!=SCENE_INTRO_ZERO_CONSTRUCT)break;
+      if(state.players[zero].life==X3_COOP_ALIVE){
         /* Native story construction must not refill an existing partner. */
         g_ram[X3_COOP_BODY+0x27]=state.players[zero].body[0x27];
         g_ram[0x1fd2]=state.players[zero].maximum_health;
         intro_change_owner(zero,SCENE_INTRO_ZERO);
+      }else{
+        /* The native story helper cannot enroll an unavailable participant.
+         * Release living X into the original helper's entry instead, keeping
+         * Zero absent/fallen and X's own combat, health and identity. */
+        intro_change_owner(x,SCENE_INTRO_ZERO);scene_cancel_transients(x);
+        scene_place(x,g_ram+X3_COOP_BODY);scene_install(x);
       }
       break;
     case 0x03ad70:

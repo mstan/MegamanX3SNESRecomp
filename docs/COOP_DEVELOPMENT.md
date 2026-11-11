@@ -1481,3 +1481,61 @@ All4 CTests pass. Fresh supported generation matches the complete compiled tree
 byte-for-byte,66 routed variants/6006AOT/223LLE
 (intro-owned-input-final-regen-result.log, child0). Accepted total remains
 4/180(D02/F09/N02/N04),176 open/partial,0/15 rollups. No release replaced.
+
+
+### Native X contact death with Zero continuing
+
+D01 now passes both roster orders on GUI341072bd3d78d98cdb0f67d46d8db0137aa84779521578450004e7c88103570b,
+commit845b833. The original stage1 route starts with X at1HP; the last living
+sample has X710/1135 approaching native class08/sub1 at736/1135,9HP. Real contact
+at the next input chunk leaves only X fallen at frame264. Zero remains28HP,
+moves independently, advances the world counter exactly30 in30frames and keeps
+the original gameplay/freeze bytes clear. After the native ledge is jumped, Zero's
+actual buster shot defeats the authored class08 actor (primary04/HP80), with X
+still fallen. The shot uses position/personal-HP and idle-verified target-HP1
+assistance; no death or defeat result is supplied.
+
+Evidence: contact-x-{normal,reversed}-jump-server-result.log (both child0),
+unique fallen/final snapshots and native captures on SERVER net-lan. Reversed
+seats are an explicit snapshot roster precondition, not launcher assignment
+coverage. The first two follow-up routes stopped before reaching the enemy:
+one sampled at the old spawn and one walked into the native ledge. Their child1
+logs remain unqualified; the successful route jumps it. Other hazards and broad
+continuation/presentation criteria remain separate. Current accepted total is
+5/180(D01/D02/F09/N02/N04),175 open/partial,0/15 rollups.
+
+
+### Capture with an unavailable helper and retained native colors
+
+The capture now owns its original scene even when Zero is already withdrawn or
+fallen. Its native constructor releases living X at the helper's entry instead
+of enrolling an unavailable Zero or assigning Zero's body/28HP to X's seat.
+The outgoing X context is retained at03:AC57, before its original calls load
+Zero's palette/graphics. The former03:AC67 boundary was after those calls and
+left a red-tinted X before rescue. The earlier boundary preserves X's actual
+native colors; the launcher capture now visibly shows blue X.
+
+Exact state 670f25567f74ca5f7622e69089e925fc9a2f8cfe8ec1fbead89fb526236c0bc1
+passes all8 actual capture cases: both roster orders with Zero living, withdrawn,
+prior-fallen or stock-withdrawn. Retained X11HP/max16/native palette and Zero19HP/
+max28/lifecycle are checked; available actors actually move and the complete
+machine replays. The original7/8 constructor instructions exercise in-place
+runtime serialization/preflight/load before continuing. This is a codec check
+inside the real constructor, not a claim of a host-frame CPU cut at that exact
+instruction. The same run passes all-alive/fallen-X real restraint/rescue and
+whole-machine replay, actual helper death/combat and learner/adaptive coverage.
+Evidence: intro-palette-state-server-result.log(child0). The unavailable baseline
+e535d4d9 fails with native Zero/28HP assigned to logical X.
+
+GUI 3c2cac76f5005358e783292abfaae88eead1c4dbe14c3f57321ddeb786b19ace
+passes actual public withdrawal, capture entry and the full X Mac/restraint
+finishing shots/original rescue: X stays X16HP/max16, Zero stays absent/28HP,
+final scene0. Position/personal-HP/target-HP1 assistance bypasses traversal and
+combat difficulty without writing capture, defeat or rescue outcomes. Evidence:
+intro-palette-{native,full}-server-result.log(both child0), native-control image
+and unique snapshots on SERVER net-lan. The prior4c8958ba route passed mechanics
+but failed the palette review; it is superseded. All4 CTests pass. Generated
+recipe/hook routes are unchanged from the verified66-route complete-tree match.
+
+G01 remains open for X already fallen before capture admission and the remaining
+story/participant presentation checks. Total stays5accepted/175open/0rollups.
