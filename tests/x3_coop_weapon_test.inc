@@ -125,6 +125,67 @@ static void native_boss_cooldown_checks(const uint8_t *base,size_t bn,uint8_t *w
   }
   free(cut);
 }
+static void native_buffalo_ice_contact(unsigned slot,unsigned roster,uint8_t *work,size_t capacity){
+  uint8_t *born=malloc(capacity),*cut=malloc(capacity),*future=malloc(capacity);check(born && cut && future,"actual native ice contact comparison buffers allocate");
+  check(slot==0x1318 && g_ram[slot] && g_ram[slot+10]==0x20 && !g_ram[slot+0x36],"actual emitted Buffalo ice uses its own hostile vector08:9CE6 and moving variant");
+  g_ram[0x1f27]=1;for(unsigned f=0;f<3;++f)frame(0);check(g_ram[slot] && g_ram[slot+1]==2,"real native ice constructor reaches its ordinary active update before collision positioning");
+  size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState setup=*X3CoopRuntimeState();setup.current=setup.anchor=0;
+  unsigned x=view_read(slot+5),y=view_read(slot+8)+16;
+  for(unsigned seat=0;seat<2;++seat){uint8_t *b=setup.players[seat].body;b[5]=b[0x22]=(uint8_t)x;b[6]=b[0x23]=(uint8_t)(x>>8);b[8]=b[0x24]=(uint8_t)y;b[9]=b[0x25]=(uint8_t)(y>>8);b[2]=b[3]=b[4]=b[7]=b[0x30]=b[0x88]=0;b[0x27]=setup.players[seat].maximum_health;memset(b+0x1a,0,6);}
+  check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"both vulnerable actors approach the same real ice using only geometry/protection prerequisites");door_install_player(&setup);n=RtlSaveSnapshotToMemory(born,capacity);
+  unsigned expected[2];uint8_t native_source[2][64];
+  for(unsigned seat=0;seat<2;++seat){check(RtlLoadSnapshotFromMemory(born,n),"single-actor original ice contact restores");X3CoopState solo=*X3CoopRuntimeState();solo.current=(uint8_t)seat;door_install_player(&solo);X3CoopRuntimeEnable(false);frame(0);expected[seat]=g_ram[X3_COOP_BODY+0x27]&127;memcpy(native_source[seat],g_ram+slot,64);
+    fprintf(stderr,"original ice contact roster%u seat%u char%u HP%u/%u source%u/%u/%u xy%u,%u hero%u,%u\n",roster,seat,solo.players[seat].character,expected[seat],solo.players[seat].maximum_health,g_ram[slot],g_ram[slot+1],g_ram[slot+2],view_read(slot+5),view_read(slot+8),view_read(X3_COOP_BODY+5),view_read(X3_COOP_BODY+8));
+    check(expected[seat]<solo.players[seat].maximum_health && g_ram[slot] && g_ram[slot+1]==2,"actual original ice damages its vulnerable actor and remains a persistent live source");}
+  for(unsigned leader=0;leader<2;++leader){check(RtlLoadSnapshotFromMemory(born,n),"paired persistent ice contact restores both vulnerable bodies");setup=*X3CoopRuntimeState();setup.current=setup.anchor=(uint8_t)leader;
+    check(X3CoopEncode(&setup,born+contact_context_offset(born,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(born,n),"either first-contact seat owns the same native persistent hazard update");door_install_player(&setup);size_t cn=RtlSaveSnapshotToMemory(cut,capacity);frame(0);
+    fprintf(stderr,"paired ice contact roster%u leader%u HP%u/%u expected%u/%u source%u/%u/%u\n",roster,leader,contact_hp(0),contact_hp(1),expected[0],expected[1],g_ram[slot],g_ram[slot+1],g_ram[slot+2]);
+    check(contact_hp(0)==expected[0] && contact_hp(1)==expected[1],"a persistent native ice source evaluates both eligible actors on its one actual collision frame");
+    check(!memcmp(native_source[leader],g_ram+slot,64),"two persistent ice contacts retain exactly one original native source update");
+    unsigned clock=g_ram[0x9cc];for(unsigned f=0;f<24;++f)frame(0);check((uint8_t)(g_ram[0x9cc]-clock)==24 && contact_hp(0)==expected[0] && contact_hp(1)==expected[1],"each actual ice victim retains independent native hurt protection during24 subsequent world ticks");
+    size_t fn=RtlSaveSnapshotToMemory(future,capacity);check(RtlLoadSnapshotFromMemory(cut,cn),"actual persistent ice collision restores for replay");for(unsigned f=0;f<25;++f)frame(0);same(future,fn,work,RtlSaveSnapshotToMemory(work,capacity),"actual persistent ice contact and both native hurt histories replay the complete machine");
+    fprintf(stderr,"native Buffalo persistent ice PASS roster%u leader%u HP%u/%u\n",roster,leader,expected[0],expected[1]);
+  }
+  free(born);free(cut);free(future);
+}
+static void native_consumed_hostile_fixture(unsigned roster,uint8_t *work,size_t capacity){
+  const char *fixture=getenv("X3_COOP_CONSUMED_STATE");check(fixture && RtlLoadSnapshot(fixture) && g_ram[0x1fae]==1 && g_ram[0xd22]==8 && g_ram[0xd23]==1,"consumed-shot setup loads the actual stage1 authored shooter");
+  size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState setup=*X3CoopRuntimeState();if(roster){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}setup.current=setup.anchor=0;
+  unsigned enemy_x=view_read(0xd1d);for(unsigned seat=0;seat<2;++seat){X3CoopPlayer *p=&setup.players[seat];uint8_t *b=p->body;unsigned x=seat?enemy_x+32:enemy_x-160;b[5]=b[0x22]=(uint8_t)x;b[6]=b[0x23]=(uint8_t)(x>>8);b[2]=b[3]=b[4]=b[7]=b[0x30]=0;b[0x27]=p->maximum_health;b[0x88]=255;memset(b+0x1a,0,6);memset(p->shots,0,sizeof(p->shots));memset(p->auxiliaries,0,sizeof(p->auxiliaries));p->shot_command=0;}
+  check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"shooter setup supplies only safe roster/position/protection and empty player attacks");door_install_player(&setup);g_ram[0xd1a]=0;g_ram[0xd1b]=2;g_ram[0xd4d]=1;g_ram[0x1f27]=0;memset(g_ram+0x1318,0,0x200);
+  unsigned slot=0,elapsed=0;for(;elapsed<600 && !slot;++elapsed){if(elapsed%120==0)weapon_protect(0,255,work,capacity);frame(0);for(unsigned d=0x1318;d<0x1518;d+=64)if(g_ram[d]){slot=d;break;}}
+  check(slot!=0,"original authored shooter emits an actual hostile through native AI and animation");fprintf(stderr,"actual shooter emitted roster%u f%u slot%04x class%02x variant%02x state%u/%u/%u XY%u,%u\n",roster,elapsed,slot,g_ram[slot+10],g_ram[slot+11],g_ram[slot],g_ram[slot+1],g_ram[slot+2],view_read(slot+5),view_read(slot+8));
+  g_ram[0x1f27]=1;for(unsigned f=0;f<2;++f)frame(0);check(g_ram[slot] && g_ram[slot+1]==2,"actual hostile constructor reaches its native active update before body contact");
+  uint8_t *born=malloc(capacity),*cut=malloc(capacity),*future=malloc(capacity);check(born && cut && future,"actual consumed hostile comparison buffers allocate");n=RtlSaveSnapshotToMemory(work,capacity);setup=*X3CoopRuntimeState();unsigned x=view_read(slot+5),y=view_read(slot+8)+1;
+  for(unsigned seat=0;seat<2;++seat){uint8_t *b=setup.players[seat].body;b[5]=b[0x22]=(uint8_t)x;b[6]=b[0x23]=(uint8_t)(x>>8);b[8]=b[0x24]=(uint8_t)y;b[9]=b[0x25]=(uint8_t)(y>>8);b[2]=b[3]=b[4]=b[7]=b[0x30]=b[0x88]=0;b[0x27]=setup.players[seat].maximum_health;memset(b+0x1a,0,6);}
+  check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"two vulnerable actors approach the actual emitted hostile using geometry and expired protection only");door_install_player(&setup);n=RtlSaveSnapshotToMemory(born,capacity);
+  unsigned expected[2];uint8_t source[2][64];for(unsigned seat=0;seat<2;++seat){check(RtlLoadSnapshotFromMemory(born,n),"original single-actor hostile contact restores");X3CoopState solo=*X3CoopRuntimeState();solo.current=(uint8_t)seat;door_install_player(&solo);X3CoopRuntimeEnable(false);frame(0);expected[seat]=g_ram[X3_COOP_BODY+0x27]&127;memcpy(source[seat],g_ram+slot,64);
+    fprintf(stderr,"original emitted hostile roster%u seat%u char%u HP%u/%u source%u/%u/%u\n",roster,seat,solo.players[seat].character,expected[seat],solo.players[seat].maximum_health,g_ram[slot],g_ram[slot+1],g_ram[slot+2]);if(expected[seat]==solo.players[seat].maximum_health){fprintf(stderr,"hostile miss geometry sourceXY%u,%u heroXY%u,%u sourceRect%04x heroRect%04x flags%02x/%02x protect%u/%u/%u global%u\n",view_read(slot+5),view_read(slot+8),view_read(X3_COOP_BODY+5),view_read(X3_COOP_BODY+8),view_read(slot+0x20),view_read(X3_COOP_BODY+0x20),g_ram[slot+0x0e],g_ram[X3_COOP_BODY+0x0e],g_ram[X3_COOP_BODY+0x30],g_ram[X3_COOP_BODY+0x88],g_ram[X3_COOP_BODY+0x8a],g_ram[0x1f1d]);check(RtlSaveSnapshot("hostile-contact-miss.sav"),"missed hostile keeps its actual diagnostic machine");}check(expected[seat]<solo.players[seat].maximum_health && (!g_ram[slot] || g_ram[slot+1]!=2),"actual original hostile damages one actor and enters its real consumed/retired state");}
+  for(unsigned leader=0;leader<2;++leader){check(RtlLoadSnapshotFromMemory(born,n),"paired consumed-hostile contact restores");setup=*X3CoopRuntimeState();setup.current=setup.anchor=(uint8_t)leader;check(X3CoopEncode(&setup,born+contact_context_offset(born,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(born,n),"either first actor owns the same actual single-use hostile update");door_install_player(&setup);size_t cn=RtlSaveSnapshotToMemory(cut,capacity);frame(0);
+    check(contact_hp(leader)==expected[leader] && contact_hp(leader^1)==setup.players[leader^1].maximum_health && !memcmp(source[leader],g_ram+slot,64),"a consumed actual hostile hits only its original first victim and executes exactly one native source response");
+    for(unsigned f=0;f<24;++f)frame(0);check(contact_hp(leader)==expected[leader] && contact_hp(leader^1)==setup.players[leader^1].maximum_health,"consumed hostile cannot become a delayed second-actor hit during its remaining native lifetime");size_t fn=RtlSaveSnapshotToMemory(future,capacity);check(RtlLoadSnapshotFromMemory(cut,cn),"consumed hostile restores before its actual collision");for(unsigned f=0;f<25;++f)frame(0);same(future,fn,work,RtlSaveSnapshotToMemory(work,capacity),"actual hostile consumption and protected partner replay the complete machine");fprintf(stderr,"native consumed hostile PASS roster%u leader%u HP%u/%u\n",roster,leader,contact_hp(0),contact_hp(1));}
+  free(born);free(cut);free(future);
+}
+ as original");
+  }
+  free(cut);
+}
+/* Prepare one real boss-emitted hostile source for the consumption/capture checks.
+ * Native AI chooses its own attack; protection only keeps the live roster ready. */
+static void native_buffalo_hostile_fixture(const uint8_t *base,size_t bn,unsigned roster,uint8_t *work,size_t capacity){
+  if(getenv("X3_COOP_CONSUMED_STATE")){native_consumed_hostile_fixture(roster,work,capacity);return;}
+  if(getenv("X3_COOP_HOSTILE_CONTACT")){const char *prefix=getenv("X3_COOP_HOSTILE_OUTPUT");char filename[1024];check(prefix && snprintf(filename,sizeof(filename),"%s-roster%u.sav",prefix,roster)>0 && RtlLoadSnapshot(filename),"actual previously emitted hostile fixture loads through the test interface");native_buffalo_ice_contact(0x1318,roster,work,capacity);return;}
+  check(RtlLoadSnapshotFromMemory(base,bn),"actual hostile-source setup restores the earned Buffalo arena");g_ram[0x1f27]=0;unsigned slot=0,elapsed=0;uint8_t active[14];for(unsigned i=0;i<14;++i)active[i]=g_ram[0xd58+i*64]!=0;
+  for(;elapsed<1800 && !slot;++elapsed){
+    if(elapsed%120==0)weapon_protect(0,255,work,capacity);frame(0);
+    for(unsigned d=0x1318;d<0x1518;d+=64)if(g_ram[d]){slot=d;break;}
+    if(!slot)for(unsigned i=0;i<14;++i){unsigned d=0xd58+i*64;if(g_ram[d] && !active[i]){slot=d;break;}active[i]=g_ram[d]!=0;}
+    if(elapsed%120==0)fprintf(stderr,"actual Buffalo hostile wait roster%u f%u phase%u/%u/%u XY%u,%u HP%u players%u/%u\n",roster,elapsed,g_ram[0xd19],g_ram[0xd1a],g_ram[0xd1b],view_read(0xd1d),view_read(0xd20),g_ram[0xd3f]&127,contact_hp(0),contact_hp(1));
+  }
+  check(slot!=0,"actual native arena allocates a hostile projectile or new actor candidate without supplied spawn/result flags");
+  fprintf(stderr,"actual Buffalo emitted roster%u f%u slot%04x class%02x variant%02x state%u/%u/%u XY%u,%u\n",roster,elapsed,slot,g_ram[slot+10],g_ram[slot+11],g_ram[slot],g_ram[slot+1],g_ram[slot+2],view_read(slot+5),view_read(slot+8));
+  const char *prefix=getenv("X3_COOP_HOSTILE_OUTPUT");check(prefix && *prefix,"hostile-source preparation has an explicit private output prefix");char filename[1024];int used=snprintf(filename,sizeof(filename),"%s-roster%u.sav",prefix,roster);check(used>0 && (size_t)used<sizeof(filename) && RtlSaveSnapshot(filename),"actual emitted hostile source saves through the existing test interface");
+}
 static void native_acquired_weapon_checks(const char *fixture,uint8_t *base,uint8_t *work,uint8_t *after,size_t capacity){
   enum {FRAMES=420};CombatSample *trace=malloc(FRAMES*sizeof(*trace));uint8_t energy[FRAMES];uint8_t *start=malloc(capacity);check(trace && start,"native acquired-weapon comparison buffers allocate");
   unsigned first=getenv("X3_COOP_WEAPON_FIRST")?(unsigned)atoi(getenv("X3_COOP_WEAPON_FIRST")):1,last=getenv("X3_COOP_WEAPON_LAST")?(unsigned)atoi(getenv("X3_COOP_WEAPON_LAST")):9,modes=getenv("X3_COOP_WEAPON_MODES")?(unsigned)atoi(getenv("X3_COOP_WEAPON_MODES")):3;
@@ -140,6 +201,7 @@ static void native_acquired_weapon_checks(const char *fixture,uint8_t *base,uint
     check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && g_ram[0xd19]==2,"both native actors and the real frozen encounter remain ready");
     n=RtlSaveSnapshotToMemory(base,capacity);frame(SNES_PAD_R<<(x*12));for(unsigned f=0;f<4;++f)frame(0);
     check(X3CoopRuntimeState()->players[x].body[0x33]==0,"native cycling refuses every unearned special weapon");
+    if(getenv("X3_COOP_HOSTILE_SCOUT")){native_buffalo_hostile_fixture(base,n,roster,work,capacity);continue;}
     if(getenv("X3_COOP_BOSS_COOLDOWN")){native_boss_cooldown_checks(base,n,work,after,capacity);continue;}
     for(unsigned index=first;index<=last;++index)for(unsigned mode=getenv("X3_COOP_WEAPON_MODE_FIRST")?(unsigned)atoi(getenv("X3_COOP_WEAPON_MODE_FIRST")):0;mode<modes;++mode){
       check(RtlLoadSnapshotFromMemory(base,n),"native weapon case restores the same real arena");unsigned address=0x1fbc+(index-1)*2;g_ram[address]=(uint8_t)(mode==2?0x40:0x5c);

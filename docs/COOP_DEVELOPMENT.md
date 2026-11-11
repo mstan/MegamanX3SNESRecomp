@@ -2412,3 +2412,64 @@ No production cooldown, damage or targeting rule was changed for this result.
 Actual74/180 accepted,106open/partial,1/15rollups. C06 armored/part responses,
 E03 consumed hostile projectiles and complete authored boss mechanics remain
 separate open checks.
+
+The a72c1b4 runtime also passes native-retired-weapon-copy-gui(child0) on current
+GUI SHA256e6f0e00e489cd8bda19ea5c2e222e749ad636bb79ef1a2f9f93eb029f2e38f74.
+A real charged Parasitic fixture has4orbs at export and1remaining after the
+first3resumed GUI frames. Actual P2 Select withdrawal/return removes only X,
+clears35/7D/89 and all old private sources/tags, preserves HP16/28, selection4
+and exact energy, returns X safely beside Zero, and accepts a fresh native cast.
+Enemy/hostile freeze is applied only after public return to isolate fresh fire
+from encounter difficulty. Before/returned BMPs were inspected. This supports
+current built lifecycle behavior without accepting V14/Z03 or a four-orb-at-
+GUI-cancellation claim; the latter is the existing immediate CPP evidence.
+The initial strict GUI count assertion and a subsequent consumed-resume-file
+setup failure remain in their logs. The repeatable script now preserves its
+actual source and launches an expendable copy because --resume-state consumes
+its input. All four images/states stay in qa-state/retired-weapon-gui; no owner
+saves/settings or desktop focus were changed.
+
+### Persistent Buffalo ice and actual consumed hostile shots — E03
+
+E03 is accepted on native-consumed-hostile-center, child0, state SHA256
+9e0bf60884376758dc079c35a04702e40d1f74099129832fbb47f15f4a169c83. Both actual
+rosters run the authored stage1 class08/variant1 enemy from save8. Safe player
+positions/protection, an empty player attack pool and the native idle/next-state
+prerequisite prepare the encounter. Original AI/animation emits a real1318
+class02 bullet after49frames. Its original04:EA85 update calls CB31 at EB00;
+a successful hit branches to actual retirement at EB0A. Collision positions
+and expired explicit protection then let each original actor supply its own
+reference: X loses2HP to14/16, Zero to26/28, and the actual source enters1/4/0.
+Either first-contact actor in both rosters receives that original result while
+the partner retains full health. The complete source record matches exactly
+one original native update;24subsequent frames cannot turn it into a delayed
+partner hit, and the full25-frame machine future replays exactly. Initial
+idle-next0 and small-bullet Y+16 preparations were unqualified setup; native
+constructor idle-next2 and actual collision-center placement resolve them.
+
+The earlier Buffalo source is a different native contract. Original AI emits
+1318/class20/variant0 after597frames in both rosters, without supplied spawn or
+attack flags. The hostile table00:F8D8 resolves it to08:9CE6; the regular NPC
+table00:FA2F is separate. Moving/grounded ice calls CB31 at08:9DA2 and remains
+active afterwards. The blanket first-hit hostile guard incorrectly omitted the
+second eligible actor on its collision frame. Original references lose3HP for
+either character and retain a live1/2/0source; the old paired result is13/28
+instead of13/25. native-persistent-ice-before(child1) preserves this failure on
+state3d32b53fe858a75feeead3242cc3340e3cf833a226202b5df22970070acd2d89.
+
+The runtime now evaluates the other eligible actor for this persistent class20
+body contact while retaining actual single-use hostile consumption. Native-
+persistent-ice-fixed exits0 on state SHA256
+5278493c5d0b38d80de8bba8ee1079339d8de24413e5f5d09c4317b9043ab407: both roster
+orders and either first actor receive exact original13/25 or25/13 on the same
+collision frame, preserve exactly one source update, retain independent native
+hurt protection for24frames and replay the complete machine exactly. This is
+a qualified authored G02 mechanic repair; the complete arena/campaign and
+environmental-stun criteria remain open. Four CTests pass after the correction.
+Actual75/180 accepted,105open/partial,1/15rollups.
+
+The combined native-persistent-ice-regression gate exits0 on the same9e0bf608
+state binary. It retains the existing native contacts, pickups, doors, capsule
+scenes, menus/healing, participation/stock/team retries, independent worlds and
+supports, plus all eight real interrupted-pass cuts, transactional preflight
+cases and all eight actual boss damage/immunity comparisons.

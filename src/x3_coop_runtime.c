@@ -1077,9 +1077,11 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
   if(!p->pass || cpu->S!=p->entry.s || cpu->D!=p->entry.d)return;
   if(p->pass==1) {
     bool hit=(cpu->A&255)!=0;
-    /* A hostile shot is consumed on its first body hit. A player-shot scan
-     * is consumed by hit, shield or reflection; only CBC3 is a true miss. */
-    if((contact.pc==0xcb31 && hostile_projectile(d) && hit) ||
+    /* Buffalo ice (hostile class20,08:9D9C..9DAB) remains a body-contact
+     * hazard after CB31 in both its moving and grounded phases. Other
+     * single-use hostile hits stop here. Player-shot scans are consumed by
+     * hit, shield or reflection; only CBC3 is a true miss. */
+    if((contact.pc==0xcb31 && hostile_projectile(d) && g_ram[d+10]!=0x20 && hit) ||
        (contact.pc==0xcb74 && at!=0xcbc3)) {p->pass=0;settle_deaths();return;}
     p->result=regs(cpu);memcpy(contact.result_scratch,g_ram,24);
     if(!X3CoopProject(&state,g_ram,contact.seat^1))return;
