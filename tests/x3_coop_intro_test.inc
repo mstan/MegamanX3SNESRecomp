@@ -149,3 +149,66 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
   }
   check(RtlLoadSnapshotFromMemory(original,size),"rescue checks restore their original restraint approach");
 }
+
+static void intro_survivor_shot_frame(unsigned seat,unsigned tick){
+  if(tick%25==0){
+    view_word(0x9dd,6152);view_word(0x9e0,view_read(0xd20)+14);g_ram[0x9ff]=11;
+  }
+  frame((uint32_t)(tick%25==0?SNES_PAD_RIGHT:tick%25<=12?SNES_PAD_Y:0)<<(12*seat));
+}
+static void native_intro_helper_death_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
+  for(unsigned reverse=0;reverse<2;++reverse){
+    check(RtlLoadSnapshotFromMemory(original,size),"actual native Mac encounter restores before helper death");
+    X3CoopState setup=*X3CoopRuntimeState();unsigned zero=reverse?0:1,x=zero^1;
+    memcpy(work,original,size);size_t scene_at=door_scene_chunk(work,size);
+    if(reverse){
+      X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;
+      setup.current^=1;setup.anchor^=1;work[scene_at+6]^=1;
+      uint8_t raw[2];memcpy(raw,work+scene_at+12,2);memcpy(work+scene_at+12,work+scene_at+14,2);memcpy(work+scene_at+14,raw,2);
+    }
+    setup.players[zero].body[0x27]=1;setup.players[x].body[0x27]=11;
+    check(X3CoopEncode(&setup,work+contact_context_offset(work,size),X3CoopEncodedSize()) &&
+          RtlLoadSnapshotFromMemory(work,size),"helper health-only fatal-contact precondition restores");
+    door_install_player(&setup);
+    unsigned waited=0;bool first_fall=false;
+    for(;waited<1800;++waited){
+      frame(0);
+      const X3CoopState *fall=X3CoopRuntimeState();
+      if(!first_fall && (fall->players[x].life!=X3_COOP_ALIVE || fall->players[zero].life!=X3_COOP_ALIVE)){
+        first_fall=true;fprintf(stderr,"intro first fall roster%u tick%u Xlife%u HP%u xy%u/%u Zerolife%u HP%u xy%u/%u\n",
+            reverse,waited,fall->players[x].life,fall->players[x].body[0x27],coop_x(x),
+            fall->players[x].body[8]|fall->players[x].body[9]<<8,fall->players[zero].life,
+            fall->players[zero].body[0x27],coop_x(zero),fall->players[zero].body[8]|fall->players[zero].body[9]<<8);
+      }
+      if(X3CoopRuntimeState()->players[zero].life==X3_COOP_FALLEN)break;
+    }
+    const X3CoopState *s=X3CoopRuntimeState();
+    check(waited<1800 && s->players[x].life==X3_COOP_ALIVE &&
+          g_ram[0xd22]==0x62 && g_ram[0xd23]==1 && g_ram[0xd3f]==32,
+          "original Mac contact kills the helper while captured X remains alive");
+    /* Complete that frame's normal scene fallback, without writing its
+     * control, capture, life, result or progression flags. */
+    frame(0);g_ram[0xd3f]=1;
+    for(unsigned i=0;i<3;++i)frame(0);
+    check(g_ram[0xd19]==2 && g_ram[0xd3f]==1,"Mac survives health assistance before the survivor attacks");
+    size_t survivor=RtlSaveSnapshotToMemory(work,capacity);
+    unsigned fired=0;
+    for(;fired<400;++fired){
+      if(X3CoopRuntimeState()->players[x].life!=X3_COOP_ALIVE)break;
+      intro_survivor_shot_frame(x,fired);
+      if(g_ram[0xd19]==4 && (g_ram[0xd3f]&128)){++fired;break;}
+    }
+    s=X3CoopRuntimeState();
+    fprintf(stderr,"intro helper death roster%u wait%u shots%u Xlife%u action%u HP%u Zero life%u Mac%u/%u\n",
+        reverse,waited,fired,s->players[x].life,s->players[x].body[2],s->players[x].body[0x27],s->players[zero].life,g_ram[0xd19],g_ram[0xd3f]);
+    check(s->players[x].life==X3_COOP_ALIVE && !s->players[x].body[0xb6] &&
+          fired<400 && g_ram[0xd19]==4 && (g_ram[0xd3f]&128) && s->players[zero].life==X3_COOP_FALLEN,
+          "a real X shot defeats Mac without reviving the fallen intro helper");
+    size_t completed=RtlSaveSnapshotToMemory(expected,capacity);
+    check(RtlLoadSnapshotFromMemory(work,survivor),"actual helper death and X control handoff restore");
+    for(unsigned i=0;i<fired;++i)intro_survivor_shot_frame(x,i);
+    size_t replayed=RtlSaveSnapshotToMemory(work,capacity);
+    same(expected,completed,work,replayed,"actual intro helper death and survivor control replay identically");
+  }
+  check(RtlLoadSnapshotFromMemory(original,size),"helper death checks restore the actual Mac approach");
+}

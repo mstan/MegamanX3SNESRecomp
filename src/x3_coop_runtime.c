@@ -55,6 +55,7 @@ static void participation_tick(void);
 static void stock_tick(void);
 static void shared_catchup_tick(void);
 static void learner_tick(void);
+static void intro_helper_handoff(void);
 static bool scene_parked(unsigned seat){return scene.phase && seat!=scene.owner;}
 enum { SHARED_SUPPORTS=31 };
 static uint8_t riders[SHARED_SUPPORTS];
@@ -319,6 +320,9 @@ static void settle_deaths(void) {
     X3CoopProject(&state,g_ram,state.anchor);
     anchor_palette();
   }
+  if(!controller.pass && !terrain.pass && !contact.native.pass && !objects.native.pass &&
+     !draw.pass && !target.active && !solid.native.pass && !view_bounds.native.pass)
+    intro_helper_handoff();
   if(state.wipe)g_ram[X3_COOP_BODY+0xb6]=0;
 }
 static void team_death_decision(CpuState *cpu,uint32_t pc) {

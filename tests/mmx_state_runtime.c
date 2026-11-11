@@ -105,6 +105,12 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_intro_rescue_checks(saved,size,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_INTRO_HELPER_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"actual native Mac helper fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_intro_helper_death_checks(saved,size,after,damaged,cap);
+    }
     fixture=getenv("X3_COOP_FLAGS_STATE");
     if(fixture && *fixture){
       check(RtlLoadSnapshot(fixture),"native private-status fixture loads");

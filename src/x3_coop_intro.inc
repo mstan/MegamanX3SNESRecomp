@@ -25,6 +25,19 @@ static void intro_change_owner(unsigned seat,unsigned kind){
   scene.owner=(uint8_t)seat;scene.kind=(uint8_t)kind;scene.phase=2;scene.tick=0;
   if(target.active)target.seat=(uint8_t)seat;
 }
+static void intro_helper_handoff(void){
+  if(!scene.phase || scene.kind!=SCENE_INTRO_ZERO ||
+     state.players[scene.owner].life==X3_COOP_ALIVE ||
+     state.players[state.anchor].life!=X3_COOP_ALIVE ||
+     state.players[state.anchor].character!=X3_COOP_X)return;
+  /* Finish the balanced native call before releasing the living captive.
+   * Do this at death settlement: the next native camera/pit check must not
+   * clamp his old capture position into the rescue room's lower void. */
+  unsigned survivor=state.anchor;
+  scene_cancel_transients(survivor);scene_place(survivor,state.players[scene.owner].body);
+  scene.owner=(uint8_t)survivor;scene.phase=2;scene.tick=0;
+  scene_install(survivor);
+}
 static void intro_boundary(CpuState *cpu,uint32_t pc){
   (void)cpu;
   if(!X3CoopRuntimeReady() || !scene.phase || g_ram[0x1fae])return;

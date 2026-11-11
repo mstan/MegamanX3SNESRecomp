@@ -1295,13 +1295,14 @@ owner checks. All15 final rollups and the full180-point acceptance remain open.
 
 ## Current 180-point acceptance disposition
 
-The controlling180 IDs remain unchanged. Three IDs are accepted;177 remain
+The controlling180 IDs remain unchanged. Four IDs are accepted;176 remain
 open (including partially exercised IDs). No final rollup is complete:0/15.
 A failed setup is retained as setup evidence and does not establish a game
 defect or qualify a gameplay ID.
 
 | ID | Decision and concrete evidence | Identity |
 | --- | --- | --- |
+| D02 | Passed: original Mac contact kills Zero in both roster orders; living X receives control and defeats Mac with a real buster shot, with full-machine replay. The launcher also destroys the real restraint and completes original rescue/dialogue while Zero stays fallen. Position/health and main-HP1 assists are explicit; no life, defeat or result flags are set by this route. `intro-helper-combat-state-server-result.log`, `intro-helper-clear-server-result.log`. | Statef58e59e0... / GUI0c8d4cb7...; native intro helper handoff fix. |
 | F09 | Passed: living P2 learner damage protection and actual stage5 pit rescue in both rosters, unsafe return refusal, P1-death survivor, previously fallen exclusion and deterministic replay; native safe shared catch-up also retains personal state. `intro-resume-state-server-result.log`, `adaptive-learner-final-server-result.log`, `native-shared-camera-server-final-result.log`. | Current state091bd59c...; fixes681a7b8/6e11ade/2171edb. |
 | N02 | Passed: real PC/SERVER LAN runs the native title/opening/dialogue, enrolls both actors and admits independent seat movement with agreed world progression and no reported desync. `x3-cross3-local-result.log`, `x3-cross3-server-result.log`. | GUI2819182c...; source1cbcb6f. |
 | N04 | Passed: two real processes negotiate Unified, use shared view-1 on both peers and agree on native intro progression and both seats movements. No local presentation option selects a different simulation. `x3-unified-server-result.log`. | Same GUI2819182c... and portable profile0. |
@@ -1408,3 +1409,41 @@ identity metadata updates: intro-qualified-regen-compare-result.log (child0).
 The hook postprocessor removes retired routes/includes; its regression test
 and all4 CTests pass. The preceding dirty build is not a release. Overall
 acceptance remains F09/N02/N04 only:3/180 IDs,177 open/partial,0/15 rollups.
+
+
+### Living X after the intro helper falls
+
+Death settlement now releases living captured X at the helper's current floor,
+before the native camera/pit checks can clamp his old capture position into the
+rescue room's lower void. The borrowed native continuation finishes before this
+handoff. X keeps his resources; Zero remains fallen. Mac, the restraint and the
+original rescue/dialogue still have to finish normally.
+
+The end-of-frame attempt was too late: a low-health helper setup left both actors
+fallen. The early balanced handoff fixes it. A simple walk/jump assertion was
+confounded by immediate native Mac damage and knockback; the decisive check is
+actual survivor combat. Exact state f58e59e05cc2f642504733ea498c9800d1b0cb2867a0909e1e172696e22dad73
+observes the real fatal contact at tick202 in both rosters, X alive at11HP and
+Zero fallen, then an actual X shot produces native Mac primary04/HP80 after26
+input frames. HP1 assistance is verified idle first. The whole native result
+replays identically. All earlier intro/rescue and learner/adaptive checks pass
+in that same run (intro-helper-combat-state-server-result.log, child0).
+
+Exact GUI0c8d4cb7c8ea3235abd846714e7dbb502c78f0195a29e6cdd3cab5d007a8b726
+passes actual Zero fatal contact, X's real Mac/restraint finishing shots and the
+original final rescue/dialogue. Final scene0 has X alive16HP and Zero fallen,
+selector2/HP80, with no resurrection. Position/health and main-HP1 assists are
+used for the shots, not to set the defeat/release. The old1bbf7377 baseline
+fails the same low-health route with both actors fallen. Evidence:
+intro-helper-clear-server-result.log (child0), intro-helper-baseline-server-result.log
+(child1). Failed walk/jump and the erroneous combat-helper syntax attempt are
+retained as unqualified setup/check output; they are not accepted runs.
+
+D02 is now accepted for its native contact-death/survivor-control contract.
+D01 and the other hazard, continuation, capture and authored-stage criteria keep
+their independent remaining coverage. G01 is still open: fallen X through
+capture/release, absent/stock participation, interrupted constructors and the
+remaining original intro progression/presentation checks are not qualified.
+Current total4/180 accepted,176 open/partial,0/15 rollups. All4 CTests pass.
+The96.4MiB generated comparison tree was removed after its exact match; its
+receipt/result and the current generated metadata remain. No release replaced.
