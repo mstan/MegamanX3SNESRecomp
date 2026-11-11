@@ -2628,3 +2628,71 @@ Actual79/180 accepted,101open/partial,1/15rollups. P05 remains open: actual
 Gravity Well now activates the authored stage5 lift, but its stop/reversal
 source comparison still has an unresolved exact mismatch. No platform
 correctness or visual acceptance follows from successful activation.
+
+
+### Shared Gravity Well query and native support reversal — P05
+
+P05 is accepted by native-matched-gravity-lift(child0), state SHA256
+5d814df278c5491c5d033631a1fe17f6310c7fa3f28563366ced48c44416670b.
+The actual stage5 class37 lift at1080,896 is allocated from its native event.
+Arms/acquired weapon flags and route/camera placement are explicit prerequisites.
+Native R selects Gravity Well; Y remains held until the normal orb retires,
+then the real charged class21 activates the lift. No activation, NPC state,
+velocity, endpoint or rider result is supplied. Both native bodies produced
+by that actual ride are retained. Both roster orders derive from the same
+world/body fixture; the separate hazard fixture carried unrelated action
+history and is excluded from this matched reversal decision.
+
+At its actual upper endpoint Y704, each original single-character reference
+and the paired run agree on the complete64-byte source on every update. The
+native stop lasts60 updates, downward reversal starts at61, and24 further
+updates end atY726. Both actual rider coordinates match their native reference
+every update; after settling each living body stays exactly29(X)/37(Zero)
+pixels above the surface with native top contact. The world advances once
+per complete gameplay update. The earlier host-frame sample had original
+world clock250/paired249 and an animation-bit mismatch; matched native updates
+resolve that timing confound without masking source bytes.
+
+A real ownership gap was also found in native02:DDD3's shared Gravity Well
+query: it polls canonical first-shot bytes10D8/10E2/10E6/1108. A querying NPC
+may have Zero projected for targeting, although X still owns the active weapon.
+Four post-load hooks now read X's actual live pool for this world query,
+retaining all original instructions, branches, stack operations and guest
+cycles. Compiled entryDDD3 is routed through the existing observable boundary
+pipeline. With co-op disabled, original Zero still reports no weapon.
+
+Eight actual query controls cover both rosters: original X returns true,
+co-op X and co-op Zero return true for the same live charged source, and
+original Zero returns false. Both co-op results preserve the original X
+query's complete CpuState and elapsed time. An earlier candidate query only
+replaced canonical RAM without installing RuntimeState.current; that malformed
+fixture is excluded. The corrected test installs the complete current/anchor
+context through the existing snapshot API. The original-query behavior and
+the original first-shot reader establish the ownership defect independently
+of the excluded fixture. Four CTests pass with the new compiled boundary.
+
+Actual80/180 accepted,100open/partial,1/15rollups. Other support families,
+captures, campaign/presentation/runtime/online and final owner/release gates
+retain their independent open criteria.
+
+The affected native-shared-gravity-regression also exits0 on5d814df2,
+including existing contacts/pickups/doors/capsules, paired menus/healing,
+stock rules/return, independent views, separate supports, eight interrupted
+controller/terrain cuts, malformed-state preflight and eight boss cooldown
+cases. Current GUI SHA256
+38e05d400f2e31f5cdf08ccfc44c1d19e49890ca2b26f6cb5ac49d7788fb9ca6
+builds successfully with the same production repair. Its muted TCP capsule
+capture records240 consecutive frames in qa-state/capsule-current using a
+current-build native snapshot and bounded still-image storage. Presentation
+is still unqualified: consecutive frames confirm the native3-visible/1-hidden
+hologram state cadence, but the inspected region is black. Compare an actual
+original native capture before attributing it to the private renderer; old
+80-frame-spaced stills cannot resolve this. Other ordinary capsule stages2/7
+currently fail native allocation in the prepared approach, before mechanics
+qualification; their actual event/admission prerequisites need resolution.
+
+Native-normal-gravity-query also exits0 on state SHA256
+38565078adca80709fef6befc2d2b2a3106d9db06ac2fa23b95fffad44169517:
+16 original/co-op controls cover actual normal and charged Gravity Well in
+both rosters, including the normal query's additional native visibility load.
+Both co-op projected contexts retain the original full guest caller/time.

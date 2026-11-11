@@ -317,6 +317,9 @@ int main(int argc,char **argv) {
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_SEPARATE_PLATFORM_REVERSED_STATE");check(reversed && *reversed,"separate authored supports supply both real rosters");native_separate_authored_support_checks(fixture,reversed,saved,after,damaged,cap);}
     fixture=getenv("X3_COOP_PLATFORM_STATE");
     if(fixture && *fixture) {
+      if(getenv("X3_COOP_PLATFORM_TURN")){
+        for(unsigned roster=0;roster<2;++roster){check(RtlLoadSnapshot(fixture),"support reversal restores the same native world for either roster");size=RtlSaveSnapshotToMemory(saved,cap);X3CoopState setup;check(X3CoopDecode(&setup,saved+contact_context_offset(saved,size),X3CoopEncodedSize()),"support reversal decodes its actual native bodies");if(roster){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;setup.current^=1;setup.anchor^=1;}check(X3CoopEncode(&setup,saved+contact_context_offset(saved,size),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(saved,size),"support reversal installs the complete matched roster");door_install_player(&setup);size=RtlSaveSnapshotToMemory(saved,cap);authored_support_checks(saved,size,after,cap);}
+      }else{
       X3CoopRuntimeEnable(true);
       check(RtlLoadSnapshot(fixture),"authored support stage fixture loads");
       size=RtlSaveSnapshotToMemory(saved,cap);
@@ -326,6 +329,7 @@ int main(int argc,char **argv) {
       if(support_reversed && *support_reversed){
         check(RtlLoadSnapshot(support_reversed),"authored support loads the actual reversed roster");
         size=RtlSaveSnapshotToMemory(saved,cap);authored_support_checks(saved,size,after,cap);
+      }
       }
     }
     fixture=getenv("X3_COOP_CAPSULE_STATE");

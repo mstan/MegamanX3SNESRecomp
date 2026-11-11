@@ -61,24 +61,63 @@ static void native_support_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
   same(extra,expected,modified,after,"invalid rider state leaves the machine unchanged");
   check(RtlLoadSnapshotFromMemory(snapshot,size),"support probes restore their starting machine");
 }
+static void native_support_turn_checks(uint8_t *base,size_t n,unsigned d,uint8_t *work,size_t capacity){
+  enum {count=1050};uint8_t *objects=malloc(count*64);uint16_t (*positions)[count][2]=malloc(2*count*2*sizeof(uint16_t));check(objects && positions,"actual support turn reference allocates");
+  frame(0);check(g_ram[d] && g_ram[d+10]==0x37 && g_ram[d+1]==2,"actual lift constructor completes before its native activation prerequisite");n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState armed;check(X3CoopDecode(&armed,base+contact_context_offset(base,n),X3CoopEncodedSize()),"lift activation retains the actual current actors");unsigned caster=armed.players[0].character==X3_COOP_X?0:1;
+  for(unsigned seat=0;seat<2;++seat){X3CoopPlayer *p=&armed.players[seat];uint8_t *b=p->body;b[0x88]=255;b[2]=b[3]=0;memset(b+0x1a,0,6);memset(b+0x36,0,6);memcpy(b+0x22,b+5,2);memcpy(b+0x24,b+8,2);p->previous_actions=0;}
+  check(X3CoopEncode(&armed,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"lift activation supplies explicit personal damage protection");door_install_player(&armed);g_ram[0x1fd1]|=2;for(unsigned i=0;i<9;++i)g_ram[0x1fbc+i*2]=0;g_ram[0x1fc6]=0xdc;
+  for(unsigned f=0;f<12;++f)frame(0);frame((uint32_t)SNES_PAD_R<<(caster*12));for(unsigned f=0;f<4;++f)frame(0);
+  check(X3CoopRuntimeState()->players[caster].body[0x33]==12,"native cycling selects the acquired Gravity Beetle weapon slot at its native doubled index");bool original_activation=getenv("X3_COOP_PLATFORM_ORIGINAL")!=NULL;if(original_activation)X3CoopRuntimeEnable(false);unsigned start_y=view_read(d+8),charged=0,peak=0,release=180;bool activated=false,ready=false,actual_charge=false;
+  for(;charged<1200;++charged){const uint8_t *previous=original_activation || X3CoopRuntimeState()->current==caster?g_ram+X3_COOP_BODY:X3CoopRuntimeState()->players[caster].body;if(charged>=180 && release==charged && (previous[0x35] || previous[0x7d] || previous[0xaa]))++release;frame((uint32_t)(charged<release?SNES_PAD_Y:0)<<(original_activation?0:caster*12));activated|=g_ram[d] && g_ram[d+10]==0x37 && view_read(d+8)<start_y;const uint8_t *body=X3CoopRuntimeState()->current==caster?g_ram+X3_COOP_BODY:X3CoopRuntimeState()->players[caster].body;if(body[0x58]>peak)peak=body[0x58];if(charged==179 || charged==180 || charged==181 || charged==190)fprintf(stderr,"lift cast original%u f%u xy%u,%u actorState%u/%u charge%u/%u readiness%u/%u special%u action%u latch%02x flags%02x parts%02x freeze%u/%u/%u\n",original_activation,charged,support_position(caster,5),support_position(caster,8),body[1],body[2],body[0x57],body[0x58],body[0x8e],body[0x8f],body[0xb8],body[0x59],g_ram[d+0x2c],g_ram[0x1fff],g_ram[0x1fd1],g_ram[0x1f25],g_ram[0x1f27],g_ram[0x1f29]);
+    bool live=false;const X3CoopPlayer *p=&X3CoopRuntimeState()->players[caster];const uint8_t *shots=X3CoopRuntimeState()->current==caster?g_ram+X3_COOP_SHOTS:p->shots,*aux=X3CoopRuntimeState()->current==caster?g_ram+X3_COOP_AUX:p->auxiliaries;for(unsigned i=0;i<X3_COOP_SHOT_BYTES;i+=64){live|=shots[i]!=0;actual_charge|=shots[i] && shots[i+10]==21;}for(unsigned i=96;i<X3_COOP_AUX_BYTES;i+=32)live|=aux[i]!=0;
+    if(charged>=release && actual_charge && activated && !live){ready=true;break;}
+  }
+  fprintf(stderr,"native lift activation chargeFrames%u peak%u activated%u ready%u source%u/%u/%u Y%u HP%u energy%02x\n",charged,peak,activated,ready,g_ram[d],g_ram[d+1],g_ram[d+2],view_read(d+8),g_ram[d+0x27],g_ram[0x1fc6]);if(!activated || !ready)check(RtlSaveSnapshot("lift-activation-miss.sav"),"unqualified native lift activation retains the actual running state for visual inspection");check(actual_charge && activated && ready && g_ram[d] && g_ram[d+10]==0x37,"actual charged native weapon activates the authored lift and retires before the rider comparison");n=RtlSaveSnapshotToMemory(base,capacity);
+  if(original_activation){free(objects);free(positions);return;}
+  /* Keep the bodies produced by the actual activation/ride. Resetting a
+   * still scripted caster to an airborne standing pose is not a valid rider. */
+  X3CoopState carried;check(X3CoopDecode(&carried,base+contact_context_offset(base,n),X3CoopEncodedSize()),"support stop decodes both actual carried bodies");door_install_player(&carried);
+  for(unsigned seat=0;seat<2;++seat){const uint8_t *body=carried.players[seat].body;fprintf(stderr,"actual lift rider seat%u xy%u,%u action%u/%u grounded%02x busy%u\n",seat,body[5]|body[6]<<8,body[8]|body[9]<<8,body[2],body[3],body[0x2b],body[0xb8]);}
+  /*03:EA48 gives this authored lift its native512..1024 room. */
+  view_word(0x1e6a,512);view_word(0x1e78,512);view_word(0x1e6c,1024);view_word(0x1e7e,1024);
+  if(X3CoopViewsIndependent()){X3CoopViewState views=*X3CoopViewsState();for(unsigned seat=0;seat<2;++seat){views.limits[seat][2]=views.current[seat][2]=512;views.limits[seat][3]=views.current[seat][3]=1024;}X3CoopViewsSetState(&views);}n=RtlSaveSnapshotToMemory(base,capacity);
+  uint8_t clocks[count];unsigned turn=0,resumed=0,frames=count;
+  for(unsigned seat=0;seat<2;++seat){
+    check(RtlLoadSnapshotFromMemory(base,n),"support endpoint reference restores the actual native approach");X3CoopState solo=*X3CoopRuntimeState();solo.current=(uint8_t)seat;door_install_player(&solo);X3CoopRuntimeEnable(false);unsigned previous=view_read(d+8);
+    fprintf(stderr,"original support start seat%u xy%u,%u source%u,%u\n",seat,view_read(X3_COOP_BODY+5),view_read(X3_COOP_BODY+8),view_read(d+5),view_read(d+8));for(unsigned f=0;f<frames;++f){native_gameplay_update(0,true);positions[seat][f][0]=(uint16_t)view_read(X3_COOP_BODY+5);positions[seat][f][1]=(uint16_t)view_read(X3_COOP_BODY+8);
+      if(!g_ram[d] || g_ram[d+10]!=0x37){fprintf(stderr,"original support retirement seat%u f%u source%u state%u/%u sourceY%u rider%u,%u action%u camera%u,%u limits%u/%u targets%u/%u phase%u/%u HP%u\n",seat,f,g_ram[d],g_ram[d+1],g_ram[d+2],view_read(d+8),view_read(X3_COOP_BODY+5),view_read(X3_COOP_BODY+8),g_ram[X3_COOP_BODY+2],view_read(0x1e5d),view_read(0x1e60),view_read(0x1e6a),view_read(0x1e6c),view_read(0x1e78),view_read(0x1e7e),g_ram[0xd1],g_ram[0xd2],g_ram[X3_COOP_BODY+0x27]&127);check(false,"authored reference support remains live through its endpoint");}
+      if(!seat){clocks[f]=g_ram[0x9cc];memcpy(objects+f*64,g_ram+d,64);if(!turn && view_read(d+8)+192<=view_read(d+0x36)){turn=f+1;fprintf(stderr,"original support endpoint f%u Y%u riderY%u HP%u\n",turn,view_read(d+8),view_read(X3_COOP_BODY+8),g_ram[X3_COOP_BODY+0x27]&127);}if(turn && !resumed && view_read(d+8)>previous){resumed=f+1;fprintf(stderr,"original support reversal f%u Y%u riderY%u HP%u\n",resumed,view_read(d+8),view_read(X3_COOP_BODY+8),g_ram[X3_COOP_BODY+0x27]&127);}if(resumed && f+1>=resumed+24)frames=f+1;}
+      previous=view_read(d+8);
+    }
+  }
+  check(turn && resumed>=turn+60,"original support reaches its actual upper endpoint, waits sixty frames and reverses under native control");
+  check(RtlLoadSnapshotFromMemory(base,n),"paired endpoint restores the same actual support and two riders");unsigned clock=g_ram[0x9cc];
+  for(unsigned f=0;f<frames;++f){native_gameplay_update(0,false);if(memcmp(objects+f*64,g_ram+d,64)){unsigned difference=0;while(difference<64 && objects[f*64+difference]==g_ram[d+difference])++difference;fprintf(stderr,"support turn mismatch frame%u byte%u expected%02x actual%02x clocks%u/%u nativeY%u pairedY%u state%u/%u\n",f,difference,objects[f*64+difference],g_ram[d+difference],clocks[f],g_ram[0x9cc],objects[f*64+8]|objects[f*64+9]<<8,view_read(d+8),g_ram[d+1],g_ram[d+2]);check(false,"shared support endpoint and reversal match exactly one original native source update on every frame");}
+    if(f>=8){check((g_ram[d+0x2c]&1)!=0,"actual support retains native top contact during the stop and reversed motion");for(unsigned seat=0;seat<2;++seat){unsigned height=X3CoopRuntimeState()->players[seat].character==X3_COOP_ZERO?37:29;check(contact_hp(seat)>0 && support_position(seat,8)+height==view_read(d+8),"both living riders remain on the native support surface during the stop and reversal");}}
+    for(unsigned seat=0;seat<2;++seat)if(support_position(seat,5)!=positions[seat][f][0] || support_position(seat,8)!=positions[seat][f][1]){fprintf(stderr,"support turn rider mismatch frame%u seat%u original%u,%u paired%u,%u\n",f,seat,positions[seat][f][0],positions[seat][f][1],support_position(seat,5),support_position(seat,8));check(false,"either rider retains original carry through stop, waiting and reversal");}
+  }
+  check((uint8_t)(g_ram[0x9cc]-clock)==(uint8_t)frames,"endpoint and reversal advance the world once per frame");
+  fprintf(stderr,"actual support turn roster%u endpoint%u reverse%u finalY%u riderY%u/%u frames%u\n",X3CoopRuntimeState()->players[0].character,turn,resumed,view_read(d+8),support_position(0,8),support_position(1,8),frames);
+  free(objects);free(positions);(void)work;(void)capacity;
+}
 static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modified,size_t capacity) {
+  bool journey=getenv("X3_COOP_PLATFORM_TURN")!=NULL;unsigned platform_x=journey?1080:1224,platform_y=journey?896:1464,camera_y=journey?768:1280,camera_x=platform_x-128,platform_class=journey?0x37:0x26;
   size_t offset=contact_context_offset(snapshot,size);X3CoopState setup;
   check(g_ram[0x1fae]==5,"authored support fixture is native stage5");
   check(X3CoopDecode(&setup,snapshot+offset,X3CoopEncodedSize()),"authored support actors decode");
   unsigned x=setup.players[0].character==X3_COOP_X?0:1,zero=x^1;setup.current=setup.anchor=(uint8_t)x;
-  setup.players[zero].body[5]=0xd4;setup.players[zero].body[6]=4; /*1236*/
-  setup.players[zero].body[8]=0x8b;setup.players[zero].body[9]=5; /*1419*/
+  unsigned zx=platform_x+12,zy=platform_y-45;setup.players[zero].body[5]=(uint8_t)zx;setup.players[zero].body[6]=(uint8_t)(zx>>8);
+  setup.players[zero].body[8]=(uint8_t)zy;setup.players[zero].body[9]=(uint8_t)(zy>>8);
   memcpy(modified,snapshot,size);
   check(X3CoopEncode(&setup,modified+offset,X3CoopEncodedSize()),"authored support positioning encodes");
   check(RtlLoadSnapshotFromMemory(modified,size),"authored support positioning restores");
   door_install_player(&setup);
-  g_ram[X3_COOP_BODY+5]=0xbc;g_ram[X3_COOP_BODY+6]=4; /*1212*/
-  g_ram[X3_COOP_BODY+8]=0x93;g_ram[X3_COOP_BODY+9]=5; /*1427*/
+  view_word(X3_COOP_BODY+5,platform_x-12);view_word(X3_COOP_BODY+8,platform_y-37);
   /* QA teleport into the actual upper-room band. Camera admission/stream
    * frontiers are bypassed here; the support itself is spawned from ROM. */
   const unsigned camera_addresses[]={0x1e5d,0x1e7a,0x1e60,0x1e7c,0x1e6a,0x1e6c,0x1e78,0x1e7e};
   for(unsigned i=0;i<8;++i) {
-    unsigned value=i<2?1096:1280;
+    unsigned value=i<2?camera_x:camera_y;
     g_ram[camera_addresses[i]]=(uint8_t)value;g_ram[camera_addresses[i]+1]=(uint8_t)(value>>8);
   }
   /* A current independent fixture retains its original private room. Match
@@ -88,16 +127,15 @@ static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modif
     X3CoopViewState views=*X3CoopViewsState();
     views.valid=views.camera_valid=3;
     for(unsigned seat=0;seat<2;++seat){
-      views.camera[seat][0]=1096;views.camera[seat][1]=1280;
+      views.camera[seat][0]=(uint16_t)camera_x;views.camera[seat][1]=(uint16_t)camera_y;
       views.limits[seat][0]=views.current[seat][0]=0;
       views.limits[seat][1]=views.current[seat][1]=8192;
-      views.limits[seat][2]=views.current[seat][2]=1280;
-      views.limits[seat][3]=views.current[seat][3]=1280;
+      views.limits[seat][2]=views.current[seat][2]=(uint16_t)camera_y;
+      views.limits[seat][3]=views.current[seat][3]=(uint16_t)camera_y;
     }
     X3CoopViewsSetState(&views);
   }
-  g_ram[0]=0xc0;g_ram[1]=4; /* native spawn column1216 */
-  g_ram[2]=0xe0;g_ram[3]=4;g_ram[4]=0x40;g_ram[5]=1; /* top1248,height320 */
+  view_word(0,platform_x&~31u);view_word(2,camera_y-32);view_word(4,320);
   cpu_mirrors_to_p(&g_cpu);CpuState resume=g_cpu;
   g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P&=(uint8_t)~0x30;cpu_p_to_mirrors(&g_cpu);
   cpu_push_jsr_return_frame(&g_cpu);
@@ -106,10 +144,11 @@ static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modif
   g_cpu.A=resume.A;g_cpu.X=resume.X;g_cpu.Y=resume.Y;g_cpu.D=resume.D;
   g_cpu.PB=resume.PB;g_cpu.DB=resume.DB;g_cpu.P=resume.P;cpu_p_to_mirrors(&g_cpu);
   unsigned d=0;
-  for(unsigned a=0xd18;a<0x10d8;a+=64)if(g_ram[a] && g_ram[a+10]==0x26)d=a;
-  check(d && (g_ram[d+5]|g_ram[d+6]<<8)==1224 && (g_ram[d+8]|g_ram[d+9]<<8)==1464,
-        "ROM event3C:E12C creates its authored class26 support at1224,1464");
+  for(unsigned a=0xd18;a<0x10d8;a+=64)if(g_ram[a] && g_ram[a+10]==platform_class)d=a;
+  check(d && view_read(d+5)==platform_x && view_read(d+8)==platform_y,
+        "actual ROM event creates its authored class26 support at the selected native position");
   size_t prepared=RtlSaveSnapshotToMemory(snapshot,capacity);
+  if(getenv("X3_COOP_PLATFORM_TURN")){native_support_turn_checks(snapshot,prepared,d,modified,capacity);return;}
   X3CoopRuntimeEnable(false);
   unsigned clock=g_ram[0x9cc];
   for(unsigned i=0;i<45;++i)frame(0);

@@ -828,6 +828,19 @@ static void target_query(CpuState *cpu,uint32_t pc) {
   cpu->_flag_Z=cpu->A==0;cpu->_flag_N=(cpu->A&32768)!=0;cpu_mirrors_to_p(cpu);
   interp_bridge_pre_opcode_redirect((pc&0xff0000)|((pc+3)&65535));
 }
+static void world_gravity_query(CpuState *cpu,uint32_t pc){
+  if(!X3CoopRuntimeReady())return;
+  /* Native02:DDD3 polls X's first Gravity Well slot for shared reactions.
+   * A nearby Zero may be projected for the querying NPC; he does not own
+   * that weapon. Replace the completed loads, retaining every original
+   * instruction, branch, stack operation and guest cycle. */
+  unsigned x=state.players[0].character==X3_COOP_X?0:1;
+  const uint8_t *shots=x==state.current?g_ram+X3_COOP_SHOTS:state.players[x].shots;
+  unsigned offset=(pc&65535)==0xddd9?10:(pc&65535)==0xdde4?14:(pc&65535)==0xdde9?0:0x30;
+  unsigned value=state.players[x].life==X3_COOP_ALIVE?shots[offset]:0;
+  cpu->A=(uint16_t)((cpu->A&0xff00)|value);
+  cpu->_flag_Z=value==0;cpu->_flag_N=(value&128)!=0;cpu_mirrors_to_p(cpu);
+}
 static void shared_pickup_character(CpuState *cpu,uint32_t pc){
   if(!enabled || !state.initialized || !target.active || target.slot!=cpu->D ||
      !shared_pickup(cpu->D) ||
@@ -1427,6 +1440,9 @@ void X3CoopRuntimeFrame(void) {
   static const uint32_t target_queries[]={0x02e142,0x02daa7,0x02dac6};
   for(unsigned i=0;i<sizeof(target_queries)/sizeof(*target_queries);++i)
     if(!interp_bridge_add_pre_opcode_hook(target_queries[i],target_query))enabled=false;
+  static const uint32_t gravity_queries[]={0x02ddd9,0x02dde4,0x02dde9,0x02ddee};
+  for(unsigned i=0;i<sizeof(gravity_queries)/sizeof(*gravity_queries);++i)
+    if(!interp_bridge_add_pre_opcode_hook(gravity_queries[i],world_gravity_query))enabled=false;
   static const uint32_t pickup_characters[]={0x01d837,0x01d9cd,0x01da25,0x01da7c};
   for(unsigned i=0;i<sizeof(pickup_characters)/sizeof(*pickup_characters);++i)
     if(!interp_bridge_add_pre_opcode_hook(pickup_characters[i],shared_pickup_character))enabled=false;
