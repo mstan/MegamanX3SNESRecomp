@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 81/180; 99 open/partial. Accepted areas: 1/15
+**Accepted touch points: 82/180; 98 open/partial. Accepted areas: 1/15
 (snapshot/rewind/rollback).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -52,7 +52,7 @@ campaign or co-op gameplay acceptance.
 | --- | --- | --- |
 | Individual death | D01-D05/D07/D09/D11/D14-D16 accepted (11/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
-| Fallen persistence | F02-F07/F09 accepted (7/10); checkpoints, difficult placement and reconnect/options remain open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
+| Fallen persistence | F01-F07/F09 accepted (8/10); difficult placement and reconnect/options remain open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | P01-P05 accepted (5/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
@@ -2798,3 +2798,24 @@ native room/resource admission and moving scene presentation still need a
 valid route. Diagnostic code was removed from production/test sources and
 retained only with the private QA evidence. Actual81/180 accepted,99open,
 1/15rollups; no release delivery is implied.
+
+
+### Authored checkpoint crossing preserves the fallen actor — F01
+
+F01 is accepted by native-checkpoint(child0), state SHA256
+13657fbd6c4d6262aa14e90cc1d2baa0a982995c773e36ecfec515c14f341ae2.
+Stage5's actual3C:E386/E474 records allocate special class0B/parameters1,2
+at2944,1152 and3200,3008. Native3D:FF1D compares the living world body's
+position and commits1FB5 only after it crosses the authored line. The setup
+uses route/camera positioning, damage protection and API retirement of the
+partner; it never supplies the checkpoint result or claims a new death-hazard
+qualification. Both targets start unearned at checkpoint0.
+
+All eight target/roster/survivor cases pass. Real Right/jump/dash input earns
+checkpoint1 at frame46 for either character. Checkpoint2 is crossed at26
+updates for X and18 for Zero. After16 further native frames, the entire
+fallen personal context remains byte-identical, the survivor keeps HP/life,
+no retry/life debit occurs, and public rejoin remains forbidden. Each actual
+pending crossing replays to the identical complete machine and crossing
+frame. No production change was required. Actual82/180 accepted,98open,
+1/15rollups.

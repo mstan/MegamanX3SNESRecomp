@@ -113,3 +113,45 @@ static void native_boss_retry_checks(uint8_t *original,size_t size,uint8_t *work
     size=RtlSaveSnapshotToMemory(original,capacity);
   }
 }
+
+/* Actual stage5 checkpoint events3C:E386/E474, special class0B/params1,2.
+ * Teleport and API retirement prepare the approach; real input must cross the
+ * native trigger at3D:FF1D. No checkpoint, success or reenrollment flag is set. */
+static void native_checkpoint_persistence_checks(const char *fixture,uint8_t *base,uint8_t *work,uint8_t *after,size_t capacity){
+  for(unsigned point=1;point<=2;++point)for(unsigned reversed=0;reversed<2;++reversed)for(unsigned survivor=0;survivor<2;++survivor){
+    check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==5 && !g_ram[0x1fb5],"native checkpoint starts from the unearned authored stage5 route");
+    size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
+    if(reversed){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
+    unsigned fallen=survivor^1,px=point==1?2944:3200,py=point==1?1152:3008;
+    check(X3CoopFall(&setup,fallen),"checkpoint approach supplies only the partner's fallen lifecycle prerequisite");
+    setup.current=setup.anchor=(uint8_t)survivor;team_hazard_body(setup.players[survivor].body,px-36,py-40);
+    setup.players[survivor].body[0x88]=255;
+    check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"checkpoint route installs the actual surviving roster with explicit damage protection");
+    door_install_player(&setup);X3CoopViewsConfigure(true);
+    unsigned cx=px-128,cy=py&~255u;X3CoopViewState views={0};views.independent=views.initialized=1;views.stage=5;views.valid=views.camera_valid=3;
+    for(unsigned seat=0;seat<2;++seat){views.camera[seat][0]=(uint16_t)cx;views.camera[seat][1]=(uint16_t)cy;views.limits[seat][1]=views.current[seat][1]=8192;views.limits[seat][2]=views.current[seat][2]=(uint16_t)cy;views.limits[seat][3]=views.current[seat][3]=(uint16_t)cy;}X3CoopViewsSetState(&views);
+    view_word(0x1e5d,cx);view_word(0x1e7a,cx);view_word(0x1e60,cy);view_word(0x1e7c,cy);
+    view_word(0x1e66,0);view_word(0x1e68,8192);view_word(0x1e6e,0);view_word(0x1e70,8192);view_word(0x1e6a,cy);view_word(0x1e6c,cy);view_word(0x1e78,cy);view_word(0x1e7e,cy);
+    for(unsigned i=0;i<3;++i)frame(0);
+    CpuState caller=g_cpu;view_native_call(0x00de3a,0,false);
+    g_cpu.A=caller.A;g_cpu.X=caller.X;g_cpu.Y=caller.Y;g_cpu.D=caller.D;g_cpu.PB=caller.PB;g_cpu.DB=caller.DB;g_cpu.P=caller.P;cpu_p_to_mirrors(&g_cpu);
+    unsigned slot=0;for(unsigned d=0x1d18;d<0x1e18;d+=16)if(g_ram[d] && g_ram[d+10]==11 && g_ram[d+11]==point && view_read(d+5)==px && view_read(d+8)==py)slot=d;
+    fprintf(stderr,"checkpoint approach point%u roster%u survivor%u slot%04x player%u,%u old%u\n",point,reversed,survivor,slot,support_position(survivor,5),support_position(survivor,8),g_ram[0x1fb5]);
+    check(slot && !g_ram[0x1fb5] && support_position(survivor,5)<px,"retail allocator admits the real unearned checkpoint before the survivor crosses it");
+    X3CoopPlayer retired=X3CoopRuntimeState()->players[fallen];unsigned lives=g_ram[0x1fb4],hp=contact_hp(survivor),crossed=0;
+    n=RtlSaveSnapshotToMemory(base,capacity);
+    for(unsigned run=0;run<2;++run){
+      check(RtlLoadSnapshotFromMemory(base,n),"native checkpoint crossing restores its exact pending world");unsigned f=0;
+      for(;f<120 && g_ram[0x1fb5]!=point;++f)frame((SNES_PAD_RIGHT|(f<4?SNES_PAD_A:0)|(f%32<4?SNES_PAD_B:0))<<(survivor*12));
+      fprintf(stderr,"checkpoint crossing point%u roster%u survivor%u run%u frames%u new%u player%u,%u life%u/%u\n",point,reversed,survivor,run,f,g_ram[0x1fb5],support_position(survivor,5),support_position(survivor,8),X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
+      check(f<120 && g_ram[0x1fb5]==point && support_position(survivor,5)>px,"real native survivor input crosses and commits the authored checkpoint");
+      for(unsigned settle=0;settle<16;++settle)frame(0);
+      const X3CoopState *s=X3CoopRuntimeState();
+      check(s->players[fallen].life==X3_COOP_FALLEN && !memcmp(&retired,&s->players[fallen],sizeof(retired)) && s->players[survivor].life==X3_COOP_ALIVE && !s->wipe && g_ram[0x1fb4]==lives && contact_hp(survivor)==hp,"actual checkpoint preserves the entire fallen actor and the healthy survivor without retry, healing or revival");
+      X3CoopState rejoin=*s;check(!X3CoopRejoin(&rejoin,fallen),"the newly earned native checkpoint cannot authorize a fallen rejoin");
+      size_t finish=RtlSaveSnapshotToMemory(run?work:after,capacity);
+      if(!run){crossed=f;check(finish==n,"native checkpoint retains the complete current-build snapshot shape");}
+      else{check(f==crossed,"native checkpoint repeats on the same actual crossing frame");same(after,n,work,finish,"native checkpoint and fallen persistence replay the complete machine exactly");}
+    }
+  }
+}

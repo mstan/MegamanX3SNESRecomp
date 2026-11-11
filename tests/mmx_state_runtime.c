@@ -332,17 +332,19 @@ int main(int argc,char **argv) {
       }
       }
     }
+    fixture=getenv("X3_COOP_CHECKPOINT_STATE");
+    if(fixture && *fixture)native_checkpoint_persistence_checks(fixture,saved,damaged,after,cap);
     fixture=getenv("X3_COOP_CAPSULE_STATE");
     if(fixture && *fixture){
       X3CoopRuntimeEnable(true);check(RtlLoadSnapshot(fixture),"authored native capsule stage fixture loads");
       const char *capsule_stage=getenv("X3_COOP_CAPSULE_STAGE");
       if(capsule_stage){unsigned stage=(unsigned)atoi(capsule_stage);check(stage>0 && stage<15 && capsule_table(0x06ccfa+stage,1)!=255,"requested capsule stage has an actual native capsule entry");if(stage!=g_ram[0x1fae]){stage_request();g_ram[0x1fae]=(uint8_t)stage;unsigned elapsed=0;for(;elapsed<3600;++elapsed){frame(0);if(X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && g_ram[0xd1]==4 && g_ram[0xd2]==4 && g_ram[0x1fae]==stage)break;}check(elapsed<3600,"capsule preparation completes the actual native new-stage constructor");for(unsigned f=0;f<120;++f)frame(0);check(X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"native capsule stage settles two living bodies and their initial room bounds");}}
-      size=RtlSaveSnapshotToMemory(saved,cap);
-      for(unsigned reversed=0;reversed<2;++reversed)native_capsule_checks(saved,size,after,damaged,cap,reversed);
       unsigned capsule_award=capsule_mask();
       if(capsule_award&0xf0){g_ram[0x1fd1]=(uint8_t)(capsule_award==0xf0?255:15);g_ram[0x1fd7]=15;
         if(capsule_award==0xf0){g_ram[0x1fd4]=255;size=RtlSaveSnapshotToMemory(saved,cap);X3CoopState full=*X3CoopRuntimeState();unsigned x=full.players[0].character==X3_COOP_X?0:1;full.players[x].maximum_health=full.players[x].body[0x27]=32;check(X3CoopEncode(&full,saved+contact_context_offset(saved,size),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(saved,size),"golden capsule supplies only its real collected-capacity/hearts and full-health prerequisites");door_install_player(&full);}
       }
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      for(unsigned reversed=0;reversed<2;++reversed)native_capsule_checks(saved,size,after,damaged,cap,reversed);
     }
     fixture=getenv("X3_COOP_SURVIVOR_STATE");
     if(fixture && *fixture) {
