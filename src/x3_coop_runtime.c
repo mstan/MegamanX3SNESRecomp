@@ -765,12 +765,14 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   unsigned at=pc&0xffff,d=cpu->D;
   if(at==0xdd1a || at==0xdcb3 || at==0xdafa) {
     bool capsule=native_capsule(d),intro=intro_capture_actor(d),x_only=x_pickup(d) || capsule || intro;
+    /* Hostile constructors choose aim before populating native HP. */
+    bool constructing_hostile=at==0xdcb3 && hostile_projectile(d) && !g_ram[d+1];
     bool pickup=at==0xdafa && (x_only || shared_pickup(d));
     bool door=at==0xdafa && native_door(d) && g_ram[d+1]<=2;
     bool pending=(pickup && refill.active && refill.slot==d) || ((capsule || intro) && !g_ram[d+1]) ||
         (scene.phase && scene.kind && state.players[scene.owner].life!=X3_COOP_ALIVE);
     if(state.wipe || target.active || (!pickup && !door && !enemy_actor(d)) || !g_ram[d] ||
-       (!pickup && !door && !capsule && !intro && !pending && !(g_ram[d+0x27]&127)) ||
+       (!pickup && !door && !capsule && !intro && !pending && !constructing_hostile && !(g_ram[d+0x27]&127)) ||
        ((g_ram[0x1f22] || g_ram[0x1f24]) && !pending) || controller.pass || terrain.pass ||
        contact.native.pass || objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
     /* Keep native X eligibility for weapon energy and persistent heart/tank

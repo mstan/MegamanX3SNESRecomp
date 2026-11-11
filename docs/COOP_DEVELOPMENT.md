@@ -2473,3 +2473,27 @@ state binary. It retains the existing native contacts, pickups, doors, capsule
 scenes, menus/healing, participation/stock/team retries, independent worlds and
 supports, plus all eight real interrupted-pass cuts, transactional preflight
 cases and all eight actual boss damage/immunity comparisons.
+
+### Hostile targeting before native health initialization
+
+A newly emitted hostile can read the player before its native constructor
+assigns health. The HP-based world-target filter therefore left a new Buffalo
+ice attack bound to the farther world actor. Actual597-frame birth fixtures
+preserve its uninitialized1318/class20 source. With the other living actor
+nearby, a matched original00:DC59 update produces native horizontal velocity0;
+the previous paired constructor produces-1152. native-hostile-constructor-caller
+exits1 on state97260e9c3d2312a1c646781429a823bf25a7d5788a8e2244a23f6105c98bbe9b.
+This comparison holds the constructor's caller bodies fixed rather than adding
+player movement/stock-return work before comparing source state.
+
+New hostile constructors(state1=0 at00:DCB3) can now select their living target
+before HP initialization. Existing scene ownership and freeze guards still
+apply; ordinary NPC constructors and retired active objects retain their prior
+eligibility rules. native-hostile-constructor-fixed exits0 on state SHA256
+13e106d84b540c3d9632004bf0b01e69fb344ca149c1db138d5d222664a59747: both rosters
+and either world actor match all64 original source bytes, initialize nativeHP6
+and preserve exact whole-machine/elapsed-time replay. The same combined run
+passes four persistent-ice, four actual consumed-shot and eight native boss
+immunity cases. Four CTests also pass. No new wire bytes or native damage/
+velocity formula are introduced. This repairs actual G02/E14 setup behavior;
+the complete authored criteria remain open and the total stays75/180.
