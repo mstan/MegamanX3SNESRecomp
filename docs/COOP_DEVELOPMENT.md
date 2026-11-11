@@ -2186,3 +2186,21 @@ owner through restore. No checkpoint/rejoin revival or old-state conversion
 is introduced. R02/R03 interrupted-pass replay remains open.
 
 Actual64/180 accepted,116open/partial,0/15rollups.
+
+
+### Interrupted native pass rollback
+
+R02/R03 are accepted from native-midpass-support-receipt.json(child0),
+state SHA25600c5b1a9fe4a0791d87d3921ff8d7355de43c237ffe27ee1afae2e415b2c8615.
+Both actual rosters capture a complete rollback blob during the secondary
+048000 controller,04B58A terrain,04CB31 contact and04BFAE support passes.
+Contact actually damages only the secondary actor; support actually acquires
+only that rider. Restoring the cut and running the original native continuation
+retains exact architectural registers, balanced guest stack, master clock and
+complete canonical guest/title state. Caller APU execution scopes0 and1 survive
+restore. The engine correction preserves this caller role instead of restoring
+an interpreter-active flag into an external call; guest APU timing remains
+serialized. The former canonical discrepancy was IBRS+1026, exactly that role.
+
+All10 rollback criteria now accepted; actual66/180 accepted,114open/partial,
+1/15rollups. Other feature/visual/campaign/online/release gates remain open.

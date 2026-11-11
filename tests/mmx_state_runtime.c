@@ -2,6 +2,7 @@
 #define main MmxStateChecksMain
 #include MMX_SHARED_STATE_TEST
 #undef main
+#include "snes/interp_bridge.h"
 #include "../src/x3_coop_runtime.h"
 #include "../src/x3_coop_view.h"
 #include "../src/x3_coop_menu.h"
@@ -38,6 +39,7 @@ static void view_word(unsigned address,unsigned value);
 #include "x3_coop_rewind_test.inc"
 #include "x3_coop_combat_test.inc"
 #include "x3_coop_preflight_test.inc"
+#include "x3_coop_midpass_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -102,6 +104,8 @@ int main(int argc,char **argv) {
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
     }
+    fixture=getenv("X3_COOP_MIDPASS_STATE");
+    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_MIDPASS_REVERSED_STATE");check(reversed && *reversed,"interrupted native passes supply both actual rosters");native_interrupted_pass_checks(fixture,reversed,saved,after,damaged,cap);}
     fixture=getenv("X3_COOP_PREFLIGHT_STATE");
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_PREFLIGHT_REVERSED_STATE");check(reversed && *reversed,"transactional current snapshots supply both real rosters");native_transactional_snapshot_checks(fixture,reversed,saved,after,damaged,cap);}
     fixture=getenv("X3_COOP_COMBAT_STATE");
