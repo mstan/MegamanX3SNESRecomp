@@ -50,6 +50,10 @@ static unsigned door_approach(uint8_t *original,size_t size,uint8_t *work,size_t
         RtlLoadSnapshotFromMemory(work,prepared),"touching remote actor restores without admission flags");
   return slot;
 }
+static uint32_t scene_menu_pad(unsigned frame_index){
+  return getenv("X3_COOP_TRANSITION_MENU") && (frame_index<2 || frame_index==32 || frame_index==33)?
+      SNES_PAD_START|((uint32_t)SNES_PAD_START<<12):0;
+}
 static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity,unsigned character){
   unsigned slot=door_approach(original,size,work,capacity,character);
   const X3CoopState setup=*X3CoopRuntimeState();unsigned remote=setup.anchor^1;
@@ -88,7 +92,11 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   }
   const char *output=getenv("X3_COOP_DOOR_OUTPUT");char path[1024];bool arrival_saved=false;
   unsigned elapsed=0;
-  for(unsigned i=0;i<900;++i){frame(0);elapsed=i+1;
+  for(unsigned i=0;i<900;++i){frame(scene_menu_pad(i));elapsed=i+1;
+    if(getenv("X3_COOP_TRANSITION_MENU") && (i==0 || i==32 || i==60)){
+      X3CoopMenuInfo panel;check(X3CoopRuntimeSceneActive() && !X3CoopMenuRead(&panel) && !(g_ram[0x1f37]&1),"both actual Start requests leave door/transport ownership with the native scene");
+      size_t pending=RtlSaveSnapshotToMemory(work,capacity);check(RtlLoadSnapshotFromMemory(work,pending),"actual pending scene with prior Start requests restores without a hidden pause owner");
+    }
     if(i==60 && output && *output){
       snprintf(path,sizeof(path),"%s-p%u-%s-mid.sav",output,remote+1,character==X3_COOP_ZERO?"zero":"x");
       check(RtlSaveSnapshot(path),"pending native gate visual fixture saves");
@@ -126,7 +134,7 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   }
   size_t finished_size=RtlSaveSnapshotToMemory(finished,capacity);
   check(RtlLoadSnapshotFromMemory(expected,admitted),"admitted native gate snapshot restores");
-  for(unsigned i=0;i<elapsed;++i)frame(0);
+  for(unsigned i=0;i<elapsed;++i)frame(scene_menu_pad(i));
   size_t replay=RtlSaveSnapshotToMemory(expected,capacity);
   same(finished,finished_size,expected,replay,"native gate forced-walk and cleanup deterministic replay");
   free(finished);
@@ -145,6 +153,10 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   for(unsigned i=0;i<15;++i)frame(SNES_PAD_RIGHT<<12);
   check(support_position(1,5)>before1+10 && abs((int)support_position(0,5)-(int)before0)<=2,
         "P2 resumes independent native control after transport without moving P1");
+  if(getenv("X3_COOP_TRANSITION_MENU")){
+    X3CoopMenuInfo panel;check(!X3CoopMenuRead(&panel) && !(g_ram[0x1f37]&1),"restored door cleanup leaves no hidden menu and both native controls released");
+    free(admitted_state);check(RtlLoadSnapshotFromMemory(original,size),"transition-menu gate restores its original route");return;
+  }
   /* Isolated lifecycle API events, not authored enemy deaths or a launcher
    * withdrawal handoff: native door progression/cleanup is still exercised. */
   for(unsigned mode=0;mode<8;++mode){

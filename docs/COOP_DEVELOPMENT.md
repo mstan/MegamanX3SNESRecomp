@@ -44,8 +44,8 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 89/180; 91 open/partial. Accepted areas: 1/15
-(snapshot/rewind/rollback).** Component checks and a successful build are not
+**Accepted touch points: 90/180; 90 open/partial. Accepted areas: 2/15
+(snapshot/rewind/rollback and menus/resources).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
 | Area | Status | Acceptance |
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Combat ownership | C01-C05/C07/C09/C10/C12 accepted (9/12); armored parts, attack origins and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
-| Menus/resources | M01-M11 accepted (11/12); transition/menu overlap remains open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
+| Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
 | Netplay | N01-N08/N10-N12 accepted (11/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
@@ -3095,3 +3095,29 @@ endingf1854b04 at6500, with no desync, wipe or life debit. Positioning bypasses
 prior travel, while original admission, script, locks and cleanup decide results.
 Evidence remains net-lan/online-door88-x/observations.json with both process logs.
 Remote reward coverage remains open underN09; no acceptance increment follows.
+
+
+### Native pause requests across scenes, fatal contact and restore — M12
+
+M12 is accepted by native-transition-menu-door and native-transition-menu-death
+(both child0), state SHA256
+3891012602dde9f292bf069effa5d7c4739d793c6b0193e22b5ac138bb9e1882.
+Four actual gate cases cover both X/Zero entrants and both roster assignments.
+Both players press real Start during the original door/transport sequence.
+The native scene retains ownership without opening a pause; actual pending
+snapshots after requests at cuts0/32/60 load successfully without a hidden
+panel owner. The original forced walk and following miniboss introduction
+complete, and each player then moves independently under its own input.
+The complete machine replays identically with the same actual Start sequence.
+Unrelated earlier gate lifecycle/eligibility cases are omitted in this focused
+mode; ordinary qualification retains them.
+
+Four authored stage5 spike cases cover either real victim in both rosters.
+Original lethal terrain selects one fatal contact (22/23frames) and retains
+the free survivor. Fallen Start cannot open pause. The survivor opens the one
+native pause, saves and restores it, then the fallen actor's real Start/Fire
+cannot steal ownership, heal, or change any byte of its retained personal
+context. One survivor Start resumes the restored pause with canonical actor
+ownership and no hidden panel or revival. Subsequent actual survivor movement
+and bright, unfrozen world progression still pass. No production menu change
+was required. Actual90/180 accepted,90open,2/15rollups.

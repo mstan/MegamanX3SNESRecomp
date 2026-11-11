@@ -63,6 +63,16 @@ static void native_spike_checks(const char *normal,const char *reversed,uint8_t 
     check(RtlLoadSnapshotFromMemory(work,fatal_size),"actual fatal-contact outcome restores");
     replay_size=RtlSaveSnapshotToMemory(replay,capacity);
     same(work,fatal_size,replay,replay_size,"actual fallen and survivor contexts restore immediately");
+    if(getenv("X3_COOP_TRANSITION_MENU")){
+      X3CoopPlayer fallen=X3CoopRuntimeState()->players[victim];X3CoopMenuInfo panel;
+      menu_press(victim,0x1000);check(!X3CoopMenuRead(&panel) && !(g_ram[0x1f37]&1),"an actual fallen actor cannot own native pause");
+      menu_open(victim^1);size_t paused=RtlSaveSnapshotToMemory(base,capacity);
+      check(RtlLoadSnapshotFromMemory(base,paused),"survivor-owned active native pause restores after actual fatal contact");
+      frame(menu_pad(victim,0x1000)|menu_pad(victim,0x4000));frame(0);frame(0);panel=menu_read();
+      check(panel.owner==(victim^1) && !panel.healing[victim] && !memcmp(&fallen,&X3CoopRuntimeState()->players[victim],sizeof(fallen)),"fallen Start/Fire cannot steal a restored panel, heal or change the retired context");
+      menu_press(victim^1,0x1000);for(unsigned f=0;f<120;++f)frame(0);
+      check(!X3CoopMenuRead(&panel) && !(g_ram[0x1f37]&1) && !memcmp(&fallen,&X3CoopRuntimeState()->players[victim],sizeof(fallen)) && X3CoopRuntimeState()->current==X3CoopRuntimeState()->anchor,"survivor resumes one restored pause with balanced ownership and no revival");
+    }
     unsigned before=coop_x(victim^1);
     for(unsigned f=0;f<24;++f)frame((uint32_t)SNES_PAD_LEFT<<((victim^1)*12));
     fprintf(stderr,"spike survivor roster%u victim%u x%u->%u y%u display%02x life%u world%u/%u\n",

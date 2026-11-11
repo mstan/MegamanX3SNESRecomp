@@ -177,6 +177,14 @@ int main(int argc,char **argv) {
         native_shared_authored_pits(path,saved,after,cap);
       }
     }
+    fixture=getenv("X3_COOP_TRANSITION_DOOR_STATE");
+    if(fixture && *fixture){
+      const char *other=getenv("X3_COOP_TRANSITION_DOOR_REVERSED_STATE");check(other && *other && getenv("X3_COOP_TRANSITION_MENU"),"door/menu overlap supplies both actual native rosters");
+      for(unsigned roster=0;roster<2;++roster){
+        check(RtlLoadSnapshot(roster?other:fixture),"transition-menu gate loads its actual native roster");size=RtlSaveSnapshotToMemory(saved,cap);
+        for(unsigned character=0;character<2;++character)native_door_checks(saved,size,after,damaged,cap,character);
+      }
+    }
     fixture=getenv("X3_COOP_SPIKE_STATE");
     if(fixture && *fixture){
       const char *reversed=getenv("X3_COOP_SPIKE_REVERSED_STATE");
