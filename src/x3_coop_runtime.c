@@ -405,7 +405,7 @@ static void scene_cancel_transients(unsigned seat){
   p->body[0x57]=p->body[0x58]=p->body[0x5a]=p->body[0x5b]=0;
   /* These counters/latches describe the shots and children just discarded,
    * not retained resources. Zero keeps readiness outside the charge meters. */
-  p->body[0x35]=p->body[0x7d]=p->body[0xaa]=p->body[0xb7]=0;
+  p->body[0x35]=p->body[0x7d]=p->body[0x89]=p->body[0xaa]=p->body[0xb7]=0;
   for(unsigned i=0;i<SHARED_SUPPORTS;++i)riders[i]&=(uint8_t)~(1u<<seat);
 }
 static void scene_begin(unsigned slot,unsigned kind){

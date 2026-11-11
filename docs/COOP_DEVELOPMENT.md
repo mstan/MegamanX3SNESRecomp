@@ -2336,3 +2336,44 @@ retain them for now and remove through an allowed audited cleanup at completion.
 
 Actual71/180 accepted,109open/partial,1/15rollups. C10 complete weapon retirement
 and transition coverage remains open.
+
+### Complete native weapon retirement — C10
+
+C10 is accepted across both actual rosters, all nine native X weapon slots and
+normal/charged-or-automatic casts, for each of withdrawal, fatal contact, native
+stage loading and team retry:144 lifecycle cases. native-weapon-lifecycle-gate
+passes all36withdrawal cases on state SHA256
+80c2075015d004ec2bb22ab25775cd8b4bd1f303d2c7bb8247dc5aabf8573445; its later
+retry assertion failed before observing the final victim's next native settlement
+boundary and is retained. native-all-weapon-transitions exits0 on state SHA256
+14bf9e0a500f0453746eb34b0c1a0148facc9708f38782d5306d0e8dfccc25dc:
+36fatal-contact cases,36native stage-constructor cases and36actual team retries.
+The last survivor's actual HP0 is observed through the next original controller/
+stage boundary; no death, wipe, constructor or retry result is supplied.
+
+Native charged Parasitic Bomb exposed a stale orbit count:04:B753's four real
+projectile allocations increment body35/7D/89 to4/4/4. Discarding those pools
+previously retained89=4. Actual cancellation now clears89 with its discarded
+shot/child counters. This reset is restricted to cancellation and does not alter
+ordinary native attack timing. Only the departing creator's full pools/shared
+child tags are removed; the other actor's complete sources, HP and resources
+remain intact. Public return retains selection and energy, emits no idle ghost
+attack, takes actual native contact damage after explicit test protection expires,
+and casts the same weapon again. Harm and firing checks branch from the same
+unchanged idle snapshot, with legitimate native cooldowns allowed to expire.
+Earlier mixed post-hurt firing fixtures remain unqualified setup evidence.
+
+Fatal cases use original04:CB31 and low-HP/contact-position prerequisites; they
+retain a living partner and24actual subsequent world ticks with no retired
+damage sources. Stage cases bypass prior travel through the existing native
+stage request, then exercise the real constructor and cleanup; they do not
+accept an authored exit. Both-roster Parasitic examples complete stage5 entry
+in357frames. Team retries use two actual native fatal contacts, preserve the
+original stage2 checkpoint and debit one shared life, then rebuild both native
+bodies with full health, cleared attack readiness/counts and real fresh busters.
+Parasitic examples take598frames after the final fatal boundary. Existing native
+Zero armed-charge/beam-death and withdrawal cases supply his independent combat
+lifecycle coverage; native X3 Zero does not receive special weapons.
+
+Actual72/180 accepted,108open/partial,1/15rollups. C05 concurrency/cooldown and
+C09 broader lifetime/hurt/movement checks retain their separate open criteria.
