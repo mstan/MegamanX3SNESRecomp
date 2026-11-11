@@ -57,6 +57,38 @@ static bool view_has_enemy(unsigned x,unsigned y) {
     if(g_ram[d] && view_read(d+5)==x && view_read(d+8)==y)return true;
   return false;
 }
+static void native_activation_route_checks(const char *fixture,const char *reversed,uint8_t *work,size_t capacity) {
+  for(unsigned roster=0;roster<2;++roster){
+    check(RtlLoadSnapshot(roster?reversed:fixture),"native movement activation restores its real roster");
+    size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState setup=*X3CoopRuntimeState();setup.current=setup.anchor=0;
+    for(unsigned seat=0;seat<2;++seat)setup.players[seat].body[0x88]=255;
+    check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"movement route installs its world leader and explicit damage protection");door_install_player(&setup);X3CoopViewsConfigure(true);
+    unsigned still_x=support_position(0,5),clock=g_ram[0x9cc];bool enemy[2]={false,false};
+    for(unsigned f=0;f<480;++f){
+      unsigned keys=SNES_PAD_RIGHT|(f%32<12?SNES_PAD_B:0)|(f%64<32?SNES_PAD_A:0);
+      frame((uint32_t)keys<<12);
+      for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+1]==2 && g_ram[d+10]==8 && g_ram[d+11]==1 && (g_ram[d+0x27]&127)){
+        unsigned ex=view_read(d+5);for(unsigned k=0;k<2;++k)if(ex==(k?976:736) && !enemy[k]){enemy[k]=true;fprintf(stderr,"native P2 admission roster%u f%u slot%04x class08/01 x%u HP%u P1camera%u P2camera%u\n",roster,f,d,ex,g_ram[d+0x27]&127,X3CoopViewsState()->camera[0][0],X3CoopViewsState()->camera[1][0]);}
+      }
+      if(!(f%32)){const X3CoopViewState *v=X3CoopViewsState();fprintf(stderr,"activation route roster%u f%u P1%u,%u P2%u,%u camera%u,%u / %u,%u life%u/%u phase%u/%u\n",roster,f,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),v->camera[0][0],v->camera[0][1],v->camera[1][0],v->camera[1][1],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,g_ram[0xd1],g_ram[0xd2]);}
+    }
+    check(enemy[0] && enemy[1] && support_position(0,5)==still_x && support_position(1,5)>1100 && (uint8_t)(g_ram[0x9cc]-clock)==(uint8_t)480,"P2 native input admits and initializes two authored enemies beyond the stationary P1 view with one world update");
+    const char *out=getenv("X3_COOP_ROUTE_OUTPUT");if(out){char path[1024];snprintf(path,sizeof(path),"%s-roster%u.sav",out,roster);check(RtlSaveSnapshot(path),"actual movement route retains its native world");}
+  }
+}
+static void native_activation_platform_route(const char *fixture,uint8_t *work,size_t capacity){
+  for(unsigned roster=0;roster<2;++roster){
+    check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==5,"native platform admission uses the actual stage5 terrain and events");size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState setup=*X3CoopRuntimeState();if(roster){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}setup.current=setup.anchor=0;
+    uint8_t *b=setup.players[1].body;unsigned x=1050,y=1435-(setup.players[1].character==X3_COOP_ZERO?8:0);b[5]=b[0x22]=(uint8_t)x;b[6]=b[0x23]=(uint8_t)(x>>8);b[8]=b[0x24]=(uint8_t)y;b[9]=b[0x25]=(uint8_t)(y>>8);b[2]=b[3]=b[4]=b[7]=0;memset(b+0x1a,0,6);for(unsigned seat=0;seat<2;++seat)setup.players[seat].body[0x88]=255;
+    check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"platform approach teleports only the initial P2 position");door_install_player(&setup);X3CoopViewsConfigure(true);X3CoopViewsCommitNative(g_ram,X3CoopRuntimeState());X3CoopViewState v=*X3CoopViewsState();v.camera[1][0]=922;v.camera[1][1]=1280;v.limits[1][0]=v.current[1][0]=0;v.limits[1][1]=v.current[1][1]=8192;v.limits[1][2]=v.current[1][2]=v.limits[1][3]=v.current[1][3]=1280;X3CoopViewsSetState(&v);
+    check(!g_ram[0xfa84] && !view_has_enemy(1224,1464),"actual support is unvisited and outside the initial native admission frontier");unsigned still_x=support_position(0,5),clock=g_ram[0x9cc],first=0;bool moved=false;
+    for(unsigned f=0;f<160;++f){frame((uint32_t)(SNES_PAD_RIGHT|(f%32<12?SNES_PAD_B:0)|(f%64<32?SNES_PAD_A:0))<<12);
+      for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==0x26 && view_read(d+5)==1224){if(!first){first=f+1;fprintf(stderr,"actual P2 support admission roster%u f%u slot%04x camera%u,%u player%u,%u source%u,%u\n",roster,f,d,X3CoopViewsState()->camera[1][0],X3CoopViewsState()->camera[1][1],support_position(1,5),support_position(1,8),view_read(d+5),view_read(d+8));}moved|=g_ram[d+1]==2 && view_read(d+8)!=1464;}
+    }
+    check(first>1 && moved && g_ram[0xfa84] && support_position(1,5)>1200 && support_position(0,5)==still_x && (uint8_t)(g_ram[0x9cc]-clock)==160 && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"P2 actual movement admits and advances the authored moving support without visiting or moving P1's region twice");
+    fprintf(stderr,"platform admission complete roster%u first%u P1%u,%u P2%u,%u native160ticks\n",roster,first,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8));
+  }
+}
 static void native_view_checks(uint8_t *original,size_t original_size,uint8_t *work,uint8_t *expected,size_t capacity) {
   size_t offset=contact_context_offset(original,original_size);X3CoopState setup;
   check(X3CoopRuntimeState()->anchor==0 && X3CoopRuntimeState()->current==0,"native P2 camera comparison starts with the explicitly installed seat0 world leader");
@@ -84,6 +116,26 @@ static void native_view_checks(uint8_t *original,size_t original_size,uint8_t *w
     for(unsigned flag=first;flag<end;flag+=5)g_ram[flag]=0;
   }
   size_t prepared=RtlSaveSnapshotToMemory(work,capacity);
+  for(unsigned retired=0;retired<2;++retired)for(unsigned fallen=0;fallen<2;++fallen){
+    check(RtlLoadSnapshotFromMemory(work,prepared),"retired-view admission restores two actual separated event regions");
+    if(!fallen){
+      check(X3CoopRuntimeWithdraw(retired),"retired-view check requests public living withdrawal");
+    }else{
+      /* Lifecycle is a prerequisite here, not a claimed authored fatality. */
+      X3CoopState s=*X3CoopRuntimeState();check(X3CoopFall(&s,retired),"fallen-view prerequisite uses the lifecycle API");s.current=s.anchor;
+      memcpy(expected,work,prepared);check(X3CoopEncode(&s,expected+offset,X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(expected,prepared),"fallen-view prerequisite restores without changing event eligibility");door_install_player(&s);
+      view_word(0x1e5d,views.camera[s.anchor][0]);view_word(0x1e7a,views.camera[s.anchor][0]);
+      const unsigned targets[4]={0x1e6e,0x1e70,0x1e78,0x1e7e};for(unsigned i=0;i<4;++i){view_word(0x1e66+i*2,views.current[s.anchor][i]);view_word(targets[i],views.limits[s.anchor][i]);}
+    }
+    frame(0);
+    check(X3CoopRuntimeState()->players[retired].life==(fallen?X3_COOP_FALLEN:X3_COOP_ABSENT) && X3CoopRuntimeState()->players[retired^1].life==X3_COOP_ALIVE,"withdrawal or fallen prerequisite retains the sole living participant");
+    fprintf(stderr,"retired admission check roster%u seat%u fallen%u views%u cameras%u,%u/%u,%u phase%u/%u flags%u/%u\n",setup.players[0].character,retired,fallen,X3CoopViewsState()->valid,X3CoopViewsState()->camera[0][0],X3CoopViewsState()->camera[0][1],X3CoopViewsState()->camera[1][0],X3CoopViewsState()->camera[1][1],g_ram[0xd1],g_ram[0xd2],g_ram[0xfa16],g_ram[0xfa66]);
+    for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d])fprintf(stderr,"retired native object%04x class%02x/%02x state%u/%u xy%u,%u\n",d,g_ram[d+10],g_ram[d+11],g_ram[d+1],g_ram[d+2],view_read(d+5),view_read(d+8));
+    check(view_has_enemy(retired?736:1840,retired?1136:1056) && !view_has_enemy(retired?1840:736,retired?1056:1136),"a retired region admits no authored enemy while the living region still admits its own native content");
+    check(!(X3CoopViewsState()->valid&(1u<<retired)) && (X3CoopViewsState()->valid&(1u<<(retired^1))),"only the remaining living actor casts independent activation");
+    fprintf(stderr,"retired activation roster%u seat%u fallen%u living%u owns native content only\n",setup.players[0].character,retired,fallen,retired^1);
+  }
+  check(RtlLoadSnapshotFromMemory(work,prepared),"retired-view cases restore original two-region eligibility");
   X3CoopViewState edge=views;edge.camera[0][0]=256;edge.camera[1][0]=473;
   X3CoopViewsSetState(&edge);view_word(0x1e5d,256);
   view_native_call(0x00de3a,0,false);

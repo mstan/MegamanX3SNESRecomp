@@ -2497,3 +2497,57 @@ passes four persistent-ice, four actual consumed-shot and eight native boss
 immunity cases. Four CTests also pass. No new wire bytes or native damage/
 velocity formula are introduced. This repairs actual G02/E14 setup behavior;
 the complete authored criteria remain open and the total stays75/180.
+
+The ff58812 runtime also passes native-persistent-ice-current-gui(child0),
+GUI SHA256a60fc7e0537f453244cc75af3846f44522d25dd64e191a585fb480e99bb8c4f9.
+Queueing a snapshot before one real host frame captures both native3HP losses
+at worldclock209(delta1);24moreframes end at233 with the same independent hurt
+protection. The exact-clock assertions prevent a delayed capture from hiding
+a one-frame partner omission. Both BMPs were inspected; the two native bodies
+and their meters render in the split field. This is supporting built evidence,
+not new full G02/E06/V14/Z03 acceptance. The disposable script preserves the
+source state and passes a copy to the consuming resume-state interface.
+
+### Native rightward admission, retired regions and safe catch-up — A01/A14/D15
+
+These three IDs are accepted on native-activation-qualification(child0), state
+SHA25693f4dcf36a6c014131cf030e03b1ff87a653ed554f28f5ac66d12a4caea04f62.
+Both actual rosters run480frames of P2 right/dash/jump input from the real stage1
+entrance. P1 remains at384 or423 while P2 passes1100. The two original class08/01
+enemies initialize naturally at736,1136 and976,1184 with nativeHP9: first-roster
+frames78/210 and reversed122/274. P2 cameras482/708 admit those events while
+P1 remains at256/295. No spawn, visit, camera-motion or readiness result is
+supplied during traversal. Initial protection255 is explicit assistance.
+
+The real stage5 platform case positions P2 at1050 in the upper room while P1
+remains at384 in the bottom room. The initial P2 camera922/1280 excludes the
+unvisited1224,1464 event. Only native input then moves P2/camera. Native admission
+occurs at frame10 or12, camera960, P2x1088; class26 initializes and moves under its
+actual AI. Both finish160worldframes alive, P2x1257 and P1 still384. Earlier
+x950 preparation was inside the left wall and did not move; it is unqualified
+setup evidence. This covers rightward admission, not prior travel to the upper
+room or the separate upward/downward/reversal criteria.
+
+A14 covers both retired seats, both rosters and absent/fallen prerequisites.
+Public withdrawal is exercised through the balanced runtime request. Fallen
+state is an explicit lifecycle-API prerequisite, not an authored fatality claim;
+existing native-death criteria supply that separate behavior. The actual next
+world frame excludes the retired private region and admits only the living
+region’s original enemy at736,1136 or1840,1056. Its private valid bit is cleared,
+the living bit remains, and gap/overlap/frontier/replay/presentation checks still
+pass. The first fallen prerequisite omitted the newly selected world actor’s
+full native current/target camera limits, clamping the camera into a third
+region. Transferring those existing private limits fixes the setup; runtime
+activation was unchanged. Both failure and diagnostic logs remain.
+
+D15 reuses and reruns the existing native shared-camera contract on this current
+binary: both-roster/either-victim bounds distinguish just-before/at the actual
+pit threshold and negative-Y wrapping; full-machine replay matches. Real stage5
+ground catch-up with either leader preserves personalHP11 and both living
+actors. A genuine native jump makes the same destination unsafe, so catch-up
+waits while both remain alive. Safe/refused futures replay exactly. These
+checks qualify recoverable offscreen bodies without weakening the real pit
+threshold or accepting broader placement/hazard criteria.
+
+Actual78/180 accepted,102open/partial,1/15rollups. A02-A05/A09-A13, authored
+vertical/platform/vehicle/campaign cases and final presentation remain open.

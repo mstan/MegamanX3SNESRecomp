@@ -277,6 +277,9 @@ int main(int argc,char **argv) {
       native_weapon_pickup_checks(saved,size,after,damaged,cap);
       for(unsigned mode=0;mode<4;++mode)competing_pickup_checks(saved,size,after,damaged,cap,mode);
     }
+    fixture=getenv("X3_COOP_ROUTE_STATE");
+    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_ROUTE_REVERSED_STATE");check(reversed && *reversed,"movement activation supplies both actual rosters");native_activation_route_checks(fixture,reversed,saved,cap);}
+    fixture=getenv("X3_COOP_ROUTE_PLATFORM_STATE");if(fixture && *fixture)native_activation_platform_route(fixture,saved,cap);
     fixture=getenv("X3_COOP_ACTIVATION_STATE");
     if(fixture && *fixture){
       const char *reversed=getenv("X3_COOP_ACTIVATION_REVERSED_STATE");check(reversed && *reversed,"activation/display qualification supplies both actual rosters");
