@@ -2204,3 +2204,93 @@ serialized. The former canonical discrepancy was IBRS+1026, exactly that role.
 
 All10 rollback criteria now accepted; actual66/180 accepted,114open/partial,
 1/15rollups. Other feature/visual/campaign/online/release gates remain open.
+
+
+### Shared native weapon children and full Zero chain
+
+C03 passes native-saber-window-receipt.json(child0), regenerated state
+SHA25635c38c8686f6d8cd64005cd14fba49d15ee87d32e09fcad62ec4130b91b49973.
+Both rosters execute420frames of full native Zero charge, double buster and
+saber beside active native X attacks. Every frame retains original command,
+charge, readiness/counters, animation, palette and complete private pools.
+The actual04:CB74 damage predicate against fixed native geometry has the same
+13 saber damage frames303..315 in both rosters; the swing starts292. Probes
+restore the original timeline, and the entire concurrent future replays exactly.
+The previous paired swing began276 because shared32-byte weapon children
+updated the canonical actor's AA counter after personal projectile processing.
+D859 allocation now records its real creator; DB07/DB2C update each shared
+child once with that context. No counter/timer adjustment supplies the result.
+The40-byte owner table is serialized and preflight-validated; direct native
+slot reuse resets ownership and rendered/culling descriptors retain the creator.
+Strict full regeneration is byte-identical with71 routed variants. Four CTests
+and all eight original concurrent firing/charge cases pass on this binary
+(native-effect-base-combat child0).
+
+D11/C12 pass native-retirement-caller-receipt.json(child0), state
+SHA2568caafdd026ead55aa3fb28887a82a039202fcd8763fcfc2c11c79abc7e06bc46.
+Both rosters/either victim take real fatal native contact during held charge
+and after charged beams create actual shared child effects. Only the victim
+falls; all its private damage sources and shared children retire. Survivor
+health, charge, pools, palette and every shared child allocation remain exact.
+Subsequent24frames retain the bright living survivor and24 world ticks. The
+first follow-up failure was an injected-call fixture defect: its direct-page
+register remained on the enemy slot when the outer LLE frame resumed. The
+corrected test restores that outer caller while preserving actual elapsed time.
+
+Actual69/180accepted,111open/partial,1/15rollups. Broader affected regression
+and armed-charge withdrawal qualification continue before local integration.
+
+
+### Native attack cancellation on withdrawal
+
+The shared-effect correction passes the affected combined native regression
+(native-effect-regression-receipt child0, SHA25635c38c8686f6d8cd64005cd14fba49d15ee87d32e09fcad62ec4130b91b49973),
+including actual contacts/pickups/doors/capsules, paired menus/healing, physical
+input history, stock participation, safe return, supports, independent cameras
+and team retry. R02/R03 eight real continuation cuts, R09 both-roster21 malformed
+fields(including new owner values) plus4 truncations, and actual separate-rider
+replay pass on the40-byte owner-table format, raw413057bytes.
+
+Additional armed-withdrawal checks exposed native state left behind when the
+pools were discarded: Zero B7 remained2, X AA/7D remained2/1, and X35 remained3
+with the native firing limit67 also3. The same saved X body fails to fire in
+original solo, confirming a retained native capacity count rather than an input
+policy issue.04:A412..A416 rejects that full count before allocation.
+Cancellation now clears35/7D/AA/B7 together with their discarded pools and
+charge fields. It preserves native recoil/timers, resources, selection and the
+other actor. native-retired-counters-receipt(child0), state
+SHA2562c6be347a313e85183b30d04844b89de0af731511e48d85d51af2759304a43dd,
+passes all eight actual charged-death cases plus six armed-charge/active-X-beam
+withdrawals and safe returns across both rosters. Each returned actor fires a
+fresh native buster on its first requested frame; Zero must earn his combo
+again. Four CTests pass. C10 remains open for complete weapon/transition
+qualification; this does not increase the69 accepted criteria.
+
+
+### Full native shared-effect pressure and creator reuse
+
+C07 passes native-effect-width-receipt.json(child0), state
+SHA256d3cebb7a32d75b869324e5fdc65de66a823dacf79cf8a4b2a3f7ce9a84f590bd.
+Both actual rosters retain live native busters in each private pool while real
+02:D9A8 weapon-child constructors fill all40 shared32-byte slots. Existing
+three world effects remain; competing creators allocate19/18 children. Full
+allocation refusal preserves every native effect record, both creator tags/
+counts and both complete live projectile/hit-history pools. The full machine
+restores exactly under pressure. Living withdrawal releases only19 of its
+own children; the other creator and world records remain identical. The
+survivor reuses all freed slots with new ownership; actual unowned D859 reuse
+removes a previous personal tag. Construction bypasses normal firing admission
+to exercise the native pool limit; native per-actor firing limits remain
+covered by C01/C02. The first setup used an8-bit caller X: the constructor's
+PHP/PLP correctly narrowed its return. Using its native16-bit index contract
+returns the actual slot and passes the complete check.
+
+The final cancellation production code also passes the existing SERVER intro/
+capture/rescue/helper-death suite and full arms acquisition/demonstration/
+retirement suite: native-owned-intro-server and native-owned-arms-server
+receipts child0, stateSHA2562c6be347a313e85183b30d04844b89de0af731511e48d85d51af2759304a43dd.
+The actual411-frame arms demonstration matches the original action trace.
+
+Actual70/180 accepted,110open/partial,1/15rollups. C04/C10 complete weapon and
+transition qualification, other campaign/visual/online/runtime criteria, owner
+validation and release delivery remain open.

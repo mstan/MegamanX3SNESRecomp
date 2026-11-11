@@ -32,10 +32,23 @@ typedef struct ObjectPass {NativePass native;uint16_t pc,end;} ObjectPass;
 static ObjectPass objects;
 /* Late native draw requests outlive the actor update that queued them. */
 static NativePass draw;
-/* Native world actors update once. Borrow a hostile's target or a pickup's
- * recipient only for that call; canonical ownership stays at state.anchor. */
+/* Native world actors update once. Borrow a hostile's target, a pickup's
+ * recipient or an effect's creator for that call; keep the canonical anchor. */
 typedef struct WorldTarget {uint16_t slot,s;uint8_t active,seat;} WorldTarget;
 static WorldTarget target;
+/* Retail shared effects retain their creator after the personal shot pass
+ * returns. The pool still runs once; only its player context is borrowed. */
+enum { SHARED_EFFECTS=40, EFFECT_BASE=0x1818, EFFECT_STRIDE=32 };
+static uint8_t effect_owner[SHARED_EFFECTS];
+static int effect_index(unsigned d){
+  return d>=EFFECT_BASE && d<EFFECT_BASE+SHARED_EFFECTS*EFFECT_STRIDE &&
+      !((d-EFFECT_BASE)%EFFECT_STRIDE)?(int)((d-EFFECT_BASE)/EFFECT_STRIDE):-1;
+}
+static void retire_shared_effects(unsigned seat){
+  for(unsigned i=0;i<SHARED_EFFECTS;++i)if(effect_owner[i]==seat+1){
+    memset(g_ram+EFFECT_BASE+i*EFFECT_STRIDE,0,EFFECT_STRIDE);effect_owner[i]=0;
+  }
+}
 /* A native resource refill remains in the shared item pool while all world
  * pools are frozen. Its original recipient outlives an individual item call. */
 typedef struct PickupRefill {uint16_t slot;uint8_t seat,active;} PickupRefill;
@@ -207,11 +220,14 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
   }
   int x=word(g_ram+d+5),y=word(g_ram+d+8);
   X3CoopView chosen=X3CoopViewsForPlayer(g_ram,&state,state.anchor,false);
-  bool owned=(d>=X3_COOP_AUX && d<X3_COOP_AUX+X3_COOP_AUX_BYTES) ||
+  int effect=effect_index(d);
+  unsigned effect_seat=effect>=0?effect_owner[effect]:0;
+  bool owned=effect_seat || (d>=X3_COOP_AUX && d<X3_COOP_AUX+X3_COOP_AUX_BYTES) ||
       (d>=X3_COOP_SHOTS && d<X3_COOP_SHOTS+X3_COOP_SHOT_BYTES);
   bool inside=false;
   for(unsigned seat=0;seat<2;++seat) {
-    if(state.players[seat].life!=X3_COOP_ALIVE || (owned && seat!=state.current))continue;
+    if(state.players[seat].life!=X3_COOP_ALIVE ||
+       (owned && seat!=(effect_seat?effect_seat-1:state.current)))continue;
     X3CoopView v=X3CoopViewsForPlayer(g_ram,&state,seat,false);
     int dx=(int16_t)(x-v.x),dy=(int16_t)(y-v.y);
     if(dx>=-left && dx<right && dy>=-top && dy<bottom){inside=true;chosen=v;break;}
@@ -311,7 +327,7 @@ static bool fall_player(unsigned seat) {
   if(seat==state.anchor && state.players[seat^1].life==X3_COOP_ALIVE)
     X3CoopViewsAdoptPlayer(g_ram,&state,seat^1,view_scene());
   bool fallen=X3CoopFall(&state,seat);
-  if(fallen)learner_rescue=false;
+  if(fallen){learner_rescue=false;retire_shared_effects(seat);}
   if(fallen && (state.wipe || state.players[seat].character==X3_COOP_ZERO))stock_exit_pending=false;
   /* Original04:933C selects the Zero-loss branch;00:9D11 commits this
    * campaign flag after its fade. Co-op has no individual world fade. */
@@ -384,8 +400,12 @@ static void scene_cancel_transients(unsigned seat){
   X3CoopPlayer *p=&state.players[seat];
   memset(p->auxiliaries,0,sizeof(p->auxiliaries));memset(p->shots,0,sizeof(p->shots));
   p->shot_command=0;p->previous_actions=0;
+  retire_shared_effects(seat);
   p->native_flags&=15; /* Original01:8725 retires these owned effect flags. */
   p->body[0x57]=p->body[0x58]=p->body[0x5a]=p->body[0x5b]=0;
+  /* These counters/latches describe the shots and children just discarded,
+   * not retained resources. Zero keeps readiness outside the charge meters. */
+  p->body[0x35]=p->body[0x7d]=p->body[0xaa]=p->body[0xb7]=0;
   for(unsigned i=0;i<SHARED_SUPPORTS;++i)riders[i]&=(uint8_t)~(1u<<seat);
 }
 static void scene_begin(unsigned slot,unsigned kind){
@@ -928,6 +948,7 @@ static void presentation_boundary(CpuState *cpu,uint32_t pc) {
      * to their real submitter before taking this native descriptor copy. */
     unsigned slot=(cpu->D+cpu->X)&65535,owner=0;
     if(slot==X3_COOP_BODY || owned_object(slot))owner=state.current+1;
+    else {int i=effect_index(slot);if(i>=0)owner=effect_owner[i];}
     X3CoopPresentationSubmit(&state,g_ram,slot,owner);
   }
 }
@@ -1093,6 +1114,45 @@ static void object_boundary(CpuState *cpu,uint32_t pc) {
     interp_bridge_pre_opcode_redirect(((unsigned)cpu->PB<<16)|objects.pc);
   } else {
     X3CoopProject(&state,g_ram,state.anchor);restore(cpu,&p->result);p->pass=0;
+  }
+}
+static void effect_boundary(CpuState *cpu,uint32_t pc){
+  if(!X3CoopRuntimeReady())return;
+  unsigned at=pc&0x7fffff;
+  if(at==0x02d8c1){
+    int i=effect_index(cpu->X);if(i<0)return;
+    /* D859 and the other allocators share this successful return. Reset on
+     * every reuse, including an unowned world allocation in a former slot. */
+    bool personal=cpu->D==X3_COOP_BODY || owned_object(cpu->D) ||
+        controller.pass || terrain.pass || objects.native.pass || draw.pass ||
+        (contact.native.pass && contact.pc==0xcb74) ||
+        (target.active && effect_index(target.slot)>=0 && effect_owner[effect_index(target.slot)]);
+    effect_owner[i]=(uint8_t)(personal && !state.wipe &&
+        state.players[state.current].life==X3_COOP_ALIVE?state.current+1:0);
+    return;
+  }
+  unsigned d=cpu->D;int i=effect_index(d);if(i<0)return;
+  if(at==0x00db0f || at==0x00db34){
+    if(!g_ram[d])effect_owner[i]=0;
+    if(effect_owner[i] && state.players[effect_owner[i]-1].life!=X3_COOP_ALIVE){
+      memset(g_ram+d,0,EFFECT_STRIDE);effect_owner[i]=0;
+    }
+    return;
+  }
+  if(at==0x00db1b || at==0x00db42){
+    if(!effect_owner[i] || state.wipe || target.active || state.current!=state.anchor ||
+       controller.pass || terrain.pass || contact.native.pass || objects.native.pass ||
+       draw.pass || solid.native.pass)return;
+    unsigned seat=effect_owner[i]-1;
+    target=(WorldTarget){(uint16_t)d,(uint16_t)(cpu->S-2),1,(uint8_t)seat};
+    X3CoopProject(&state,g_ram,seat);
+    return;
+  }
+  if((at==0x00db1e || at==0x00db45) && target.active && target.slot==d &&
+     cpu->S==(uint16_t)(target.s+2)){
+    X3CoopCapture(&state,g_ram);target.active=0;
+    if(!g_ram[d])effect_owner[i]=0;
+    X3CoopProject(&state,g_ram,state.anchor);
   }
 }
 static void initialize_zero(void){
@@ -1306,7 +1366,7 @@ void X3CoopRuntimeReset(void) {
   memset(&terrain,0,sizeof(terrain));
   memset(&contact,0,sizeof(contact));memset(&objects,0,sizeof(objects));
   memset(&draw,0,sizeof(draw));
-  memset(&target,0,sizeof(target));
+  memset(&target,0,sizeof(target));memset(effect_owner,0,sizeof(effect_owner));
   memset(&refill,0,sizeof(refill));
   scene_clear();
   memset(&solid,0,sizeof(solid));memset(riders,0,sizeof(riders));
@@ -1343,6 +1403,9 @@ void X3CoopRuntimeFrame(void) {
   }
   static const uint32_t contact_pcs[]={0x04cb31,0x04cb74,0x04cb73,0x04cbc3,
       0x04cd69,0x04ce3b,0x04ced8,0x04cedb,0x04cfe3,0x04cc5c,0x04cc63,0x04cc6b,0x04cd64};
+  static const uint32_t effect_pcs[]={0x02d8c1,0x00db0f,0x00db34,0x00db1b,0x00db42,0x00db1e,0x00db45};
+  for(unsigned i=0;i<sizeof(effect_pcs)/sizeof(*effect_pcs);++i)
+    if(!interp_bridge_add_pre_opcode_hook(effect_pcs[i],effect_boundary))enabled=false;
   static const uint32_t object_pcs[]={0x00da7f,0x00da9f,0x00db9f,0x00dbc0,
       0x00dbc1,0x00dbee,0x00dc06,0x00dc22,0x00dc23,0x00dc4b};
   for(unsigned i=0;i<sizeof(contact_pcs)/sizeof(*contact_pcs);++i)
@@ -1420,7 +1483,7 @@ void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   sli->func(sli,participation,sizeof(participation));
   uint8_t views[X3_COOP_VIEW_STATE_BYTES];X3CoopViewsSave(views);
   sli->func(sli,views,sizeof(views));sli->func(sli,&view_spawn,sizeof(view_spawn));
-  sli->func(sli,&view_bounds,sizeof(view_bounds));
+  sli->func(sli,&view_bounds,sizeof(view_bounds));sli->func(sli,effect_owner,sizeof(effect_owner));
   X3CoopPresentationSave(sli);
   sli->func(sli,&solid,sizeof(solid));sli->func(sli,riders,sizeof(riders));
   uint8_t menu_bytes[MENU_BYTES];menu_encode(menu_bytes);sli->func(sli,menu_bytes,sizeof(menu_bytes));
@@ -1450,7 +1513,7 @@ static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePa
   if(script->phase && script->kind==SCENE_INTRO_RETIRED_X &&
      (s->wipe || s->current!=s->anchor || script->owner!=s->anchor ||
       a || b || h || o || v || q || world->active || healing->active))return false;
-  if(world->active && ((!enemy_actor(world->slot) && !item_actor(world->slot)) || a || b || o || v))return false;
+  if(world->active && ((!enemy_actor(world->slot) && !item_actor(world->slot) && effect_index(world->slot)<0) || a || b || o || v))return false;
   const NativePass *active=a?c:b?t:h?&hit->native:o?&obj->native:v?art:q?&support->native:NULL;
   unsigned base=h?hit->seat:q?support->seat:s->anchor;
   if(active && (base>1 || s->wipe || s->current!=(base^(active->pass==2)) ||
@@ -1531,6 +1594,8 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   uint8_t views[X3_COOP_VIEW_STATE_BYTES];ViewSpawn spawn;
   sli->func(sli,views,sizeof(views));sli->func(sli,&spawn,sizeof(spawn));
   ViewBounds bounds;sli->func(sli,&bounds,sizeof(bounds));
+  uint8_t owners[SHARED_EFFECTS];sli->func(sli,owners,sizeof(owners));
+  for(unsigned i=0;i<SHARED_EFFECTS;++i)if(owners[i]>2)return false;
   if(!X3CoopPresentationLoad(sli))return false;
   sli->func(sli,&support,sizeof(support));sli->func(sli,rider_bits,sizeof(rider_bits));
   uint8_t menu_bytes[MENU_BYTES];PairedMenu paired;sli->func(sli,menu_bytes,sizeof(menu_bytes));
@@ -1544,6 +1609,9 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   if(scripted.phase && (scripted.kind==SCENE_STAGE_ENTRY || scripted.kind==SCENE_INTRO_RETIRED_X) &&
      (spawn.active || bounds.native.pass))return false;
   if(bounds.native.pass==3 && (!views[0] || !loaded.initialized || (c.pass!=2 && t.pass!=2)))return false;
+  if(world.active && effect_index(world.slot)>=0 && owners[effect_index(world.slot)]!=world.seat+1)return false;
+  if(!loaded.initialized)for(unsigned i=0;i<SHARED_EFFECTS;++i)if(owners[i])return false;
+  memcpy(effect_owner,owners,sizeof(effect_owner));
   state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;target=world;solid=support;
   refill=healing;scene=scripted;
   menu=paired;
@@ -1557,7 +1625,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   X3CoopViewsLoad(views,sizeof(views),true);return true;
 }
 bool X3CoopRuntimePreflight(const void *data,size_t size) {
-  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target)+8+16+8+sizeof(solid)+sizeof(riders)+MENU_BYTES+X3_COOP_VIEW_STATE_BYTES+sizeof(view_spawn)+sizeof(view_bounds)+X3CoopPresentationEncodedSize();
+  size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target)+8+16+8+sizeof(solid)+sizeof(riders)+MENU_BYTES+X3_COOP_VIEW_STATE_BYTES+sizeof(view_spawn)+sizeof(view_bounds)+sizeof(effect_owner)+X3CoopPresentationEncodedSize();
   if(!data || size<tail)return false;
   X3CoopState decoded;
   const uint8_t *p=(const uint8_t *)data+size-tail;
@@ -1576,6 +1644,9 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
   p+=X3_COOP_VIEW_STATE_BYTES;ViewSpawn spawn;memcpy(&spawn,p,sizeof(spawn));
   p+=sizeof(spawn);ViewBounds bounds;memcpy(&bounds,p,sizeof(bounds));
   p+=sizeof(bounds);
+  const uint8_t *owners=p;p+=sizeof(effect_owner);
+  for(unsigned i=0;i<SHARED_EFFECTS;++i)if(owners[i]>2 || (!decoded.initialized && owners[i]))return false;
+  if(world.active && effect_index(world.slot)>=0 && owners[effect_index(world.slot)]!=world.seat+1)return false;
   if(!X3CoopPresentationPreflight(p,X3CoopPresentationEncodedSize()))return false;
   p+=X3CoopPresentationEncodedSize();memcpy(&support,p,sizeof(support));p+=sizeof(support);
   if(!passes_valid(&decoded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,p))return false;
