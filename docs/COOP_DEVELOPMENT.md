@@ -1253,3 +1253,39 @@ fingerprint. The matched Windows pair at SHA256
 admits195/196 frames. An otherwise identical disposable executable with
 different bytes is refused by both peers with zero admitted frames. See
 `x3-lan-strict-server-result.log`. No cross-build pair is qualified.
+
+
+## Intro restore and real LAN gameplay
+
+A current-build running snapshot taken before actor enrollment can resume before
+RESET settings have run. Restore now applies selected co-op settings only to
+that unenrolled running machine; enrolled actor state and frame-zero rollback
+remain authoritative. The native opening dialogue then finishes and enrolls
+both actors. `intro-resume-fixed-server-result.log` passes on GUI SHA256
+`26e122c3d3fc7bbfe7f70ad156b17c38a9a1284f8b88a9a88dd3634677bcc64b`.
+The actual opening images show one playable X and one playable Zero.
+
+GUI SHA256 `2819182cc1de4e98d3df599acee4dab035e70b618540569dc80cff3db1c8327d`
+passes real PC-to-SERVER LAN gameplay. Both peers agree at ticks3657/3707/3787/3867:
+X/Zero positions2656/2656,2656/2656,2656/2587,2710/2587. Local screens use
+seats0/1, negotiated portable profile0/transcript0c17fb26, no reported desync.
+Evidence: `x3-cross3-local-result.log` and `x3-cross3-server-result.log`.
+The original title, intro and dialogue run on both peers; no gameplay state
+or completion flags are injected. Two-process online Unified also passes the
+same native route and independent input isolation with view-1 on both peers
+(`x3-unified-server-result.log`, tick3653 enrollment).
+
+The required session fingerprint now also includes the selected hardware OBJ
+quota mode. Matching NoSpriteLimits choices admit209 frames; opposite choices
+are refused at zero frames (`x3-policy-server-result.log`). Diagnostic execution
+mode, floor and prototype overrides are refused before frame0; delay mode is
+refused by the seated-rollback requirement (`x3-refusals-server-result.log`).
+An oracle setting is checked only when that backend is actually compiled.
+The existing default config bit in a normal build does not block netplay.
+
+Current state-test SHA256
+`091bd59c0563dd4dcef219a8ddd1c699194f3ed15cf7394a919127ef28c7f0f7`
+passes the learner-both-rosters and adaptive complete-machine comparison
+(`intro-resume-state-server-result.log`). Both co-op CTests pass. These focused
+results do not close online combat, delayed-input rollback, scenes, menus or
+owner checks. All15 final rollups and the full180-point acceptance remain open.

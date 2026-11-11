@@ -42,6 +42,12 @@ void X3CoopSettingsBoot(void){
   X3CoopViewsConfigure(enabled && independent);
   X3CoopRuntimeEnable(enabled);
 }
+void X3CoopSettingsResume(void){
+  /* A scripted intro snapshot can precede actor enrollment but already have
+   * a running CPU cursor. The ordinary RESET boot will not run again. */
+  if(!profile_loaded && !X3CoopRuntimeState()->initialized && selected())
+    X3CoopSettingsBoot();
+}
 static void chosen_view(char view[32]){
   strcpy(view,"shared");
   if(snes_mod_runtime_feature_enabled_c(package,"coop") &&

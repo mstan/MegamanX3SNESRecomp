@@ -1142,6 +1142,7 @@ void X3OnStateLoaded(uint32_t version) {
     /* Frame-zero captures precede the first RESET. Keep that cold cursor
      * distinct from a machine that has executed a guest frame. */
     s_lle_did_reset = s_lle_host_frames != 0;
+    if (s_lle_did_reset) X3CoopSettingsResume();
   } else {
     /* Snapshot carries WRAM/PPU but no LLE cursor — cold boot rather than
      * splice mid-game WRAM onto a RESET PC. */
