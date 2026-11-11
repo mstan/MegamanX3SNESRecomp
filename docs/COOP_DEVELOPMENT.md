@@ -2696,3 +2696,47 @@ Native-normal-gravity-query also exits0 on state SHA256
 16 original/co-op controls cover actual normal and charged Gravity Well in
 both rosters, including the normal query's additional native visibility load.
 Both co-op projected contexts retain the original full guest caller/time.
+
+
+### Native helmet survey completion and retired-owner cleanup
+
+All four ordinary armor families now have actual acquisition/demonstration
+coverage in both rosters. Stage2 boots pass native-capsule-settled on state
+8e35f4d264660576eaa124bc4e43b034b5a74e1ff5e50ee4af129413428e62a6,
+including249 native recorded frames/hash9ccbe317184cdcfe and all lifecycle
+API interruptions. The new-stage setup uses the same120-frame room/body
+settling as the established stage qualification; prematurely teleporting
+before that settling killed X and invalidated the first approach attempts.
+Same-stage preparation leaves the existing native stage intact.
+
+Native helmet acquisition has97 recorded frames/hash2acc5221849625ba, then
+a survey that waits at04:8FB0 for a new Shoot action. Original neutral input
+and Jump presses correctly leave that survey open. Real Y/Shoot edges close
+it through the native return, with native flags and both controls released.
+The paired original trace and interactive exit agree in both seats.
+
+A separate co-op defect appeared when X retired during acquisition: the
+recorded segment completed, but the script started the optional survey with
+no living X controller, leaving1F45/1F4F at2. The existing optional-arm guard
+at13:C5BD now also skips the optional helmet survey for an already retired
+X, taking the original completed return after retaining the earned armor.
+This does not revive, heal or grant control to the retired actor. This
+qualification interrupts before the optional survey starts; retirement
+during an already running survey remains a separate scene-lifecycle case.
+
+Native-capsule-qualified exits0 on state SHA256
+3918766ca8468a56a4f34ac52ac6560c5f078de3564273b42ea734fff842d4a5:
+helmet, body and arm families, both rosters, original recorded traces, actual
+modal exit, exact full-machine replay, native X eligibility/simultaneous
+contact, six API retirement cases per roster, preserved survivor HP/brightness
+and subsequent real movement. Body81/hashcc33dfad0d9e1d88 and arms411/hash
+ca29beaa17538dc6 remain unchanged. Four CTests pass. No renderer code changed.
+
+Chip/golden variants and complete capsule presentation remain unqualified
+under S08/S09/V12. The current native/private image comparison still has an
+invalid native background prerequisite after teleporting. Explicitly loading
+the native stage5 sprite phase makes original Dr.Light visible. The private
+resolver supplies the same eight pieces, coordinates, native OAM attributes
+and nonzero E4 colors; their background occlusion still needs a valid complete
+native field/route comparison. Temporary renderer diagnostics were removed.
+Actual acceptance stays80/180,100open/partial,1/15rollups.

@@ -335,6 +335,8 @@ int main(int argc,char **argv) {
     fixture=getenv("X3_COOP_CAPSULE_STATE");
     if(fixture && *fixture){
       X3CoopRuntimeEnable(true);check(RtlLoadSnapshot(fixture),"authored native capsule stage fixture loads");
+      const char *capsule_stage=getenv("X3_COOP_CAPSULE_STAGE");
+      if(capsule_stage){unsigned stage=(unsigned)atoi(capsule_stage);check(stage>0 && stage<15 && capsule_table(0x06ccfa+stage,1)!=255,"requested capsule stage has an actual native capsule entry");if(stage!=g_ram[0x1fae]){stage_request();g_ram[0x1fae]=(uint8_t)stage;unsigned elapsed=0;for(;elapsed<3600;++elapsed){frame(0);if(X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && g_ram[0xd1]==4 && g_ram[0xd2]==4 && g_ram[0x1fae]==stage)break;}check(elapsed<3600,"capsule preparation completes the actual native new-stage constructor");for(unsigned f=0;f<120;++f)frame(0);check(X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"native capsule stage settles two living bodies and their initial room bounds");}}
       size=RtlSaveSnapshotToMemory(saved,cap);
       for(unsigned reversed=0;reversed<2;++reversed)native_capsule_checks(saved,size,after,damaged,cap,reversed);
     }

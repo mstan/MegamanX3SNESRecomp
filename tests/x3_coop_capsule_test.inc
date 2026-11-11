@@ -58,6 +58,7 @@ static unsigned capsule_approach(uint8_t *original,size_t size,uint8_t *work,siz
   if(!slot)fprintf(stderr,"capsule setup stage%u flags=%02x/%02x camera=%u,%u\n",g_ram[0x1fae],g_ram[0x1fd1],g_ram[0x1fd7],
       X3CoopViewsState()->camera[x][0],X3CoopViewsState()->camera[x][1]);
   check(slot && view_read(slot+5)==px && view_read(slot+8)==py && g_ram[slot+1]==2 && g_ram[slot+2]==2,
+  if(!slot && getenv("X3_COOP_CAPSULE_OUTPUT")){char path[1024];snprintf(path,sizeof(path),"%s-unqualified.sav",getenv("X3_COOP_CAPSULE_OUTPUT"));check(RtlSaveSnapshot(path),"missing native capsule retains its actual content/admission state");}
         "retail allocator and native constructor prepare the actual stage capsule");
   check(capsule_constructor_seen,"actual native capsule construction was observed");
   setup=*X3CoopRuntimeState();b=setup.players[x].body;
@@ -90,6 +91,8 @@ static CapsuleDemo capsule_wait_award(unsigned slot,unsigned x,bool paired){
     bool recorded=g_ram[slot+2]==8 && g_ram[slot+3]==14;
     unsigned input=paired && g_ram[0x1f45]?(SNES_PAD_LEFT|SNES_PAD_B|SNES_PAD_Y)<<(x*12):0;
     frame(input | (paired?(SNES_PAD_RIGHT|SNES_PAD_B)<<((x^1)*12):0));
+    /* Native04:8FB0 waits for a new Shoot edge in the radar survey. */
+    if(g_ram[0x1f45]==2)input=(ticks%40<4?SNES_PAD_Y:0)<<(paired?x*12:0);
     if(recorded){
       static const unsigned offsets[]={2,3,5,6,8,9,0x1a,0x1b,0x1c,0x1d,0x31,0x33,0x36,0x37,0x38,0x39,0x3a,0x3b};
       for(unsigned i=0;i<sizeof(offsets)/sizeof(*offsets);++i){demo.hash^=g_ram[X3_COOP_BODY+offsets[i]];demo.hash*=1099511628211ull;}
@@ -104,6 +107,7 @@ static CapsuleDemo capsule_wait_award(unsigned slot,unsigned x,bool paired){
       paired,x,ticks,g_ram[slot+1],g_ram[slot+2],g_ram[slot+3],demo.frames,(unsigned long long)demo.hash,
       demo.x,demo.y,g_ram[0xa46],g_ram[0x1f4f],g_ram[0x1f45],g_ram[0x1f63],g_ram[0x1fd1]);
   check(completed && ticks<2400 && demo.frames,"native capsule acquisition and its recorded demonstration finish");return demo;
+  if(!completed && getenv("X3_COOP_CAPSULE_OUTPUT")){char path[1024];snprintf(path,sizeof(path),"%s-award-stalled.sav",getenv("X3_COOP_CAPSULE_OUTPUT"));check(RtlSaveSnapshot(path),"unqualified native capsule demonstration retains its actual stalled state");}
 }
 static void capsule_enter(unsigned slot){
   view_word(0x9dd,capsule_x());view_word(0x9fa,capsule_x());memset(g_ram+0x9f2,0,6);

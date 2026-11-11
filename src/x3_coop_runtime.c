@@ -1027,10 +1027,10 @@ static void capsule_boundary(CpuState *cpu,uint32_t pc){
      !target.active || target.slot!=cpu->D || state.players[state.current].character!=X3_COOP_X)return;
   if(pc==0x13c5bd){
     unsigned index;
-    /* The optional arm demonstration needs a living controller. Its armor
+    /* The optional helmet survey and arm demonstration need a living controller. Their armor
      * has already been awarded; retire through the native completed return
      * instead of creating new demonstration locks for a fallen/absent X. */
-    if(state.players[scene.owner].life!=X3_COOP_ALIVE && scene_rom(0x06ccfa+g_ram[0x1fae],1,&index) && index==1)
+    if(state.players[scene.owner].life!=X3_COOP_ALIVE && scene_rom(0x06ccfa+g_ram[0x1fae],1,&index) && index<=1)
       interp_bridge_pre_opcode_redirect(0x13c5da);
     return;
   }
