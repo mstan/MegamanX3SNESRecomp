@@ -1589,3 +1589,96 @@ or terminal cleanup flag is written by the qualification route.
 
 Current total7accepted/173open/0rollups. G01 still needs final original-NPC/live
 Zero presentation qualification; this mechanical repair alone is not that pass.
+
+
+### Paired menus and shared healing qualification
+
+M01–M07 and R06 are accepted on runtime commit6df79ba. Exact state test
+binary e88af430e3d94996695285f4c8ac5251705fc7fb8df927f6fab7604b10a13305
+passes paired-menu-current-result.log (receipt child0), using the actual native
+normal/reversed stage fixtures and default participation profile0000. Either
+character opens the original pause; both panels navigate concurrently while
+the shared pools and personal positions stay frozen. X's acquired selection
+commits without changing Zero's inventory, and simultaneous Start exits once.
+
+Shared tank races select one deterministic owner. Every tick of a full heal
+matches the original native routine; overlapping full/partial operations spend
+their own reserves before one compaction. Full-health and empty-reserve requests
+are refused without spending. Healing blocks resume while allowing partner
+navigation. A real contact-death survivor can pause/resume while the fallen
+actor cannot navigate, spend or return. Active healing replays the complete
+machine; interrupted native pulse preflight/load and paused pixels also pass.
+Malformed menu/CPU-width/phase fields are refused transactionally. Shared,
+split and selected panel rendering leave the same machine state.
+
+The shared Escape modal also passes focused owner/cancel/refusal checks, but
+M11 remains partial pending the other required shared frontend/save flows.
+M08–M10 and M12 retain their independent requirements. Total15/180 accepted:
+D01–D04, F09, M01–M07, R06, N02/N04;165open/partial,0/15rollups.
+
+The pending intro observer originally misidentified ordinary green enemy
+class20/gfx42 as Zero. An actual native capture establishes that this is an
+enemy, not a duplicate story participant. The proposed capture omission and
+unneeded broader admission were discarded. The corrected observer watches
+native story slot0CC8 with Zero CHR; G01 remains open until final disposition.
+
+
+### Intro, default spikes and native continuation acceptance
+
+G01 is accepted after intro-roster-final-state-server-result.log(child0) on
+state5d78f573682a1ff09bb11867c54f1a19a61556bd462a07133097ca9e5129c1b3,
+runtime6df79ba. It passes all8 capture cases, actual Zero-only pre-captor
+movement in both rosters,6 actual restraint/rescue cases and both helper
+fatal-contact/survivor-combat cases. Actual uploaded descriptors retain one
+living Zero; native story slot0CC8 cannot display a second Zero beside him.
+Unavailable participants keep their life/resources and X retains his native
+identity after rescue. Whole-machine replay, pending constructors and the
+retired-X cinematic pass. The exact GUI305411a07eb2b78d10e22eb6fc82ddd13225b8abf1dfadb19df452ab17ff3060
+previously passes the actual untracked Zero-only restraint route with P2-only
+confirmation and native exchange-token cleanup. Original Maoh/earned-intro
+progression evidence remains valid; the later intro changes do not alter its
+scene0 path. Teleports/HP assistance bypass travel/difficulty, not outcomes.
+The ordinary green class20/gfx42 enemy remains intact. No capture-skip or
+broader admission/decoder experiment was retained in production.
+
+D05, D09 and D16 are accepted on the same state binary:
+native-spikes-room-server-result.log(child0). Both seats in both real rosters
+fall onto the authored stage5 spike row1632..1759/y1472, with the other on the
+adjacent1568/y1392 plateau. Default learner/stock profiles are off. Native
+fatal127 damage occurs once after22/23 frames, inside terrain pass1 with no
+controller pass or pit call. Only the touching actor falls. The survivor moves
+1568→1537 in24 Left frames, retains native phase4/4 and brightness0F, and all
+shared pool freezes stay clear. The last frame before contact and the actual
+fatal result restore/replay the complete machine and exact displayed pixels.
+This is a host-frame cut across real contact, not a claimed CPU-instruction cut.
+Earlier observation attempts assumed a death action that the native damage
+helper does not set. A lower-room camera retained by the first teleport also
+pushed the safe actor into terrain; matching the actual upper band corrects
+that fixture. Those failed attempts remain unqualified. D08 remains separate:
+these lethal floor contacts occur after controller updates.
+
+E11 is accepted on stateb94de829baf0ea064f660b964354422dd3e7a847986d6ec08fc972cfcb53e9c6:
+native-contact-register-final-result.log(child0). In each real roster, isolated
+native body geometry makes the first or second seat the sole successful
+contact. A matched original single-actor call establishes the return. Paired
+first-hit/second-miss and first-miss/second-hit calls preserve exact
+A/X/Y/D/S/P/DB/PB, the24 scratch bytes, object bytes and victim health. Guest
+stacks remain balanced. This qualifies the native continuation contract;
+authored targeting/capture coverage retains its separate requirements.
+The preceding current-job launcher used incorrect hash/ROM argument indices,
+failed before gameplay and was corrected; it is not qualification evidence.
+
+M08, S01/S02 and R01 are accepted by native-contact-state-current-result.log
+(child0), statee88af430e3d94996695285f4c8ac5251705fc7fb8df927f6fab7604b10a13305.
+Both actual rosters retain original collector eligibility and amounts, remote
+weapon-energy ownership, full-health shared banking and competing-drop cleanup.
+Original stage1 gate3C:D27C admits the second actor first, follows its native
+forced walk/introduction and returns independent control to both. Both-present
+admission waits appropriately and transports both without crushing. Native
+initialized actor/owned-pool/input/resource snapshots restore immediately and
+replay the complete machine. Other gate families, general authored streaming,
+stock-unavailable policy and campaign exits keep their own open criteria.
+
+All4 CTests pass. Total24/180 accepted: D01–D05/D09/D16, E11, F09, G01,
+M01–M08, S01/S02, R01/R06, N02/N04. Remaining156open/partial,0/15rollups.
+No release/delivery replacement or remote action was performed.

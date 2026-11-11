@@ -27,6 +27,7 @@ static unsigned coop_x(unsigned seat) {
 #include "x3_coop_paired_menu_test.inc"
 #include "x3_coop_flags_test.inc"
 #include "x3_coop_shared_camera_test.inc"
+#include "x3_coop_hazard_test.inc"
 #include "x3_coop_learner_test.inc"
 #include "x3_coop_intro_test.inc"
 int main(int argc,char **argv) {
@@ -93,11 +94,26 @@ int main(int argc,char **argv) {
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
     }
+    fixture=getenv("X3_COOP_CONTACT_STATE");
+    if(fixture && *fixture){
+      const char *reversed=getenv("X3_COOP_CONTACT_REVERSED_STATE");
+      check(reversed && *reversed,"native register checks supply both actual roster fixtures");
+      for(unsigned roster=0;roster<2;++roster){
+        check(RtlLoadSnapshot(roster?reversed:fixture),"native register comparison fixture loads");
+        size=RtlSaveSnapshotToMemory(saved,cap);native_contact_register_checks(saved,size);
+      }
+    }
     fixture=getenv("X3_COOP_INTRO_STATE");
     if(fixture && *fixture){
       check(RtlLoadSnapshot(fixture),"actual native intro capture fixture loads");
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_intro_checks(saved,size,after,damaged,cap);
+    }
+    fixture=getenv("X3_COOP_INTRO_SURVIVOR_DISPLAY_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"actual Zero-only intro display fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);
+      native_intro_survivor_display_checks(saved,size,after);
     }
     fixture=getenv("X3_COOP_INTRO_RESCUE_STATE");
     if(fixture && *fixture){
@@ -122,6 +138,12 @@ int main(int argc,char **argv) {
             "authored pit uses the requested real roster and default unprotected campaign");
         native_shared_authored_pits(path,saved,after,cap);
       }
+    }
+    fixture=getenv("X3_COOP_SPIKE_STATE");
+    if(fixture && *fixture){
+      const char *reversed=getenv("X3_COOP_SPIKE_REVERSED_STATE");
+      check(reversed && *reversed,"spike coverage supplies both actual roster fixtures");
+      native_spike_checks(fixture,reversed,saved,after,cap);
     }
     fixture=getenv("X3_COOP_FLAGS_STATE");
     if(fixture && *fixture){

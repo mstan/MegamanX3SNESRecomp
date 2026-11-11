@@ -23,6 +23,29 @@ static void contact_native_call(unsigned slot,unsigned pc) {
   check(interp_bridge_run(&g_cpu,pc),"native contact returns");
   check(g_cpu.S==stack,"paired contact preserves the real guest stack");
 }
+static void native_contact_register_checks(const uint8_t *snapshot,size_t size){
+  for(unsigned winner=0;winner<2;++winner){
+    check(RtlLoadSnapshotFromMemory(snapshot,size),"contact register reference restores native gameplay");
+    X3CoopState reference=*X3CoopRuntimeState();const uint8_t *b=reference.players[winner].body;
+    contact_geometry(0xd18,b[5]|b[6]<<8,b[8]|b[9]<<8);
+    uint8_t entry[64],object[64],scratch[24];memcpy(entry,g_ram+0xd18,sizeof(entry));
+    X3CoopRuntimeEnable(false);
+    check(X3CoopProject(&reference,g_ram,winner),"single-actor reference projects the actual successful body");
+    contact_native_call(0xd18,0x04cb31);cpu_mirrors_to_p(&g_cpu);CpuState result=g_cpu;
+    memcpy(object,g_ram+0xd18,sizeof(object));memcpy(scratch,g_ram,sizeof(scratch));
+    unsigned health=g_ram[X3_COOP_BODY+0x27];
+    X3CoopRuntimeEnable(true);
+    check(RtlLoadSnapshotFromMemory(snapshot,size),"paired retry restores the identical contact prerequisite");
+    memcpy(g_ram+0xd18,entry,sizeof(entry));contact_native_call(0xd18,0x04cb31);cpu_mirrors_to_p(&g_cpu);
+    check(g_cpu.A==result.A && g_cpu.X==result.X && g_cpu.Y==result.Y && g_cpu.D==result.D &&
+        g_cpu.S==result.S && g_cpu.P==result.P && g_cpu.DB==result.DB && g_cpu.PB==result.PB,
+        "paired contact returns the original successful A/X/Y/D/S/P/DB/PB registers");
+    check(!memcmp(scratch,g_ram,sizeof(scratch)) && !memcmp(object,g_ram+0xd18,sizeof(object)) &&
+        X3CoopRuntimeState()->players[winner].body[0x27]==health,
+        "first-hit/second-miss and first-miss/second-hit retain the native successful scratch, object and health result");
+  }
+  check(RtlLoadSnapshotFromMemory(snapshot,size),"native register comparisons restore their starting machine");
+}
 static unsigned contact_hp(unsigned seat) {
   const X3CoopState *s=X3CoopRuntimeState();
   return (s->current==seat?g_ram[X3_COOP_BODY+0x27]:s->players[seat].body[0x27])&127;

@@ -1,7 +1,58 @@
+/* Observe the actual uploaded descriptor packet while native intro frames run.
+ * Retained/parked personal contexts are not displayed participants. */
+static unsigned intro_visible_zero_frames;
+static void intro_frame(unsigned input){
+  frame(input);
+  if(!X3CoopRuntimeReady())return;
+  const X3CoopPresentedFrame *f=X3CoopPresentationVisible();
+  if(!f->players.initialized)return;
+  unsigned zero=f->players.players[0].character==X3_COOP_ZERO?0:1;
+  const X3CoopPlayer *p=&f->players.players[zero];
+  int px=(int)(p->body[5]|p->body[6]<<8)-f->camera[0];
+  int py=(int)(p->body[8]|p->body[9]<<8)-f->camera[1];
+  if(p->life!=X3_COOP_ALIVE || !p->body[14] || px< -32 || px>288 || py< -32 || py>256)return;
+  ++intro_visible_zero_frames;
+  for(unsigned i=0;i<f->count;++i){
+    const X3CoopWorldDraw *d=&f->actors[i];const uint8_t *b=d->body;
+    /* The story actor uses native Zero CHR at0CC8. Class20/gfx42 is an
+     * ordinary green enemy and must remain eligible beside the player. */
+    if(d->owner || d->address!=0x0cc8 || b[22]!=0x4a || !b[14])continue;
+    int x=(int)(b[5]|b[6]<<8)-f->camera[0],y=(int)(b[8]|b[9]<<8)-f->camera[1];
+    if(x< -32 || x>288 || y< -32 || y>256)continue;
+    fprintf(stderr,"visible intro Zero player%u at%d/%d and nativeNPC%04x at%d/%d phase%u pose%u\n",zero,px,py,d->address,x,y,b[2],b[23]);
+    check(RtlSaveSnapshot("intro-duplicate-zero-probe.sav"),"actual duplicate Zero packet retains a diagnostic state");
+    check(0,"intro cannot display both playable and native NPC Zero");
+  }
+}
+
 /* Actual native Mac capture and story-Zero construction. The fixture starts
  * with two living participants and the original32HP capture actor. */
 static unsigned intro_confirm(unsigned tick){
   return tick%60<6?(uint32_t)SNES_PAD_B<<(12*X3CoopRuntimeState()->anchor):0;
+}
+static void native_intro_survivor_display_checks(uint8_t *original,size_t size,uint8_t *work){
+  for(unsigned reverse=0;reverse<2;++reverse){
+    check(RtlLoadSnapshotFromMemory(original,size),"actual prior-fallen-X intro approach restores");
+    X3CoopState setup=*X3CoopRuntimeState();
+    if(reverse){
+      X3CoopPlayer p=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=p;
+      setup.current^=1;setup.anchor^=1;
+    }
+    unsigned zero=reverse?0:1,x=zero^1;
+    check(!g_ram[0x1fae] && setup.players[x].life==X3_COOP_FALLEN && setup.players[zero].life==X3_COOP_ALIVE,
+        "actual approach retains fallen X and living Zero");
+    memcpy(work,original,size);
+    check(X3CoopEncode(&setup,work+contact_context_offset(work,size),X3CoopEncodedSize()) &&
+          RtlLoadSnapshotFromMemory(work,size),"Zero-only intro roster precondition restores");
+    door_install_player(&setup);X3CoopViewsConfigure(false);
+    unsigned before=coop_x(zero),observed=intro_visible_zero_frames;
+    for(unsigned i=0;i<240;++i)intro_frame((uint32_t)SNES_PAD_RIGHT<<(zero*12));
+    const X3CoopState *s=X3CoopRuntimeState();
+    check(coop_x(zero)>before+8 && s->players[zero].life==X3_COOP_ALIVE && s->players[zero].body[0xb6]==2 &&
+        s->players[x].life==X3_COOP_FALLEN && !s->players[x].body[0xb6] && intro_visible_zero_frames>observed,
+        "actual Zero-only movement past the captor retains one displayed Zero and fallen X");
+  }
+  check(RtlLoadSnapshotFromMemory(original,size),"survivor presentation probes restore their actual approach");
 }
 static unsigned intro_constructor_seen;
 static void intro_constructor_probe(CpuState *cpu,uint32_t pc){
@@ -49,7 +100,7 @@ static void native_intro_checks(uint8_t *original,size_t size,uint8_t *work,uint
     g_ram[X3_COOP_BODY+0x27]=11;X3CoopViewsSetState(&views);
     unsigned elapsed=0,helper=mode?x:zero;intro_constructor_seen=0;
     for(;elapsed<6000;++elapsed){
-      frame(intro_confirm(elapsed));
+      intro_frame(intro_confirm(elapsed));
       const X3CoopState *s=X3CoopRuntimeState();
       bool capture_live=false;
       for(unsigned d=0xd18;d<0x10d8;d+=64)
@@ -74,12 +125,12 @@ static void native_intro_checks(uint8_t *original,size_t size,uint8_t *work,uint
           (s->players[zero].body[0x27]&127)==19 && s->players[zero].maximum_health==28,
           "unavailable Zero remains retired with his original personal resources");
       size_t pending=RtlSaveSnapshotToMemory(handoff,capacity);unsigned before=coop_x(x),movement=0;
-      for(;movement<600 && coop_x(x)<=before+8;++movement)frame((uint32_t)SNES_PAD_RIGHT<<(12*x));
+      for(;movement<600 && coop_x(x)<=before+8;++movement)intro_frame((uint32_t)SNES_PAD_RIGHT<<(12*x));
       check(coop_x(x)>before+8 && X3CoopRuntimeState()->players[x].body[0xb6]==0,
           "living X actually moves after the original helper was already unavailable");
       size_t completed=RtlSaveSnapshotToMemory(expected,capacity);
       check(RtlLoadSnapshotFromMemory(handoff,pending),"unavailable-helper native entry restores");
-      for(unsigned i=0;i<movement;++i)frame((uint32_t)SNES_PAD_RIGHT<<(12*x));
+      for(unsigned i=0;i<movement;++i)intro_frame((uint32_t)SNES_PAD_RIGHT<<(12*x));
       size_t replayed=RtlSaveSnapshotToMemory(work,capacity);
       same(expected,completed,work,replayed,"unavailable-helper native movement replays the same complete machine");
       continue;
@@ -96,7 +147,7 @@ static void native_intro_checks(uint8_t *original,size_t size,uint8_t *work,uint
      * retaining/replaying that pending native work too. */
     unsigned movement_frames=0;
     for(;movement_frames<600;++movement_frames){
-      frame((uint32_t)SNES_PAD_RIGHT<<(12*zero));
+      intro_frame((uint32_t)SNES_PAD_RIGHT<<(12*zero));
       if(coop_x(zero)>before+8){++movement_frames;break;}
     }
     if(coop_x(x)!=held_x || coop_x(zero)<=before+8)
@@ -114,7 +165,7 @@ static void native_intro_checks(uint8_t *original,size_t size,uint8_t *work,uint
     check(coop_x(x)==held_x && coop_x(zero)>before+8,"the Zero seat moves while captured X remains parked");
     size_t expected_size=RtlSaveSnapshotToMemory(expected,capacity);
     check(RtlLoadSnapshotFromMemory(handoff,handoff_size),"intro ownership handoff restores");
-    for(unsigned i=0;i<movement_frames;++i)frame((uint32_t)SNES_PAD_RIGHT<<(12*zero));
+    for(unsigned i=0;i<movement_frames;++i)intro_frame((uint32_t)SNES_PAD_RIGHT<<(12*zero));
     size_t actual=RtlSaveSnapshotToMemory(work,capacity);
     same(expected,expected_size,work,actual,"native intro handoff and personal resources replay identically");
     check(RtlLoadSnapshotFromMemory(handoff,handoff_size),"intro malformed-state setup restores");
@@ -123,6 +174,7 @@ static void native_intro_checks(uint8_t *original,size_t size,uint8_t *work,uint
     actual=RtlSaveSnapshotToMemory(work,capacity);
     same(handoff,handoff_size,work,actual,"refused intro scene leaves the machine unchanged");
   }
+  check(intro_visible_zero_frames>0,"intro presentation check observed the living Zero on actual uploaded frames");
   free(handoff);check(RtlLoadSnapshotFromMemory(original,size),"intro probes restore their original capture approach");
 }
 
@@ -143,7 +195,8 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
   check(interp_bridge_add_pre_opcode_hook(0x03ad70,intro_rescue_native_probe) &&
         interp_bridge_add_pre_opcode_hook(0x03ad87,intro_rescue_native_probe) &&
         interp_bridge_add_pre_opcode_hook(0x03ad83,intro_constructor_probe),"native X reconstruction observations register");
-  for(unsigned reverse=0;reverse<2;++reverse)for(unsigned retired=0;retired<3;++retired){
+  for(unsigned reverse=0;reverse<2;++reverse)for(unsigned scenario=0;scenario<3;++scenario){
+    bool retired=scenario==1 || scenario==2;
     check(RtlLoadSnapshotFromMemory(original,size),"actual native restraint fixture restores");
     X3CoopState setup=*X3CoopRuntimeState();unsigned zero=reverse?0:1,x=zero^1;
     check(g_ram[0xd58] && g_ram[0xd59]==2 && g_ram[0xd62]==0x4c && g_ram[0xd7f]==5,
@@ -158,7 +211,7 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
     /* Explicit previously-fallen precondition; this does not claim to test
      * a native cause of death. The actual restraint/rescue must not revive X. */
     if(retired)check(X3CoopFall(&setup,x),"previously fallen X precondition uses the lifecycle API");
-    if(retired==2){
+    if(scenario>=2){
       /* The real prior-fallen-X route reaches this room without enrolling
        * the original capture scene. Keep its actual restraint/combat state. */
       uint8_t both=work[scene_at+10];memset(work+scene_at+4,0,12);work[scene_at+10]=both;
@@ -169,17 +222,17 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
           RtlLoadSnapshotFromMemory(work,size),"personal health and actual rescue roster restore");
     door_install_player(&setup);
     const char *fallen_output=getenv("X3_COOP_INTRO_FALLEN_OUTPUT");
-    if(!reverse && retired==1 && fallen_output && *fallen_output)
+    if(!reverse && scenario==1 && fallen_output && *fallen_output)
       check(RtlSaveSnapshot(fallen_output),"previously fallen X fixture retains the original live restraint for launcher QA");
     g_ram[0xd7f]=1;
-    for(unsigned i=0;i<3;++i)frame(0);
+    for(unsigned i=0;i<3;++i)intro_frame(0);
     check(g_ram[0xd59]==2 && g_ram[0xd7f]==1,"restraint survives health assistance before any attack");
     bool hit=false;intro_rescue_native_seen=0;
     for(unsigned cycle=0;cycle<16 && !hit;++cycle){
       view_word(0x9dd,6208);view_word(0x9e0,574);
-      frame((uint32_t)SNES_PAD_RIGHT<<(zero*12));
+      intro_frame((uint32_t)SNES_PAD_RIGHT<<(zero*12));
       for(unsigned i=0;i<8;++i){
-        frame(i<4?(uint32_t)SNES_PAD_Y<<(zero*12):0);
+        intro_frame(i<4?(uint32_t)SNES_PAD_Y<<(zero*12):0);
         if(g_ram[0xd59]==4 && (g_ram[0xd7f]&128)){hit=true;break;}
       }
     }
@@ -188,7 +241,7 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
     check(pending!=0,"the actual restraint death saves before X release");
     unsigned elapsed=0,cinematic_frame=0;size_t cinematic_size=0;intro_constructor_seen=0;
     for(;elapsed<6000;++elapsed){
-      frame(intro_confirm(elapsed));
+      intro_frame(intro_confirm(elapsed));
       if(retired && !cinematic_size && !X3CoopRuntimeReady() && X3CoopRuntimeSceneActive()){
         X3CoopState retained=*X3CoopRuntimeState();
         cinematic_size=RtlSaveSnapshotToMemory(cinematic,capacity);cinematic_frame=elapsed;
@@ -206,12 +259,12 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
           g_ram[0xa8e]==(retired?2:0) && !g_ram[0x9da] && !g_ram[0xcc8])break;
     }
     const X3CoopState *s=X3CoopRuntimeState();
-    if(elapsed==6000)fprintf(stderr,"intro rescue roster%u retired%u seen%u current%u anchor%u selector%u HP%u scene%u text%u locks%u/%u\n",
-        reverse,retired,intro_rescue_native_seen,s->current,s->anchor,g_ram[0xa8e],g_ram[0x9ff],X3CoopRuntimeSceneActive(),g_ram[0xcc8],g_ram[0x1f22],g_ram[0x1f24]);
+    if(elapsed==6000)fprintf(stderr,"intro rescue roster%u scenario%u seen%u current%u anchor%u selector%u HP%u scene%u text%u locks%u/%u\n",
+        reverse,scenario,intro_rescue_native_seen,s->current,s->anchor,g_ram[0xa8e],g_ram[0x9ff],X3CoopRuntimeSceneActive(),g_ram[0xcc8],g_ram[0x1f22],g_ram[0x1f24]);
     check(elapsed<6000 && intro_rescue_native_seen==3,"native rescue releases the living participant without reviving a fallen partner");
     if(!retired)check(intro_constructor_seen&2,"rescue exercised the actual pending native X constructor");
-    fprintf(stderr,"intro rescued roster%u Xlife%u selector%u HP%u max%u Zerolife%u selector%u HP%u max%u\n",
-        reverse,s->players[x].life,s->players[x].body[0xb6],s->players[x].body[0x27],s->players[x].maximum_health,
+    fprintf(stderr,"intro rescued roster%u scenario%u Xlife%u selector%u HP%u max%u Zerolife%u selector%u HP%u max%u\n",
+        reverse,scenario,s->players[x].life,s->players[x].body[0xb6],s->players[x].body[0x27],s->players[x].maximum_health,
         s->players[zero].life,s->players[zero].body[0xb6],s->players[zero].body[0x27],s->players[zero].maximum_health);
     check(s->players[x].life==(retired?X3_COOP_FALLEN:X3_COOP_ALIVE) && !s->players[x].body[0xb6] &&
           (s->players[x].body[0x27]&127)==(retired?11:s->players[x].maximum_health) && s->players[zero].life==X3_COOP_ALIVE &&
@@ -219,12 +272,12 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
           "original rescue preserves fallen X and Zero's personal health, refilling only a living X");
     size_t completed=RtlSaveSnapshotToMemory(work,capacity);
     check(RtlLoadSnapshotFromMemory(expected,pending),"native restraint death restores");
-    for(unsigned i=0;i<=elapsed;++i)frame(intro_confirm(i));
+    for(unsigned i=0;i<=elapsed;++i)intro_frame(intro_confirm(i));
     size_t replayed=RtlSaveSnapshotToMemory(expected,capacity);
     same(work,completed,expected,replayed,"actual native X rescue and roster release replay identically");
     if(retired){
       check(cinematic_size && RtlLoadSnapshotFromMemory(cinematic,cinematic_size),"original cinematic resumes with X still fallen");
-      for(unsigned i=cinematic_frame+1;i<=elapsed;++i)frame(intro_confirm(i));
+      for(unsigned i=cinematic_frame+1;i<=elapsed;++i)intro_frame(intro_confirm(i));
       replayed=RtlSaveSnapshotToMemory(expected,capacity);
       same(work,completed,expected,replayed,"temporary X cinematic and retained Zero replay to the same complete machine");
       check(RtlLoadSnapshotFromMemory(cinematic,cinematic_size),"cinematic invalid-state setup restores");
@@ -242,7 +295,7 @@ static void intro_survivor_shot_frame(unsigned seat,unsigned tick){
   if(tick%25==0){
     view_word(0x9dd,6152);view_word(0x9e0,view_read(0xd20)+14);g_ram[0x9ff]=11;
   }
-  frame((uint32_t)(tick%25==0?SNES_PAD_RIGHT:tick%25<=12?SNES_PAD_Y:0)<<(12*seat));
+  intro_frame((uint32_t)(tick%25==0?SNES_PAD_RIGHT:tick%25<=12?SNES_PAD_Y:0)<<(12*seat));
 }
 static void native_intro_helper_death_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
   for(unsigned reverse=0;reverse<2;++reverse){
@@ -260,7 +313,7 @@ static void native_intro_helper_death_checks(uint8_t *original,size_t size,uint8
     door_install_player(&setup);
     unsigned waited=0;bool first_fall=false;
     for(;waited<1800;++waited){
-      frame(0);
+      intro_frame(0);
       const X3CoopState *fall=X3CoopRuntimeState();
       if(!first_fall && (fall->players[x].life!=X3_COOP_ALIVE || fall->players[zero].life!=X3_COOP_ALIVE)){
         first_fall=true;fprintf(stderr,"intro first fall roster%u tick%u Xlife%u HP%u xy%u/%u Zerolife%u HP%u xy%u/%u\n",
@@ -276,8 +329,8 @@ static void native_intro_helper_death_checks(uint8_t *original,size_t size,uint8
           "original Mac contact kills the helper while captured X remains alive");
     /* Complete that frame's normal scene fallback, without writing its
      * control, capture, life, result or progression flags. */
-    frame(0);g_ram[0xd3f]=1;
-    for(unsigned i=0;i<3;++i)frame(0);
+    intro_frame(0);g_ram[0xd3f]=1;
+    for(unsigned i=0;i<3;++i)intro_frame(0);
     check(g_ram[0xd19]==2 && g_ram[0xd3f]==1,"Mac survives health assistance before the survivor attacks");
     size_t survivor=RtlSaveSnapshotToMemory(work,capacity);
     unsigned fired=0;
