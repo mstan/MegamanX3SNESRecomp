@@ -1,7 +1,7 @@
 # X3 co-op implementation and qualification
 
 Development branch: `feat/x3-coop`, based on X3 master `11fd733`.
-Current pinned build reference: engine `36a3d80e`, UI `cf6315a`.
+Current pinned build reference: engine `614694ab`, UI `cf6315ad`.
 This is an incomplete development implementation, not a co-op release.
 
 ## Implemented components
@@ -44,8 +44,8 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 90/180; 90 open/partial. Accepted areas: 2/15
-(snapshot/rewind/rollback and menus/resources).** Component checks and a successful build are not
+**Accepted touch points: 91/180; 89 open/partial. Accepted areas: 3/15
+(snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
 | Area | Status | Acceptance |
@@ -62,7 +62,7 @@ campaign or co-op gameplay acceptance.
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
-| Netplay | N01-N08/N10-N12 accepted (11/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
+| Netplay | N01-N12 accepted (12/12); actual remote checkpoint, gate/script and reward transitions pass | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
 
@@ -3121,3 +3121,37 @@ context. One survivor Start resumes the restored pause with canonical actor
 ownership and no hidden panel or revival. Subsequent actual survivor movement
 and bright, unfrozen world progression still pass. No production menu change
 was required. Actual90/180 accepted,90open,2/15rollups.
+
+
+### Actual remote native boss reward and next-stage return — N09
+
+N09 is accepted after its checkpoint and authored gate/script portions above,
+plus native-online-reward-early and native-online-reward-early-reversed
+(both child0), GUI SHA256
+25217579df2437cd98679cb477190e8f3b97f85396c17be77d88f0d41f9a3e08.
+Both real peers run the native stage2 constructor and final entrance, with
+actual guest Right input admitting the boss room and following introduction.
+Prior intro progress and checkpoint2 bypass earlier travel as explicit setup
+prerequisites. They are not evidence of those earlier campaign/checkpoint
+results; the separate real remote checkpoint check supplies that criterion.
+
+The original Buffalo constructor reaches actual primary2/32HP before the
+assistance. Once the native introduction releases control, position, personal
+protection and bossHP1 isolate the finishing-hit/ownership decision. Only the
+guest fires real native attacks: Zero in the normal roster and X in the
+reversed roster. Original boss primary4/HP0 follows, then the native reward
+and actual next-stage construction finish. Shared1FC8 changes from unearned0
+through its temporaryFF animation value to the original completedDC. Final
+stage1 is playable at phase4/4, with both original characters alive, no pending
+scene/wipe and the unchanged two lives. All18 compared complete co-op digest
+and native reward cuts agree between peers, with no desync under25ms packet
+delay and one300ms asymmetric hold. Both final exactDC bytes were checked.
+
+The initial normal late-setup case also passed on8f61a411b54ff12726e2eb57368f85bcd1e91fd238f65b92236bab2cc80a783e.
+Its reversed case lost most of X's HP during the hundreds of idle combat frames
+and died before earning a reward. That unqualified preparation is retained.
+The corrected setup starts at actual native control release, records32HP
+before assistance, and excludes a retired actor from further positioning. It
+does not supply a hit, boss death, reward flag or exit, nor add a production
+combat exception. Evidence is net-lan/online-reward89-early-{x,zero}/observations.json
+and both peer logs. Actual91/180 accepted,89open,3/15rollups.

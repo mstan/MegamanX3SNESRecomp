@@ -1399,13 +1399,35 @@ static void boundary(CpuState *cpu,uint32_t pc) {
  * makes these prerequisites replayable with ordinary rollback snapshots. */
 static void net_world_prerequisites(uint32_t serial){
   const char *qa=getenv("SNESRECOMP_X3_NET_QA"),*world=getenv("SNESRECOMP_X3_NET_QA_WORLD");
-  if(!qa || strcmp(qa,"1") || !world || (strcmp(world,"death") && strcmp(world,"checkpoint") && strcmp(world,"door")))return;
-  bool checkpoint=!strcmp(world,"checkpoint"),door=!strcmp(world,"door");
+  if(!qa || strcmp(qa,"1") || !world || (strcmp(world,"death") && strcmp(world,"checkpoint") && strcmp(world,"door") && strcmp(world,"boss")))return;
+  bool checkpoint=!strcmp(world,"checkpoint"),door=!strcmp(world,"door"),boss=!strcmp(world,"boss");
   if(serial==3900){
-    g_ram[0x1fae]=door?1:5;g_ram[0x1faf]=g_ram[0x1fb3]=0;
+    g_ram[0x1fae]=door?1:boss?2:5;g_ram[0x1faf]=g_ram[0x1fb3]=0;
     g_ram[0x1fb5]=g_ram[0x1fb6]=0;g_ram[0x1ebf]=1;
     g_ram[0xd1]=2;g_ram[0xd2]=4;g_ram[0xd3]=0;
+    if(boss)g_ram[0x1fd3]=1; /* Prior intro clear is a prerequisite, not the Buffalo reward under test. */
     fprintf(stderr,"[x3-net-world-prerequisite] serial=%u native-stage-request=%u\n",serial,g_ram[0x1fae]);
+  }
+  if(boss){
+    /* Match the established native checkpoint2 entrance fixture. It bypasses
+     * earlier travel; the guest still admits the actual final gate and boss. */
+    if(serial<5000 && g_ram[0x1fae]==2 && g_ram[0xd1]==4 && !g_ram[0xd2])g_ram[0x1fb5]=2;
+    if(serial>=5400 && serial<6200 && g_ram[0x1fae]==2 && X3CoopRuntimeReady() && !scene.phase &&
+       !controller.pass && !terrain.pass && !contact.native.pass && !target.active &&
+       state.players[1].life==X3_COOP_ALIVE && (state.players[1].body[0x27]&127)){
+      unsigned d=0;for(unsigned slot=0xd18;slot<0x10d8;slot+=64)if(g_ram[slot] && g_ram[slot+10]==0x52 && g_ram[slot+1]==2 && (g_ram[slot+0x27]&127))d=slot;
+      if(d){if((g_ram[d+0x27]&127)>1)fprintf(stderr,"[x3-net-boss-ready] serial=%u slot=%u primary=%u hp=%u\n",serial,d,g_ram[d+1],g_ram[d+0x27]&127);g_ram[d+0x27]=1;
+        if(!(serial%24)){
+          X3CoopCapture(&state,g_ram);uint8_t *b=state.players[1].body;
+          unsigned x=word(g_ram+d+5)+72,y=word(g_ram+d+8)+14;
+          putword(b+5,x);putword(b+0x22,x);putword(b+8,y);putword(b+0x24,y);b[2]=b[3]=b[4]=b[7]=0;memset(b+0x1a,0,6);
+          for(unsigned seat=0;seat<2;++seat)state.players[seat].body[0x88]=255;
+          memcpy(g_ram+X3_COOP_BODY,state.players[state.current].body,X3_COOP_BODY_BYTES);
+          fprintf(stderr,"[x3-net-world-prerequisite] serial=%u actual-boss-HP=1 guest-attack-position=%u,%u\n",serial,x,y);
+        }
+      }
+    }
+    return;
   }
   if(checkpoint || door){
     if(serial!=5400 || !X3CoopRuntimeReady() || scene.phase || g_ram[0x1fae]!=(door?1:5))return;
