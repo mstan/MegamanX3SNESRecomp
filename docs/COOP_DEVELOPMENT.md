@@ -49,7 +49,7 @@ campaign or co-op gameplay acceptance.
 
 | Area | Status | Acceptance |
 | --- | --- | --- |
-| Individual death | Stage-1 contact deaths pass for X/P1 and Zero/P2; other cases open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
+| Individual death | D01-D04 accepted (4/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | Zero-then-X stage-1 route passes; other cases open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | Native stage-entry, withdrawal/return and learner checks pass narrowly; campaign and reconnect remain open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | Native union admission/retention passes focused remote-region cases; campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
@@ -1539,3 +1539,53 @@ recipe/hook routes are unchanged from the verified66-route complete-tree match.
 
 G01 remains open for X already fallen before capture admission and the remaining
 story/participant presentation checks. Total stays5accepted/175open/0rollups.
+
+
+### Actual default pit deaths in both roster orders
+
+D03 and D04 pass the authored stage5 ledge/opening at1184..1263, y2720, in
+Unified view with learner and stock restrictions disabled. In each actual
+roster, each seat walks38frames into the opening, then native gravity reaches
+one original127-damage pit call after14or16frames. Only that actor falls; the
+other retains the anchor, no team wipe begins, and24frames of Left move the
+survivor in bright native gameplay. Positions prepare the real ledge; neither
+fatal-damage nor death/retry flags are supplied.
+
+Evidence: default-authored-pits-server-result.log(child0), state
+a4807eaed4b6f1862473ac7c9e25d31705d3f804b61323ec58c0a6dd133ff42f, existing actual stage5 normal/reversed ground
+fixtures save6/save2. The test entry reuses the original authored-pit check and
+asserts both real rosters and default profiles. These checks do not qualify
+independent-view bounds, other hazards or fatal-contact snapshot timing.
+Accepted total7/180(D01-D04/F09/N02/N04),173open/partial,0/15rollups.
+
+
+### Rescue when X fell before capture admission
+
+Actual Zero/P2 traversal with X already fallen reaches Mac and the original
+restraint without an active capture scene. Rescue now takes ownership at its
+own03:AD70 entry and retains Zero through the temporary X body. The actual
+native task at0CC8 is accepted as the source of this cinematic. This route had
+never acquired the original exchange token1F45; the borrowed exchange now owns
+that token before original Zero exit consumes it. Native cleanup returns it to
+zero. The previous path underflowed0toFF and left the return scene pending.
+
+State b60f96b30acd6fb1459e8bb9edfd9bc00f2f4f8e2964ad20c0dc15e8cf54d510
+passes6 original restraint/rescue cases: both rosters with living X, tracked
+fallen X and untracked fallen X with no capture token. Actual finishing shots,
+natural mid-cinematic save/load, complete-machine replay and invalid-state
+refusal pass. The same build passes all4 default real-pit cases. Evidence:
+intro-exchange-token-state-server-result.log(child0). All4 CTests pass.
+
+GUI 305411a07eb2b78d10e22eb6fc82ddd13225b8abf1dfadb19df452ab17ff3060
+passes the exact actual Zero-only untracked restraint fixture using P2-only
+confirmation: X stays fallen16HP/selector0, Zero stays alive28HP/selector2,
+1F45=0 and scene0. The matcheda5f03bb7 baseline fails with scene6 still pending
+and1F45=FF on that same fixture/driver. Evidence:
+intro-exchange-token-server-result.log(child0),
+intro-exchange-baseline-server-result.log(child1). Earlier full-driver attempts
+had one confirmation loop still on P1 and are unqualified; the corrected
+observation run establishes the native counter failure separately. No result
+or terminal cleanup flag is written by the qualification route.
+
+Current total7accepted/173open/0rollups. G01 still needs final original-NPC/live
+Zero presentation qualification; this mechanical repair alone is not that pass.

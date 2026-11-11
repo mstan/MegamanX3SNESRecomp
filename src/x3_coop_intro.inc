@@ -52,9 +52,20 @@ static void intro_helper_handoff(void){
   scene_install(survivor);
 }
 static void intro_boundary(CpuState *cpu,uint32_t pc){
-  (void)cpu;
-  if(!enabled || !state.initialized || !scene.phase || g_ram[0x1fae])return;
+  if(!enabled || !state.initialized || g_ram[0x1fae])return;
   unsigned x=state.players[0].character==X3_COOP_X?0:1,zero=x^1;
+  /* A prior-fallen X lets native Zero reach rescue without the earlier
+   * capture scene. The actual exchange still needs its temporary X body. */
+  if((pc&0x7fffff)==0x03ad70 && !scene.phase && cpu->D==0x0cc8 &&
+     state.players[x].life!=X3_COOP_ALIVE && state.players[zero].life==X3_COOP_ALIVE &&
+     state.current==zero && state.anchor==zero && g_ram[X3_COOP_BODY+0xb6]==2){
+    scene_begin(cpu->D,SCENE_INTRO_RETIRED_X);
+    /* Original Zero's exit consumes the capture/exchange token. A survivor
+     * that skipped capture has not acquired it, so own it for this exchange
+     * and let the original cleanup release it instead of underflowing. */
+    if(!g_ram[0x1f45])++g_ram[0x1f45];
+  }
+  if(!scene.phase)return;
   switch(pc&0x7fffff){
     case 0x03ac57:
       if(scene.kind!=SCENE_INTRO_CAPTURE)return;

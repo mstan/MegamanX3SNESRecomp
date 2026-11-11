@@ -143,7 +143,7 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
   check(interp_bridge_add_pre_opcode_hook(0x03ad70,intro_rescue_native_probe) &&
         interp_bridge_add_pre_opcode_hook(0x03ad87,intro_rescue_native_probe) &&
         interp_bridge_add_pre_opcode_hook(0x03ad83,intro_constructor_probe),"native X reconstruction observations register");
-  for(unsigned reverse=0;reverse<2;++reverse)for(unsigned retired=0;retired<2;++retired){
+  for(unsigned reverse=0;reverse<2;++reverse)for(unsigned retired=0;retired<3;++retired){
     check(RtlLoadSnapshotFromMemory(original,size),"actual native restraint fixture restores");
     X3CoopState setup=*X3CoopRuntimeState();unsigned zero=reverse?0:1,x=zero^1;
     check(g_ram[0xd58] && g_ram[0xd59]==2 && g_ram[0xd62]==0x4c && g_ram[0xd7f]==5,
@@ -158,11 +158,18 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
     /* Explicit previously-fallen precondition; this does not claim to test
      * a native cause of death. The actual restraint/rescue must not revive X. */
     if(retired)check(X3CoopFall(&setup,x),"previously fallen X precondition uses the lifecycle API");
+    if(retired==2){
+      /* The real prior-fallen-X route reaches this room without enrolling
+       * the original capture scene. Keep its actual restraint/combat state. */
+      uint8_t both=work[scene_at+10];memset(work+scene_at+4,0,12);work[scene_at+10]=both;
+      size_t ram_at;check(RtlSnapshotGuestLayout(NULL,&ram_at)!=0,"untracked rescue uses the actual guest RAM layout");
+      work[ram_at+0x1f45]=0; /* Actual prior-fallen-X route never acquired the capture token. */
+    }
     check(X3CoopEncode(&setup,work+contact_context_offset(work,size),X3CoopEncodedSize()) &&
           RtlLoadSnapshotFromMemory(work,size),"personal health and actual rescue roster restore");
     door_install_player(&setup);
     const char *fallen_output=getenv("X3_COOP_INTRO_FALLEN_OUTPUT");
-    if(!reverse && retired && fallen_output && *fallen_output)
+    if(!reverse && retired==1 && fallen_output && *fallen_output)
       check(RtlSaveSnapshot(fallen_output),"previously fallen X fixture retains the original live restraint for launcher QA");
     g_ram[0xd7f]=1;
     for(unsigned i=0;i<3;++i)frame(0);
@@ -195,7 +202,7 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
       }
       const X3CoopState *s=X3CoopRuntimeState();
       unsigned owner=retired?zero:x;
-      if(!X3CoopRuntimeSceneActive() && s->current==owner && s->anchor==owner &&
+      if(intro_rescue_native_seen==3 && !X3CoopRuntimeSceneActive() && s->current==owner && s->anchor==owner &&
           g_ram[0xa8e]==(retired?2:0) && !g_ram[0x9da] && !g_ram[0xcc8])break;
     }
     const X3CoopState *s=X3CoopRuntimeState();

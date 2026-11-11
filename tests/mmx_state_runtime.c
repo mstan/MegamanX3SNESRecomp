@@ -111,6 +111,18 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_intro_helper_death_checks(saved,size,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_PIT_STATE");
+    if(fixture && *fixture){
+      const char *reversed=getenv("X3_COOP_PIT_REVERSED_STATE");
+      check(reversed && *reversed,"authored pit coverage supplies both real roster orders");
+      for(unsigned roster=0;roster<2;++roster){
+        const char *path=roster?reversed:fixture;
+        check(RtlLoadSnapshot(path) && X3CoopRuntimeState()->players[0].character==roster &&
+            !X3CoopRuntimeLearner() && !X3CoopRuntimeStockZero(),
+            "authored pit uses the requested real roster and default unprotected campaign");
+        native_shared_authored_pits(path,saved,after,cap);
+      }
+    }
     fixture=getenv("X3_COOP_FLAGS_STATE");
     if(fixture && *fixture){
       check(RtlLoadSnapshot(fixture),"native private-status fixture loads");

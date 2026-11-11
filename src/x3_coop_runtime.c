@@ -1482,7 +1482,8 @@ static bool scene_decode(NativeScene *out,const uint8_t bytes[16],const X3CoopSt
       (next.kind==SCENE_INTRO_CAPTURE && next.phase>2)))return false;
   if(stage && (next.phase!=2 || next.tick || next.raw[0] || next.raw[1] ||
       s->wipe || next.owner!=s->anchor || s->current!=s->anchor))return false;
-  bool slot=stage?!next.slot:next.kind?enemy_actor(next.slot) && !hostile_projectile(next.slot):item_actor(next.slot);
+  bool slot=stage?!next.slot:cinematic && next.slot==0x0cc8?true:
+      next.kind?enemy_actor(next.slot) && !hostile_projectile(next.slot):item_actor(next.slot);
   if(next.phase?(!s->initialized || !slot || (next.phase==2 && next.tick) ||
       (next.kind && !stage && !zero_return && !cinematic && next.kind!=SCENE_INTRO_ZERO && next.kind!=SCENE_INTRO_X_CONSTRUCT &&
        s->players[next.owner].character!=X3_COOP_X)):
