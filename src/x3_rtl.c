@@ -1044,7 +1044,7 @@ void X3DrawPpuFrame(void) {
   X3CoopRenderRestorePalette();
   X3CoopMenuDraw(g_ppu,g_ppu->renderBuffer,g_ppu->renderPitch,
       256+g_ppu->extraLeftRight*2,X3Display_PresentationSeat());
-  if(split && !private_frame)X3Display_CaptureLocalSplitNative(g_ppu);
+  if(!private_frame)X3Display_CaptureCoopNative(g_ppu);
 }
 
 /* ── save-state extras: the LLE host cursor ───────────────────────────── */
@@ -1135,6 +1135,7 @@ void X3OnStateLoaded(uint32_t version) {
   (void)version;
   /* Renderer history belongs to the abandoned timeline, not this snapshot. */
   WsShadowReset();
+  X3Display_InvalidateCoopFrame();
   if (s_execution_loaded) RtlApplyExecutionState();
   s_execution_loaded = false;
   if (s_lle_extra_loaded) {

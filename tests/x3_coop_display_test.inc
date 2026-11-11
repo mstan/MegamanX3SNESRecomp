@@ -143,7 +143,7 @@ static void independent_display_checks(uint8_t *original,size_t size,uint8_t *le
   memcpy(right,g_ppu->renderBuffer,256u*224u*4u);
   check(memcmp(left,right,256u*224u*4u)!=0,"separated players render distinct authored world regions");
   X3Display_SetLocalSplit(true);g_rtl_game_info->draw_ppu_frame();
-  check(X3Display_RenderedPrivateFrame() && X3Display_DrawLocalSplit(split,512*4,NULL,512,224,1),
+  check(X3Display_RenderedPrivateFrame() && X3Display_DrawCoopFrame(split,512*4,NULL,512,224,1),
         "split display composes both independently rendered fields");
   bool equal=true;
   for(unsigned y=0;y<224;++y)
@@ -157,15 +157,47 @@ static void independent_display_checks(uint8_t *original,size_t size,uint8_t *le
     snprintf(path,sizeof(path),"%s-p2.ppm",out);WritePpm(path,right,256*4,256,224,0,false);
     snprintf(path,sizeof(path),"%s-split.ppm",out);WritePpm(path,split,512*4,512,224,0,false);
   }
+  check(capacity>=896u*224u*4u,"the adaptive comparison has room for both wider fields");
+  X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(0);
+  X3Display_SetCoopPanelWidth(342);g_rtl_game_info->draw_ppu_frame();
+  check(X3Display_DrawCoopFrame(right,342*4,NULL,342,224,1),"adaptive selected view presents the full342px field");
+  equal=true;unsigned detail[2]={0,0};
+  for(unsigned y=0;y<224;++y){
+    const uint8_t *row=right+y*342*4;
+    if(memcmp(row+(43+48)*4,left+(y*256+48)*4,168*4))equal=false;
+    for(unsigned x=1;x<43;++x){
+      if(memcmp(row+x*4,row+(x-1)*4,3))++detail[0];
+      if(memcmp(row+(299+x)*4,row+(298+x)*4,3))++detail[1];
+    }
+  }
+  check(equal && detail[0]>100 && detail[1]>100,
+        "the wider private field preserves central world pixels and resolves real detail in both margins");
+  check(RtlLoadSnapshotFromMemory(original,size),"paused wide restoration starts from the actual machine");
+  check(X3Display_DrawCoopFrame(right,342*4,left,342,224,1),"paused restore presents its native field before the new wide raster");
+  equal=true;
+  for(unsigned y=0;y<224;++y){
+    const uint8_t *row=right+y*342*4;
+    if(memcmp(row+43*4,left+y*256*4,256*4) || row[0] || row[1] || row[2])equal=false;
+  }
+  check(equal,"paused restore discards the old wide scene and centers the current native picture");
+  X3Display_SetLocalSplit(true);X3Display_SetCoopPanelWidth(448);
+  g_rtl_game_info->draw_ppu_frame();
+  check(X3Display_DrawCoopFrame(right,896*4,NULL,896,224,1),"ultrawide split presents two real448px fields");
+  unsigned distinct=0;for(unsigned y=0;y<224;++y)
+    distinct+=memcmp(right+y*896*4,right+(y*896+448)*4,448*4)!=0;
+  check(distinct>100 && g_ppu->extraLeftRight==0 && g_cpu.master_cycles==clock && !memcmp(world,g_ram,0x20000),
+        "wider split shows both distinct regions without changing native PPU width, CPU or world RAM");
   size_t baseline=0;
-  for(int mode=-1;mode<3;++mode){
+  for(int mode=-1;mode<5;++mode){
     check(RtlLoadSnapshotFromMemory(original,size),"display-mode simulation comparison starts from the same machine");
-    X3Display_SetLocalSplit(mode==2);X3Display_SetPresentationSeat(mode>=0 && mode<2?mode:-1);
+    X3Display_SetLocalSplit(mode==2 || mode==4);X3Display_SetPresentationSeat(mode==3?0:mode>=0 && mode<2?mode:-1);
+    X3Display_SetCoopPanelWidth(mode==3?342:mode==4?448:256);
     for(unsigned i=0;i<10;++i)frame(0);
     if(mode==-1)baseline=RtlSaveSnapshotToMemory(left,capacity);
     else {size_t candidate=RtlSaveSnapshotToMemory(right,capacity);
       same(left,baseline,right,candidate,"local presentation choice preserves the complete simulation snapshot");}
   }
   free(world);free(split);X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);g_config.widescreen=wide;
+  X3Display_SetCoopPanelWidth(256);
   check(RtlLoadSnapshotFromMemory(original,size),"split display probes restore their starting machine");(void)capacity;
 }

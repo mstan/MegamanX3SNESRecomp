@@ -5,9 +5,16 @@
 #include "widescreen.h"
 static bool local_split;
 static int presentation_seat=-1;
-void X3Display_SetLocalSplit(bool value){local_split=value;}
+void X3Display_SetLocalSplit(bool value){
+  if(local_split!=value)X3Display_InvalidateCoopFrame();
+  local_split=value;
+}
 bool X3Display_LocalSplit(void){return local_split;}
-void X3Display_SetPresentationSeat(int seat){presentation_seat=seat>=0 && seat<2?seat:-1;}
+void X3Display_SetPresentationSeat(int seat){
+  int next=seat>=0 && seat<2?seat:-1;
+  if(presentation_seat!=next)X3Display_InvalidateCoopFrame();
+  presentation_seat=next;
+}
 int X3Display_PresentationSeat(void){return presentation_seat;}
 
 static int ClampEven(int64_t value) {

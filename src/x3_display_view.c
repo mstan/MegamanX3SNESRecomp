@@ -28,12 +28,22 @@ typedef struct IndependentFrame {
   uint8_t phase[3][8192];
   PpuExtraObject objects[EXTRA_PIECES];
   uint16_t pixels[WORLD_PIECES][256];
-  uint16_t hud[X3_COOP_HUD_WIDTH*X3_COOP_HUD_HEIGHT];
+  uint16_t boss_hud[7][256];
+  uint16_t hud[2][X3_COOP_HUD_WIDTH*X3_COOP_HUD_HEIGHT];
 } IndependentFrame;
 static IndependentFrame independent_frames[2];
 static IndependentFrame *active_frame=&independent_frames[0];
 #define frame (*active_frame)
-static uint8_t split_pixels[512*224*4];
+static uint32_t coop_pixels[2*kPpuMaxFrameWidth*224];
+static unsigned panel_width=256;
+static unsigned composed_width;
+static bool composed_split;
+void X3Display_InvalidateCoopFrame(void){composed_width=0;}
+void X3Display_SetCoopPanelWidth(unsigned width){
+  unsigned next=width>=256 && width<=kPpuMaxFrameWidth && !(width&1)?width:256;
+  if(next!=panel_width)composed_width=0;
+  panel_width=next;
+}
 static bool rendered_private;
 bool X3Display_RenderedPrivateFrame(void){return rendered_private;}
 /* Derived ROM caches have finite capacity and are never simulation state. */
@@ -307,7 +317,7 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   unsigned priority=tile&0x2000?(layer==2 && (p->bgmode&8)?15:high[layer]):low[layer];
   return (uint16_t)((priority<<12)|(layer<<8)|index);
 }
-static void world_objects(const Ppu *p){
+static void world_objects(const Ppu *p,int left,int right){
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
   unsigned used=0;
   for(unsigned i=0;i<visible->count && used<WORLD_PIECES;++i){
@@ -330,7 +340,7 @@ static void world_objects(const Ppu *p){
       if(b[0x11]&64){x=-x-(int)side;attributes^=64;}
       if(b[0x11]&128){y=-y-(int)side;attributes^=128;}
       x+=(int)word(b+5)-frame.x;y+=(int)word(b+8)-frame.y;
-      if(x+(int)side<=-(int)p->extraLeftCur || x>=256+p->extraRightCur || y+(int)side<=0 || y>=224)continue;
+      if(x+(int)side<=-left || x>=256+right || y+(int)side<=0 || y>=224)continue;
       unsigned tile=((packed>>24)+(private_resource?resource.tile:b[0x18]))&255;
       unsigned base=((attributes&1)?PPU_objTileAdr2(p):PPU_objTileAdr1(p))+tile*16;
       uint16_t *pixels=frame.pixels[used];memset(pixels,0,256*sizeof(*pixels));
@@ -351,15 +361,42 @@ static void world_objects(const Ppu *p){
       frame.objects[frame.count++]=object;}
   }
 }
-static bool begin_independent_frame(Ppu *p,unsigned seat){
+static void boss_meter(const Ppu *p,int right){
+  /* These are the seven native right-side meter slots, also recognized by
+   * the solo widescreen renderer. Do not show them in a remote room. */
+  if(frame.dx< -96 || frame.dx>96 || frame.dy< -64 || frame.dy>64 || PPU_objSize(p)!=0)return;
+  unsigned matches=0;
+  for(unsigned i=16;i<23;++i){
+    unsigned xy=p->oam[2*i],tile=p->oam[2*i+1];
+    unsigned high=(p->highOam[i>>2]>>((i&3)*2))&3;
+    matches+=(xy&255)==232 && (xy>>8)<112 && (tile>>8)==0x34 && high==2;
+  }
+  if(matches<4)return;
+  for(unsigned i=16;i<23 && frame.count<EXTRA_PIECES;++i){
+    unsigned xy=p->oam[2*i],tile=p->oam[2*i+1];
+    unsigned high=(p->highOam[i>>2]>>((i&3)*2))&3;
+    if((xy&255)!=232 || (xy>>8)>=112 || (tile>>8)!=0x34 || high!=2)continue;
+    uint16_t *pixels=frame.boss_hud[i-16];
+    unsigned address=PPU_objTileAdr1(p)+(tile&255)*16;
+    for(unsigned y=0;y<16;++y)for(unsigned x=0;x<16;++x){
+      unsigned adr=(address+(y/8)*256+(x/8)*16)&32767;
+      unsigned ink=tile_pixel(p->vram,adr,x&7,y&7,4);
+      pixels[y*16+x]=ink?(uint16_t)(0x8000|p->cgram[160+ink]):0;
+    }
+    frame.objects[frame.count++]=(PpuExtraObject){.x=232+right,.y=(int)(xy>>8),.width=16,.height=16,.stride=16,
+      .priority=3,.oamSlot=(uint8_t)i,.order=1,.pixels=pixels};
+  }
+}
+static bool begin_view(Ppu *p,unsigned seat,bool shared){
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
-  if(!p || !p->renderBuffer || seat>1 || !X3CoopRuntimeReady() || !X3CoopViewsIndependent() ||
+  if(!p || !p->renderBuffer || seat>1 || !X3CoopRuntimeReady() || (!shared && !X3CoopViewsIndependent()) ||
      !visible->players.initialized || visible->players.wipe || !g_snes || !g_snes->cart ||
      g_ram[0xd1]!=4 || g_ram[0xd2]!=4 || X3CoopNativePauseActive(g_ram) || (p->bgmode&7)!=1)return false;
   active_frame=&independent_frames[seat];
   frame.rom=g_snes->cart->rom;frame.size=g_snes->cart->romImageSize;
   memcpy(frame.ram,g_ram,sizeof(frame.ram));
-  frame.x=visible->views[seat][0];frame.y=visible->views[seat][1];
+  frame.x=shared?visible->camera[0]:visible->views[seat][0];
+  frame.y=shared?visible->camera[1]:visible->views[seat][1];
   frame.dx=frame.x-(int)visible->camera[0];frame.dy=frame.y-(int)visible->camera[1];
   frame.ram[0x1e5d]=(uint8_t)visible->camera[0];frame.ram[0x1e5e]=(uint8_t)(visible->camera[0]>>8);
   frame.ram[0x1e60]=(uint8_t)visible->camera[1];frame.ram[0x1e61]=(uint8_t)(visible->camera[1]>>8);
@@ -371,24 +408,30 @@ static bool begin_independent_frame(Ppu *p,unsigned seat){
     memset(chr_ready,0,sizeof(chr_ready));memset(chr_valid,0,sizeof(chr_valid));
     memset(palette_ready,0,sizeof(palette_ready));memset(palettes,0,sizeof(palettes));
   }
-  prepare_events();world_objects(p);
-  if(frame.count<EXTRA_PIECES){
-    X3CoopHudPlayer(p,visible,seat,frame.rom,frame.size,false,frame.hud);
-    frame.objects[frame.count++]=(PpuExtraObject){.x=8-(int)p->extraLeftCur,.y=0,
+  int extra=(int)(panel_width-256)/2,left=extra?extra:p->extraLeftCur,right=extra?extra:p->extraRightCur;
+  prepare_events();world_objects(p,left,right);boss_meter(p,right);
+  unsigned layout=X3CoopHudLayout();
+  for(unsigned who=shared?0:seat;who<(shared?2:seat+1) && frame.count<EXTRA_PIECES;++who){
+    const X3CoopPlayer *actor=&visible->players.players[who];
+    if(shared && actor->life==X3_COOP_ABSENT)continue;
+    bool inverted=shared && layout==X3_COOP_HUD_COMPACT && actor->character==X3_COOP_ZERO;
+    X3CoopHudPlayer(p,visible,who,frame.rom,frame.size,inverted,frame.hud[who]);
+    frame.objects[frame.count++]=(PpuExtraObject){.x=8-left+(shared && layout==X3_COOP_HUD_HORIZONTAL?(int)who*32:0),.y=inverted?100:0,
       .width=X3_COOP_HUD_WIDTH,.height=X3_COOP_HUD_HEIGHT,.stride=X3_COOP_HUD_WIDTH,
-      .priority=3,.oamSlot=0,.order=1,.pixels=frame.hud};
+      .priority=3,.oamSlot=0,.order=who+1,.pixels=frame.hud[who]};
   }
   return true;
 }
 bool X3Display_BeginIndependentFrame(Ppu *p){
   rendered_private=false;
   int seat=X3Display_PresentationSeat();
-  return seat>=0 && begin_independent_frame(p,(unsigned)seat);
+  if(seat>=0 && X3CoopViewsIndependent())return begin_view(p,(unsigned)seat,false);
+  return panel_width>256 && begin_view(p,0,true);
 }
 bool X3Display_BeginLocalSplitFrame(Ppu *p){
   rendered_private=false;
   if(!X3Display_LocalSplit() || !p || p->extraLeftRight)return false;
-  return begin_independent_frame(p,0) && begin_independent_frame(p,1);
+  return begin_view(p,0,false) && begin_view(p,1,false);
 }
 static bool window(const Ppu *p,unsigned layer,int x,int extra){
   unsigned flags=(p->windowsel>>(layer*4))&15;
@@ -420,57 +463,85 @@ static uint32_t color(const Ppu *p,uint16_t main,uint16_t sub,bool inside,int ob
   }
   return result;
 }
-void X3Display_DrawIndependentLine(Ppu *p,int line){
-  if(line<1 || line>224)return;
-  unsigned width=256+p->extraLeftCur+p->extraRightCur;
-  if(width>kPpuBufWidth)return;
-  uint32_t *out=(uint32_t*)(p->renderBuffer+(size_t)(line-1)*p->renderPitch);
-  unsigned budget=256+p->extraLeftRight*2;
-  if(budget*4>p->renderPitch || p->extraLeftCur>p->extraLeftRight || p->extraRightCur>p->extraLeftRight)return;
+static void draw_view_line(const Ppu *p,int line,uint32_t *out,unsigned budget,unsigned left,unsigned right){
+  unsigned width=256+left+right,extra=(budget-256)/2;
+  if(width>kPpuBufWidth || left>extra || right>extra)return;
   memset(out,0,budget*sizeof(*out));
   rendered_private=true;
   if(p->inidisp&128)return;
-  out+=p->extraLeftRight-p->extraLeftCur;
+  out+=extra-left;
   uint16_t objects[kPpuBufWidth],colors[kPpuBufWidth];uint64_t order[kPpuBufWidth];
   for(unsigned i=0;i<width;++i){objects[i]=0x500;colors[i]=0;order[i]=UINT64_MAX;}
-  PpuComposeExtraObjects(frame.objects,frame.count,line-1,-(int)p->extraLeftCur,width,
+  PpuComposeExtraObjects(frame.objects,frame.count,line-1,-(int)left,width,
       PPU_objPriority(p)?(p->oamaddl&254)>>1:0,objects,colors,order);
   for(unsigned i=0;i<width;++i){
-    int x=(int)i-p->extraLeftCur,bg_colors[3]={-1,-1,-1};uint16_t layers[4];
+    int x=(int)i-(int)left,bg_colors[3]={-1,-1,-1};uint16_t layers[4];
     for(unsigned layer=0;layer<3;++layer)layers[layer]=background(p,layer,x,line,&bg_colors[layer]);
     layers[3]=objects[i];
     uint16_t screen[2]={0x500,0x500};
     for(unsigned s=0;s<2;++s)for(unsigned layer=0;layer<4;++layer){
       unsigned bit=layer==3?16:1u<<layer,wl=layer==3?4:layer;
       if((p->screenEnabled[s]&bit) && (!(p->screenWindowed[s]&bit) ||
-          !window(p,wl,x,p->extraLeftCur)) && layers[layer]>screen[s])screen[s]=layers[layer];
+          !window(p,wl,x,left)) && layers[layer]>screen[s])screen[s]=layers[layer];
     }
-    out[i]=color(p,screen[0],screen[1],window(p,5,x,p->extraLeftCur),colors[i]?colors[i]:-1,bg_colors);
+    out[i]=color(p,screen[0],screen[1],window(p,5,x,left),colors[i]?colors[i]:-1,bg_colors);
+  }
+}
+void X3Display_DrawIndependentLine(Ppu *p,int line){
+  if(line<1 || line>224)return;
+  uint8_t *native=p->renderBuffer+(size_t)(line-1)*p->renderPitch;
+  if(panel_width>256){
+    unsigned extra=(panel_width-256)/2;
+    uint32_t *out=coop_pixels+(size_t)(line-1)*panel_width;
+    draw_view_line(p,line,out,panel_width,extra,extra);
+    memcpy(native,out+extra,256*4);
+    if(line==224){composed_width=panel_width;composed_split=false;}
+  }else{
+    unsigned budget=256+p->extraLeftRight*2;
+    if(budget*4<=p->renderPitch)
+      draw_view_line(p,line,(uint32_t *)native,budget,p->extraLeftCur,p->extraRightCur);
   }
 }
 void X3Display_DrawLocalSplitLine(Ppu *p,int line){
   if(line<1 || line>224)return;
-  uint8_t *native=p->renderBuffer;unsigned pitch=p->renderPitch;
-  p->renderPitch=512*4;
+  uint32_t *row=coop_pixels+(size_t)(line-1)*2*panel_width;
+  unsigned extra=(panel_width-256)/2;
   for(unsigned seat=0;seat<2;++seat){
-    active_frame=&independent_frames[seat];p->renderBuffer=split_pixels+seat*256*4;
-    X3Display_DrawIndependentLine(p,line);
+    active_frame=&independent_frames[seat];
+    draw_view_line(p,line,row+seat*panel_width,panel_width,extra,extra);
   }
-  p->renderBuffer=native;p->renderPitch=pitch;
   /* Keep the host's primary native field coherent for states and rewind. */
-  memcpy(native+(size_t)(line-1)*pitch,split_pixels+(size_t)(line-1)*512*4,256*4);
+  memcpy(p->renderBuffer+(size_t)(line-1)*p->renderPitch,row+extra,256*4);
+  if(line==224){composed_width=2*panel_width;composed_split=true;}
 }
-void X3Display_CaptureLocalSplitNative(const Ppu *p){
-  if(!X3Display_LocalSplit() || !p || !p->renderBuffer)return;
+void X3Display_CaptureCoopNative(const Ppu *p){
+  bool split=X3Display_LocalSplit();
+  if((!split && panel_width==256) || !p || !p->renderBuffer)return;
   /* Menus, arrivals and shared scripts retain their real native scanout. */
-  for(unsigned y=0;y<224;++y)for(unsigned seat=0;seat<2;++seat)
-    memcpy(split_pixels+((size_t)y*512+seat*256)*4,p->renderBuffer+(size_t)y*p->renderPitch,256*4);
-  X3CoopMenuDraw(p,split_pixels,512*4,512,-1);
+  unsigned seats=split?2:1,width=panel_width*seats,extra=(panel_width-256)/2;
+  for(unsigned y=0;y<224;++y){
+    uint32_t *row=coop_pixels+(size_t)y*width;
+    memset(row,0,width*4);
+    for(unsigned seat=0;seat<seats;++seat)
+      memcpy(row+seat*panel_width+extra,p->renderBuffer+(size_t)y*p->renderPitch,256*4);
+  }
+  X3CoopMenuDraw(p,(uint8_t *)coop_pixels,width*4,width,split?-1:X3Display_PresentationSeat());
+  composed_width=width;composed_split=split;
 }
-int X3Display_DrawLocalSplit(uint8_t *dst,size_t pitch,const uint8_t *field,
+int X3Display_DrawCoopFrame(uint8_t *dst,size_t pitch,const uint8_t *field,
                             int width,int height,double alpha){
-  (void)field;(void)alpha;
-  if(!X3Display_LocalSplit() || !dst || width!=512 || height!=224 || pitch<512*4)return 0;
-  for(unsigned y=0;y<224;++y)memcpy(dst+(size_t)y*pitch,split_pixels+(size_t)y*512*4,512*4);
+  (void)alpha;
+  bool split=X3Display_LocalSplit();
+  unsigned composed=panel_width*(split?2:1);
+  if((!split && panel_width==256) || !dst || width!=(int)composed || height!=224 || pitch<composed*4)return 0;
+  for(unsigned y=0;y<224;++y){
+    uint8_t *row=dst+(size_t)y*pitch;
+    if(composed_width==composed && composed_split==split){memcpy(row,coop_pixels+(size_t)y*composed,composed*4);continue;}
+    /* A resumed paused state supplies a real native thumbnail before there
+     * is a new co-op raster. Show it until the first field at this width. */
+    memset(row,0,composed*4);
+    if(field)for(unsigned seat=0;seat<(split?2u:1u);++seat)
+      memcpy(row+(seat*panel_width+(panel_width-256)/2)*4,field+(size_t)y*256*4,256*4);
+  }
   return 1;
 }

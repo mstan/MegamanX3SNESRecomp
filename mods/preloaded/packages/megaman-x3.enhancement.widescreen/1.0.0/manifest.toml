@@ -3,7 +3,7 @@ id = "megaman-x3.enhancement.widescreen"
 version = "1.0.0"
 name = "Mega Man X3 Widescreen"
 author = "mstan"
-description = "Renders Mega Man X3 with a wider 16:9 field of view using its game-specific HUD, background-margin, enemy activation, culling, and draw-window work."
+description = "Extend the gameplay field as the window gets wider. Authored scenes keep their original framing where needed."
 license = "MIT"
 resolver = "declarative"
 save_compatibility = "shared"
@@ -14,10 +14,10 @@ rom_sha256 = "65b03268afac296330e8ff8d60dd0825879e13ed658b37713c034a3bd074f1d7"
 
 [[feature]]
 id = "widescreen"
-name = "Widescreen (16:9)"
-description = "Enable Mega Man X3's game-specific 16:9 rendering enhancement."
+name = "Widescreen: Fit to screen"
+description = "Adjust the gameplay field to the shape of the window while keeping the selected pixel proportions."
 group = "Display"
-default_enabled = false
+default_enabled = true
 
 [[plugin]]
 feature = "widescreen"
