@@ -9,6 +9,20 @@ static bool intro_capture_actor(unsigned d){
 static bool intro_constructing(void){
   return scene.phase && (scene.kind==SCENE_INTRO_ZERO_CONSTRUCT || scene.kind==SCENE_INTRO_X_CONSTRUCT);
 }
+static void intro_input_boundary(CpuState *cpu,uint32_t pc){
+  (void)cpu;(void)pc;
+  if(!enabled || !state.initialized || !scene.phase || scene.kind<SCENE_INTRO_CAPTURE)return;
+  uint16_t held[2]={(uint16_t)native_pad(0),(uint16_t)native_pad(1)};
+  unsigned owner=state.players[scene.owner].life==X3_COOP_ALIVE?scene.owner:state.anchor;
+  /* Sample at the original native pad mapper, even while the world task is
+   * frozen. Keep both real host pads intact and maintain each seat's history
+   * across character/script ownership changes. */
+  if(!g_ram[0x1f63]){
+    putword(g_ram+0xa8,held[owner]);putword(g_ram+0xaa,scene.raw[owner]);
+    putword(g_ram+0xac,held[owner]&~scene.raw[owner]);
+  }
+  memcpy(scene.raw,held,sizeof(held));
+}
 static void intro_capture_begin(unsigned d){
   if(scene.phase || !intro_capture_actor(d) || g_ram[X3_COOP_BODY+2]!=0x66 ||
       state.players[state.current].character!=X3_COOP_X ||
@@ -40,7 +54,7 @@ static void intro_helper_handoff(void){
 }
 static void intro_boundary(CpuState *cpu,uint32_t pc){
   (void)cpu;
-  if(!X3CoopRuntimeReady() || !scene.phase || g_ram[0x1fae])return;
+  if(!enabled || !state.initialized || !scene.phase || g_ram[0x1fae])return;
   unsigned x=state.players[0].character==X3_COOP_X?0:1,zero=x^1;
   switch(pc&0x7fffff){
     case 0x03ac67:
@@ -58,18 +72,33 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
         intro_change_owner(zero,SCENE_INTRO_ZERO);
       }
       break;
+    case 0x03ad70:
+      if(scene.kind==SCENE_INTRO_ZERO && state.players[x].life!=X3_COOP_ALIVE){
+        /* The original exchange needs its temporary X body to finish. Keep
+         * the real Zero context while native WRAM belongs to that cinematic;
+         * the fallen/absent X is never enrolled or captured from it. */
+        X3CoopCapture(&state,g_ram);scene_cancel_transients(zero);
+        intro_change_owner(zero,SCENE_INTRO_RETIRED_X);
+      }
+      break;
     case 0x03ad7f:
       if(scene.kind!=SCENE_INTRO_ZERO)return;
-      if(state.players[x].life==X3_COOP_ALIVE){
-        X3CoopCapture(&state,g_ram);
-        scene.kind=SCENE_INTRO_X_CONSTRUCT;scene.phase=2;scene.tick=0;
-      }
+      X3CoopCapture(&state,g_ram);
+      scene.kind=SCENE_INTRO_X_CONSTRUCT;scene.phase=2;scene.tick=0;
       break;
     case 0x03ad87:
       if(scene.kind==SCENE_INTRO_X_CONSTRUCT){
         g_ram[X3_COOP_BODY+0x27]=state.players[x].body[0x27];
         g_ram[0x1fd2]=state.players[x].maximum_health;
         intro_change_owner(x,SCENE_INTRO_RETURN);
+      }
+      break;
+    case 0x03aed9:
+      if(intro_cinematic()){
+        /* Native palette/lock cleanup has returned; the NPC retires next.
+         * Adopt its finished floor using Zero's retained body/resources. */
+        scene_place(zero,g_ram+X3_COOP_BODY);
+        intro_change_owner(zero,SCENE_INTRO_RETURN);scene_install(zero);
       }
       break;
   }

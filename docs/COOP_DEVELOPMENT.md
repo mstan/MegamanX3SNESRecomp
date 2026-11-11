@@ -1447,3 +1447,37 @@ remaining original intro progression/presentation checks are not qualified.
 Current total4/180 accepted,176 open/partial,0/15 rollups. All4 CTests pass.
 The96.4MiB generated comparison tree was removed after its exact match; its
 receipt/result and the current generated metadata remain. No release replaced.
+
+
+### Fallen X and the original rescue cinematic
+
+The original rescue temporarily constructs an X body even when X has already
+fallen. Scene kind9 now keeps that cinematic body separate from the retained
+participants until native03:AED9 cleanup. Zero returns at the finished floor
+with his own health and identity; X stays fallen. No wire bytes were added.
+Native00:E49E maps the actual scene owner's pad while dialogue freezes the world
+task, retaining both seats' input history and recorded-input demonstrations.
+
+State 4b404a350d438e732f88bfbd1cce3b2c6ff0a1731aa6d3c510ac51beb0b90039
+passes both rosters through actual capture/movement, all-alive and prior-fallen-X
+restraint shots/rescue, natural mid-cinematic save/load, whole-machine replay and
+transactional invalid-phase refusal. The explicit prior-fallen precondition does
+not claim to test a native X death. Helper fatal-contact/combat and the existing
+learner/adaptive regressions pass together: intro-owned-input-state-server-result.log,
+child0. GUI 341072bd3d78d98cdb0f67d46d8db0137aa84779521578450004e7c88103570b
+passes P2-only confirmation with X fallen11HP and Zero alive19HP/selector2/scene0
+(intro-owned-input-server-result.log). The same GUI passes real helper death,
+X's Mac/restraint shots and P1-only confirmation with Zero still fallen
+(intro-helper-owned-server-result.log). Both child0. Earlier P2-only confirmation
+on541e4027 fails; the frozen-world input boundary resolves that failure.
+
+The public withdrawal route on541e4027 also completes original Mac/restraint
+shots and rescue with Zero remaining absent, returning the sole X to selector0,
+16HP/max16 and scene0 (intro-zero-absent-full-server-result.log, child0). Its
+intermediate original story-Zero body is a distinct unresolved ownership/rejoin
+case; this narrow final result is not G01 acceptance. Constructor interruption,
+prior-fallen/stock Zero, full intro progression and presentation remain open.
+All4 CTests pass. Fresh supported generation matches the complete compiled tree
+byte-for-byte,66 routed variants/6006AOT/223LLE
+(intro-owned-input-final-regen-result.log, child0). Accepted total remains
+4/180(D02/F09/N02/N04),176 open/partial,0/15 rollups. No release replaced.
