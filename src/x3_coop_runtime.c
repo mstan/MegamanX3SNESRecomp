@@ -1508,6 +1508,18 @@ void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   sli->func(sli,&solid,sizeof(solid));sli->func(sli,riders,sizeof(riders));
   uint8_t menu_bytes[MENU_BYTES];menu_encode(menu_bytes);sli->func(sli,menu_bytes,sizeof(menu_bytes));
 }
+/* Reuse the complete snapshot stream for peer confirmation. Its normal save
+ * synchronizes the projected body; hashing must leave the live context intact. */
+typedef struct CoopDigestStream {SaveLoadInfo io;uint32_t hash;} CoopDigestStream;
+static void coop_digest_bytes(SaveLoadInfo *io,void *data,size_t size){
+  CoopDigestStream *stream=(CoopDigestStream *)io;const uint8_t *bytes=data;
+  for(size_t i=0;i<size;++i){stream->hash^=bytes[i];stream->hash*=16777619u;}
+}
+uint32_t X3CoopRuntimeDigest(void){
+  X3CoopState prior;memcpy(&prior,&state,sizeof(prior));
+  CoopDigestStream stream={{coop_digest_bytes,NULL},2166136261u};
+  X3CoopRuntimeSave(&stream.io);memcpy(&state,&prior,sizeof(state));return stream.hash;
+}
 static bool view_spawn_valid(const ViewSpawn *v) {
   if(v->count>sizeof(v->columns) || v->cursor>v->count || v->active>1)return false;
   if(v->active && !v->count)return false;

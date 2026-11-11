@@ -25,5 +25,7 @@ void X3CoopRuntimeInputFrame(uint32_t serial);
 const X3CoopState *X3CoopRuntimeState(void);
 void X3CoopRuntimeReset(void);
 void X3CoopRuntimeSave(struct SaveLoadInfo *sli);
+/* Complete co-op snapshot-domain digest, without mutating the machine. */
+uint32_t X3CoopRuntimeDigest(void);
 bool X3CoopRuntimeLoad(struct SaveLoadInfo *sli);
 bool X3CoopRuntimePreflight(const void *data, size_t size);

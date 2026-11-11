@@ -334,6 +334,10 @@ int main(int argc,char **argv) {
       }
       }
     }
+    fixture=getenv("X3_COOP_ROLLBACK_COMBAT_STATE");
+    if(fixture && *fixture)native_rollback_combat_checks(fixture,saved,damaged,cap);
+    fixture=getenv("X3_COOP_DIGEST_STATE");
+    if(fixture && *fixture)native_coop_digest_checks(fixture,saved,damaged,after,cap);
     fixture=getenv("X3_COOP_DIFFICULT_RETURN_STATE");
     if(fixture && *fixture)native_difficult_return_checks(fixture,saved,damaged,after,cap);
     fixture=getenv("X3_COOP_CHECKPOINT_STATE");

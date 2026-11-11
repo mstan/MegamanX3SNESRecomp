@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 84/180; 96 open/partial. Accepted areas: 1/15
+**Accepted touch points: 85/180; 95 open/partial. Accepted areas: 1/15
 (snapshot/rewind/rollback).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -62,7 +62,7 @@ campaign or co-op gameplay acceptance.
 | Menus/resources | M01-M11 accepted (11/12); transition/menu overlap remains open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
-| Netplay | N01/N02/N04/N05/N11/N12 accepted (6/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
+| Netplay | N01/N02/N04-N06/N11/N12 accepted (7/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
 
@@ -2871,3 +2871,54 @@ This uses the existing LAN transport over loopback for the new policy cases;
 it does not replace N02's separate real-PC/SERVER evidence. No additional
 online combat, HUD, scene, rollback-episode or disconnect criterion is claimed.
 Actual84/180 accepted,96open,1/15rollups.
+
+
+### Complete co-op peer confirmation and real delayed combat — N06
+
+N06 is accepted by native-online-simtick(child0), GUI SHA256
+85a7aea3b80940aca4d1a89bbbdc8a98c1244ea2129627139cbe0a4d3ead1aec.
+Both actual processes cold-boot through the native introduction, then receive
+real held/released Y and native combo presses. A loopback UDP proxy applies
+25ms packet delay and one asymmetric300ms hold around the charged release.
+Both actors attain actual charge, allocate native attacks (up to three X and
+two Zero shots in the sampled pools), and remain living. Both peers perform
+one real rollback episode/two resimulated ticks. Personal-codec and all40
+shared-effect record digests match on all17 sampled simulation ticks, including
+ages400/480 after reconciliation; no desync is reported. The final personal
+digest is dec7e60d and shared effects936e6d48. Evidence is
+net-lan/online-combat84-simtick/observations.json plus both process logs.
+
+The validation exposed a missing confirmation domain: the generic engine
+digest provides a title-extra callback, but X3 had not registered it. Native
+WRAM alone omits the stored partner, creator tags and host-side continuations.
+X3 now streams its existing complete RuntimeSave representation into that
+callback, covering actors, ownership, passes, scene/input history, activation,
+views, menu and presentation state. Hashing restores the exact prior actor
+context after the serializer's canonical-body capture, so confirmation itself
+changes no simulation state. This is enabled for every network session.
+
+Native-coop-digest exits0 on state SHA256
+3514126e463eaa3743d39b01733e3252b28b8b77d852ad9e5a5ad71e5d5fb982:
+changing only the stored partner's HP or a valid creator tag changes the
+digest while complete WRAM stays identical. Repeated hashing leaves the full
+machine unchanged; local selected/split choices keep the same digest.
+Native-rollback-combat also exits0 on
+ff218bc6d928564fcc488345421c21dccabdc54dc9d492bdf17366d76a67a69d.
+An actual current-build rollback snapshot restores charged Buffalo combat;
+all32 subsequent WRAM and complete co-op serializer streams match ordinary
+execution, with replay rendering suppressed as in the real rollback driver.
+Only that isolated local comparison supplies protection/boss-HP prerequisites.
+The actual network run uses the native cold boot with no such assistance.
+
+The first network comparison used the live finish-call counter, which differs
+from the simulation tick after rollback. Its host/guest offsets were two/six
+frames, so it compared different states. The diagnostic now samples the actual
+simulation tick; it never masks state differences. The engine's resolved-input
+watermark is not treated as proof of matching hashes. A separate attempted
+local-snapshot startup was correctly refused by the cold-boot guard; that
+guard remains intact. Both failed preparations are retained with the evidence.
+
+Native-session-policy-digest also exits0 on the same85a7aea3 GUI, retaining
+N01's actual full/reversed and stock/normal behavior after the confirmation
+change. These checks do not close the independent online HUD, death/wipe,
+menu, scene or disconnect criteria. Actual85/180 accepted,95open,1/15rollups.

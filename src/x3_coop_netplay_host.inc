@@ -5,6 +5,7 @@
 #include "mod_runtime.h"
 #include "netplay/snes_netplay.h"
 #include "netplay/snes_netplay_rb.h"
+#include "netplay/snes_state_digest.h"
 #include "host_paths.h"
 #include "sha256.h"
 #include "x3_coop_runtime.h"
@@ -105,6 +106,7 @@ static int x3_net_ready(char *reason,size_t cap){
   /* Hardware OBJ quotas affect guest-visible PPU flags. Keep the user's
    * selected setting, but require the same choice before either frame0. */
   x3_net_sim_settings=g_config.no_sprite_limits?1u:0u;
+  snes_state_digest_set_extra(X3CoopRuntimeDigest);
   x3_net_capabilities();return 1;
 }
 static void x3_net_view(void){
@@ -124,6 +126,9 @@ static bool x3_net_qa(void){
   static int enabled=-1;
   if(enabled<0){const char *value=getenv("SNESRECOMP_X3_NET_QA");enabled=value && !strcmp(value,"1");}
   return enabled && snes_netplay_active() && !strcmp(snes_netplay_transport_name(),"lan");
+}
+static bool x3_net_combat_qa(void){
+  static int enabled=-1;if(enabled<0){const char *value=getenv("SNESRECOMP_X3_NET_QA_COMBAT");enabled=value && !strcmp(value,"1");}return enabled!=0;
 }
 static uint16_t x3_net_diagnostic_pad(uint32_t tick,int seat,uint16_t live){
   if(!x3_net_qa())return live;
@@ -145,18 +150,20 @@ static uint16_t x3_net_diagnostic_pad(uint32_t tick,int seat,uint16_t live){
   static uint32_t enrolled;
   if(!enrolled)enrolled=tick;
   uint32_t age=tick-enrolled;
+  if(x3_net_combat_qa())return age>=16 && (age<232 || (age<360 && age%4==0))?0x002:0;
   if(seat==1 && age>=60 && age<110)return 0x040;
   if(seat==0 && age>=140 && age<180)return 0x080;
   return 0;
 }
 static void x3_net_diagnostic_progress(void){
   if(!x3_net_qa())return;
-  uint32_t tick=snes_netplay_frames_finished();
+  uint32_t tick=snes_netplay_sim_tick();
   const X3CoopState *s=X3CoopRuntimeState();
   static uint32_t reported,enrolled;
   if(s->initialized && !enrolled)enrolled=tick;
   int age=enrolled?(int)(tick-enrolled):-1;
-  if(age!=0 && age!=50 && age!=130 && age!=210 && tick%600)return;
+  bool combat_cut=x3_net_combat_qa() && (age==16 || age==200 || age==228 || age==232 || age==233 || age==236 || age==240 || age==260 || age==300 || age==340 || age==360 || age==400 || age==480);
+  if(!combat_cut && age!=0 && age!=50 && age!=130 && age!=210 && tick%600)return;
   if(tick==reported)return;
   reported=tick;
   uint8_t personal[4096];size_t personal_size=X3CoopEncodedSize();uint32_t personal_hash=2166136261u;
@@ -166,6 +173,11 @@ static void x3_net_diagnostic_progress(void){
       X3Display_PresentationSeat(),s->initialized,s->players[0].life,s->players[1].life,
       s->players[0].body[5]+256u*s->players[0].body[6],s->players[1].body[5]+256u*s->players[1].body[6],
       g_ram[0xd1],g_ram[0xd2],g_ram[0xd3],g_ram[0x1fae],s->players[0].character,s->players[1].character,X3CoopRuntimeStockZero(),personal_hash);
+  if(x3_net_combat_qa()){
+    unsigned shots[2]={0,0};for(unsigned seat=0;seat<2;++seat)for(unsigned i=0;i<X3_COOP_SHOT_BYTES;i+=64)shots[seat]+=s->players[seat].shots[i]!=0;
+    uint32_t fx=2166136261u;for(unsigned i=0x1818;i<0x1d18;++i){fx^=g_ram[i];fx*=16777619u;}
+    fprintf(stderr,"[x3-net-combat] tick=%u age=%d charge=%u/%u shots=%u/%u fx=%08x episodes=%u resim=%llu desync=%u confirmed=%u life=%u/%u\n",(unsigned)tick,age,s->players[0].body[0x58],s->players[1].body[0x58],shots[0],shots[1],fx,snes_netplay_rb_episode_count(),(unsigned long long)snes_netplay_rb_resim_ticks(),snes_netplay_rb_desync_count(),snes_netplay_rb_confirmed_through(),s->players[0].life,s->players[1].life);
+  }
 }
 #endif
 #endif
