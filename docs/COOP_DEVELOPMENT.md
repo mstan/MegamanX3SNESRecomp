@@ -2377,3 +2377,38 @@ lifecycle coverage; native X3 Zero does not receive special weapons.
 
 Actual72/180 accepted,108open/partial,1/15rollups. C05 concurrency/cooldown and
 C09 broader lifetime/hurt/movement checks retain their separate open criteria.
+
+### Native boss hit windows and projectile contact ownership — C05/E02
+
+C05 and E02 are accepted on native-boss-native-window, child0, state SHA256
+c21f6587e1d4d9d45f7f76af9ea5fc7c0ece312207f8a88306076e8d7ee95df8. Eight cases
+cover both actual rosters, either first-contact/nearest actor and concurrent
+normal or charged native busters. Actual native input creates both real shot
+pools; collision positioning and target-health127 are prerequisites. The
+competing actor is positioned farther away so the reference actor remains the
+actual nearest AI target. Prior travel/unlocks are supplied by the existing
+earned Buffalo encounter, and difficulty is assisted; this is not G02 coverage.
+
+Two complete original single-actor world frames establish the native first-hit
+response. Paired frames retain the same damage and immunity, with the winner's
+complete projectile/hit-history pool matching the original. Normal hits deal1
+and charged hits2 in every case. Both actors' real attacks are present, rather
+than a fabricated hit flag or substituted pool. Existing C03/C04 native timing/
+contact comparisons cover Zero's saber and acquired X weapons under E02 too.
+
+The original boss uses body37, not generic body30, for its hit window. Native
+03:CA8A installs60 and changes damage row28 to1;02:DF64 decrements37 once per
+world update and restores the original row from1F57 at expiry. The first two
+world frames leave59; every remaining frame retains the same HP, decrements
+the real timer exactly once and eventually restores the original damage row19.
+The full interval takes61frames including initial contact, without a second
+actor bypassing immunity or adding damage. Every complete paired future,
+including both private pools and native boss state, replays byte-for-byte.
+
+Earlier direct-CB74/generic30 probes remain unqualified setup: neither a bare
+damage call nor reading the wrong field establishes native boss immunity. The
+final test uses complete native world frames and the actual authored response.
+No production cooldown, damage or targeting rule was changed for this result.
+Actual74/180 accepted,106open/partial,1/15rollups. C06 armored/part responses,
+E03 consumed hostile projectiles and complete authored boss mechanics remain
+separate open checks.

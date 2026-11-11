@@ -69,6 +69,7 @@ static void native_weapon_withdrawal(const uint8_t *start,size_t sn,unsigned x,u
     if((g_ram[address]&31)==28 || (mode==1 && frames<180))continue;
     size_t n=RtlSaveSnapshotToMemory(work,capacity);cut_size=n;sources=weapon_sources(x,work,n);observed|=sources!=0;
     before=X3CoopRuntimeState()->players[x];other=X3CoopRuntimeState()->players[x^1];reserve=g_ram[address];
+    const char *output=getenv("X3_COOP_WEAPON_PREPARE_GUI");if(output && *output){check(RtlSaveSnapshot(output),"actual native weapon cast exports its current-build GUI fixture");return;}
     if(X3CoopRuntimeWithdraw(x)){retired=true;break;}
   }
   fprintf(stderr,"native weapon withdrawal index%u mode%u seat%u wait%u observed%u live%u counters35/7d/89/aa/b7=%u/%u/%u/%u/%u\n",index,mode,x,frames,observed,sources,before.body[0x35],before.body[0x7d],before.body[0x89],before.body[0xaa],before.body[0xb7]);
@@ -93,6 +94,37 @@ static void native_weapon_withdrawal(const uint8_t *start,size_t sn,unsigned x,u
   check((g_ram[address]&31)<28 && X3CoopRuntimeState()->players[x].life==X3_COOP_ALIVE,"returned actor actually casts the same native weapon again without stale locks");
   fprintf(stderr,"native weapon retirement PASS index%u mode%u seat%u live%u fresh%u\n",index,mode,x,sources,fresh);
 }
+static void native_boss_cooldown_checks(const uint8_t *base,size_t bn,uint8_t *work,uint8_t *after,size_t capacity){
+  uint8_t *cut=malloc(capacity);check(cut!=NULL,"native concurrent boss comparison buffer allocates");
+  for(unsigned mode=0;mode<2;++mode)for(unsigned leader=0;leader<2;++leader){
+    check(RtlLoadSnapshotFromMemory(base,bn),"concurrent boss attacks restore the same real Buffalo encounter");
+    for(unsigned f=0;f<3;++f)frame(SNES_PAD_LEFT*0x1001u);weapon_protect(0,255,work,capacity);
+    unsigned born=mode?227:3;for(unsigned f=0;f<born;++f)frame((mode?combat_buttons(4,0,f):(f==0?SNES_PAD_Y:0))*0x1001u);
+    size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState live=*X3CoopRuntimeState();live.current=live.anchor=(uint8_t)leader;
+    unsigned native_damage_row=g_ram[0xd40],bx=support_position(leader,5)-16;view_word(0xd1d,bx);view_word(0xd3a,bx);
+    uint8_t *distant=live.players[leader^1].body;distant[5]=distant[0x22]=0x38;distant[6]=distant[0x23]=0x18; /*6200: make the original first-contact actor the nearest native AI target. */
+    for(unsigned seat=0;seat<2;++seat){unsigned shots=0;for(unsigned i=0;i<X3_COOP_SHOT_BYTES;i+=64)if(live.players[seat].shots[i]){uint8_t *shot=live.players[seat].shots+i;++shots;shot[5]=(uint8_t)bx;shot[6]=(uint8_t)(bx>>8);shot[8]=g_ram[0xd20];shot[9]=g_ram[0xd21];}
+      check(shots>0,"both participants actually create native projectiles before concurrent boss contact");}
+    /* Save the boss positioning with the actual owned pools in the same full machine. */
+    view_word(0xd1d,bx);view_word(0xd3a,bx);g_ram[0xd3f]=127;g_ram[0xd4f]=0;g_ram[0x1f27]=0;
+    n=RtlSaveSnapshotToMemory(work,capacity);
+    check(X3CoopEncode(&live,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"actual native projectiles receive only collision positioning and contact priority prerequisites");door_install_player(&live);
+    n=RtlSaveSnapshotToMemory(cut,capacity);X3CoopRuntimeEnable(false);for(unsigned f=0;f<2;++f)frame(0);
+    uint8_t native_boss[64],native_shots[X3_COOP_SHOT_BYTES];memcpy(native_boss,g_ram+0xd18,64);memcpy(native_shots,g_ram+X3_COOP_SHOTS,sizeof(native_shots));
+    unsigned damage=127-(g_ram[0xd3f]&127),cooldown=g_ram[0xd4f];fprintf(stderr,"original boss contact mode%u leader%u damage%u cooldown%u HP%u state%u/%u\n",mode,leader,damage,cooldown,g_ram[0xd3f],g_ram[0xd19],g_ram[0xd1a]);check(damage>0 && cooldown>0,"matched original live boss updates accept an attack and earn their real hit cooldown");
+    check(RtlLoadSnapshotFromMemory(cut,n),"simultaneous paired collision restores the identical original prerequisites");for(unsigned f=0;f<2;++f)frame(0);
+    check((g_ram[0xd3f]&127)==(native_boss[0x27]&127) && g_ram[0xd4f]==native_boss[0x37],"two actual attack pools produce the original successful boss damage and cooldown over the same native world frames");
+    RtlSaveSnapshotToMemory(work,capacity);const X3CoopState *state=X3CoopRuntimeState();
+    check(!memcmp(native_shots,state->players[leader].shots,sizeof(native_shots)),"the actual first native attack retains its original full projectile and hit-history pool beside a competing actor");
+    unsigned health=g_ram[0xd3f]&127,clock=g_ram[0x9cc],frames=0;
+    while(g_ram[0xd4f]>0 && frames<240){unsigned previous=g_ram[0xd4f];frame(0);++frames;check((g_ram[0xd3f]&127)==health && g_ram[0xd4f]+1==previous,"actual live boss AI advances its hit cooldown once per world frame without accepting a second actor hit");}
+    check(frames<240 && !g_ram[0xd4f] && g_ram[0xd40]==native_damage_row && (uint8_t)(g_ram[0x9cc]-clock)==frames,"native boss cooldown completion retains one shared world tick per frame");
+    size_t future=RtlSaveSnapshotToMemory(after,capacity);check(RtlLoadSnapshotFromMemory(cut,n),"concurrent boss contact restores for full native replay");for(unsigned f=0;f<frames+2;++f)frame(0);
+    same(after,future,work,RtlSaveSnapshotToMemory(work,capacity),"concurrent native boss damage, cooldown and both owned pools replay the whole machine exactly");
+    fprintf(stderr,"native boss cooldown PASS mode%u leader%u character%u damage%u cooldown%u realFrames%u\n",mode,leader,live.players[leader].character,damage,cooldown,frames+2);
+  }
+  free(cut);
+}
 static void native_acquired_weapon_checks(const char *fixture,uint8_t *base,uint8_t *work,uint8_t *after,size_t capacity){
   enum {FRAMES=420};CombatSample *trace=malloc(FRAMES*sizeof(*trace));uint8_t energy[FRAMES];uint8_t *start=malloc(capacity);check(trace && start,"native acquired-weapon comparison buffers allocate");
   unsigned first=getenv("X3_COOP_WEAPON_FIRST")?(unsigned)atoi(getenv("X3_COOP_WEAPON_FIRST")):1,last=getenv("X3_COOP_WEAPON_LAST")?(unsigned)atoi(getenv("X3_COOP_WEAPON_LAST")):9,modes=getenv("X3_COOP_WEAPON_MODES")?(unsigned)atoi(getenv("X3_COOP_WEAPON_MODES")):3;
@@ -108,6 +140,7 @@ static void native_acquired_weapon_checks(const char *fixture,uint8_t *base,uint
     check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && g_ram[0xd19]==2,"both native actors and the real frozen encounter remain ready");
     n=RtlSaveSnapshotToMemory(base,capacity);frame(SNES_PAD_R<<(x*12));for(unsigned f=0;f<4;++f)frame(0);
     check(X3CoopRuntimeState()->players[x].body[0x33]==0,"native cycling refuses every unearned special weapon");
+    if(getenv("X3_COOP_BOSS_COOLDOWN")){native_boss_cooldown_checks(base,n,work,after,capacity);continue;}
     for(unsigned index=first;index<=last;++index)for(unsigned mode=getenv("X3_COOP_WEAPON_MODE_FIRST")?(unsigned)atoi(getenv("X3_COOP_WEAPON_MODE_FIRST")):0;mode<modes;++mode){
       check(RtlLoadSnapshotFromMemory(base,n),"native weapon case restores the same real arena");unsigned address=0x1fbc+(index-1)*2;g_ram[address]=(uint8_t)(mode==2?0x40:0x5c);
       frame(SNES_PAD_R<<(x*12));for(unsigned f=0;f<4;++f)frame(0);
