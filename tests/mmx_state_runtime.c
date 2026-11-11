@@ -37,6 +37,7 @@ static void view_word(unsigned address,unsigned value);
 #include "x3_coop_intro_test.inc"
 #include "x3_coop_rewind_test.inc"
 #include "x3_coop_combat_test.inc"
+#include "x3_coop_preflight_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -101,6 +102,8 @@ int main(int argc,char **argv) {
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(damaged,expected_size,after,after_size,"native co-op deterministic replay");
     }
+    fixture=getenv("X3_COOP_PREFLIGHT_STATE");
+    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_PREFLIGHT_REVERSED_STATE");check(reversed && *reversed,"transactional current snapshots supply both real rosters");native_transactional_snapshot_checks(fixture,reversed,saved,after,damaged,cap);}
     fixture=getenv("X3_COOP_COMBAT_STATE");
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_COMBAT_REVERSED_STATE");check(reversed && *reversed,"native concurrent combat supplies both actual rosters");native_concurrent_combat_checks(fixture,reversed,saved,after,damaged,cap);}
     fixture=getenv("X3_COOP_REWIND_STATE");

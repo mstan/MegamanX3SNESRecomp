@@ -60,7 +60,7 @@ campaign or co-op gameplay acceptance.
 | Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M11 accepted (11/12); transition/menu overlap remains open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
-| Rollback/state | R01/R04/R06-R08/R10 accepted (6/10); remaining interrupted-state and malformed-input coverage open | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
+| Rollback/state | R01/R04/R06-R10 accepted (7/10); remaining interrupted-state and malformed-input coverage open | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
 | Netplay | N02/N04/N05/N11/N12 accepted (5/12); remaining peer gameplay behavior stays open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
@@ -2150,3 +2150,21 @@ Zero's complete saber chain or nonzero hit-history retention under other weapon
 pressure; C03-C12 remain open. No runtime correction was required.
 
 Actual62/180 accepted,118open/partial,0/15rollups.
+
+
+### Transactional current-build snapshot rejection
+
+R09 is accepted by `native-transactional-state-receipt.json`(child0), state
+SHA256440dee4bb7f212fdc2f69091836454bef8e35a43f86ff5f28ce510948d53eacc.
+Both actual initialized rosters exercise20 concrete malformed fields through
+the real snapshot loader: actor current/anchor/lifecycle/character/maximum HP,
+controller/terrain passes, scene owner/kind/physical history, participation
+profile, view policy/mask/coordinates, spawn count, unknown/orphaned camera
+backup, presentation identity, rider bits and menu header. Four additional
+actor/view/menu truncations are rejected. Every refusal leaves the entire
+413017-byte machine snapshot unchanged. Actual active personal-projection
+codec validation separately accepts supported pass3 and rejects malformed
+pass/profile/orphan combinations. Current-build correctness is covered; no
+old-state conversion or backward compatibility requirement is introduced.
+
+Actual63/180 accepted,117open/partial,0/15rollups.
