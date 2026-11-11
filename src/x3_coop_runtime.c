@@ -357,12 +357,15 @@ static unsigned native_pad(unsigned seat){
   for(unsigned bit=0;bit<12;++bit)if(input&(1u<<bit))native|=0x8000u>>bit;
   return native;
 }
+#include "x3_coop_input.inc"
 static void scene_clear(void){
-  if(scene.phase && scene.kind){
+  if(scene.phase && scene.kind && !g_ram[0x1f63]){
     /* Consume the modal's final edge before returning JOY1 to native play. */
     unsigned held=native_pad(0);putword(g_ram+0xa8,held);putword(g_ram+0xaa,held);putword(g_ram+0xac,0);
-  }
-  uint8_t both=scene.both;memset(&scene,0,sizeof(scene));scene.both=both;
+    scene.raw[0]=scene.raw[1]=(uint16_t)held;
+  }else if(enabled && !g_ram[0x1f63])primary_input_restore();
+  uint8_t both=scene.both;uint16_t raw[2];memcpy(raw,scene.raw,sizeof(raw));
+  memset(&scene,0,sizeof(scene));scene.both=both;memcpy(scene.raw,raw,sizeof(raw));
 }
 static void scene_cancel_transients(unsigned seat){
   X3CoopPlayer *p=&state.players[seat];
@@ -377,7 +380,6 @@ static void scene_begin(unsigned slot,unsigned kind){
   learner_rescue=false;
   X3CoopCapture(&state,g_ram);scene.slot=(uint16_t)slot;scene.owner=state.current;
   scene.stage=g_ram[0x1fae];scene.tick=0;scene.kind=(uint8_t)kind;
-  if(kind)for(unsigned seat=0;seat<2;++seat)scene.raw[seat]=(uint16_t)native_pad(seat);
   unsigned other=scene.owner^1;const X3CoopPlayer *p=&state.players[other];
   bool present=p->life==X3_COOP_ALIVE && (p->body[0x27]&127) && p->body[2]!=12;
   scene.phase=(uint8_t)(present?1:2);if(present)scene_cancel_transients(other);
@@ -636,16 +638,6 @@ static void scene_tick(void){
   if(!scene.phase || stage_pending())return;
   settle_deaths();
   if(state.wipe || scene.stage!=g_ram[0x1fae]){scene_clear();return;}
-  if(scene.kind && scene.kind<SCENE_INTRO_CAPTURE){
-    unsigned owner=state.players[scene.owner].life==X3_COOP_ALIVE?scene.owner:state.anchor;
-    uint16_t held[2]={(uint16_t)native_pad(0),(uint16_t)native_pad(1)};
-    /* Shared text consumes the required character's raw pad, or the
-     * survivor's after retirement. Keep independent raw history through
-     * ownership changes. Native1F63 retains recorded demonstration input. */
-    if(!g_ram[0x1f63]){putword(g_ram+0xa8,held[owner]);putword(g_ram+0xaa,scene.raw[owner]);
-      putword(g_ram+0xac,held[owner]&~scene.raw[owner]);}
-    memcpy(scene.raw,held,sizeof(held));
-  }
   if(state.players[scene.owner].life!=X3_COOP_ALIVE){
     if(scene.kind){
       /* The required X context finishes the existing native capsule task,
@@ -1282,7 +1274,10 @@ static void boundary(CpuState *cpu,uint32_t pc) {
   }
 }
 #include "x3_coop_menu_runtime.inc"
-void X3CoopRuntimeEnable(bool value) {enabled=value;}
+void X3CoopRuntimeEnable(bool value) {
+  if(enabled && !value && !g_ram[0x1f63])primary_input_restore();
+  enabled=value;
+}
 bool X3CoopRuntimeEnabled(void) {return enabled;}
 const X3CoopState *X3CoopRuntimeState(void) {return &state;}
 void X3CoopRuntimeReset(void) {
@@ -1314,7 +1309,9 @@ void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
   X3CoopViewsSetRom(g_snes->cart->rom,g_snes->cart->romImageSize);
   static const uint32_t intro_pcs[]={0x03ac57,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03aed9};
-  if(!interp_bridge_add_pre_opcode_hook(0x00e49e,intro_input_boundary))enabled=false;
+  if(!interp_bridge_add_pre_opcode_hook(0x00e49e,modal_input_boundary) ||
+     !interp_bridge_add_pre_opcode_hook(0x7e25ef,native_input_boundary) ||
+     !interp_bridge_add_pre_opcode_hook(0x7e2621,native_input_boundary))enabled=false;
   for(unsigned i=0;i<sizeof(intro_pcs)/sizeof(*intro_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(intro_pcs[i],intro_boundary))enabled=false;
   if(!interp_bridge_add_pre_opcode_hook(0x048008,boundary) ||
@@ -1470,7 +1467,7 @@ static bool scene_decode(NativeScene *out,const uint8_t bytes[16],const X3CoopSt
   if(memcmp(bytes,"X3S2",4) || bytes[6]>1 || bytes[7]>3 || bytes[8]>7 || bytes[9]>14 || bytes[10]>1 || bytes[11]>SCENE_INTRO_RETIRED_X)return false;
   NativeScene next={(uint16_t)word(bytes+4),bytes[6],bytes[7],bytes[8],bytes[9],bytes[10],bytes[11],
       {(uint16_t)word(bytes+12),(uint16_t)word(bytes+14)}};
-  if(((next.raw[0]|next.raw[1])&15) || (!next.kind && (next.raw[0] || next.raw[1])))return false;
+  if((next.raw[0]|next.raw[1])&15)return false;
   bool stage=next.kind==SCENE_STAGE_ENTRY;
   bool zero_return=next.kind==SCENE_INTRO_RETURN && s->players[next.owner].character==X3_COOP_ZERO &&
       s->players[next.owner^1].life!=X3_COOP_ALIVE;
@@ -1480,7 +1477,7 @@ static bool scene_decode(NativeScene *out,const uint8_t bytes[16],const X3CoopSt
   if(next.kind>=SCENE_INTRO_CAPTURE && (next.stage ||
       ((next.kind==SCENE_INTRO_ZERO || next.kind>=SCENE_INTRO_ZERO_CONSTRUCT) && next.phase!=2) ||
       (next.kind==SCENE_INTRO_CAPTURE && next.phase>2)))return false;
-  if(stage && (next.phase!=2 || next.tick || next.raw[0] || next.raw[1] ||
+  if(stage && (next.phase!=2 || next.tick ||
       s->wipe || next.owner!=s->anchor || s->current!=s->anchor))return false;
   bool slot=stage?!next.slot:cinematic && next.slot==0x0cc8?true:
       next.kind?enemy_actor(next.slot) && !hostile_projectile(next.slot):item_actor(next.slot);

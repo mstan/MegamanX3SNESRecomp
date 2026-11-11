@@ -49,19 +49,19 @@ campaign or co-op gameplay acceptance.
 
 | Area | Status | Acceptance |
 | --- | --- | --- |
-| Individual death | D01-D04 accepted (4/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
-| Team wipe | Zero-then-X stage-1 route passes; other cases open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
-| Fallen persistence | Native stage-entry, withdrawal/return and learner checks pass narrowly; campaign and reconnect remain open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
+| Individual death | D01-D05/D07/D09/D16 accepted (8/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
+| Team wipe | T01-T04/T09/T10 accepted (6/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
+| Fallen persistence | F02-F07/F09 accepted (7/10); checkpoints, difficult placement and reconnect/options remain open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | Native union admission/retention passes focused remote-region cases; campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | Shared rider contracts and stage5 class26 case pass; broader families open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | Native contact and class08 targeting probes pass; broader AI/captures open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | Partner native buster update/damage probes pass; other attacks open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | Stage1 entrance/transport and stage5/stage8 capsule tasks pass focused both-roster/API-retirement checks; visuals, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
-| Menus/resources | Paired navigation, native timed healing, ownership, resume and Escape pass focused checks; full campaign and online qualification open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
+| Menus/resources | M01-M10 accepted (10/12); shared modals and transition/menu overlap remain open | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | Component and stock-runtime checks | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
-| Netplay | Windows two-process startup and portable agreement pass; controller-driven progression and other network behavior remain open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
+| Netplay | N02/N04/N11 accepted (3/12); remaining peer behavior and explicit capability evidence remain open | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
 | Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
 | Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
 
@@ -1682,3 +1682,142 @@ stock-unavailable policy and campaign exits keep their own open criteria.
 All4 CTests pass. Total24/180 accepted: D01–D05/D09/D16, E11, F09, G01,
 M01–M08, S01/S02, R01/R06, N02/N04. Remaining156open/partial,0/15rollups.
 No release/delivery replacement or remote action was performed.
+
+
+### Team retries, stock loss and public participation
+
+T01–T04, T09/T10 and R04 are accepted on runtime6df79ba, with tests prepared
+from the actual normal/reversed stage5 ground fixtures. native-team-current-
+result.log(child0), stateffcd1c2cad29ce5b3618ed2b5a7c7b15b1150f78ce40811f48fb0156cd82b3e1,
+passes simultaneous and both character-ordered deaths in both rosters. The
+simultaneous actors fall on the same frame22. Ordered deaths occur at22/45.
+The original retry completes at598/622/621 loop ticks, respectively, with one
+shared life debit2→1, the requested roster, full personal16/28HP and actual
+post-retry control. A snapshot immediately before the final fatal contact
+replays death, full wipe, debit and retry to the same complete machine.
+
+native-team-extra-result.log(child0), stateb6484dccaa4c567012154c5529c7fadec719abf86f7a687885dd5a09975607c3,
+passes all6 additional cases. Stock Zero actually falls on spikes before X;
+retry preserves native permanent-loss bit40, leaves Zero unavailable and
+refuses his return while X moves normally. A real95-frame Select withdrawal
+followed by the last living X's death reaches a default full-team retry. With
+Zero already fallen, X's actual native pit call occurs exactly once and reaches
+retry; the authored hole and original lower-room camera are retained. Each
+case debits2→1 once, passes complete-machine replay and advances the world
+exactly24 ticks during24 post-retry movement frames. These cases do not claim
+boss-lock, door-wipe, game-over or every stale transient requirement.
+
+F05/F06/F07 are accepted by native-return-selection-result.log(child0), state
+6b424b49ef13da7ac9b088dea6fe219b89904ae1cc03e42ec4bf41cd5da092c5.
+Both roster preconditions and both participants retain personal11/19HP through
+safe withdrawal/return and actual30-frame movement. X uses real native R input
+to select the acquired Toxic Seahorse weapon before withdrawal; selection2 and
+its unspent5C energy remain afterward. Native Zero retains selection0. Actual
+Select holds withdraw/return with the proper release latch; simultaneous holds
+leave one living participant. API and real Select return cannot revive a fallen
+actor. Refused airborne placement is transactional; same-side corridor landing,
+private-view reset/replay and original acquired armor reconstruction also pass.
+The retired preconditions use the lifecycle API and do not claim new authored
+hazard coverage. F08's other placement hazards remain open.
+
+S03 is accepted by native-stock-current-result.log(child0), same6b424b49 state.
+Stock availability agrees with the executed original menu predicate in both
+rosters across15 native stage IDs and6 relevant restrictions. Real Select
+honors one call per stage; actual native stage loading resets that call without
+enrolling Zero automatically. Real enemy contact earns permanent Zero loss,
+which survives the next native stage. Authored Both-policy gates and their
+original committed walk/introduction do not wait for dead/absent/stock-unavailable
+Zero. Default unrestricted scenes remain unrestricted after stock probes.
+
+F02 is accepted by the existing current native-contact-state-current gate
+matrix(statee88af430, child0): either participant is API-retired during original
+admission or the following miniboss introduction, then the actual survivor
+finishes the committed room walk beyond2552 with camera2560 and native phase4/4.
+The retired actor stays fallen/absent, personal survivor HP stays intact and all
+locks release. This is real room-transfer persistence with an explicit retired
+precondition; authored fatal contact during a door remains a separate open check.
+
+D08 remains open. The ceiling preparation ended in a pit, and the wall contact
+produced a fallen actor without establishing the required controller-pass
+observation. Those experiments are unqualified and their pending test code was
+removed. Native vehicle/pilot fatal paths are a concrete remaining candidate;
+ordinary post-controller spike evidence must not be relabeled as D08.
+
+Total36/180 accepted: D01–D05/D09/D16; T01–T04/T09/T10; E11; F02/F05–F07/F09;
+G01; M01–M08; S01–S03; R01/R04/R06; N02/N04. Remaining144open/partial,
+0/15rollups. New Buffalo survivor/target/reward/next-stage coverage is prepared
+but has no accepted result yet. Production source remains unchanged.
+
+
+### Native physical input and survivor reward ownership
+
+The shared native input alias now follows the living scene owner or survivor
+through frozen reward/password screens. Original08:85DC is copied to WRAM
+7E:25DC and polls both physical ports. The adapter retains physical P1 current/
+previous input in the existing serialized cache before lending native JOY1 to
+P2; native JOY2 already retains its own history. Scripted recorded input remains
+original. Inactive and pending-arrival snapshots retain valid physical history;
+invalid low controller bits still reject before mutation. No new generated
+route or wire bytes are needed. Disabling co-op restores physical P1 input.
+
+D07, F03 and F04 are accepted on state
+038210f65716aa303c900059bc93154f5f5e8fd5556e2770964677aaee4039a9:
+native-modal-input-campaign-result.log(child0). Both roster preconditions use
+the actual earned-intro stage2 Buffalo encounter. Real boss contact kills Zero
+after23frames; nine original boss updates observe living X, whose real buster
+finishes the original boss after6 attack frames. Target HP1 assistance survives
+idle frames before firing. Original reward1FC8 becomesDC and the actual stage1
+return completes in2553frames with Zero still fallen. Position/personal health
+and target-health assistance bypass difficulty, without supplying death, clear,
+reward or exit results. Earlier real Hornet X-death/Zero-survivor reward and
+next-stage evidence supplies the opposite survivor; a current-build Buffalo
+Zero-survivor extension and last-survivor boss retry remain prepared, unrun.
+G02's full authored mechanics and T05 are still open.
+
+The previous6f984273 state passes X/P1 but stalls X/P2 at native phase4/10
+after6000frames. Exact GUI
+bed93772e37d945f2a87459bc5ceb3a53e0ab3271af4a86c7743330eb386a9cc
+passes native-password-owner-final-server-result.log(child0) on that actual
+stalled state. Fallen P1's B is ignored; its physical8000 history survives an
+inactive-scene snapshot and actual load. Living P2 B reaches stage1/rewardDC;
+30 Right frames move native blue X384to423 while Zero stays fallen. The TCP
+capture native-password-owner-final-moving.bmp was inspected. The first GUI
+attempt failed the driver's startup counter assumption when loading a state;
+the corrected driver treats the initial restored counter as a load boundary.
+
+native-modal-input-regression-result.log and native-modal-input-intro-server-
+result.log both exit0 on the same038210 state. They retain full paired menus,
+shared healing, stock rules, public return, all12 team-retry cases, native
+contacts/pickups, stage1 gates, independent movement, native support and stage5
+capsules. All12 pending-stage cases also save/load actual nonzero physical P1
+input and reject malformed histories transactionally. Intro capture, unavailable
+participants, sole Zero approaches, all6 restraint rescues, helper death and
+complete-machine replay pass. All4 CTests pass; the66 generated routes remain
+unchanged. The separate native-modal-input-arms-server-result.log also exits0 on that
+same state: both rosters preserve the exact411-frame native arm demonstration
+and all12 opening/award participant-retirement cases.
+
+M09 and M10 are accepted by that combined current result: actual native heart
+class0B and subtank05 allocation, original eligibility and timers run in both
+rosters. Simultaneous contact grants one original X-eligible award, with one
+shared tank or two additional X health points; native Zero retains28HP. Both
+actors stay parked under competing movement/jump input, native cleanup releases
+every freeze, and pending acquisition replays the entire machine. Explicit
+API-retirement subcases preserve earned awards and personal resources; those
+subcases do not claim an authored death. Native capsule4D simultaneous-contact
+checks retain one original X upgrade task and exact recorded demonstration.
+Other capsule variants remain part of S08/S09's open authored coverage.
+
+N11 is accepted on that exactbed93772 GUI by
+native-modal-input-compat-server-result.log(child0). Two actual peer processes
+with identical bytes start portable profile0 and reach207/202frames; changing
+one executable's bytes rejects both at0frames. Matching sprite-limit settings
+reach198frames; differing simulation settings reject both at0frames without a
+build mismatch. Forbidden diagnostic execution/floor/prototype overrides and
+delay mode all refuse before frame0. The capability policy source has remained
+unchanged since1cbcb6f; N12 remains open for explicit capability qualification.
+
+Total42/180 accepted: D01-D05/D07/D09/D16; T01-T04/T09/T10; E11;
+F02-F07/F09; G01; M01-M10; S01-S03; R01/R04/R06; N02/N04/N11.
+Remaining138open/partial,0/15rollups. No release/delivery replacement or remote
+action was performed.

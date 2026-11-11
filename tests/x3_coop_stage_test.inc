@@ -46,11 +46,18 @@ static void native_stage_checks(uint8_t *original,size_t size,uint8_t *work,uint
     check(RtlLoadSnapshotFromMemory(pending,middle),"pending native arrival snapshot restores");
     size_t restored=RtlSaveSnapshotToMemory(work,capacity);
     same(pending,middle,work,restored,"pending native arrival immediate restore");
+    frame(SNES_PAD_RIGHT|(SNES_PAD_B<<12));
+    size_t with_input=RtlSaveSnapshotToMemory(expected,capacity),input_scene=door_scene_chunk(expected,with_input);
+    check(expected[input_scene+11]==3 && (expected[input_scene+12] || expected[input_scene+13]) &&
+        RtlLoadSnapshotFromMemory(expected,with_input),"pending arrival accepts actual native physical-pad history");
+    restored=RtlSaveSnapshotToMemory(work,capacity);
+    same(expected,with_input,work,restored,"pending arrival restores actual physical-pad history exactly");
+    check(RtlLoadSnapshotFromMemory(pending,middle),"pending arrival resumes its original no-input prerequisite");
     size_t scene_at=door_scene_chunk(pending,middle);
     const unsigned fields[]={4,6,7,8,9,11,12,14};
     for(unsigned k=0;k<sizeof(fields)/sizeof(*fields);++k){
       memcpy(work,pending,middle);
-      unsigned f=fields[k];work[scene_at+f]=(uint8_t)(f==6?owner^1:f==7?1:f==9?15:f==11?2:f>=12?16:1);
+      unsigned f=fields[k];work[scene_at+f]=(uint8_t)(f==6?owner^1:f==7?1:f==9?15:f==11?2:1);
       check(!RtlLoadSnapshotFromMemory(work,middle),"malformed pending stage scene is refused");
       restored=RtlSaveSnapshotToMemory(expected,capacity);
       same(pending,middle,expected,restored,"refused pending scene leaves complete machine unchanged");

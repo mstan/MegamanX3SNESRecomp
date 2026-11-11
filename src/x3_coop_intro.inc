@@ -9,20 +9,6 @@ static bool intro_capture_actor(unsigned d){
 static bool intro_constructing(void){
   return scene.phase && (scene.kind==SCENE_INTRO_ZERO_CONSTRUCT || scene.kind==SCENE_INTRO_X_CONSTRUCT);
 }
-static void intro_input_boundary(CpuState *cpu,uint32_t pc){
-  (void)cpu;(void)pc;
-  if(!enabled || !state.initialized || !scene.phase || scene.kind<SCENE_INTRO_CAPTURE)return;
-  uint16_t held[2]={(uint16_t)native_pad(0),(uint16_t)native_pad(1)};
-  unsigned owner=state.players[scene.owner].life==X3_COOP_ALIVE?scene.owner:state.anchor;
-  /* Sample at the original native pad mapper, even while the world task is
-   * frozen. Keep both real host pads intact and maintain each seat's history
-   * across character/script ownership changes. */
-  if(!g_ram[0x1f63]){
-    putword(g_ram+0xa8,held[owner]);putword(g_ram+0xaa,scene.raw[owner]);
-    putword(g_ram+0xac,held[owner]&~scene.raw[owner]);
-  }
-  memcpy(scene.raw,held,sizeof(held));
-}
 static void intro_capture_begin(unsigned d){
   if(scene.phase || !intro_capture_actor(d) || g_ram[X3_COOP_BODY+2]!=0x66 ||
       state.players[state.current].character!=X3_COOP_X ||
