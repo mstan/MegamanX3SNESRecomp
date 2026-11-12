@@ -345,7 +345,9 @@ static bool fall_player(unsigned seat) {
   if(seat==state.anchor && state.players[seat^1].life==X3_COOP_ALIVE)
     X3CoopViewsAdoptPlayer(g_ram,&state,seat^1,view_scene());
   bool fallen=X3CoopFall(&state,seat);
-  if(fallen){learner_rescue=false;retire_shared_effects(seat);retire_vehicle_missiles(seat);}
+  if(fallen){learner_rescue=false;retire_shared_effects(seat);retire_vehicle_missiles(seat);
+    for(unsigned i=0;i<SHARED_SUPPORTS;++i)riders[i]&=(uint8_t)~(1u<<seat);
+  }
   if(fallen && (state.wipe || state.players[seat].character==X3_COOP_ZERO))stock_exit_pending=false;
   /* Original04:933C selects the Zero-loss branch;00:9D11 commits this
    * campaign flag after its fade. Co-op has no individual world fade. */
@@ -969,10 +971,12 @@ static void solid_boundary(CpuState *cpu,uint32_t pc) {
   if(!X3CoopRuntimeReady())return;
   unsigned at=pc&65535,d=cpu->D;
   int slot=support_slot(d);if(slot<0)return;
-  if((pc&0x7fffff)==0x00dd1a || (pc&0x7fffff)==0x00dafa) {
-    /* The native initializer owns slot reuse. A new actor cannot inherit
-     * a previous platform's classified rider bits, even with the same class. */
-    if(!g_ram[d] || !g_ram[d+1])riders[slot]=0;
+  bool initializing=(pc&0x7fffff)==0x00dd1a || (pc&0x7fffff)==0x00dafa;
+  if(initializing || (pc&0x7fffff)==0x00dccf || (pc&0x7fffff)==0x00dcf3 ||
+      (pc&0x7fffff)==0x00dc68 || (pc&0x7fffff)==0x00dc8c) {
+    /* Native initialization and completed updates own slot reuse/retirement.
+     * Retired slots skip the next initializer; release their history now. */
+    if(!g_ram[d] || (initializing && !g_ram[d+1]))riders[slot]=0;
     return;
   }
   NativePass *p=&solid.native;
@@ -1623,7 +1627,7 @@ void X3CoopRuntimeFrame(void) {
   for(unsigned i=0;i<sizeof(pickup_characters)/sizeof(*pickup_characters);++i)
     if(!interp_bridge_add_pre_opcode_hook(pickup_characters[i],shared_pickup_character))enabled=false;
   static const uint32_t solid_pcs[]={0x04bfae,0x04bfce,0x04c021,0x04c07e,
-      0x04c07f,0x04c09d,0x00dd1a,0x00dafa};
+      0x04c07f,0x04c09d,0x00dd1a,0x00dafa,0x00dccf,0x00dcf3,0x00dc68,0x00dc8c};
   for(unsigned i=0;i<sizeof(solid_pcs)/sizeof(*solid_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(solid_pcs[i],solid_boundary))enabled=false;
   static const uint32_t view_pcs[]={0x00da38,0x00de43,0x00dec3,0x00decf,

@@ -1,3 +1,4 @@
+#include "../src/x3_coop_present.h"
 /* Isolated real-cartridge solid/carry contracts. The geometry record below
  * deliberately supplies no authored platform AI or spawn coverage. */
 static unsigned support_position(unsigned seat,unsigned axis) {
@@ -249,4 +250,92 @@ static void native_separate_authored_support_checks(const char *normal,const cha
     check(RtlLoadSnapshotFromMemory(base,active),"actual two-rider moving support snapshot restores");same(base,active,replay,RtlSaveSnapshotToMemory(replay,capacity),"restored authored support riders, native children, views and the complete machine match immediately");
     for(unsigned f=0;f<24;++f)frame(input);same(work,result,replay,RtlSaveSnapshotToMemory(replay,capacity),"active authored support restore replays both departures and ownership histories exactly");
   }
+}
+
+/* Actual jungle records3C:EC96/EC9E create class1F solid enemies. Position
+ * prerequisites bypass travel; native allocation, landing and weapons decide. */
+/* Compare the actual surviving private view against voluntary absence at the
+ * identical live-contact cut. Only corpse/death presentation may differ. */
+static void native_jungle_survivor_visual(const uint8_t *cut,size_t n,unsigned victim,unsigned x,unsigned foe,uint8_t *work,size_t capacity){
+  enum {samples=8,body_bytes=64*80*4,world_bytes=48*80*4};const unsigned phases[samples]={0,7,15,31,63,95,127,179};unsigned survivor=victim^1;
+  size_t now=RtlSaveSnapshotToMemory(work,capacity);uint8_t *saved=malloc(now),*reference=malloc(samples*(body_bytes+world_bytes));check(saved && reference,"survivor private-view reference allocates");memcpy(saved,work,now);unsigned coordinates[samples][4];
+  for(unsigned death=0;death<2;++death){
+    check(RtlLoadSnapshotFromMemory(cut,n),"corpse comparison restores the identical real hostile contact and earned support");if(!death)check(X3CoopRuntimeWithdraw(victim),"living withdrawal establishes the same survivor without a corpse");
+    unsigned sample=0;for(unsigned f=0;f<180;++f){frame(0);
+      /* Fatal contact is already earned. Move only the living hostile away
+       * in both branches so later targeting cannot obscure the color check. */
+      if(!f){view_word(foe+5,4096);view_word(foe+0x22,4096);view_word(foe+8,4096);view_word(foe+0x24,4096);}
+      if(sample>=samples || f!=phases[sample])continue;
+      check(X3CoopRuntimeState()->players[victim].life==(death?X3_COOP_FALLEN:X3_COOP_ABSENT) && X3CoopRuntimeState()->players[survivor].life==X3_COOP_ALIVE,"actual corpse/absence comparison retains its intended survivor");
+      X3Display_SetPresentationSeat((int)survivor);uint64_t clock=g_cpu.master_cycles;memcpy(work,g_ram,0x20000);CaptureSimulationFrame(1);check(X3Display_RenderedPrivateFrame() && g_ppu->renderPitch>=256*4 && clock==g_cpu.master_cycles && !memcmp(work,g_ram,0x20000),"actual survivor pixel capture uses the private compositor without changing guest RAM or time");
+      const X3CoopPresentedFrame *v=X3CoopPresentationVisible();unsigned position[4]={support_position(survivor,5),support_position(survivor,8),v->views[survivor][0],v->views[survivor][1]};int cx=(int)position[0]-(int)position[2],cy=(int)position[1]-(int)position[3];if(cx<32)cx=32;if(cx>224)cx=224;if(cy<48)cy=48;if(cy>192)cy=192;
+      uint8_t pixels[body_bytes+world_bytes];const uint8_t *screen=(const uint8_t *)g_ppu->renderBuffer;for(unsigned row=0;row<80;++row){memcpy(pixels+row*64*4,screen+(cy-48+row)*g_ppu->renderPitch+(cx-32)*4,64*4);memcpy(pixels+body_bytes+row*48*4,screen+row*g_ppu->renderPitch+(survivor==x?0:208)*4,48*4);}
+      if(!death){memcpy(reference+sample*sizeof(pixels),pixels,sizeof(pixels));memcpy(coordinates[sample],position,sizeof(position));}
+      else{check(!memcmp(coordinates[sample],position,sizeof(position)),"corpse and absence references retain the same actual survivor body and private camera");check(!memcmp(reference+sample*sizeof(pixels),pixels,sizeof(pixels)),"actual corpse cannot change the survivor body colors, HUD or remote background pixels at any sampled native death phase");}
+      const char *output=getenv("X3_COOP_JUNGLE_VISUAL_OUTPUT");if(output && *output){char file[1024];snprintf(file,sizeof(file),"%s-x%u-victim%u-%s-%u.ppm",output,x,victim,death?"corpse":"absent",f);WritePpm(file,g_ppu->renderBuffer,g_ppu->renderPitch,256,224,0,false);}
+      X3Display_SetPresentationSeat(-1);++sample;
+    }
+    check(sample==samples,"survivor colors cover the actual initial, intermediate and completed native death phases");
+  }
+  check(RtlLoadSnapshotFromMemory(saved,now),"pixel comparison returns to the actual fatal-contact outcome for the remaining native checks");free(saved);free(reference);fprintf(stderr,"native jungle CORPSE VISUAL roster%u victim%u samples%u exact private body/background matches\n",x,victim,samples);
+}
+static void native_jungle_rider_lifecycle(unsigned x,const unsigned slot[2],uint8_t *base,uint8_t *work,size_t capacity){
+  size_t cut=RtlSaveSnapshotToMemory(base,capacity);uint8_t *start=malloc(cut);check(start!=NULL,"actual jungle riders cut allocates");memcpy(start,base,cut);
+  for(unsigned seat=0;seat<2;++seat){
+    check(RtlLoadSnapshotFromMemory(start,cut),"each actual support withdrawal starts with both earned rider histories");unsigned own=seat==x?0:1,other=own^1;uint8_t source[64];memcpy(source,g_ram+slot[other],64);unsigned hp=contact_hp(seat^1);
+    check(X3CoopRuntimeWithdraw(seat),"the actual jungle rider can withdraw through the public lifecycle API");size_t n=RtlSaveSnapshotToMemory(work,capacity),at=n-X3_COOP_MENU_STATE_BYTES-31;
+    check(!(work[at+(slot[own]-0xd18)/64]&(1u<<seat)) && (work[at+(slot[other]-0xd18)/64]&3)==(1u<<(seat^1)) && !memcmp(source,g_ram+slot[other],64) && contact_hp(seat^1)==hp,"rider withdrawal clears only that rider while retaining the other real support, contact and health");
+  }
+  check(RtlLoadSnapshotFromMemory(start,cut),"real fatal support contact restores the two actual riders");
+  X3CoopViewState views=*X3CoopViewsState();X3CoopViewsConfigure(false);CpuState caller=g_cpu;view_word(0,2368);view_word(2,608);view_word(4,320);g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P&=(uint8_t)~0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);check(interp_bridge_run(&g_cpu,0x00ded3) && g_cpu.S==caller.S,"authored jungle3C:ED92 enemy08 allocates from its real column");X3CoopViewsSetState(&views);
+  g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P|=0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);check(interp_bridge_run(&g_cpu,0x00dcc0) && g_cpu.S==caller.S,"actual jungle hostile initializes through native DB06 constructors");uint64_t master=g_cpu.master_cycles;uint32_t cycles=g_cpu.cycles;g_cpu=caller;g_cpu.master_cycles=master;g_cpu.cycles=cycles;X3CoopViewsSetState(&views);
+  unsigned foe=0;for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==8 && view_read(d+5)==2376)foe=d;check(foe && g_ram[foe+0x26] && g_ram[foe+0x26]<128,"the authored jungle foe has native nonzero contact damage");
+  size_t admitted=RtlSaveSnapshotToMemory(base,capacity);uint8_t *live=malloc(admitted);check(live!=NULL,"actual hostile and rider cut allocates");memcpy(live,base,admitted);
+  for(unsigned victim=0;victim<2;++victim){
+    check(RtlLoadSnapshotFromMemory(live,admitted),"either fatal rider restores the same real hostile and native supports");X3CoopState low=*X3CoopRuntimeState();low.players[victim].body[0x27]=1;low.players[victim].body[0x88]=low.players[victim].body[0x8a]=0;
+    memcpy(base,live,admitted);check(X3CoopEncode(&low,base+contact_context_offset(base,admitted),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,admitted),"fatal rider prerequisite supplies only low HP and expired protection");door_install_player(&low);view_word(foe+5,support_position(victim,5));view_word(foe+0x22,support_position(victim,5));view_word(foe+8,support_position(victim,8));view_word(foe+0x24,support_position(victim,8));size_t n=RtlSaveSnapshotToMemory(base,capacity);unsigned frames=0,own=victim==x?0:1,other=own^1,hp=contact_hp(victim^1);
+    for(;frames<60 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE;++frames)frame(0);
+    size_t done=RtlSaveSnapshotToMemory(work,capacity),at=done-X3_COOP_MENU_STATE_BYTES-31;fprintf(stderr,"native jungle FATAL roster%u seat%u frames%u bits%02x/%02x life%u/%u sourceHP%u/%u\n",x,victim,frames,work[at+(slot[0]-0xd18)/64],work[at+(slot[1]-0xd18)/64],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,g_ram[slot[0]+0x27],g_ram[slot[1]+0x27]);
+    check(frames<60 && X3CoopRuntimeState()->players[victim].life==X3_COOP_FALLEN && X3CoopRuntimeState()->players[victim^1].life==X3_COOP_ALIVE && !(work[at+(slot[own]-0xd18)/64]&(1u<<victim)) && (work[at+(slot[other]-0xd18)/64]&3)==(1u<<(victim^1)) && contact_hp(victim^1)==hp,"actual fatal contact clears only the dead support rider and preserves the living rider's earned contact");
+    uint8_t *future=malloc(done);check(future!=NULL,"actual fatal rider future allocates");memcpy(future,work,done);check(RtlLoadSnapshotFromMemory(base,n),"actual pre-fatal rider and hostile contact restore");for(unsigned j=0;j<frames;++j)frame(0);same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"authored fatal contact and rider ownership replay the complete machine");free(future);
+    if(getenv("X3_COOP_JUNGLE_CORPSE_VISUAL"))native_jungle_survivor_visual(base,n,victim,x,foe,work,capacity);
+    unsigned before=support_position(victim^1,5),clock=g_ram[0x9cc];for(unsigned j=0;j<96;++j){frame(0);check((g_ppu->inidisp&0x8f)==15,"rider death leaves the surviving support view bright throughout cleanup");}
+    check((uint8_t)(g_ram[0x9cc]-clock)==96 && support_position(victim^1,5)!=before && g_ram[slot[other]] && (g_ram[slot[other]+0x2c]&1) && contact_hp(victim^1)==hp,"the surviving native support actually carries its living rider after the other rider's death");
+  }
+  free(live);check(RtlLoadSnapshotFromMemory(start,cut),"actual support destruction restores both living riders after lifecycle branches");free(start);
+}
+static void native_destructible_support_checks(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==8,"destructible support restores the current authored jungle stage");bool paired=getenv("X3_COOP_JUNGLE_ORIGINAL")==NULL,visual=getenv("X3_COOP_JUNGLE_CORPSE_VISUAL")!=NULL;unsigned second=visual?880:760;size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
+  if(getenv("X3_COOP_JUNGLE_REVERSED")){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
+  unsigned x=setup.players[0].character==X3_COOP_X?0:1;setup.current=setup.anchor=(uint8_t)x;
+  for(unsigned seat=0;seat<2;++seat){unsigned px=seat==x?640:second,py=seat==x?800:760;uint8_t *b=setup.players[seat].body;b[5]=b[0x22]=(uint8_t)px;b[6]=b[0x23]=(uint8_t)(px>>8);b[8]=b[0x24]=(uint8_t)py;b[9]=b[0x25]=(uint8_t)(py>>8);b[2]=b[3]=b[4]=b[7]=0;memset(b+0x1a,0,6);b[0x88]=255;b[0x8a]=0;}
+  check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"actual jungle support approach supplies only living body positions and protection");door_install_player(&setup);X3CoopRuntimeEnable(paired);
+  X3CoopViewsConfigure(paired);X3CoopViewState views=*X3CoopViewsState();views.independent=(uint8_t)paired;views.initialized=1;views.stage=8;views.valid=views.camera_valid=3;
+  for(unsigned seat=0;seat<2;++seat){views.camera[seat][0]=(uint16_t)(seat==x?512:second-128);views.camera[seat][1]=640;views.limits[seat][0]=views.current[seat][0]=0;views.limits[seat][1]=views.current[seat][1]=8192;views.limits[seat][2]=views.current[seat][2]=512;views.limits[seat][3]=views.current[seat][3]=768;}X3CoopViewsSetState(&views);
+  view_word(0x1e5d,views.camera[x][0]);view_word(0x1e7a,views.camera[x][0]);view_word(0x1e60,640);view_word(0x1e7c,640);view_word(0x1e66,0);view_word(0x1e68,8192);view_word(0x1e6a,512);view_word(0x1e6c,768);view_word(0x1e6e,0);view_word(0x1e70,8192);view_word(0x1e78,512);view_word(0x1e7e,768);
+  CpuState caller=g_cpu;for(unsigned col=640;col<=880;col+=240){view_word(0,col&~31u);view_word(2,608);view_word(4,320);g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P&=(uint8_t)~0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);check(interp_bridge_run(&g_cpu,0x00ded3) && g_cpu.S==caller.S,"native jungle support column allocates with its actual DB06");}
+  g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P|=0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);check(interp_bridge_run(&g_cpu,0x00dcc0) && g_cpu.S==caller.S,"native constructors initialize both authored solid enemies");uint64_t master=g_cpu.master_cycles;uint32_t cycles=g_cpu.cycles;g_cpu=caller;g_cpu.master_cycles=master;g_cpu.cycles=cycles;
+  unsigned slot[2]={0,0};for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==0x1f){if(view_read(d+5)==640)slot[0]=d;if(view_read(d+5)==880)slot[1]=d;}
+  check(slot[0] && slot[1] && slot[0]!=slot[1],"actual two jungle records initialize distinct destructible supports");
+  /* Keep the shot target inside X's original projectile retirement range. */
+  view_word(slot[1]+5,second);view_word(slot[1]+0x22,second);
+  for(unsigned f=0;f<30;++f)frame(0);
+  n=RtlSaveSnapshotToMemory(base,capacity);size_t riders_at=n-X3_COOP_MENU_STATE_BYTES-31;
+  fprintf(stderr,"native jungle RIDERS X%u,%u Zero%u,%u bits%02x/%02x sourceY%u/%u HP%u/%u\n",support_position(x,5),support_position(x,8),support_position(x^1,5),support_position(x^1,8),base[riders_at+(slot[0]-0xd18)/64],base[riders_at+(slot[1]-0xd18)/64],view_read(slot[0]+8),view_read(slot[1]+8),g_ram[slot[0]+0x27],g_ram[slot[1]+0x27]);
+  if(paired)check((base[riders_at+(slot[0]-0xd18)/64]&3)==(1u<<x) && (base[riders_at+(slot[1]-0xd18)/64]&3)==(1u<<(x^1)),"actual falling/contact establishes only the real rider on each jungle support");
+  if(paired && getenv("X3_COOP_JUNGLE_LIFECYCLE"))native_jungle_rider_lifecycle(x,slot,base,work,capacity);
+  if(visual)return; /* Original distant placements isolate corpse presentation. */
+  g_ram[slot[1]+0x27]=1;n=RtlSaveSnapshotToMemory(base,capacity);unsigned initial=g_ram[slot[1]+0x27];
+  for(unsigned f=0;f<60;++f)frame(0);check(g_ram[slot[1]] && (g_ram[slot[1]+0x27]&127)==initial,"no-fire control retains the low-health authored support");
+  check(RtlLoadSnapshotFromMemory(base,n),"actual armed support approach restores before native Fire");X3CoopRuntimeEnable(paired);unsigned killed=0;uint8_t health[120];
+  for(unsigned f=0;f<120;++f){frame((uint32_t)((f%12<4?SNES_PAD_Y:0)|(f==0?SNES_PAD_RIGHT:0))<<(paired?x*12:0));health[f]=g_ram[slot[1]]?g_ram[slot[1]+0x27]&127:0;if(!health[f] && !killed)killed=f+1;}
+  fprintf(stderr,"native jungle WEAPON paired%u roster%u firstLethal%u trace",paired,x,killed);for(unsigned f=0;f<120;++f)fprintf(stderr,"%02x",health[f]);fprintf(stderr,"\n");
+
+  size_t done=RtlSaveSnapshotToMemory(work,capacity);riders_at=done-X3_COOP_MENU_STATE_BYTES-31;fprintf(stderr,"native jungle DESTROYED killed%u active%u histories%02x/%02x life%u/%u\n",killed,g_ram[slot[1]],work[riders_at+(slot[0]-0xd18)/64],work[riders_at+(slot[1]-0xd18)/64],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
+  check(killed && !g_ram[slot[1]],"real native Fire destroys the actual low-health solid jungle enemy");
+  if(paired)check(!work[riders_at+(slot[1]-0xd18)/64] && (work[riders_at+(slot[0]-0xd18)/64]&3)==(1u<<x) && g_ram[slot[0]] && g_ram[slot[0]+0x27]==18 && (g_ram[slot[0]+0x2c]&1) && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual support destruction releases only its obsolete rider history and retains the separate living support and rider");
+  uint8_t *future=malloc(done);check(future!=NULL,"actual support destruction future allocates");memcpy(future,work,done);check(RtlLoadSnapshotFromMemory(base,n),"actual support restores before the real lethal shot");X3CoopRuntimeEnable(paired);
+  for(unsigned f=0;f<120;++f)frame((uint32_t)((f%12<4?SNES_PAD_Y:0)|(f==0?SNES_PAD_RIGHT:0))<<(paired?x*12:0));same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"actual support destruction and retained unrelated rider replay the complete machine");free(future);
+
+
 }

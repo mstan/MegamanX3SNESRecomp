@@ -44,17 +44,17 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 93/180; 87 open/partial. Accepted areas: 3/15
+**Accepted touch points: 95/180; 85 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
 | Area | Status | Acceptance |
 | --- | --- | --- |
-| Individual death | D01-D05/D07/D09/D11/D14-D16 accepted (11/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
+| Individual death | D01-D05/D07/D09-D11/D14-D16 accepted (12/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | P01-P05/P14/P15 accepted (7/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
+| Supports/hazards | P01-P05/P14-P16 accepted (8/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07/C09/C10/C12 accepted (9/12); armored parts, attack origins and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
@@ -3295,3 +3295,69 @@ ejection, removal or survivor result is supplied. The complete sequence replays;
 Zero stays alive, moves in a bright world and advances the clock once per frame.
 Fallen X cannot return through the public API. Four CTests remain passing.
 Actual93/180 accepted,87open,3/15rollups; no new whole criterion is claimed here.
+
+### Authored support destruction and rider cleanup — P16
+
+P16 is accepted. Actual94/180 accepted,86open,3/15rollups. Native jungle records
+3C:EC96/EC9E create class1F solid enemies at640,848 and880,816 with18HP. Native
+DB06 event allocation/constructors and real falling contact establish separate
+riders. For the weapon branch only, the second support and its approach are
+positioned atx760 inside X's original projectile retirement range; this bypasses
+travel and supplies no damage, death, rider or destruction result. One-HP target
+health is a prerequisite. No Fire leaves it alive; real native buster fire earns
+lethal contact on frame16. All120 health samples match the original solo run in
+both co-op rosters. X retains his separate18HP support and actual rider contact;
+Zero falls naturally after his support disappears, retaining personal health.
+The entire destruction future replays exactly.
+
+The measured old runtime retained82 on the retired support after120frames
+(state46f78a1e), and actual one-frame fatal enemy08 contact retained81 on the
+fallen X's support (9a6ef0ec). Cleanup now releases inactive support history on
+the existing balanced native enemy/item returns; initializers retain their prior
+slot-reuse behavior. Fatal retirement clears only that seat's rider bits. No new
+serialized fields, world pass or generated entry is needed.
+
+Native-support-retirement-final-jungle/original/support/intro all exit0 on state
+SHA2562aded3e9e6b217d74eb72ae5139e697261a758adf32a3dc9f01bea59b26d3855.
+Both roster orders cover withdrawal of either earned rider and real fatal
+contact against either rider. Jungle3C:ED92 supplies the authored class08 foe;
+only collision positioning, one personal HP and expired victim protection are
+prerequisites. At the actual death frame, only the dead rider bit is removed;
+the unrelated support, living rider and health remain. Full-machine replay is
+exact, and the surviving support subsequently carries its rider for96 native
+updates in a continuously bright world. Existing moving-support, capsule/intro
+and current-build restore gates pass; the GUI rebuild and four CTests pass.
+
+The vehicle portion is supplied by the preceding qualified actual Hawk/Frog
+withdrawal/return and native armor-destruction/rider-fatal tests, including both
+rosters, unrelated ownership controls and complete-machine replays. The earlier
+stage5 class26 public rider-withdrawal evidence also remains applicable. This
+acceptance does not qualify remaining collapsing/one-way/terrain/crush criteria.
+
+### Actual survivor colors through native corpse cleanup — D10
+
+D10 is accepted. Native-corpse-private-admission exits0 on state SHA256
+d154abd413bd34392ad6ada35632f74d65aa8e80a08d6a136aac28f1be8ec8af.
+Both jungle supports retain their original640/880 positions, with independently
+following cameras. Both rosters and either victim earn actual one-frame fatal
+class08 contact while riding. From that same live-contact cut, voluntary living
+withdrawal supplies a reference without a corpse. At native frames0/7/15/31/63/
+95/127/179, the actual selected-survivor compositor produces byte-identical
+64x80 body and48x80 background/HUD patches, at identical native body/camera
+coordinates. Both actors are native X3 bodies; personal health is unchanged.
+The continuing native world and actual support carry remain qualified.
+
+After the genuine initial contact, only the living hostile's position is moved
+away in both branches, allowing original culling to remove it before later AI
+can obscure the color comparison. No death, brightness, palette, retirement or
+survivor result is supplied. Both original view regions are restored before
+native constructors update existing supports; disabling them through that whole
+preparation would incorrectly cull the distant support and is not a product
+failure. Pixel capture preserves guest RAM/time and the original fatal outcome
+is restored before the remaining replay/control checks.
+
+Actual absent/corpse PPMs remain in qa-state/native-corpse-private-visual. Inspected
+native X/Zero PNGs show the appropriate bright survivor and jungle. These checks
+qualify corpse color/brightness isolation; the remaining general visual, HUD,
+weather, aspect and audio criteria stay open. Actual95/180 accepted,85open,
+3/15rollups.
