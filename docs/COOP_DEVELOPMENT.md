@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 98/180; 82 open/partial. Accepted areas: 3/15
+**Accepted touch points: 100/180; 80 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -54,9 +54,9 @@ campaign or co-op gameplay acceptance.
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | P01-P05/P07-P08/P10/P14-P16 accepted (11/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
+| Supports/hazards | P01-P05/P07-P08/P10-P11/P14-P16 accepted (12/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
-| Combat ownership | C01-C05/C07/C09/C10/C12 accepted (9/12); armored parts, attack origins and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
+| Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
 | Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
@@ -3466,3 +3466,48 @@ four P07/P10 cases pass on the same binary; four CTests pass. GUI build0,
 SHA256`eff3e6cb26197f0c27da0987c74dc138e6a21b9f9753b547bbb6415d161f1b26`. Evidence:
 `build-coop/qa-state/native-slope-qualification.json`. C08 retains its separate
 ground/air/facing acceptance. Actual98/180 accepted,82open/partial,3/15areas.
+
+
+### Earned ground, air and slope attack origins — C08
+
+C08 is accepted. Native-origin-isolated-qualification exits0 on state SHA256
+c3f958943525b8420656255ab67f39cbae03ae0ab1e5dbcd27bae7fedfcb906c, with production unchanged from0c95bd2.
+Both rosters/either seat earn actual Left/Right facing before attack, with a
+real eight-frame Jump for airborne cuts. Each posture starts with empty
+native shot capacity, never a supplied projectile or pose. Both original and
+paired modes emit on frame0 and compare every body, camera, limit, facing,
+charge, palette, auxiliary and projectile byte for12frames, followed by a
+strict complete-machine replay.
+
+Actual first-emission offsets from the acting body are Xground±26,-7 and
+Xair±22,-9; native Zero ground±24,-1 and air±24,-4. Grounded charged slope
+emissions use X±26,-7 and Zero±8,-9. The real Left/Right direction is earned
+before180frames of charge, then a position-only approach traverses every
+ramp profile. All96 native slope samples, source lifetimes/counters and
+complete futures match. Only the tested actor charges: an unrelated
+companion charged release consumes shared RNG and is not an equivalent
+single-actor reference. No comparison field was removed to obtain the pass.
+Evidence: build-coop/qa-state/native-attack-origin-qualification.json.
+
+### Independent authored ice forces in both directions — P11
+
+P11 is accepted through the actual stage2 slippery-terrain contract. Live
+profiles8C/8B/8A/89 at832..880 impart native+0400 horizontal force; the
+opposite85/86/87/88 at1760..1808 impartFC00. Both actors approach real terrain
+with normal motion and protection, without supplied force, terrain
+classification or grounding results. Native input-free contact earns each
+force and displaces the body while its input velocity remains zero.
+
+Every paired actor is compared with its own separate original reference in
+both rosters and either canonical-anchor order. The48-frame positive run
+also exercises opposed inputs and ordinary-floor recovery; the12-frame
+negative run stays safely above the adjacent authored spikes. All body,
+private-camera/current-limit, terrain2E, forceA7/A8 and dragB4 samples match.
+Each complete future replays exactly and the shared world advances48/12
+times, respectively. The ice source is immutable collision data, without
+a second source-AI update. Positive statec3f958943525b8420656255ab67f39cbae03ae0ab1e5dbcd27bae7fedfcb906c;
+negative state01a39f555bd31c31e8a906a9a1f472d2feb5edf21ed9e6efc25da945b1b1e2fc; both gates exit0.
+Evidence: build-coop/qa-state/native-ice-force-qualification.json.
+
+No production changes were needed for these two criteria beyond the existing
+widescreen correction. Actual100/180 accepted,80open/partial,3/15areas(R/M/N).
