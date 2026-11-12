@@ -4156,3 +4156,70 @@ balanced native registers/scratch/object/health, four each Catfish/Tiger/Beetle
 persistent contacts and four Toxic native carrier/hold/release comparisons pass.
 State/GUI/fourCTest pass. Actual110/180 accepted,70 open,3/15 areas(R/M/N).
 Other captures, enemy families, visuals and campaign branches remain open.
+
+
+### Bit/Byte native ownership checkpoint — G10 remains open
+
+G10 is partial; the suite remains110/180 accepted,70 open and3/15 accepted
+areas. Actual stage2 authored records admit Bit(class46) and Byte(class47)
+under native weapon-count prerequisites, without writing hunter admission,
+visit or outcome flags. Real buster/weakness hits earn retreat/destruction;
+sequential encounters earn all four combined results05/0D/07/0F and visits22.
+Four roster/anchor cases per outcome retain both living actors, lives and
+acquisitions, cross the actual next-room boundary, and replay the full future
+exactly twice. A checkpoint past the one-way hunter room is not a valid entry
+setup; the supported preparation starts before it and admits the hunter with
+real movement after preparing only the skipped pre-room columns.
+
+The native defeated controller previously lost D1CA's actual recipient, leaving
+nonleading Zero locked after Byte's destruction. The existing attachment byte
+now retains that recipient until native D1EF. Bit destruction also exposed a
+free partner falling through the floor while the cutscene suspended terrain
+collision. Its native script owner continues updating; the other body uses the
+existing balanced controller parking path. All four Bit destruction cases now
+retain both living actors and their actual room exit. Live ring attacks leave
+the partner free to move.
+
+Actual native kind0 class2A ring contact earns the captured actor, which remains
+bound through the original hold and physical escape. Eight roster/victim/anchor
+references match every original body, personal pool, palette, ring and parent
+byte:64 held updates without escape edges, physical-input release90 and full
+retirement91. Busy withdrawal is refused; each full paired future replays
+exactly. An initial parent-overlap approach and a later unprotected interruption
+by parent damage were rejected as setups for the isolated escape check.
+
+A real oneHP ring victim then dies on native contact at55 updates. Previously
+the fallen body's retained capture pose kept the ring, global latch and parent
+binding alive. A retired owner's ring now takes its original39:AC5A release
+continuation. The measured Zero-death case clears all three, leaves Bit alive
+at32HP and X controllable for24 real world ticks, and replays exactly twice.
+Other fatal-ring roster/anchor cases and complete survivor progression remain
+unqualified. The latest survivor-clear probe emits native busters but does not
+land its final hit within1200 updates; X remains alive at2985/1455 while Bit is
+at3039/1447 with1HP. Its fixed initial aiming input needs investigation against
+the actual moving target; this is not yet classified as an engine defect.
+
+Native stage10 event columns contain the lower fusion record45 at5808/1920
+and upper5A record at5856/1600. Earned result05 reaches the actual live5D fusion
+boss and43 parts; earned0F reaches the live5A parent and four native parts.
+The alternate approach requires its skipped upper pre-room columns. These are
+branch-entry fixtures, not G12 traversal acceptance. Both observed approaches
+leave X behind the entrance while P2 reaches the arena; shared door completion,
+all mixed-outcome consequences, native boss mechanics/clears and subsequent
+progression remain open. The entry observer must select5A kind0 before using
+its returned slot as the damageable parent.
+
+Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json →
+bit_byte and exact named job receipts/logs. Earlier in-stage outcome SHA
+48f0a19f91f5856e50c44c7ff8c91ba971909dc3a3d49e255b96f6f63e9c8dac;
+living ring reference SHA
+1c23e45f34f195f88e8c3ee4b50c2a04d61eee1a6b2f96f7d0559a8098b9a8a6;
+retired-ring repair SHA
+fd2af7e9f7bb251f760d8d4e01369203013f31fe780a28695bf510d5681b6d23.
+Current state test SHA
+47e109e3c1afed475edf5469de09d4c7e216da85ca92a8ad6538543bf13576db;
+current GUI SHA
+ce13455ffc45136f44c7592d055cf1f98f3d95bd21af3b5f86c5150cd0b77fdf.
+The current GUI build and all four standard CTests pass. The optional full
+survivor-clear probe fails as described above. No snapshot-format or hook-list
+change. No G10 acceptance, owner validation or release is claimed.

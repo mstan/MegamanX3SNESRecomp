@@ -82,7 +82,8 @@ static void stock_tick(void);
 static void shared_catchup_tick(void);
 static void learner_tick(void);
 static void intro_helper_handoff(void);
-static bool scene_parked(unsigned seat){return scene.phase && seat!=scene.owner;}
+static bool hunter_scene_parked(unsigned seat);
+static bool scene_parked(unsigned seat){return (scene.phase && seat!=scene.owner) || hunter_scene_parked(seat);}
 enum { SHARED_ATTACHMENTS=31 };
 /* One byte per native world slot: bit7 is initialized attachment history,
  * bits0/1 are riders, and bits2/3 retain one native captor's actual victim
@@ -855,6 +856,20 @@ static bool acid_carrier(unsigned d){
   return hostile_projectile(d) && g_ram[d] && g_ram[d+10]==0x22 && !g_ram[d+11] &&
       (g_ram[d+1]==0 || g_ram[d+1]==2);
 }
+static bool bit_ring_kind(unsigned d){return hostile_projectile(d) && g_ram[d+10]==0x2a && !g_ram[d+0x37];}
+static bool bit_ring_context(unsigned d){
+  return bit_ring_kind(d) && g_ram[d] && (g_ram[d+1]==4 ||
+      (g_ram[d+1]==2 && (g_ram[d+3]==8 || g_ram[d+3]==10)));
+}
+static bool bit_captive_of(unsigned parent){
+  for(unsigned i=0;i<8;++i)if(view_spawn.hostile_captive[i] &&
+      (view_spawn.hostile_captive[i]-1)/2==parent && bit_ring_context(0x1318+i*64))return true;
+  return false;
+}
+static bool native_freeze_recipient(void){
+  return (g_ram[X3_COOP_BODY+0x6e]&128) &&
+      (g_ram[X3_COOP_BODY+0xa3]==0x9e || g_ram[X3_COOP_BODY+2]==0x1e);
+}
 static bool hornet_attachment(unsigned d){
   if(!hostile_projectile(d) || !g_ram[d] || g_ram[d+10]!=0x21)return false;
   unsigned kind=g_ram[d+0x37],phase=g_ram[d+2];
@@ -863,7 +878,7 @@ static bool hornet_attachment(unsigned d){
   return (!kind && (phase==4 || phase==6)) ||
       (kind==4 && (phase==2 || phase==4 || phase==6));
 }
-static bool hostile_attachment(unsigned d){return acid_carrier(d) || hornet_attachment(d);}
+static bool hostile_attachment(unsigned d){return acid_carrier(d) || hornet_attachment(d) || bit_ring_context(d);}
 static void hornet_marked_target(unsigned d){
   if(!hornet_attachment(d) || g_ram[d+0x37]!=2 || view_spawn.hostile_captive[(d-0x1318)/64])return;
   unsigned parent=word(g_ram+d+0x38);int slot=support_slot(parent);
@@ -885,13 +900,16 @@ static bool acid_captive_of(unsigned parent){
 static bool native_captor_context(unsigned d){
   if(hostile_projectile(d))return hostile_attachment(d) && view_spawn.hostile_captive[(d-0x1318)/64];
   if(!g_ram[d] || !g_ram[d+1])return false;
+  if(d<0x10d8 && g_ram[d+10]==0x46)return g_ram[d+1]==4 || bit_captive_of((d-0xd18)/64);
+  if(d<0x10d8 && g_ram[d+10]==0x47)return g_ram[d+1]==4;
   if(g_ram[d+10]==0x59)return g_ram[d+1]==4 || acid_captive_of((d-0xd18)/64);
   if(g_ram[d+10]==0x52)return (g_ram[d+0x3b]&128)!=0;
   return g_ram[d+10]==0x54 && (g_ram[d+1]==4 ||
       (g_ram[d+1]==2 && !g_ram[d+2] && g_ram[d+3]==4));
 }
 static bool native_captor_holding(unsigned d){
-  if(hostile_projectile(d))return acid_carrier(d);
+  if(hostile_projectile(d))return acid_carrier(d) || (bit_ring_context(d) && g_ram[d+1]==2 && g_ram[d+3]==8);
+  if(g_ram[d+10]==0x46)return bit_captive_of((d-0xd18)/64);
   if(g_ram[d+10]==0x59)return acid_captive_of((d-0xd18)/64);
   return g_ram[d+1]==2 && g_ram[d+3]==4 &&
       ((g_ram[d+10]==0x52 && g_ram[d+2]==0x0a) || (g_ram[d+10]==0x54 && !g_ram[d+2]));
@@ -905,6 +923,18 @@ static unsigned native_captive_owner(unsigned d){
   if(slot<0 || slot>=15 || !native_captor_context(d))return 2;
   unsigned owner=(attachments[slot]>>2)&3;
   return owner==1?0:owner==2?1:2;
+}
+static bool hunter_scene_parked(unsigned seat){
+  /* The defeated hunters suspend terrain collision while their native
+   * controller animates D1CA's recipient. Keep that controller running and
+   * park the other body through the balanced actor epilogue. Live Bit rings
+   * leave the partner free to move and rescue their captive. */
+  for(unsigned d=0xd18;d<0x10d8;d+=64)
+    if(g_ram[d] && g_ram[d+1]==4 && (g_ram[d+10]==0x46 || g_ram[d+10]==0x47)){
+      unsigned owner=native_captive_owner(d);
+      if(owner<2 && owner!=seat)return true;
+    }
+  return false;
 }
 /*08:9F91/A02F admits bodies in front of the muzzle and within26px vertically.
  * Pick the nearest eligible body along the real beam, rather than a nearer
@@ -1057,8 +1087,13 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
     target=(WorldTarget){(uint16_t)d,cpu->S,1,(uint8_t)seat};
     if(retired)X3CoopProjectRetired(&state,g_ram,seat);
     else X3CoopProject(&state,g_ram,seat);
-    /*03:D695 counts physical input edges during Crawfish's actual hold. */
-    if(g_ram[d+10]==0x54 && !g_ram[0x1f63]){
+    /* A fallen actor retains its last captured pose. Native39:ABED tests
+     * that pose, so it cannot discover retirement from the projected zero
+     * HP alone. Its own AC5A continuation releases the ring/global latch
+     * without binding the survivor or retiring the living parent. */
+    if(retired && bit_ring_context(d) && g_ram[d+1]==2 && g_ram[d+3]==8)g_ram[d+3]=10;
+    /*03:D695 and39:AC3C count the actual captive's physical input edges. */
+    if((g_ram[d+10]==0x54 || bit_ring_kind(d)) && !g_ram[0x1f63]){
       if(seat)memcpy(g_ram+0xa8,g_ram+0xae,6);else primary_input_restore();
     }
     return;
@@ -1073,14 +1108,28 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
        * unlike a captive, the actor remains free to move or withdraw. */
       if(parent>=0 && parent<15 && g_ram[0xd18+parent*64+10]==0x53)
         view_spawn.hostile_captive[i]=(uint8_t)(1+2*parent+state.current);
+    }else if(bit_ring_context(d) && g_ram[d+1]==2 && g_ram[d+3]==8 &&
+        !view_spawn.hostile_captive[i] && native_freeze_recipient()){
+      int parent=support_slot(word(g_ram+d+0x38));
+      /*39:ABC3 earned the real ring lock. The ring and Bit's later defeated
+       * controller must release this same actor, even after the ring retires. */
+      if(parent>=0 && parent<15 && g_ram[0xd18+parent*64+10]==0x46){
+        view_spawn.hostile_captive[i]=(uint8_t)(1+2*parent+state.current);
+        attachments[parent]=(uint8_t)((attachments[parent]&~12u)|128u|(4u<<state.current));
+      }
     }
   }
-  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x52 || g_ram[d+10]==0x54 || g_ram[d+10]==0x59)){
+  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x46 || g_ram[d+10]==0x47 || g_ram[d+10]==0x52 || g_ram[d+10]==0x54 || g_ram[d+10]==0x59)){
     int slot=support_slot(d);
     if(slot>=0){
       if(!native_captor_context(d) || (g_ram[d+10]==0x54 && native_captive_owner(d)<2 &&
           state.players[native_captive_owner(d)].life!=X3_COOP_ALIVE && !native_captor_holding(d)))attachments[slot]&=(uint8_t)~12;
-      else if(g_ram[d+10]!=0x59 && !(attachments[slot]&12) && g_ram[X3_COOP_BODY+0xa3]==0x96)
+      else if((g_ram[d+10]==0x46 || g_ram[d+10]==0x47) && g_ram[d+1]==4 &&
+          !(attachments[slot]&12) && native_freeze_recipient())
+        /* In-stage hunter outcomes have no new-stage constructor to hide a
+         * missed D1EF. Retain the actual D1CA recipient through that script. */
+        attachments[slot]=(uint8_t)((attachments[slot]&~12u)|128u|(4u<<state.current));
+      else if(g_ram[d+10]!=0x46 && g_ram[d+10]!=0x47 && g_ram[d+10]!=0x59 && !(attachments[slot]&12) && g_ram[X3_COOP_BODY+0xa3]==0x96)
         /*03:CC5B/03:D31A and04:D034 earned the grip in this projected body. */
         attachments[slot]=(uint8_t)((attachments[slot]&~12u)|128u|(4u<<state.current));
     }
@@ -1088,7 +1137,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   /* Native item/enemy/hostile-shot continuations follow the actual RTS;
    * the original JSR frame has been consumed. */
   if(target.active && d==target.slot && cpu->S==(uint16_t)(target.s+2)) {
-    if(g_ram[d+10]==0x54 && !g_ram[0x1f63]){primary_input_restore();modal_input_project();}
+    if((g_ram[d+10]==0x54 || bit_ring_kind(d)) && !g_ram[0x1f63]){primary_input_restore();modal_input_project();}
     intro_capture_begin(d);
     if(scene.phase && scene.kind && target.seat==scene.owner && state.players[scene.owner].life!=X3_COOP_ALIVE &&
        enemy_actor(d) && (g_ram[d+10]==0x4d || g_ram[d+10]==0x4e || g_ram[d+10]==0x5c)){
