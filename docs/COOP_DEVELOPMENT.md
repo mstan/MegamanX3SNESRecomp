@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 107/180; 73 open/partial. Accepted areas: 3/15
+**Accepted touch points: 108/180; 72 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G06 accepted (6/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G07 accepted (7/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -3977,3 +3977,56 @@ d239b97e43ba7ed6453dc26bc397373f433f12a90b9f1bb473bd956a75d4b3bf.
 The production GUI and fourCTest checks pass. Actual107/180 accepted,73 open;
 R/M/N remain the three accepted areas. Remaining capture, visual and other
 campaign criteria receive no extra acceptance from these permutations.
+
+
+### Native Neon Tiger rays and both-wall rush — G07
+
+G07 is accepted. Actual stage7 checkpoint2 and native P2 Right door inputs
+reach class55/32HP with both actors free. Actor5915/431X or423Zero, boss6096/424,
+camera5888/256 and floor448. Its real dispatcher is3F:E5E4, main3F:E793 and
+defeated3F:EAE4. The13:CB87 capture belongs to another native class and was
+not attributed to Tiger.
+
+The actual class26/variant2 ray remains source41/primary2 after contact.
+Original character references deal four damage each; the previous paired
+update damaged only its first actor. Native08:ABF5/AD57 ignore CB31's hit
+result and retire rays by movement or parent phase. Class26 now joins the
+existing persistent20/27 contact contract, allowing both eligible bodies in
+one source update. Four roster/anchor original-versus-paired comparisons now
+produceX12/Zero24 orZero24/X12, retain a live source and replay the entire
+paired machine exactly. Actual consumed class03 shots, balanced native
+successful registers/scratch/object/health and four Catfish overlap cases
+still pass. State format remains unchanged.
+
+Eight roster/victim/anchor cases earn an actual ray after native wall contact:
+f162, wallflag2, parent5934/424, source6114/275, sourceKind4 and parent+38=0D18.
+The actual ray update kills only the approached one-HP actor; the surviving
+actor then moves for24 world ticks beside the live32HP boss. Real survivor
+busters defeat it and finish native1FCA/acquiredmask80/DC reward,2553 return
+updates plus64 arrival updates. Lives2 and the fallen roster persist. Every
+fatal/clear/return future repeats exactly.
+
+A separate actual low-health route supplies only bossHP8 and personal player
+protection. In all four roster/victim cases the original AI selects its native
+action2 rush and physically contacts BOTH authored walls (flags3), over441
+video/world updates, with bossHP8 and both actors alive. Every complete route
+replays exactly before real living-pair buster defeat and full reward/arrival,
+also repeated twice. No attack, wall-contact, death, defeat or reward flags are
+supplied. The authored interaction is a grounded wall slam atY424; an earlier
+invented climb-height prerequisite was rejected. The earlierHP8 ray cut was
+not treated as qualification of this later rush.
+
+Four real parent kills separately leave zero active class26 children20updates
+after defeat, while the parent remains primary4 and before a reward or stage
+loader can erase the pool. Those full futures replay exactly too. Source
+observation, native cartridge contact and actual progression determine results;
+position/health/protection prerequisites bypass difficulty rather than the
+mechanics being accepted.
+
+Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json ->
+neon_tiger. native-tiger-survivors-qualified, overlap-qualified,
+cleanup-qualified, rush-qualified, contact-regression and final-builds all
+child0. Mechanics stateSHAa0af33db; rush stateSHA092f871a; production GUI SHA256
+32b324ba06ec905d6683d342a72a8c11164a05e57f1701e832eee694cb8c44fe;
+state/GUI/fourCTest pass. Actual108/180 accepted,72 open,3/15 areas(R/M/N).
+Other capture families, visuals and remaining campaign routes stay open.

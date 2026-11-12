@@ -1393,12 +1393,13 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
   if(!p->pass || cpu->S!=p->entry.s || cpu->D!=p->entry.d)return;
   if(p->pass==1) {
     bool hit=(cpu->A&255)!=0;
-    /* Buffalo ice (class20) and Catfish electricity (class27) remain live
-     * body-contact hazards after CB31.08:AFEB/B157 ignore CB31's hit result;
-     * their own movement/parent phases retire the electrical sources. Other
+    bool persistent=g_ram[d+10]==0x20 || g_ram[d+10]==0x26 || g_ram[d+10]==0x27;
+    /* Native ice, Tiger rays and Catfish electricity remain live body-contact
+     * hazards after CB31. The ray/electrical callers ignore its hit result;
+     * their own movement/parent phases retire these sources. Other
      * single-use hostile hits stop here. Player-shot scans are consumed by
      * hit, shield or reflection; only CBC3 is a true miss. */
-    if((contact.pc==0xcb31 && hostile_projectile(d) && g_ram[d+10]!=0x20 && g_ram[d+10]!=0x27 && hit) ||
+    if((contact.pc==0xcb31 && hostile_projectile(d) && !persistent && hit) ||
        (contact.pc==0xcb74 && at!=0xcbc3)) {p->pass=0;settle_deaths();return;}
     p->result=regs(cpu);memcpy(contact.result_scratch,g_ram,24);
     if(!X3CoopProject(&state,g_ram,contact.seat^1))return;
