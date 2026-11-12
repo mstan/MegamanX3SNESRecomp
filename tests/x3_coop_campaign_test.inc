@@ -185,9 +185,79 @@ static void native_buffalo_destroy_captor(unsigned victim,uint8_t *base,uint8_t 
  free(future);
 }
 
+static void native_buffalo_beam_checks(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==2 && g_ram[0xd22]==0x52 && g_ram[0xd3f]==32,"beam route restores the real ready Buffalo encounter");
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+  if(getenv("X3_COOP_BUFFALO_REVERSED")){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
+  setup.current=setup.anchor=0;
+  for(unsigned seat=0;seat<2;++seat){campaign_position_only(&setup.players[seat],6070+seat*24,setup.players[seat].character==X3_COOP_ZERO?919:927);setup.players[seat].body[0x27]=setup.players[seat].maximum_health;setup.players[seat].body[0x88]=255;}
+  check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"beam approach supplies only roster, position and health/protection prerequisites");door_install_player(&setup);X3CoopViewsConfigure(true);g_ram[0x1f27]=0;g_ram[0xd3f]=16;
+  unsigned elapsed=0,slot=0,actions=0;
+  for(;elapsed<12000 && !slot;++elapsed){
+    if(!(elapsed%64)){n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState live=*X3CoopRuntimeState();X3CoopCapture(&live,g_ram);
+      for(unsigned seat=0;seat<2;++seat)if(live.players[seat].life==X3_COOP_ALIVE){X3CoopPlayer *actor=&live.players[seat];actor->body[0x27]=actor->maximum_health;actor->body[0x88]=255;
+        if(!(g_ram[0xd53]&128) && g_ram[0xd1a]!=12 && abs((int)(actor->body[5]|actor->body[6]<<8)-(int)view_read(0xd1d))<128)campaign_position_only(actor,view_read(0xd1d)<6144?6300-seat*24:5930+seat*24,actor->character==X3_COOP_ZERO?919:927);}
+      check(X3CoopEncode(&live,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"beam wait refreshes only actual actor prerequisites");door_install_player(&live);
+    }
+    frame(0);if(g_ram[0xd1a]<16)actions|=1u<<g_ram[0xd1a];
+    for(unsigned d=0x1318;d<0x1518;d+=64)if(g_ram[d] && g_ram[d+10]==0x20 && g_ram[d+0x36]==2){slot=d;break;}
+    if(!(elapsed%500))fprintf(stderr,"native BUFFALO BEAM WAIT f%u state%u/%u/%u flags%02x HP%u actors%u/%u\n",elapsed,g_ram[0xd19],g_ram[0xd1a],g_ram[0xd1b],g_ram[0xd53],g_ram[0xd3f],contact_hp(0),contact_hp(1));
+    if(X3CoopRuntimeState()->players[0].life!=X3_COOP_ALIVE || X3CoopRuntimeState()->players[1].life!=X3_COOP_ALIVE)check(false,"native beam approach keeps its two actual actors alive");
+  }
+  fprintf(stderr,"native BUFFALO BEAM BORN f%u actions%04x slot%04x source%u/%u/%u boss%u/%u/%u flags%02x\n",elapsed,actions,slot,g_ram[slot],g_ram[slot+1],g_ram[slot+2],g_ram[0xd19],g_ram[0xd1a],g_ram[0xd1b],g_ram[0xd53]);
+  check(slot!=0,"actual half-health native Buffalo AI earns its beam without supplied attack, spawn or success flags");
+  check(RtlSaveSnapshot("native-buffalo-earned-beam.sav"),"actual emitted beam exports directly through the test interface");
+  unsigned victim=getenv("X3_COOP_BUFFALO_VICTIM")?(unsigned)atoi(getenv("X3_COOP_BUFFALO_VICTIM")):1;check(victim<2,"beam victim seat is valid");unsigned free_seat=victim^1;
+  n=RtlSaveSnapshotToMemory(base,capacity);setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);setup.current=setup.anchor=(uint8_t)(getenv("X3_COOP_BUFFALO_OWNER_ANCHOR")?victim:free_seat);
+  int sign=g_ram[slot+0x11]&64?1:-1;unsigned source_x=view_read(slot+5);
+  for(unsigned seat=0;seat<2;++seat){X3CoopPlayer *actor=&setup.players[seat];campaign_position_only(actor,(unsigned)((int)source_x+(seat==victim?sign*64:-sign*32)),actor->character==X3_COOP_ZERO?919:927);actor->body[0x27]=actor->maximum_health;actor->body[0x30]=actor->body[0x88]=actor->body[0x8a]=0;}
+  check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"beam collision positions only its vulnerable victim ahead and free partner behind the actual muzzle");door_install_player(&setup);X3CoopViewState beam_views=*X3CoopViewsState();n=RtlSaveSnapshotToMemory(base,capacity);
+  if(getenv("X3_COOP_BUFFALO_KILL_HELD")){
+    for(unsigned f=0;f<60;++f)frame(0);check(campaign_body(victim)[0x6e] && g_ram[0x1cd90],"real native beam and child earn the frozen victim before the partner's lethal shot");
+    native_buffalo_destroy_captor(victim,base,work,capacity);
+    unsigned arriving=0;for(;arriving<180 && (campaign_body(0)[0x6e] || campaign_body(1)[0x6e] || campaign_body(0)[2]>0x16 || campaign_body(1)[2]>0x16);++arriving)frame(0);
+    size_t finish=RtlSaveSnapshotToMemory(work,capacity),owners=combat_owners(work,finish);unsigned stale=0;
+    for(unsigned i=0;i<40;++i)if(g_ram[0x1818+i*32+10]==0x1c && g_ram[0x1818+i*32+11]==4)stale|=work[owners+i];
+    unsigned distance=(unsigned)abs((int)support_position(0,5)-(int)support_position(1,5));
+    fprintf(stderr,"native BUFFALO FROZEN CLEAR finalstage%u arrive%u sharedScratch%u stale%u locks%u/%u xy%u,%u/%u,%u phase%u/%u\n",g_ram[0x1fae],arriving,g_ram[0x1cd90],stale,campaign_body(0)[0x6e],campaign_body(1)[0x6e],support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),g_ram[0xd1],g_ram[0xd2]);
+    if(arriving==180 || stale || distance>32)check(RtlSaveSnapshot("native-buffalo-frozen-clear-stale.sav"),"actual post-clear frozen state preserves its current-build machine");
+    check(g_ram[0x1fae]!=2 && arriving<180 && !stale && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e] && distance<=32,"actual post-clear arrival releases both colocated native actors and retires every old freeze child owner");
+    for(unsigned seat=0;seat<2;++seat){unsigned before=support_position(seat,5);for(unsigned f=0;f<24;++f)frame((uint32_t)SNES_PAD_RIGHT<<(seat*12));check(support_position(seat,5)>before+10,"each actual post-clear actor independently resumes native control");}return;
+  }
+
+  enum {BEAM_FRAMES=720};BuffaloHeldSample *trace=malloc(BEAM_FRAMES*sizeof(*trace));uint8_t *future=malloc(capacity);check(trace && future,"actual beam comparison buffers allocate");unsigned ran=0;
+  for(unsigned paired=0;paired<2;++paired){check(RtlLoadSnapshotFromMemory(base,n),"original and paired beams restore the same actual native source");
+    if(!paired){X3CoopState solo=*X3CoopRuntimeState();solo.current=solo.anchor=(uint8_t)victim;memcpy(work,base,n);check(X3CoopEncode(&solo,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"single-actor native beam reference selects its actual victim");door_install_player(&solo);X3CoopViewsConfigure(false);vehicle_install_view(&beam_views,victim);X3CoopRuntimeEnable(false);}
+    bool frozen=false;unsigned clock=g_ram[0x9cc];
+    for(unsigned f=0;f<(paired?ran:BEAM_FRAMES);++f){unsigned pad=f<90?0:(f&1?SNES_PAD_LEFT:SNES_PAD_RIGHT|SNES_PAD_B);frame(paired?(uint32_t)pad<<(victim*12):pad);BuffaloHeldSample now;buffalo_held_sample(&now,victim,!paired);memcpy(now.enemy,g_ram+slot,64);frozen|=now.body[0x6e]!=0;
+      if(!(f%30))fprintf(stderr,"native BUFFALO BEAM CONTACT paired%u f%u victim%u body%u/%u frozen%u script%02x HP%u source%u/%u/%u flags%02x boss%u/%u/%u\n",paired,f,victim,now.body[2],now.body[3],now.body[0x6e],now.body[0xa3],now.body[0x27]&127,g_ram[slot],g_ram[slot+1],g_ram[slot+2],g_ram[slot+0x3f],g_ram[0xd19],g_ram[0xd1a],g_ram[0xd1b]);
+      if(paired && f==60){size_t busy=RtlSaveSnapshotToMemory(future,capacity),owners=combat_owners(future,busy);unsigned captures=0,graphics=0;
+        for(unsigned i=0;i<40;++i){unsigned fx=0x1818+i*32;if(!g_ram[fx] || g_ram[fx+10]!=0x1c)continue;
+          if(g_ram[fx+11]==4){++captures;check(future[owners+i]==victim+1,"actual native freeze child belongs only to the actor caught");}
+          if(g_ram[fx+11]==2){++graphics;check(!future[owners+i],"the actual beam graphic remains an unowned world child");}}
+        check(captures==1 && graphics && campaign_body(victim)[0x6e] && !campaign_body(free_seat)[0x6e],"one actual freeze binds its real victim while the nearer free partner remains unbound");
+        check(!X3CoopRuntimeWithdraw(victim) && !X3CoopRuntimeWithdraw(free_seat),"the actual native freeze waits for release before participation changes");same(future,busy,work,RtlSaveSnapshotToMemory(work,capacity),"captured participation refuses without changing the entire beam world");
+      }
+      if(!paired){trace[f]=now;ran=f+1;if(frozen && !now.body[0x6e] && now.body[2]!=0x1e)break;}
+      else if(memcmp(&trace[f],&now,sizeof(now))){unsigned at=0;while(at<sizeof(now) && ((uint8_t*)&trace[f])[at]==((uint8_t*)&now)[at])++at;fprintf(stderr,"native BUFFALO BEAM MISMATCH f%u victim%u char%u byte%u native%02x paired%02x\n",f,victim,setup.players[victim].character,at,((uint8_t*)&trace[f])[at],((uint8_t*)&now)[at]);check(RtlSaveSnapshot("native-buffalo-beam-mismatch.sav"),"actual beam mismatch preserves its whole current-build machine");check(false,"actual beam collision, frozen body, own pools and source match the native victim on every frame");}
+    }
+    fprintf(stderr,"native BUFFALO BEAM FINISH paired%u frames%u source%u body%u lock%u clock%u->%u delta%u nativecapture%u\n",paired,ran,g_ram[slot],campaign_body(victim)[2],campaign_body(victim)[0x6e],clock,g_ram[0x9cc],(uint8_t)(g_ram[0x9cc]-clock),g_ram[0x1cd90]);
+    check(frozen,"the real native beam actually freezes its vulnerable victim");check(ran<BEAM_FRAMES && !campaign_body(victim)[0x6e] && campaign_body(victim)[2]!=0x1e && (uint8_t)(g_ram[0x9cc]-clock)==(uint8_t)ran,"real escape inputs release the actual native freeze on its original frame with one world update");
+    if(paired){unsigned cleanup=0;for(;cleanup<240 && g_ram[slot];++cleanup){unsigned before=g_ram[0x9cc];frame(0);check((uint8_t)(g_ram[0x9cc]-before)<=1,"native beam retirement never advances the shared world twice");}
+      size_t done=RtlSaveSnapshotToMemory(future,capacity),owners=combat_owners(future,done);unsigned stale=0;
+      for(unsigned i=0;i<40;++i)if(g_ram[0x1818+i*32+10]==0x1c && g_ram[0x1818+i*32+11]==4)stale|=future[owners+i];
+      fprintf(stderr,"native BUFFALO BEAM RETIRED cleanup%u source%u capture%u stale%u locks%u/%u life%u/%u HP%u/%u\n",cleanup,g_ram[slot],g_ram[0x1cd90],stale,campaign_body(0)[0x6e],campaign_body(1)[0x6e],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,contact_hp(0),contact_hp(1));
+      check(cleanup<240 && !g_ram[slot] && !g_ram[0x1cd90] && !stale && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e] && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual native beam retirement leaves both living actors and no captured body or stale child owner");
+      check(RtlLoadSnapshotFromMemory(base,n),"actual beam restores for whole-machine replay");for(unsigned f=0;f<ran;++f){unsigned pad=f<90?0:(f&1?SNES_PAD_LEFT:SNES_PAD_RIGHT|SNES_PAD_B);frame((uint32_t)pad<<(victim*12));}for(unsigned f=0;f<cleanup;++f)frame(0);same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"native beam ownership, freeze, release and actual retirement replay the whole machine exactly");}
+
+  }
+  free(future);free(trace);
+}
+
 /* The actual Buffalo0A charge must earn its grip. Position/protection do not
  * provide an attack state, capture flag, scripted player state or clear. */
 static void native_buffalo_capture_checks(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+ if(getenv("X3_COOP_BUFFALO_BEAM")){native_buffalo_beam_checks(fixture,base,work,capacity);return;}
  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==2 && g_ram[0xd22]==0x52 && g_ram[0xd3f]==32,"Buffalo capture route restores the earned native32HP encounter");unsigned victim=getenv("X3_COOP_BUFFALO_VICTIM")?(unsigned)atoi(getenv("X3_COOP_BUFFALO_VICTIM")):1;check(victim<2,"Buffalo requested victim is valid");size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);if(getenv("X3_COOP_BUFFALO_REVERSED")){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}unsigned free_seat=victim^1;setup.current=setup.anchor=(uint8_t)(getenv("X3_COOP_BUFFALO_OWNER_ANCHOR")?victim:free_seat);
  for(unsigned seat=0;seat<2;++seat){X3CoopPlayer *p=&setup.players[seat];campaign_position_only(p,seat==victim?6096:5912,p->character==X3_COOP_ZERO?919:927);p->body[0x88]=255;}
  memcpy(work,base,n);check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"Buffalo route installs only requested roster, personal protection and approach positions");door_install_player(&setup);X3CoopViewsConfigure(true);g_ram[0x1f27]=0;

@@ -45,6 +45,7 @@ static int effect_index(unsigned d){
   return d>=EFFECT_BASE && d<EFFECT_BASE+SHARED_EFFECTS*EFFECT_STRIDE &&
       !((d-EFFECT_BASE)%EFFECT_STRIDE)?(int)((d-EFFECT_BASE)/EFFECT_STRIDE):-1;
 }
+static bool native_freeze_effect(unsigned d){return g_ram[d+10]==0x1c && g_ram[d+11]==4;}
 static void retire_vehicle_missiles(unsigned seat){
   /* Native02:D8C4 allocates Ride Armor missiles in X's personal shot pool.
    * Cancelling that pool bypasses their normal shared capacity decrement.
@@ -53,6 +54,10 @@ static void retire_vehicle_missiles(unsigned seat){
 }
 static void retire_shared_effects(unsigned seat){
   for(unsigned i=0;i<SHARED_EFFECTS;++i)if(effect_owner[i]==seat+1){
+    if(native_freeze_effect(EFFECT_BASE+i*EFFECT_STRIDE)){
+      /* Native01:D114/DC clears this one capture when its actual victim dies. */
+      g_ram[0x1cd90]=g_ram[0x1cd91]=g_ram[0x1cd92]=0;
+    }
     memset(g_ram+EFFECT_BASE+i*EFFECT_STRIDE,0,EFFECT_STRIDE);effect_owner[i]=0;
   }
 }
@@ -782,6 +787,23 @@ static unsigned native_captive_owner(unsigned d){
   unsigned owner=(attachments[slot]>>2)&3;
   return owner==1?0:owner==2?1:2;
 }
+/*08:9F91/A02F admits bodies in front of the muzzle and within26px vertically.
+ * Pick the nearest eligible body along the real beam, rather than a nearer
+ * body behind it. The native growing-tip predicate remains the final test. */
+static unsigned native_beam_target(unsigned d){
+  if(!hostile_projectile(d) || !g_ram[d] || g_ram[d+10]!=0x20 || g_ram[d+0x36]!=2)return 2;
+  int sign=g_ram[d+0x11]&64?1:-1,muzzle=(int)word(g_ram+d+5);
+  if(g_ram[d+1]==2 && g_ram[d+2]==6)muzzle+=sign*4;
+  unsigned chosen=2,best=65536;
+  for(unsigned seat=0;seat<2;++seat){
+    const uint8_t *b=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+    if(state.players[seat].life!=X3_COOP_ALIVE || !(b[0x27]&127) || b[2]==12 || b[0x6b])continue;
+    int forward=sign*((int)word(b+5)-muzzle),vertical=(int)word(b+8)-(int)word(g_ram+d+8);
+    if(forward<4 || (sign<0 && forward==4) || vertical< -26 || vertical>=26)continue;
+    if((unsigned)forward<best){best=(unsigned)forward;chosen=seat;}
+  }
+  return chosen;
+}
 static bool captured_player(unsigned seat){
   for(unsigned d=0xd18;d<0x10d8;d+=64)if((g_ram[d+0x27]&127) && native_captive_owner(d)==seat)return true;
   return false;
@@ -869,7 +891,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
     int attachment=support_slot(d);
     if(attachment>=0 && (!g_ram[d] || !g_ram[d+1] || g_ram[d+10]!=0x52 || !(g_ram[d+0x3b]&128)))
       attachments[attachment]&=(uint8_t)~12;
-    unsigned captive=native_captive_owner(d);
+    unsigned captive=native_captive_owner(d),beam=native_beam_target(d);
     bool capsule=native_capsule(d),intro=intro_capture_actor(d),x_only=x_pickup(d) || capsule || intro;
     /* Hostile constructors choose aim before populating native HP. */
     bool constructing_hostile=at==0xdcb3 && hostile_projectile(d) && !g_ram[d+1];
@@ -884,7 +906,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
        contact.native.pass || objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
     /* Keep native X eligibility for weapon energy and persistent heart/tank
      * acquisitions, including when Zero is nearer or owns the shared world. */
-    unsigned seat=captive<2?captive:station_owner<2?station_owner:(capsule || intro)?(state.players[0].character==X3_COOP_X?0:1):scene.phase?scene.owner:pending?refill.seat:pickup && x_only?
+    unsigned seat=captive<2?captive:beam<2?beam:station_owner<2?station_owner:(capsule || intro)?(state.players[0].character==X3_COOP_X?0:1):scene.phase?scene.owner:pending?refill.seat:pickup && x_only?
         (state.players[0].character==X3_COOP_X?0:1):
         X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
     bool retired=state.players[seat].life!=X3_COOP_ALIVE;
@@ -1284,7 +1306,12 @@ static void effect_boundary(CpuState *cpu,uint32_t pc){
     int i=effect_index(cpu->X);if(i<0)return;
     /* D859 and the other allocators share this successful return. Reset on
      * every reuse, including an unowned world allocation in a former slot. */
-    bool personal=cpu->D==X3_COOP_BODY || owned_object(cpu->D) ||
+    /*08:A07E allocates the actual freeze child after the native beam hit.
+     * Its separate08:A0AE beam graphic remains an unowned world effect. */
+    bool freeze=hostile_projectile(cpu->D) && g_ram[cpu->D+10]==0x20 && g_ram[cpu->D+0x36]==2 &&
+        cpu_read16(cpu,0,(uint16_t)(cpu->S+1))==0xa081 &&
+        ((cpu_read16(cpu,0,(uint16_t)(cpu->S+2))>>8)&127)==8;
+    bool personal=freeze || cpu->D==X3_COOP_BODY || owned_object(cpu->D) ||
         controller.pass || terrain.pass || objects.native.pass || draw.pass ||
         (contact.native.pass && contact.pc==0xcb74) ||
         (target.active && effect_index(target.slot)>=0 && effect_owner[effect_index(target.slot)]);
@@ -1307,11 +1334,16 @@ static void effect_boundary(CpuState *cpu,uint32_t pc){
     unsigned seat=effect_owner[i]-1;
     target=(WorldTarget){(uint16_t)d,(uint16_t)(cpu->S-2),1,(uint8_t)seat};
     X3CoopProject(&state,g_ram,seat);
+    /* Native freeze escape reads the physical pressed-edge words as well
+     * as its body. Every owned effect borrows its creator's complete input. */
+    if(!g_ram[0x1f63]){if(seat)memcpy(g_ram+0xa8,g_ram+0xae,6);else primary_input_restore();}
     return;
   }
   if((at==0x00db1e || at==0x00db45) && target.active && target.slot==d &&
      cpu->S==(uint16_t)(target.s+2)){
     X3CoopCapture(&state,g_ram);target.active=0;
+    /* Recorded native demonstrations retain their original JOY1 stream. */
+    if(!g_ram[0x1f63]){primary_input_restore();modal_input_project();}
     if(!g_ram[d])effect_owner[i]=0;
     X3CoopProject(&state,g_ram,state.anchor);
   }

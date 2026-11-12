@@ -3574,3 +3574,62 @@ class20/variant2 source after344frames without supplied attack/spawn flags.
 The matched freeze/escape comparison is in progress. G02/E07/E08 remain open
 overall; this evidence does not cover every authored captor or all lifecycle
 exits. Actual acceptance remains100/180,80open/partial and3/15areas.
+
+### Native beam victim, freeze effects and recorded inputs — G02 partial
+
+The half-health native Buffalo AI earns class20/variant2 after344frames. With
+a vulnerable actor64px ahead of its muzzle and a nearer free actor behind it,
+the native single-actor reference freezes the victim atframe39. The previous
+paired update leaves body6E clear. The failing native-buffalo-native-freeze
+run is retained onfb35e335f21f505e49e712fde52f556d0a0800334a540d3cbcfb74f389179292.
+
+Beam targeting now chooses the nearest eligible body along the native forward
+span and26px vertical range; the original growing-tip predicate still decides
+the actual hit. The actual08:A07E allocation gives its freeze child the victim
+owner, while the separate beam graphic remains an unowned world child. Existing
+owned-effect calls borrow their creator's physical pressed-edge words as well
+as the personal body. Native recorded demonstrations retain their original
+JOY1 stream. The unguarded input change broke a real capsule demonstration;
+the1F63 guard restores the exact81-frame native control hash in both rosters.
+No new native hook entries or serialized fields are added.
+
+Native-buffalo-beam-matrix exits0 on
+d99470f2bb04dfcc8d747daba9c9fb3c08be1ba987fbd1420778bc9c7fb04ac8. All eight
+roster/victim/anchor cases match every native victim, pool, palette and source
+byte through198frames of freeze and real input escape. One actual freeze
+child owns its victim, the nearer free body stays unbound, and participation
+refusals preserve the whole machine. The actual source retires93frames later
+with both actors alive, no old owner or capture, and exact full-future replay.
+
+Native-buffalo-frozen-clear-matrix also exits0, on
+9a58089e98adb1be43eb24b765c33f830320024ddb91a08eddcbaf539c43bcb3. Each of eight
+fresh actual freezes is interrupted by the free partner's real native attack.
+The original defeat/rewardDC/stage1 transition repeats exactly, preserves both
+actors and lives2, and retires old freeze owners. The second actor completes
+its arrival32frames after the first; both then stand at the native start with
+their8px foot difference and independently respond to24 real Right frames.
+The initial assertion sampled an unfinished second teleport. CD90 is shared
+native scratch used by other stages, so its new-stage value is not evidence
+of an old freeze. No blanket scratch reset or forced arrival result is used.
+
+Native-buffalo-final-authored exits0 on
+2da24c7fdc3f87da6b62635e67aca5edaa2500314c46f0ec1ddddc9289e1bcef. Real boss
+contact kills either partner in either roster; native survivor shots, rewardDC
+and actual2585-frame return retain the fallen participant and the living X
+or Zero. Actual recorded capsule control, lifecycle interruptions and replay
+match native behavior despite conflicting input; the81-frame base hash is
+cc33dfad0d9e1d88. Intro/rescue/fallen-helper cases pass. All18 actual charged
+weapon reference/replay cases pass the changed owned-effect input path on
+be326578433425db64f2b240f81af690db8d7abc330cf29fb1b71f2db7eedcec.
+
+The broad pre-fix input run completed its earlier contact, state, camera, menu,
+stock, stage, targeting, weapon and support sections before the recorded-demo
+failure. The corrected capsule check above passes; its unrun survivor/retry
+tail passes separately in native-buffalo-final-regression-tail on2da24c7f.
+Final state/GUI builds and four CTests pass. GUI SHA256
+d4e4335f5419450b40938789b15c180715be11a58e2a09fc8218fec416448e0f.
+
+G02 remains open while the additional authored grab input-escape and weakness
+release decisions are resolved. No new complete enemy/campaign criterion is
+claimed from these subcases. Actual acceptance remains100/180,80open/partial
+and3/15areas; presentation, owner validation and final delivery remain open.

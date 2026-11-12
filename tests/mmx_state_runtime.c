@@ -14,6 +14,7 @@ static void door_install_player(const X3CoopState *setup);
 static unsigned view_read(unsigned address);
 static void view_word(unsigned address,unsigned value);
 static void vehicle_install_view(const X3CoopViewState *views,unsigned seat);
+static size_t combat_owners(const uint8_t *bytes,size_t n);
 static void native_gameplay_update(unsigned keys,bool original);
 static void native_return_on_support(size_t capacity);
 static void team_hazard_body(uint8_t *b,unsigned x,unsigned y);
