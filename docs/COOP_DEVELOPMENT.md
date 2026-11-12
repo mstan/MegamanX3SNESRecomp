@@ -3260,3 +3260,38 @@ returns0 on the same build, including actual Up+jump release, and the four
 native-vehicle-variant-final-ctest checks pass. P16 support/vehicle retirement,
 withdrawal/death history and the other terrain/campaign/presentation criteria
 remain separate open work.
+
+### Native vehicle missile retirement and rider death — P16 partial
+
+P16 remains open until authored support destruction is qualified. Native firing
+allocates each Hawk/Frog missile pair in X's personal pool through02:D8C4 while
+CC8+4D counts the live pair. On83e90a2f, actual Up+Jump after the original firing
+lock releases X with two missiles still live. Withdrawal cleared those personal
+sources but left the shared count at2. Transient cancellation and fatal cleanup
+now clear that count only for X's active class0 armor. Zero's retirement and the
+class1 cinematic armor retain their separate ownership.
+
+Native-vehicle-return-camera exits0 on state SHA256
+2d4f300c3c27406f73028020038da6e793df192e98e31882c30a1065e6a3d9ec:
+Hawk/Frog, both rosters, actual native station/fire/exit. Riding withdrawal and
+last-player withdrawal are refused without changing the complete machine.
+Withdrawing Zero leaves all80 armor bytes and X's actual live missiles equal;
+withdrawing X releases his sources/count while retaining the empty armor and
+Zero's health/shots. Withdrawal plus survivor movement replays the whole machine.
+The return setup teleports only the empty vehicle and free actor to the known
+lower plateau and installs its complete native/private camera as a prerequisite;
+this bypasses travel and does not claim safe return inside the station corridor.
+The armor survives30 original world updates while X is absent, safe return works,
+actual falling/contact reboards, and native Fire allocates a fresh missile pair.
+An earlier setup changed only private camera records and incorrectly used
+AdoptPlayer for the anchor, which intentionally skips that seat; the resulting
+empty-armor cull was invalid preparation, not a product defect.
+
+Native-vehicle-fatal-pilot exits0 in both rosters on state SHA256
+a64b00d34cdcca1f852a178e45b276f26b53ec1c20e1fa52fd598a1edd6193a3.
+The actual stage1 class08 foe hits occupied one-HP armor; its original warning,
+ejection and explosion run, and subsequent real contact kills one-HP X. No death,
+ejection, removal or survivor result is supplied. The complete sequence replays;
+Zero stays alive, moves in a bright world and advances the clock once per frame.
+Fallen X cannot return through the public API. Four CTests remain passing.
+Actual93/180 accepted,87open,3/15rollups; no new whole criterion is claimed here.

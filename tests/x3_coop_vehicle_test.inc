@@ -139,11 +139,74 @@ static void vehicle_damage(unsigned x,bool paired,uint8_t *base,uint8_t *work,si
     same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"actual vehicle weapon damage replays the complete machine");free(future);free(start);
   }
   check(RtlLoadSnapshotFromMemory(base,cut),"low-health armor branch restores before contact");X3CoopRuntimeEnable(paired);g_ram[0xcef]=1;
+  bool fatal_pilot=getenv("X3_COOP_VEHICLE_FATAL_PILOT")!=NULL;
+  if(fatal_pilot){check(paired,"native rider death requires its living free partner");size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState low=*X3CoopRuntimeState();low.players[x].body[0x27]=1;check(X3CoopEncode(&low,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"rider fatal contact supplies only one personal HP while actual armor is still occupied");door_install_player(&low);cut=RtlSaveSnapshotToMemory(base,capacity);}
+
   bool destroyed=false,released=false;unsigned variant=g_ram[0xd13];
-  for(unsigned j=0;j<640;++j){frame(0);if(!(g_ram[0xcef]&127))destroyed=true;if(destroyed && vehicle_player(x)[2]!=0x2c)released=true;if(j%120==0)fprintf(stderr,"native vehicle DESTRUCTION STEP paired%u f%u RA%u/%u/%u sub%u HP%u flags%u hitflags%u timer%u Xaction%u mode%u\n",paired,j,g_ram[0xcc8],g_ram[0xcc9],g_ram[0xcca],g_ram[0xccb],g_ram[0xcef],g_ram[0xcd3],g_ram[0xd14],g_ram[0xd0f],vehicle_player(x)[2],g_ram[0x1f22]);if(destroyed && !g_ram[0xcc8])break;}
+  for(unsigned j=0;j<640;++j){frame(0);if(!(g_ram[0xcef]&127))destroyed=true;if(destroyed && vehicle_player(x)[2]!=0x2c)released=true;if(j%120==0)fprintf(stderr,"native vehicle DESTRUCTION STEP paired%u f%u RA%u/%u/%u sub%u HP%u flags%u hitflags%u timer%u Xaction%u mode%u\n",paired,j,g_ram[0xcc8],g_ram[0xcc9],g_ram[0xcca],g_ram[0xccb],g_ram[0xcef],g_ram[0xcd3],g_ram[0xd14],g_ram[0xd0f],vehicle_player(x)[2],g_ram[0x1f22]);if(destroyed && !g_ram[0xcc8] && (!fatal_pilot || X3CoopRuntimeState()->players[x].life==X3_COOP_FALLEN))break;}
   fprintf(stderr,"native vehicle DESTRUCTION paired%u variant%u destroyed%u released%u RA%u/%u hp%u Xaction%u XHP%u ZeroHP%u life%u/%u\n",paired,variant,destroyed,released,g_ram[0xcc8],g_ram[0xcc9],g_ram[0xcef],vehicle_player(x)[2],contact_hp(x),contact_hp(x^1),X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
   check(destroyed && released && !g_ram[0xcc8],"actual low-health armor hit destroys the vehicle and releases the native pilot");
+  if(fatal_pilot){
+    check(X3CoopRuntimeState()->players[x].life==X3_COOP_FALLEN && X3CoopRuntimeState()->players[x^1].life==X3_COOP_ALIVE && !X3CoopRuntimeState()->wipe && !g_ram[0x1f22],"actual enemy contact kills only the released low-health rider and leaves no vehicle HUD or scene lock");
+    size_t done=RtlSaveSnapshotToMemory(work,capacity);uint8_t *future=malloc(done);check(future!=NULL,"native rider death future allocates");memcpy(future,work,done);
+    check(RtlLoadSnapshotFromMemory(base,cut),"native low-health pilot and occupied armor restore before actual contact");
+    for(unsigned j=0;j<640;++j){frame(0);if(!g_ram[0xcc8] && X3CoopRuntimeState()->players[x].life==X3_COOP_FALLEN)break;}
+    same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"actual vehicle destruction, release and rider death replay the complete machine");free(future);
+    unsigned before=support_position(x^1,5),clock=g_ram[0x9cc];for(unsigned j=0;j<24;++j)frame((uint32_t)SNES_PAD_RIGHT<<((x^1)*12));
+    check(support_position(x^1,5)>before && (uint8_t)(g_ram[0x9cc]-clock)==24 && (g_ppu->inidisp&0x8f)==15,"the actual free survivor moves in a bright world with one native world update after rider death");
+    check(!X3CoopRuntimeRejoin(x) && X3CoopRuntimeState()->players[x].life==X3_COOP_FALLEN,"destroyed armor cannot return the actually fallen pilot");
+  }
   vehicle_capture(paired,work,"empty");
+}
+static void vehicle_install_view(const X3CoopViewState *views,unsigned seat){
+  view_word(0x1e5d,views->camera[seat][0]);view_word(0x1e7a,views->camera[seat][0]);view_word(0x1e60,views->camera[seat][1]);view_word(0x1e7c,views->camera[seat][1]);
+  const unsigned targets[]={0x1e6e,0x1e70,0x1e78,0x1e7e};for(unsigned i=0;i<4;++i){view_word(0x1e66+2*i,views->current[seat][i]);view_word(targets[i],views->limits[seat][i]);}
+}
+static void vehicle_withdrawal(unsigned x,uint8_t *base,uint8_t *work,size_t capacity){
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
+  team_hazard_body(setup.players[x^1].body,1856,407);
+  memcpy(work,base,n);check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"vehicle withdrawal places the living free partner in the actual armor room");door_install_player(&setup);
+  X3CoopViewState views=*X3CoopViewsState();memcpy(views.limits[x^1],views.limits[x],sizeof(views.limits[x]));memcpy(views.current[x^1],views.current[x],sizeof(views.current[x]));memcpy(views.camera[x^1],views.camera[x],sizeof(views.camera[x]));X3CoopViewsSetState(&views);vehicle_install_view(&views,setup.anchor);
+  bool settled=false;for(unsigned j=0;j<180;++j){frame(0);if(g_ram[0xcca]==2 && g_ram[0xccb]==1){settled=true;break;}}
+  check(settled && vehicle_player(x)[2]==0x2c,"native vehicle settles before armed withdrawal");
+  n=RtlSaveSnapshotToMemory(base,capacity);check(!X3CoopRuntimeWithdraw(x),"a pilot cannot withdraw before its native vehicle exit");same(base,n,work,RtlSaveSnapshotToMemory(work,capacity),"refused pilot withdrawal preserves the whole machine");
+  bool fired=false;for(unsigned j=0;j<60;++j){frame((uint32_t)SNES_PAD_Y<<(x*12));if(g_ram[0xd15]){fired=true;break;}}
+  check(fired && g_ram[0xd15]==2,"real Fire allocates two native armor missiles before exit");
+  bool exited=false;for(unsigned j=0;j<90;++j){frame((uint32_t)(j%4<2?SNES_PAD_UP|SNES_PAD_B:0)<<(x*12));if(j%8==0)fprintf(stderr,"native vehicle EXIT AFTER FIRE f%u action%u/%u missiles%u\n",j,g_ram[0xcca],g_ram[0xccb],g_ram[0xd15]);if(vehicle_player(x)[2]!=0x2c && !(g_ram[0xcd3]&64)){exited=true;break;}}
+  fprintf(stderr,"native vehicle WITHDRAW READY seat%u variant%u exit%u action%u lock%u mode%u missiles%u\n",x,g_ram[0xd13],exited,vehicle_player(x)[2],vehicle_player(x)[0x64],g_ram[0x1f22],g_ram[0xd15]);
+  check(exited && g_ram[0xd15]==2,"native Up and Jump release X while its two real missiles remain live");
+  n=RtlSaveSnapshotToMemory(base,capacity);uint8_t armor[80],missiles[sizeof(setup.players[0].shots)];memcpy(armor,g_ram+0xcc8,sizeof(armor));memcpy(missiles,X3CoopRuntimeState()->players[x].shots,sizeof(missiles));
+  check(X3CoopRuntimeWithdraw(x^1),"the free partner can withdraw while X's actual armor missiles remain live");
+  check(!memcmp(armor,g_ram+0xcc8,sizeof(armor)) && !memcmp(missiles,g_ram+X3_COOP_SHOTS,sizeof(missiles)),"withdrawing Zero preserves every shared armor byte and X's live native missiles");
+  size_t only_x=RtlSaveSnapshotToMemory(work,capacity);uint8_t *unchanged=malloc(only_x);check(unchanged!=NULL,"last-pilot guard future allocates");memcpy(unchanged,work,only_x);check(!X3CoopRuntimeWithdraw(x),"an exited pilot cannot withdraw the last living actor");same(unchanged,only_x,work,RtlSaveSnapshotToMemory(work,capacity),"last-player refusal keeps live armor missiles unchanged");free(unchanged);
+  check(RtlLoadSnapshotFromMemory(base,n),"both living participants restore with actual exited missiles");
+  uint8_t other[sizeof(setup.players[0].shots)];memcpy(other,X3CoopRuntimeState()->players[x^1].shots,sizeof(other));unsigned hp=g_ram[0xcef],zhp=contact_hp(x^1);
+  check(X3CoopRuntimeWithdraw(x),"a living X can withdraw immediately after the real native exit");
+  unsigned live=0;for(unsigned i=0;i<sizeof(setup.players[0].shots);++i)live|=X3CoopRuntimeState()->players[x].shots[i];
+  fprintf(stderr,"native vehicle WITHDRAW RESULT seat%u variant%u missiles%u live%u armor%u HP%u life%u/%u\n",x,g_ram[0xd13],g_ram[0xd15],live,g_ram[0xcc8],g_ram[0xcef],X3CoopRuntimeState()->players[x].life,X3CoopRuntimeState()->players[x^1].life);
+  check(!live && !g_ram[0xd15],"cancelling the retired pilot's real missiles also releases native armor missile capacity");
+  check(g_ram[0xcc8] && g_ram[0xcef]==hp && !(g_ram[0xcd3]&64) && contact_hp(x^1)==zhp && !memcmp(other,X3CoopRuntimeState()->players[x^1].shots,sizeof(other)),"withdrawal keeps the empty armor and the free actor's health and shots intact");
+  for(unsigned j=0;j<24;++j)frame((uint32_t)SNES_PAD_LEFT<<((x^1)*12));
+  size_t done=RtlSaveSnapshotToMemory(work,capacity);uint8_t *future=malloc(done);check(future!=NULL,"vehicle withdrawal future allocates");memcpy(future,work,done);
+  check(RtlLoadSnapshotFromMemory(base,n) && X3CoopRuntimeWithdraw(x),"armed native-exit withdrawal restores and repeats");for(unsigned j=0;j<24;++j)frame((uint32_t)SNES_PAD_LEFT<<((x^1)*12));same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"armed vehicle withdrawal and survivor motion replay the complete machine");free(future);
+  /* The station corridor need not contain the conservative return clearance.
+   * Teleport only the free body and empty armor to the already-qualified
+   * native lower plateau, then require real physics, safe return and boarding. */
+  n=RtlSaveSnapshotToMemory(base,capacity);setup=*X3CoopRuntimeState();team_hazard_body(setup.players[x^1].body,384,1175);
+  memcpy(work,base,n);check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"return approach positions only the living partner on the native lower plateau");door_install_player(&setup);
+  view_word(0xccd,496);view_word(0xcea,496);view_word(0xcd0,1160);view_word(0xcec,1160);
+  views=*X3CoopViewsState();for(unsigned seat=0;seat<2;++seat){views.camera[seat][0]=256;views.camera[seat][1]=1024;views.limits[seat][0]=views.current[seat][0]=0;views.limits[seat][1]=views.current[seat][1]=1024;views.limits[seat][2]=views.current[seat][2]=views.limits[seat][3]=views.current[seat][3]=1024;}X3CoopViewsSetState(&views);vehicle_install_view(&views,setup.anchor);
+  for(unsigned j=0;j<30;++j)frame(0);
+  fprintf(stderr,"native vehicle RETURN READY Zero%u,%u action%u mode%u armor%u,%u active%u HP%u\n",support_position(x^1,5),support_position(x^1,8),vehicle_player(x^1)[2],g_ram[0x1f22],view_read(0xccd),view_read(0xcd0),g_ram[0xcc8],g_ram[0xcef]);
+  check(g_ram[0xcc8] && g_ram[0xcef]==hp && !g_ram[0xd15],"the empty armor survives native updates while X is absent without stale capacity");
+  check(X3CoopRuntimeRejoin(x),"the living withdrawn pilot returns to genuinely safe native ground");
+  unsigned ax=view_read(0xccd),ay=view_read(0xcd0);n=RtlSaveSnapshotToMemory(base,capacity);setup=*X3CoopRuntimeState();team_hazard_body(setup.players[x].body,ax,ay-80);
+  memcpy(work,base,n);check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"returned X approaches above the retained native armor using only position and velocity");door_install_player(&setup);
+  bool boarded=false;for(unsigned j=0;j<180;++j){frame(0);if(vehicle_player(x)[2]==0x2c && g_ram[0xcca]==2 && g_ram[0xccb]==1){boarded=true;break;}}
+  check(boarded && !g_ram[0xd15],"the returned living X naturally boards the retained armor with empty missile capacity");
+  bool refired=false;for(unsigned j=0;j<60;++j){frame((uint32_t)SNES_PAD_Y<<(x*12));if(g_ram[0xd15]){refired=true;break;}}
+  check(refired && g_ram[0xd15]==2,"the returned pilot actually fires a fresh native missile pair after cancellation");
+
 }
 static void native_vehicle_reference(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==1,"vehicle reference restores its real station room");
@@ -191,6 +254,7 @@ static void native_vehicle_reference(const char *fixture,uint8_t *base,uint8_t *
       fprintf(stderr,"native vehicle VARIANT%u group%u pose%u HP%u flags%u\n",g_ram[0xd13],g_ram[0xcde],g_ram[0xcdf],g_ram[0xcef],g_ram[0xcd3]);
       vehicle_capture(paired,work,"pilot");
       const char *output=getenv("X3_COOP_VEHICLE_OUTPUT");if(output && *output)check(RtlSaveSnapshot(output),"actual current-build native pilot fixture saves through the test interface");
+      if(getenv("X3_COOP_VEHICLE_WITHDRAWAL")){check(paired && variant>=2,"armed vehicle withdrawal requires a native missile variant in co-op");vehicle_withdrawal(x,base,work,capacity);break;}
       if(getenv("X3_COOP_VEHICLE_ACTIONS"))vehicle_actions(x,paired,variant,base,work,capacity);
       if(getenv("X3_COOP_VEHICLE_DAMAGE"))vehicle_damage(x,paired,base,work,capacity);
       if(getenv("X3_COOP_VEHICLE_EXTENDED"))vehicle_extended(x,paired,base,work,capacity);break;

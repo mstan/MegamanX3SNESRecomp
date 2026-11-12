@@ -44,6 +44,12 @@ static int effect_index(unsigned d){
   return d>=EFFECT_BASE && d<EFFECT_BASE+SHARED_EFFECTS*EFFECT_STRIDE &&
       !((d-EFFECT_BASE)%EFFECT_STRIDE)?(int)((d-EFFECT_BASE)/EFFECT_STRIDE):-1;
 }
+static void retire_vehicle_missiles(unsigned seat){
+  /* Native02:D8C4 allocates Ride Armor missiles in X's personal shot pool.
+   * Cancelling that pool bypasses their normal shared capacity decrement.
+   * The class1 cinematic armor has a different contract. */
+  if(state.players[seat].character==X3_COOP_X && g_ram[0xcc8] && !g_ram[0xcd2])g_ram[0xd15]=0;
+}
 static void retire_shared_effects(unsigned seat){
   for(unsigned i=0;i<SHARED_EFFECTS;++i)if(effect_owner[i]==seat+1){
     memset(g_ram+EFFECT_BASE+i*EFFECT_STRIDE,0,EFFECT_STRIDE);effect_owner[i]=0;
@@ -339,7 +345,7 @@ static bool fall_player(unsigned seat) {
   if(seat==state.anchor && state.players[seat^1].life==X3_COOP_ALIVE)
     X3CoopViewsAdoptPlayer(g_ram,&state,seat^1,view_scene());
   bool fallen=X3CoopFall(&state,seat);
-  if(fallen){learner_rescue=false;retire_shared_effects(seat);}
+  if(fallen){learner_rescue=false;retire_shared_effects(seat);retire_vehicle_missiles(seat);}
   if(fallen && (state.wipe || state.players[seat].character==X3_COOP_ZERO))stock_exit_pending=false;
   /* Original04:933C selects the Zero-loss branch;00:9D11 commits this
    * campaign flag after its fade. Co-op has no individual world fade. */
@@ -412,7 +418,7 @@ static void scene_cancel_transients(unsigned seat){
   X3CoopPlayer *p=&state.players[seat];
   memset(p->auxiliaries,0,sizeof(p->auxiliaries));memset(p->shots,0,sizeof(p->shots));
   p->shot_command=0;p->previous_actions=0;
-  retire_shared_effects(seat);
+  retire_shared_effects(seat);retire_vehicle_missiles(seat);
   p->native_flags&=15; /* Original01:8725 retires these owned effect flags. */
   p->body[0x57]=p->body[0x58]=p->body[0x5a]=p->body[0x5b]=0;
   /* These counters/latches describe the shots and children just discarded,
