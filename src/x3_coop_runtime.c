@@ -247,7 +247,8 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
  * Reuse their existing camera backup for a complete personal view borrow.
  * Pass3 means a personal controller/terrain projection, not another world pass. */
 static void personal_view_begin(unsigned seat){
-  if(!view_ready() || seat==state.anchor || state.current!=state.anchor || view_bounds.native.pass)return;
+  bool vehicle=target.active && target.slot==0xcc8 && !scene.phase && X3CoopViewsIndependent();
+  if((!view_ready() && !vehicle) || seat==state.anchor || state.current!=state.anchor || view_bounds.native.pass)return;
   const X3CoopViewState *v=X3CoopViewsState();if(!(v->valid&(1u<<seat)))return;
   memcpy(view_bounds.camera,g_ram+0x1e58,64);view_bounds.native.pass=3;
   X3CoopViewsAdoptPlayer(g_ram,&state,seat,false);
@@ -760,6 +761,54 @@ static void refill_retired_cleanup(unsigned d,unsigned seat){
     p->maximum_health=(uint8_t)maximum;
   }
 }
+/* Retail03:9639 and03:D777 both reject Zero. The one native Ride
+ * Armor controller therefore borrows X, including empty-armor contact and
+ * cleanup after his retirement. Its shared pool still advances once. */
+static void vehicle_boundary(CpuState *cpu,uint32_t pc){
+  unsigned at=pc&0x7fffff;
+  if((at==0x00da4b || at==0x00da6e) && target.active && target.slot==0xcc8 && cpu->S==target.s){
+    personal_view_end();target.active=0;settle_deaths();
+    if(!state.wipe)X3CoopProject(&state,g_ram,state.anchor);
+    return;
+  }
+  if((at!=0x00da48 && at!=0x00da6b) || !X3CoopRuntimeReady() || state.wipe || target.active || !g_ram[0xcc8] ||
+      g_ram[0xcd2] || controller.pass || terrain.pass || contact.native.pass ||
+      objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
+  unsigned x=state.players[0].character==X3_COOP_X?0:1;
+  if(x==state.current)return;
+  target=(WorldTarget){0xcc8,cpu->S,1,(uint8_t)x};
+  personal_view_begin(x);
+  if(state.players[x].life==X3_COOP_ALIVE)X3CoopProject(&state,g_ram,x);
+  else X3CoopProjectRetired(&state,g_ram,x);
+}
+static void vehicle_cull(CpuState *cpu,uint32_t pc){
+  (void)pc;
+  if(!X3CoopRuntimeReady() || state.wipe || cpu->D!=0xcc8 || !g_ram[0xcc8] || g_ram[0xcd2])return;
+  /* Complete the original03:A5EC comparison against a living view. Retain
+   * its exact wraparound arithmetic and half-open rectangle, never the gap
+   * between distant views. No camera or guest time is rewritten. */
+  for(unsigned i=0;i<2;++i){unsigned seat=state.anchor^i;
+    const uint8_t *b=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+    if(state.players[seat].life!=X3_COOP_ALIVE || !(b[0x27]&127))continue;
+    X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,seat,false);
+    uint16_t dx=(uint16_t)(word(g_ram+0xccd)-view.x+128);
+    uint16_t raw=(uint16_t)(word(g_ram+0xcd0)-view.y),dy=(uint16_t)(raw+96);
+    if(dx>=512 || dy>=416)continue;
+    cpu->A=dy;cpu->_flag_C=0;cpu->_flag_Z=0;
+    cpu->_flag_N=((uint16_t)(dy-416)&32768)!=0;
+    cpu->_flag_V=((~(raw^96)&(raw^dy))&32768)!=0;
+    cpu_mirrors_to_p(cpu);return;
+  }
+}
+static unsigned vehicle_menu_owner(void){
+  if(!(g_ram[0x1f3f]&128))return 2;
+  for(unsigned seat=0;seat<2;++seat){
+    const uint8_t *b=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+    if(state.players[seat].life==X3_COOP_ALIVE && state.players[seat].character==X3_COOP_X &&
+        (b[2]==0x66 || b[2]==0x2c))return seat;
+  }
+  return 2;
+}
 static void target_boundary(CpuState *cpu,uint32_t pc) {
   if(!X3CoopRuntimeReady())return;
   unsigned at=pc&0xffff,d=cpu->D;
@@ -769,7 +818,8 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
     bool constructing_hostile=at==0xdcb3 && hostile_projectile(d) && !g_ram[d+1];
     bool pickup=at==0xdafa && (x_only || shared_pickup(d));
     bool door=at==0xdafa && native_door(d) && g_ram[d+1]<=2;
-    bool pending=(pickup && refill.active && refill.slot==d) || ((capsule || intro) && !g_ram[d+1]) ||
+    unsigned station_owner=enemy_actor(d) && g_ram[d+10]==0x2f?vehicle_menu_owner():2;
+    bool pending=station_owner<2 || (pickup && refill.active && refill.slot==d) || ((capsule || intro) && !g_ram[d+1]) ||
         (scene.phase && scene.kind && state.players[scene.owner].life!=X3_COOP_ALIVE);
     if(state.wipe || target.active || (!pickup && !door && !enemy_actor(d)) || !g_ram[d] ||
        (!pickup && !door && !capsule && !intro && !pending && !constructing_hostile && !(g_ram[d+0x27]&127)) ||
@@ -777,7 +827,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
        contact.native.pass || objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
     /* Keep native X eligibility for weapon energy and persistent heart/tank
      * acquisitions, including when Zero is nearer or owns the shared world. */
-    unsigned seat=(capsule || intro)?(state.players[0].character==X3_COOP_X?0:1):scene.phase?scene.owner:pending?refill.seat:pickup && x_only?
+    unsigned seat=station_owner<2?station_owner:(capsule || intro)?(state.players[0].character==X3_COOP_X?0:1):scene.phase?scene.owner:pending?refill.seat:pickup && x_only?
         (state.players[0].character==X3_COOP_X?0:1):
         X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
     bool retired=state.players[seat].life!=X3_COOP_ALIVE;
@@ -1528,6 +1578,10 @@ void X3CoopRuntimeFrame(void) {
     if(!interp_bridge_add_pre_opcode_hook(draw_pcs[i],draw_boundary))enabled=false;
   if(!interp_bridge_add_pre_opcode_hook(0x3dff43,checkpoint_query) ||
      !interp_bridge_add_pre_opcode_hook(0x3dff4a,checkpoint_query))enabled=false;
+  static const uint32_t vehicle_pcs[]={0x00da48,0x00da4b,0x00da6b,0x00da6e};
+  for(unsigned i=0;i<sizeof(vehicle_pcs)/sizeof(*vehicle_pcs);++i)
+    if(!interp_bridge_add_pre_opcode_hook(vehicle_pcs[i],vehicle_boundary))enabled=false;
+  if(!interp_bridge_add_pre_opcode_hook(0x03a60a,vehicle_cull))enabled=false;
   static const uint32_t target_pcs[]={0x00dd1a,0x00dcb3,0x00dccf,0x00dcf3,0x00dc68,0x00dc8c,
       0x00dafa,0x00daaf,0x00dad3};
   for(unsigned i=0;i<sizeof(target_pcs)/sizeof(*target_pcs);++i)
@@ -1640,13 +1694,13 @@ static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePa
   if(script->phase && script->kind==SCENE_INTRO_RETIRED_X &&
      (s->wipe || s->current!=s->anchor || script->owner!=s->anchor ||
       a || b || h || o || v || q || world->active || healing->active))return false;
-  if(world->active && ((!enemy_actor(world->slot) && !item_actor(world->slot) && effect_index(world->slot)<0) || a || b || o || v))return false;
+  if(world->active && ((!enemy_actor(world->slot) && !item_actor(world->slot) && effect_index(world->slot)<0 && world->slot!=0xcc8) || a || b || o || v))return false;
   const NativePass *active=a?c:b?t:h?&hit->native:o?&obj->native:v?art:q?&support->native:NULL;
   unsigned base=h?hit->seat:q?support->seat:s->anchor;
   if(active && (base>1 || s->wipe || s->current!=(base^(active->pass==2)) ||
      s->players[s->current].life!=X3_COOP_ALIVE))return false;
   if(world->active) {
-    bool cleanup=(healing->active && healing->slot==world->slot && healing->seat==world->seat) ||
+    bool cleanup=world->slot==0xcc8 || (healing->active && healing->slot==world->slot && healing->seat==world->seat) ||
         (script->phase && script->kind && script->owner==world->seat);
     unsigned seat=s->players[world->seat].life==X3_COOP_ALIVE || cleanup?world->seat:s->anchor;
     if(h?hit->seat!=seat:q?support->restore!=seat:!s->wipe && s->current!=seat)return false;
@@ -1735,7 +1789,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
        world.active || support.native.pass || spawn.active || bounds.native.pass)))return false;
   if(scripted.phase && (scripted.kind==SCENE_STAGE_ENTRY || scripted.kind==SCENE_INTRO_RETIRED_X) &&
      (spawn.active || bounds.native.pass))return false;
-  if(bounds.native.pass==3 && (!views[0] || !loaded.initialized || (c.pass!=2 && t.pass!=2)))return false;
+  if(bounds.native.pass==3 && (!views[0] || !loaded.initialized || (c.pass!=2 && t.pass!=2 && !(world.active && world.slot==0xcc8))))return false;
   if(world.active && effect_index(world.slot)>=0 && owners[effect_index(world.slot)]!=world.seat+1)return false;
   if(!loaded.initialized)for(unsigned i=0;i<SHARED_EFFECTS;++i)if(owners[i])return false;
   memcpy(effect_owner,owners,sizeof(effect_owner));

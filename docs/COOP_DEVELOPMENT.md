@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 91/180; 89 open/partial. Accepted areas: 3/15
+**Accepted touch points: 92/180; 88 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -54,7 +54,7 @@ campaign or co-op gameplay acceptance.
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | P01-P05 accepted (5/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
+| Supports/hazards | P01-P05/P14 accepted (6/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07/C09/C10/C12 accepted (9/12); armored parts, attack origins and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
@@ -3155,3 +3155,50 @@ before assistance, and excludes a retired actor from further positioning. It
 does not supply a hit, boss death, reward flag or exit, nor add a production
 combat exception. Evidence is net-lan/online-reward89-early-{x,zero}/observations.json
 and both peer logs. Actual91/180 accepted,89open,3/15rollups.
+
+### Native Ride Armor boarding and empty-vehicle eligibility — P14
+
+P14 is accepted. Actual92/180 accepted,88open,3/15rollups.
+
+The matched native station test exposed an actual shared-window defect. With
+X above the stage1 station and the living Zero anchor in the lower room,
+retail armor appeared at1712,393, then the next original controller update
+clamped it to1264,392 using Zero's room limits and subsequently retired it.
+The original single-X reference boarded and moved the armor32px. Station
+cleanup also needed its actual X menu recipient through the late boarding
+freeze. The native station03:D777 and empty-armor03:9639 predicates both
+explicitly reject Zero; this restriction is retained.
+
+The shared00:DA48/DA6B callback now borrows the unique X's complete personal
+actor and private camera through the original return, then restores the
+anchor and camera. The one native armor pool runs once. The original03:A5EC
+half-open culling comparison accepts an actual living view, retaining its
+wraparound arithmetic and excluding the space between distant views. The
+existing serialized WorldTarget and private-camera backup hold the borrow;
+no additional persistent pilot field or duplicated vehicle simulation is used.
+The cinematic armor class remains on its original path.
+
+Frozen ROM-backed binary
+bc02d820ebd4cd218c44a278aafde75c5312fb7d0e284746686cf17da673724e:
+native-vehicle-boarding-original, -coop and -reversed each return0. Actual
+station interaction summons and boards;30 physical Right frames move the
+armor1712to1744. The other actor's opposite Left really moves him while all80
+armor bytes match the neutral-partner reference. Active piloting and free
+movement replay the complete machine exactly. Actual Up+jump releases the
+pilot and occupied flag. Only after observing that native exit, position and
+velocity prerequisites prepare a falling Zero at the empty armor, with X112px
+away: neither boards. The inverse approach lets falling X board the same
+armor while Zero remains free. Both roster assignments pass. A first exit
+probe waited90frames and saw the original X naturally reboard after falling
+back; the corrected check observes the earned empty interval before preparing
+the next contact approach, without writing a boarding/exit/result flag.
+
+Evidence: build-coop/qa-state/native-vehicle-{matched,lifetime,pilot-view,boarding}-*
+receipts/logs and current pilot fixtures in activation-route-work and
+weapon-state-work. Four CTests pass. Earlier regression job definitions pointed
+to413017-byte historical snapshots; these were safely rejected. The retained
+413057-byte effect-owner-fixtures supply the current intro/support recheck:
+native-vehicle-regate-current-intro and -support each return0 on the same
+frozen binary, covering native captures, rescue, retired participants and
+separate original supports in both rosters.
+P15 variant damage/presentation and P16 vehicle/support lifecycle remain open.

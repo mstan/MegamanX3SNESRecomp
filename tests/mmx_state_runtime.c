@@ -45,6 +45,7 @@ static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned se
 #include "x3_coop_weapon_test.inc"
 #include "x3_coop_preflight_test.inc"
 #include "x3_coop_midpass_test.inc"
+#include "x3_coop_vehicle_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -176,6 +177,11 @@ int main(int argc,char **argv) {
             "authored pit uses the requested real roster and default unprotected campaign");
         native_shared_authored_pits(path,saved,after,cap);
       }
+    }
+    fixture=getenv("X3_COOP_VEHICLE_STATE");
+    if(fixture && *fixture){
+      const char *room=getenv("X3_COOP_REMOTE_RESOURCE_OUTPUT");check(room && *room && RtlLoadSnapshot(fixture),"vehicle route uses known local fixtures without a file picker");
+      size=RtlSaveSnapshotToMemory(saved,cap);remote_resource_checks(saved,size,after,cap);native_vehicle_reference(room,saved,after,cap);
     }
     fixture=getenv("X3_COOP_TRANSITION_DOOR_STATE");
     if(fixture && *fixture){
