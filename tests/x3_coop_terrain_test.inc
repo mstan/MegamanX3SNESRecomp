@@ -123,22 +123,48 @@ static void native_ladder_checks(const char *fixture,uint8_t *base,uint8_t *work
   if(getenv("X3_COOP_ATTACK_ORIGIN")){native_attack_origin_checks(base,work,capacity);return;}
   if(getenv("X3_COOP_SLOPES")){native_slope_checks(base,work,capacity);return;}
   if(getenv("X3_COOP_LADDER_TOP_ONEWAY")){native_ladder_top_oneway(base,work,capacity);return;}
-  unsigned seat=getenv("X3_COOP_LADDER_SEAT")?(unsigned)atoi(getenv("X3_COOP_LADDER_SEAT")):0;check(seat<2,"actual ladder seat is valid");
+  bool cold=getenv("X3_COOP_LADDER_COLD")!=NULL;unsigned seat=getenv("X3_COOP_LADDER_SEAT")?(unsigned)atoi(getenv("X3_COOP_LADDER_SEAT")):0;check(seat<2,"actual ladder seat is valid");
   size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();if(getenv("X3_COOP_LADDER_REVERSED")){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}setup.current=setup.anchor=(uint8_t)(seat^1);
-  for(unsigned s=0;s<2;++s){team_hazard_body(setup.players[s].body,s?2392:1480,s?660:835);setup.players[s].body[0x88]=255;setup.players[s].body[0x8a]=0;}
+  for(unsigned s=0;s<2;++s){unsigned short_ladder=cold?s!=seat:s;team_hazard_body(setup.players[s].body,short_ladder?2392:1480,short_ladder?660:835);setup.players[s].body[0x88]=255;setup.players[s].body[0x8a]=0;}
   memcpy(work,base,n);check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"authored ladder approaches supply only normal body positions and protection");door_install_player(&setup);
   X3CoopViewsConfigure(true);X3CoopViewState views=*X3CoopViewsState();views.independent=views.initialized=1;views.stage=2;views.valid=views.camera_valid=3;
-  for(unsigned s=0;s<2;++s){views.camera[s][0]=(uint16_t)(s?2264:1352);views.camera[s][1]=(uint16_t)(s?512:640);views.limits[s][0]=views.current[s][0]=0;views.limits[s][1]=views.current[s][1]=8192;views.limits[s][2]=views.current[s][2]=512;views.limits[s][3]=views.current[s][3]=768;}X3CoopViewsSetState(&views);vehicle_install_view(&views,setup.anchor);
+  for(unsigned s=0;s<2;++s){unsigned short_ladder=cold?s!=seat:s;views.camera[s][0]=(uint16_t)(short_ladder?2264:1352);views.camera[s][1]=(uint16_t)(short_ladder?512:cold?768:640);views.limits[s][0]=views.current[s][0]=0;views.limits[s][1]=views.current[s][1]=8192;views.limits[s][2]=views.current[s][2]=512;views.limits[s][3]=views.current[s][3]=768;}X3CoopViewsSetState(&views);vehicle_install_view(&views,setup.anchor);
   /* Walking through1408 normally admits all four native region sensors.
    * The teleport bypasses that frontier, so admit their real event column. */
-  X3CoopViewsConfigure(false);CpuState caller=g_cpu;view_word(0,1408);view_word(2,608);view_word(4,320);g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P&=(uint8_t)~0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);check(interp_bridge_run(&g_cpu,0x00ded3) && g_cpu.S==caller.S,"actual native event column admits the ladder room's region-controller prerequisites");uint64_t master=g_cpu.master_cycles;uint32_t cycles=g_cpu.cycles;g_cpu=caller;g_cpu.master_cycles=master;g_cpu.cycles=cycles;X3CoopViewsSetState(&views);
-  unsigned sensors=0;for(unsigned d=0x1d18;d<0x1e18;d+=16)if(g_ram[d] && !g_ram[d+10] && g_ram[d+11]<4)sensors|=1u<<g_ram[d+11];check(sensors==15,"all four authored3C:D557..D56C native region sensors are present before either camera comparison");n=RtlSaveSnapshotToMemory(base,capacity);
-  LadderSample native[240];
+  /* The current room's lower sensors are a prerequisite already admitted by
+   * walking to this ladder. Keep the upper row cold for the frontier test. */
+  if(cold){
+    /* A teleport does not fill retail VRAM. Pan the original camera left by
+     * more than one complete screen at the lower room's fixedY768, so every
+     * visible column is genuinely streamed without admitting the upperY640. */
+    unsigned warm_x=1352+view_read(0x1e84);size_t cut=RtlSaveSnapshotToMemory(work,capacity);X3CoopState warm=*X3CoopRuntimeState();X3CoopCapture(&warm,g_ram);warm.current=warm.anchor=(uint8_t)seat;campaign_position_only(&warm.players[seat],warm_x,871);
+    check(X3CoopEncode(&warm,work+contact_context_offset(work,cut),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,cut),"native stream warm-up selects the actual tested character without supplying event results");door_install_player(&warm);
+    X3CoopViewState pan=views;pan.camera[seat][0]=1704;pan.camera[seat][1]=768;X3CoopViewsConfigure(false);vehicle_install_view(&pan,seat);X3CoopRuntimeEnable(false);unsigned tick=g_ram[0x9cc];
+    for(unsigned f=0;f<64;++f){view_word(X3_COOP_BODY+5,warm_x);view_word(X3_COOP_BODY+8,871);frame(0);}
+    fprintf(stderr,"native UPWARD LOWER STREAM camera%u,%u ticks%u upper%u/%u actor%u,%u\n",view_read(0x1e5d),view_read(0x1e60),(uint8_t)(g_ram[0x9cc]-tick),g_ram[0xfa2f],g_ram[0xfa34],view_read(X3_COOP_BODY+5),view_read(X3_COOP_BODY+8));
+    check(view_read(0x1e5d)<=1704-256 && view_read(0x1e60)==768 && (uint8_t)(g_ram[0x9cc]-tick)==64 && !g_ram[0xfa2f] && !g_ram[0xfa34],"the real native lower-room pan fills its screen while both tested upper controllers remain cold");
+    views.camera[seat][0]=(uint16_t)view_read(0x1e5d);views.camera[seat][1]=(uint16_t)view_read(0x1e60);const unsigned camera_targets[4]={0x1e6e,0x1e70,0x1e78,0x1e7e};for(unsigned i=0;i<4;++i){views.current[seat][i]=(uint16_t)view_read(0x1e66+i*2);views.limits[seat][i]=(uint16_t)view_read(camera_targets[i]);}
+    X3CoopCapture(&warm,g_ram);for(unsigned s=0;s<2;++s){unsigned short_ladder=s!=seat;team_hazard_body(warm.players[s].body,short_ladder?2392:1480,short_ladder?660:835);warm.players[s].body[0x88]=255;warm.players[s].body[0x8a]=0;}warm.current=warm.anchor=(uint8_t)(seat^1);
+    cut=RtlSaveSnapshotToMemory(work,capacity);check(X3CoopEncode(&warm,work+contact_context_offset(work,cut),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,cut),"the actual warmed native stage restores both normal ladder approaches");door_install_player(&warm);setup=warm;X3CoopViewsSetState(&views);vehicle_install_view(&views,setup.anchor);
+  }else{
+  X3CoopViewsConfigure(false);CpuState caller=g_cpu;view_word(0,1408);view_word(2,608);view_word(4,320);g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P&=(uint8_t)~0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);check(interp_bridge_run(&g_cpu,0x00ded3) && g_cpu.S==caller.S,"actual native event column admits only the ladder room's required prerequisite row");uint64_t master=g_cpu.master_cycles;uint32_t cycles=g_cpu.cycles;g_cpu=caller;g_cpu.master_cycles=master;g_cpu.cycles=cycles;X3CoopViewsSetState(&views);
+  }
+  unsigned sensors=0;for(unsigned d=0x1d18;d<0x1e18;d+=16)if(g_ram[d] && !g_ram[d+10] && g_ram[d+11]<4)sensors|=1u<<g_ram[d+11];check(sensors==(cold?3u:15u),"native lower-room prerequisites retain the intended upper-controller eligibility");
+  if(cold)check(!g_ram[0xfa2f] && !g_ram[0xfa34],"authored upper region controllers3C:D557/D55E remain cold before the upward native route");
+  n=RtlSaveSnapshotToMemory(base,capacity);
+  LadderSample native[240];unsigned native_birth[2]={0,0};uint8_t native_flags[240][2];
+  bool prior_wide=g_config.widescreen,prior_split=X3Display_LocalSplit();int prior_seat=X3Display_PresentationSeat();unsigned prior_hud=X3CoopHudLayout();uint8_t *images=cold?malloc(4u*256u*224u*4u):NULL;
+  if(cold){check(images!=NULL,"bounded cold-upward native scanouts allocate");g_config.widescreen=false;X3Display_SetLocalSplit(false);X3CoopHudSetLayout(X3_COOP_HUD_NATIVE_REFERENCE);X3Display_SetPresentationSeat(-1);}
   for(unsigned paired=0;paired<2;++paired){
     check(RtlLoadSnapshotFromMemory(base,n),"native/co-op ladder sequence starts from the same complete positioned stage");
     if(!paired){X3CoopState solo=*X3CoopRuntimeState();solo.anchor=solo.current=(uint8_t)seat;memcpy(work,base,n);check(X3CoopEncode(&solo,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"original reference selects the actual tested native character");door_install_player(&solo);X3CoopViewsConfigure(false);vehicle_install_view(&views,seat);X3CoopRuntimeEnable(false);}
+    if(cold)X3Display_SetPresentationSeat(paired?(int)seat:-1);
     unsigned start=support_position(seat,8),top=start,down=0,clock=g_ram[0x9cc],held_x=0,held_y=0;bool climbing=false,descending=false,detached=false;LadderSample before_jump={0};
     for(unsigned f=0;f<240;++f){frame(ladder_inputs(seat,f,paired!=0));LadderSample now=ladder_sample(seat,paired!=0);
+      if(cold && (f==56 || f==90 || f==119 || f==239)){unsigned sample=f==56?0:f==90?1:f==119?2:3;check(g_ppu->renderPitch==256*4,"cold upward comparison uses the original native256px field");uint8_t *expected=images+sample*256u*224u*4u;
+        if(!paired)memcpy(expected,g_ppu->renderBuffer,256u*224u*4u);
+        else{check(X3Display_RenderedPrivateFrame(),"P2-leading upward scanout uses the actual independent compositor");const uint8_t *actual=(const uint8_t *)g_ppu->renderBuffer;unsigned differences=0,nonblack=0;for(unsigned px=0;px<256u*224u;++px){if((px&255)<32 && (px>>8)<112)continue;nonblack+=expected[px*4] || expected[px*4+1] || expected[px*4+2];differences+=memcmp(expected+px*4,actual+px*4,3)!=0;}fprintf(stderr,"native UPWARD STREAMED IMAGE seat%u char%u step%u differences%u nonblack%u\n",seat,setup.players[seat].character,f+1,differences,nonblack);if(differences){WritePpm("native-upward-original.ppm",expected,256*4,256,224,0,false);WritePpm("native-upward-private.ppm",actual,256*4,256,224,0,false);check(RtlSaveSnapshot("native-upward-streamed-mismatch.sav"),"actual upward streamed-image mismatch retains its complete native machine");}check(nonblack>1000 && !differences,"actual independent upward room tiles and native body match original world scanout before entry, at the top and after reversal");}}
+      if(cold)for(unsigned i=0;i<2;++i){unsigned flag=i?0xfa34:0xfa2f;if(g_ram[flag] && (!paired?!native_birth[i]:f+1==native_birth[i])){if(!paired)native_birth[i]=f+1;fprintf(stderr,"native UPWARD ADMISSION paired%u seat%u char%u sensor%u step%u actorY%u cameraY%u\n",paired,seat,setup.players[seat].character,i,f+1,now.y,now.cy);}if(paired && g_ram[flag]!=native_flags[f][i])fprintf(stderr,"native UPWARD FLAG DIFFERENCE f%u sensor%u native%u paired%u actorY%u cameraY%u other%u,%u\n",f+1,i,native_flags[f][i],g_ram[flag],now.y,now.cy,support_position(seat^1,5),support_position(seat^1,8));if(!paired)native_flags[f][i]=g_ram[flag];else check(g_ram[flag]==native_flags[f][i],"both living views admit the cold authored upper controller on its original native step");}
       if(f<120){if(now.y<top)top=now.y;climbing|=now.action==0x2a;}
       else if(f<210){if(now.y>down)down=now.y;descending|=now.action==0x2a;}
       if(f==209)before_jump=now;if(f>=210)detached|=now.action!=0x2a && now.x>before_jump.x+8;
@@ -148,9 +174,19 @@ static void native_ladder_checks(const char *fixture,uint8_t *base,uint8_t *work
     }
     fprintf(stderr,"native LADDER QUALIFY paired%u seat%u char%u start%u top%u down%u climb%u descend%u detach%u viewY%u->%u\n",paired,seat,setup.players[seat].character,start,top,down,climbing,descending,detached,native[0].cy,native[119].cy);
     check(climbing && descending && top+64<start && down>top+64 && detached && contact_hp(seat),"real native Up/Down traverse the authored ladder and Right/Jump detach through its native exit");
-    if(!seat)check(before_jump.action==0x2a,"the long authored ladder exercises actual Jump from mid-climb");
+    if(cold)check(native_birth[0] && native_birth[1] && native_birth[0]<120 && native_birth[1]<120,"actual upward scrolling admits both upper native room controllers before completing the climb");
+    if(cold || !seat)check(before_jump.action==0x2a,"the long authored ladder exercises actual Jump from mid-climb");
     check((uint8_t)(g_ram[0x9cc]-clock)==240 && native[0].cy!=native[119].cy,"native ladder travel scrolls through its authored vertical band with one world update per frame");
-    if(paired){check(support_position(seat^1,5)==held_x && support_position(seat^1,8)==held_y && vehicle_player(seat^1)[2]==0x2a,"the other actual ladder rider holds its own rung under the tested actor's opposite directions and jump");size_t done=RtlSaveSnapshotToMemory(work,capacity);uint8_t *future=malloc(done);check(future!=NULL,"actual ladder future allocates");memcpy(future,work,done);check(RtlLoadSnapshotFromMemory(base,n),"actual two-rider ladder sequence restores before replay");for(unsigned f=0;f<240;++f)frame(ladder_inputs(seat,f,true));same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"both ladder actors, native room cameras and the whole machine replay identically");free(future);}
+    if(paired){check(support_position(seat^1,5)==held_x && support_position(seat^1,8)==held_y && vehicle_player(seat^1)[2]==0x2a,"the other actual ladder rider holds its own rung under the tested actor's opposite directions and jump");size_t done=RtlSaveSnapshotToMemory(work,capacity);uint8_t *future=malloc(done);check(future!=NULL,"actual ladder future allocates");memcpy(future,work,done);check(RtlLoadSnapshotFromMemory(base,n),"actual two-rider ladder sequence restores before replay");for(unsigned f=0;f<240;++f)frame(ladder_inputs(seat,f,true));same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"both ladder actors, native room cameras and the whole machine replay identically");
+      if(cold){check(g_ram[0xfa2f] && g_ram[0xfa34],"both native upper controllers still cover the tested living view before retirement");
+        for(unsigned mode=0;mode<2;++mode){check(RtlLoadSnapshotFromMemory(future,done),"actual upper-controller coverage restores before removing its view");
+          for(unsigned f=0;f<8;++f)frame((uint32_t)SNES_PAD_B<<((seat^1)*12));check(vehicle_player(seat^1)[2]!=0x2a && !vehicle_player(seat^1)[0x64],"the other actual ladder rider earns a native Jump detach before participation changes");
+          if(!mode)check(X3CoopRuntimeWithdraw(seat),"the genuinely detached living ladder actor withdraws through the public API");
+          else{X3CoopState fallen=*X3CoopRuntimeState();X3CoopCapture(&fallen,g_ram);check(X3CoopFall(&fallen,seat),"fallen-view exclusion supplies only the lifecycle precondition");size_t cut=RtlSaveSnapshotToMemory(work,capacity);check(X3CoopEncode(&fallen,work+contact_context_offset(work,cut),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,cut),"fallen-view precondition restores without changing any world controller");door_install_player(&fallen);}
+          unsigned tick=g_ram[0x9cc];for(unsigned f=0;f<8;++f)frame(0);check(!g_ram[0xfa2f] && !g_ram[0xfa34] && X3CoopRuntimeState()->players[seat^1].life==X3_COOP_ALIVE && (uint8_t)(g_ram[0x9cc]-tick)==8,"native upper controllers retire once their only covering view is withdrawn or fallen while the distant survivor continues");}
+        check(RtlLoadSnapshotFromMemory(future,done),"controller-retirement probes preserve the complete living ladder future");}
+      free(future);}
   }
 
+  if(cold){free(images);g_config.widescreen=prior_wide;X3Display_SetLocalSplit(prior_split);X3Display_SetPresentationSeat(prior_seat);X3CoopHudSetLayout(prior_hud);}
 }

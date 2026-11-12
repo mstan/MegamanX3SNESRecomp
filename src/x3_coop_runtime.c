@@ -215,6 +215,23 @@ static void view_spawn_span(unsigned index,bool next){
   putword(g_ram+2,scan==SCAN_DOWN?v.y+240:v.y-32);
   putword(g_ram+4,scan==SCAN_FULL?288:32);
 }
+/*03:DDF3 retains a camera-command rectangle against [camera-64,camera+320).
+ * The command still executes once against the canonical body; private limit
+ * parsing owns the other view. Its lifetime must cover either living region. */
+static bool view_region_wanted(unsigned d){
+  if(d<0x1d18 || d>=0x1e18 || (d-0x1d18)%16 || !g_ram[d] || g_ram[d+10])return false;
+  unsigned record=word(g_ram+d+4);size_t at=0x18000+(record&32767);
+  if(record<0xe1ef || record+8>0xf2cc || at+8>g_snes->cart->romImageSize)return false;
+  const uint8_t *r=g_snes->cart->rom+at;
+  int right=word(r),left=word(r+2),bottom=word(r+4),top=word(r+6);
+  for(unsigned seat=0;seat<2;++seat){
+    const uint8_t *body=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+    if(state.players[seat].life!=X3_COOP_ALIVE || !(body[0x27]&127) || body[2]==12)continue;
+    X3CoopView v=X3CoopViewsForPlayer(g_ram,&state,seat,false);
+    if(right>=(int)v.x-64 && left<(int)v.x+320 && bottom>=(int)v.y-64 && top<(int)v.y+320)return true;
+  }
+  return false;
+}
 static void view_world_boundary(CpuState *cpu,uint32_t pc) {
   if(stage_pending())return;
   unsigned at=pc&0x7fffff;
@@ -250,6 +267,10 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
   bool retain_door=enabled && state.initialized && scene.phase && scene.kind<=SCENE_CAPSULE_AWARD && scene.slot==cpu->D &&
       at==0x02d58a && g_ram[cpu->D+1]<10;
   if(!view_ready() && !retain_refill && !retain_door)return;
+  if(at==0x03de3e){
+    if(view_region_wanted(cpu->D))interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xde39);
+    return;
+  }
   if(at==0x00de43) {
     X3CoopCapture(&state,g_ram);
     X3CoopViewsUpdate(g_ram,&state,false,false);view_spawn_begin();
@@ -1831,7 +1852,7 @@ void X3CoopRuntimeFrame(void) {
       0x04c07f,0x04c09d,0x00dd1a,0x00dafa,0x00dccf,0x00dcf3,0x00dc68,0x00dc8c};
   for(unsigned i=0;i<sizeof(solid_pcs)/sizeof(*solid_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(solid_pcs[i],solid_boundary))enabled=false;
-  static const uint32_t view_pcs[]={0x00da38,0x00de43,0x00dec3,0x00decf,
+  static const uint32_t view_pcs[]={0x03de3e,0x00da38,0x00de43,0x00dec3,0x00decf,
       0x00df1e,0x00df4c,0x00df9f,0x02d58a,0x02d5ab,0x02d5da,0x02d611,0x02d636};
   for(unsigned i=0;i<sizeof(view_pcs)/sizeof(*view_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(view_pcs[i],view_world_boundary))enabled=false;

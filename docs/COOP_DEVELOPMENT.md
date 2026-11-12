@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 104/180; 76 open/partial. Accepted areas: 3/15
+**Accepted touch points: 105/180; 75 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -54,7 +54,7 @@ campaign or co-op gameplay acceptance.
 | Individual death | D01-D05/D07/D09-D11/D14-D16 accepted (12/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
-| Separated spawning | A01/A04/A06-A08/A14 accepted (6/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
+| Separated spawning | A01/A03-A04/A06-A08/A14 accepted (7/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | P01-P05/P07-P08/P10-P11/P14-P16 accepted (12/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
@@ -3821,3 +3821,55 @@ c34ceb9e85ff7c520229c516bf62a86a55fb2ba01ca267bbbfad8ac6f0ef7395.
 
 Other capture families and E07-E10/D12 remain open. A03 cold upward admission
 is the next active check; no owner playtest or release has occurred.
+
+
+### Cold upward streaming and native camera-command lifetime
+
+A03 is accepted;105/180 accepted,75open/partial,3/15areas. The actual stage2
+long ladder admits source3C:D557/D55E at1408/640 (flagsFA2F/FA34) on native
+world step57, before the actor enters the upper region. The original culling
+helper03:DDF3 only retained each camera-command rectangle against the canonical
+camera. With the other actor holding a distant ladder, the second view's
+controller was incorrectly retired on step78 although its view still needed it.
+
+At03:DE3E, retain the original command while either living view intersects its
+authored rectangle and native64/320 margins. The cartridge still executes each
+command once against the canonical body; the existing parser supplies private
+limits. Hook the separately emitted03:DDF3 culling entry itself; routing its
+caller03:DD76 did not expose the nested compiled helper. No state-format change
+or actor projection is added. All487 listed native region rectangles across
+15 stage lists use ordered coordinates in0..8192, including stage14's alias.
+
+Four actual roster/seat cases pass on native-region-qualified, child0, state
+SHA256cc59bce9f16929bb4ee729ef88ad87604e5786cc703691c11fe07b25a2027c33.
+Each original/paired240-update Up/Down/Jump sequence matches event eligibility,
+body position/velocity/pose, actual private camera and every current limit;
+complete futures replay exactly. Both controllers are born on step57 at
+actorY767/cameraY671. X climbs to687 and Zero to679 above the real704 ladder cap,
+then descends and jumps off through the native path.
+
+A native64-update lateral pan exceeding one screen first fills the lower room's
+actual VRAM while both upper flags remain0. Merely teleporting the native camera
+left an incomplete visual reference; no compositor repair was justified by that
+setup. Sixteen native/private world scanouts at steps57/91/120/240 match exactly,
+covering admission, approach, top and reversal. Only the actual top-left HUD
+rectangle is excluded from this world comparison; the private owner badge is
+intentionally distinct from the retail X badge, and HUD ownership has its own
+gates. No extra simulation is run for the private view.
+
+After native Jump detaches the other rider too, public withdrawal removes only
+the tested view and the native commands retire. A separate fallen lifecycle
+precondition verifies the same exclusion without claiming a native death test.
+All8 retirement probes leave the distant living actor progressing8 world ticks;
+the complete living future restores afterward.
+
+Affected native-region-world-regression and native-region-captors both child0
+on0f8ccabfec23791af8188e3f5172b0ee6fccd0f738e95e4e76c94ffabbf0602d:
+actual activation/retention/support/shared assists, mid-allocation/preflight,
+and the full existing Crawfish/Buffalo/Toxic hold/release references. Both rosters
+retain27 malformed-input and4 truncation refusals. native-region-final-builds
+child0 includes production GUI and4CTest; GUI SHA256
+01cf0f6e3507f7fd4453296918951771a57500fc885b9effb85ee93870f78689.
+
+Other frontiers, complete per-stage presentation, remaining campaign mechanics,
+owner/DualSense checks and final release remain open.
