@@ -88,3 +88,13 @@ one world source update, real source fatalities, survivor/living clears,
 pre-reward child retirement and full reward/arrival replay pass. Actual
 consumed03 and balanced native returns remain qualified. See G08 evidence
 in COOP_DEVELOPMENT.md; this does not accept other captive families.
+
+G09 native-target follow-up: Hornet class21 bees and markers retain their
+actual CC5C owner, and marked homing children inherit the real same-parent
+marker owner. Nearest-free retargeting previously changed an existing latch
+and a marked flight. Original body/source/steering references now match.
+Persistent21 contact also retries each eligible body once; source observation
+avoids masking a missed contact with another bee's later damage. Actual
+absence, timed explosion, survivor/living clears, pre-reward child retirement
+and full native rewards/arrival replay pass. Existing consumed/native-return/
+other-persistent/Toxic-carrier gates pass. No new snapshot format or hook.

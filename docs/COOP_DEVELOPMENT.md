@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 109/180; 71 open/partial. Accepted areas: 3/15
+**Accepted touch points: 110/180; 70 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G08 accepted (8/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G09 accepted (9/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -4085,3 +4085,74 @@ pass. Orb mechanics SHA6181d5f4; timed-field/regression SHA
 production GUI SHAbe904e6f673fbc5386d363cbd1a8ba3e6cf8ab87ac0ba794464798edb9b56c64.
 Actual109/180 accepted,71 open,3/15 areas(R/M/N). No other capture, visual or
 campaign criterion receives acceptance from these permutations.
+
+### Native Blast Hornet attachments, marked targeting and clears — G09
+
+G09 is accepted. The current stage1/class53 checkpoint2 route earns its real
+32HP introduction and control release (loader57/ready307/intro540), floor2224,
+arena7936..8192 and camera7936/2048. Native39:9BA9/9DF6 runs the boss once.
+Actual39:A1DA/A1A1/A211 create class21 normal bees, low-health homing bees and
+the target marker, with their real parent+38. No attack/latch/result flags are
+supplied; position, personal protection and assisted low bossHP are prerequisites.
+
+Three measured co-op defects are corrected. A real kind0 bee and kind4 target
+marker changed to the nearer free actor after their CC5C latch, while original
+native references retained the actual owner. Existing per-hostile owner tags
+now retain that actor through native follow/timer/retirement; a bee or marker
+does not turn the otherwise free actor into a captive. One actual active bee
+also stopped its CB31 continuation after the first actor. Source-specific
+observation proved native damage2 for each original body but only Zero damage
+in the previous paired source update; a later different bee could conceal the
+omission in whole-frame health. Class21 joins persistent20/25/26/27. Ordinary
+consumed shots retain their single-hit guard.
+
+The real low-health marker then exposed an independent homing defect. With
+parent3F=80 and source1358 at its native steering timer, the marked character's
+original reference selects angle10/velocity01C9,FF1C. The old paired update
+selected angle12/0169,FE97 toward the nearer unmarked actor. Each actual marked
+homing child now inherits its same-parent latched marker's owner and retains
+that owner through its own lifetime. Unmarked flight keeps the existing
+nearest-actor selection. Four native/paired steering references now match
+exactly. Existing world owner tags suffice; there is no snapshot-format change
+or additional hook.
+
+Four normal-bee cases match the original body, source, personal pools and
+palette for the entire226-update sequence: actual180 timer, native doubled
+explosion damage4 and full retirement. Four marker cases match eight native
+follow updates; four kind2 impact cases match their native stationary impact
+behavior for eight updates. Each paired complete future replays exactly.
+Four actual active-source comparisons independently prove both native two-damage
+contacts in one source update. Eight real absence cases (four bees/four markers)
+retain the withdrawn actor's personal health and actual free-partner movement;
+the source retires natively with no owner transfer. Every future repeats exactly.
+
+Eight roster/victim/anchor normal-explosion cases wait191 native updates for
+the actual four-damage explosion, then supply one personal HP. Source observation
+proves its actual fatal hit; the survivor retains24 real movement ticks beside
+the live32HP boss. Actual busters earn defeat, native1FBE/acquiredmask02/DC reward
+and2329 return plus64 arrival updates. The native loader is observed before
+accepting the new stage1 entry, whose ID repeats. Lives2 and fallen status
+persist; every full future repeats exactly. Four low-health marked living-pair
+cases also earn real buster defeat, the complete reward and native arrival,
+with both actors alive and both native hurt reactions recovered. Four additional
+actual parent kills leave zero class21 children20updates after defeat, before
+reward or loader reset, with exact complete replay.
+
+Rejected setups remain explicit: an initial pre-draw bee had no active native
+contact; an early homing approach was still in its noncolliding launch phase.
+A floor-level firing line passed below the healthy airborne boss. The preserved
+machine showed advancing AI and a newly repeated marker. An initial muzzle-height
+approach instead lets the real buster earn defeat. A reused captive-release
+assertion also incorrectly rejected ordinary Hornet hurt action8/reaction8;
+Hornet does not capture, and completed native recovery is required at actual
+arrival. Neither setup failure was claimed as a game defect.
+
+Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json →
+blast_hornet. Normal survivor SHAaec958e2; initial contact/timer SHA07ba17e8;
+final marked/owner/living/absence/cleanup/regression SHA
+9ac8bdb282f6d4efa6b42fd9fad57fc15da115cf1c411a7ec62644611356f83a.
+Production GUI SHA7d6169e6cbb17bf56a895f147f5be51c3a319e38d0424cb31bf1fe3a2e9042fe. Consumed03,
+balanced native registers/scratch/object/health, four each Catfish/Tiger/Beetle
+persistent contacts and four Toxic native carrier/hold/release comparisons pass.
+State/GUI/fourCTest pass. Actual110/180 accepted,70 open,3/15 areas(R/M/N).
+Other captures, enemy families, visuals and campaign branches remain open.

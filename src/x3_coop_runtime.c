@@ -855,13 +855,35 @@ static bool acid_carrier(unsigned d){
   return hostile_projectile(d) && g_ram[d] && g_ram[d+10]==0x22 && !g_ram[d+11] &&
       (g_ram[d+1]==0 || g_ram[d+1]==2);
 }
+static bool hornet_attachment(unsigned d){
+  if(!hostile_projectile(d) || !g_ram[d] || g_ram[d+10]!=0x21)return false;
+  unsigned kind=g_ram[d+0x37],phase=g_ram[d+2];
+  if(kind==2)return g_ram[d+1]==0 || g_ram[d+1]==2;
+  if(g_ram[d+1]!=2)return false;
+  return (!kind && (phase==4 || phase==6)) ||
+      (kind==4 && (phase==2 || phase==4 || phase==6));
+}
+static bool hostile_attachment(unsigned d){return acid_carrier(d) || hornet_attachment(d);}
+static void hornet_marked_target(unsigned d){
+  if(!hornet_attachment(d) || g_ram[d+0x37]!=2 || view_spawn.hostile_captive[(d-0x1318)/64])return;
+  unsigned parent=word(g_ram+d+0x38);int slot=support_slot(parent);
+  if(slot<0 || slot>=15 || !g_ram[parent] || g_ram[parent+10]!=0x53 || !(g_ram[parent+0x3f]&192))return;
+  /*39:A211/A1A1 share the real parent. Only the latched marker supplies a
+   * marked actor; unmarked flight keeps the native nearest-body contract.
+   * Once earned, each homing child retains that owner through its own life. */
+  for(unsigned i=0;i<8;++i){unsigned mark=0x1318+i*64;
+    if(hornet_attachment(mark) && g_ram[mark+0x37]==4 && word(g_ram+mark+0x38)==parent && view_spawn.hostile_captive[i]){
+      view_spawn.hostile_captive[(d-0x1318)/64]=view_spawn.hostile_captive[i];return;
+    }
+  }
+}
 static bool acid_captive_of(unsigned parent){
   for(unsigned i=0;i<8;++i)if(view_spawn.hostile_captive[i] &&
       (view_spawn.hostile_captive[i]-1)/2==parent && acid_carrier(0x1318+i*64))return true;
   return false;
 }
 static bool native_captor_context(unsigned d){
-  if(hostile_projectile(d))return acid_carrier(d) && view_spawn.hostile_captive[(d-0x1318)/64];
+  if(hostile_projectile(d))return hostile_attachment(d) && view_spawn.hostile_captive[(d-0x1318)/64];
   if(!g_ram[d] || !g_ram[d+1])return false;
   if(g_ram[d+10]==0x59)return g_ram[d+1]==4 || acid_captive_of((d-0xd18)/64);
   if(g_ram[d+10]==0x52)return (g_ram[d+0x3b]&128)!=0;
@@ -877,7 +899,7 @@ static bool native_captor_holding(unsigned d){
 static unsigned native_captive_owner(unsigned d){
   if(hostile_projectile(d)){
     unsigned tag=view_spawn.hostile_captive[(d-0x1318)/64];
-    return tag && acid_carrier(d)?(tag-1)&1:2;
+    return tag && hostile_attachment(d)?(tag-1)&1:2;
   }
   int slot=support_slot(d);
   if(slot<0 || slot>=15 || !native_captor_context(d))return 2;
@@ -1006,7 +1028,8 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   if(!X3CoopRuntimeReady())return;
   unsigned at=pc&0xffff,d=cpu->D;
   if(at==0xdd1a || at==0xdcb3 || at==0xdafa) {
-    if(hostile_projectile(d) && !acid_carrier(d))view_spawn.hostile_captive[(d-0x1318)/64]=0;
+    if(at==0xdcb3)hornet_marked_target(d);
+    if(hostile_projectile(d) && !hostile_attachment(d))view_spawn.hostile_captive[(d-0x1318)/64]=0;
     int attachment=support_slot(d);
     if(attachment>=0 && !native_captor_context(d))
       attachments[attachment]&=(uint8_t)~12;
@@ -1040,8 +1063,18 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
     }
     return;
   }
-  if((at==0xdc68 || at==0xdc8c) && hostile_projectile(d) && !acid_carrier(d))
-    view_spawn.hostile_captive[(d-0x1318)/64]=0;
+  if((at==0xdc68 || at==0xdc8c) && hostile_projectile(d)){
+    unsigned i=(d-0x1318)/64;
+    if(!hostile_attachment(d))view_spawn.hostile_captive[i]=0;
+    else if(hornet_attachment(d) && g_ram[d+0x37]!=2 && !view_spawn.hostile_captive[i]){
+      int parent=support_slot(word(g_ram+d+0x38));
+      /*08:A24C/A323/A44C earned a real CC5C latch in this projected body.
+       * Bees and the target mark follow that actor through their own timers;
+       * unlike a captive, the actor remains free to move or withdraw. */
+      if(parent>=0 && parent<15 && g_ram[0xd18+parent*64+10]==0x53)
+        view_spawn.hostile_captive[i]=(uint8_t)(1+2*parent+state.current);
+    }
+  }
   if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x52 || g_ram[d+10]==0x54 || g_ram[d+10]==0x59)){
     int slot=support_slot(d);
     if(slot>=0){
@@ -1394,8 +1427,8 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
   if(p->pass==1) {
     bool hit=(cpu->A&255)!=0;
     unsigned hostile_kind=g_ram[d+10];
-    bool persistent=hostile_kind==0x20 || (hostile_kind>=0x25 && hostile_kind<=0x27);
-    /* Native ice, Beetle orbs, Tiger rays and Catfish electricity remain live
+    bool persistent=hostile_kind==0x20 || hostile_kind==0x21 || (hostile_kind>=0x25 && hostile_kind<=0x27);
+    /* Native ice, Hornet bees, Beetle orbs, Tiger rays and Catfish electricity remain live
      * hazards after CB31. The ray/electrical callers ignore its hit result;
      * their own movement/parent phases retire these sources. Other
      * single-use hostile hits stop here. Player-shot scans are consumed by
