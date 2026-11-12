@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 103/180; 77 open/partial. Accepted areas: 3/15
+**Accepted touch points: 104/180; 76 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G02/G06 accepted (3/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G03/G06 accepted (4/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -2304,15 +2304,15 @@ C04 is accepted across all nine native weapon slots(eight boss weapons plus
 Hyper Cannon), normal/charged or native automatic-charge behavior, and empty
 meters in both actual rosters:54 scenarios. native-acid-active child0, state
 SHA256c7fc0edb7d5ce8a2ad8ebe409154601afb9fb38ecf124886a6197e500be1301c,
-covers Acid Burst normal/charged; native-weapons-rest child0 on the same binary
+covers native weapon slot1 normal/charged; native-weapons-rest child0 on the same binary
 covers slots2..9 in all three modes; native-acid-empty child0, state
 SHA2562dca831d7bb3d0205fd8d0f6e255786a4d0468c63d037de5f3a2ddb37059ee6b,
-completes Acid Burst empty meters. Native input refuses unearned selections,
+completes native slot1 empty meters. Native input refuses unearned selections,
 selects the acquired slot for X while Zero retains selection0, and preserves
 original per-frame commands, charge, palette, all private pools, energy and
 damage outcomes. Every complete paired future replays exactly. Charged specials
 actually reach native charge8; Hyper Cannon uses its native automatic path.
-Normal/charged Acid Burst spends10/3 and deals10/3 in this controlled target
+Normal/charged native slot1 spends10/3 and deals10/3 in this controlled target
 setup, identically in each roster. Empty meters spend0 and produce no damage.
 
 The earned-intro Buffalo fixture supplies the real initialized target. Armor/
@@ -3771,3 +3771,53 @@ qualification accepts G06; the lower native admission/readiness and distant
 room boundary qualify A04. A02/A03/A05/A09–A13 and other captor families
 remain open. Accepted total103/180,77 open,3/15 areas. No release or owner
 playtest has been performed.
+
+
+### Toxic Seahorse: actual acid-carrier ownership and shared progression
+
+G03 is accepted;104/180 accepted,76open/partial,3/15areas. The actual stage3
+class59 encounter earns its capture through13:F641 contact and13:F87E hostile
+allocation. Its class22/variant0 carrier has no initialized HP. The previous
+nearest-target dispatch dragged the free actor while its actual victim stayed
+behind; public withdrawal also succeeded while capture96 was pending.
+
+Bind only the successful native carrier allocation (02:D8F8, stored JSL return
+13:F881) to the actual projected victim and parent NPC. Eight private hostile
+tags live alongside27 native frontier spans in the existing67-byte shared-world
+block; at most22 spans are needed. NPC attachment and effect tags retain their
+separate ownership. The original constructor, upward motion, ceiling test,
+D0C0 release and six-point damage run once against that victim. Constructors
+with zero HP still retain their earned owner. Release, retirement and allocator
+reuse clear the carrier tag; the parent follows the same actual capture.
+
+Eight roster/victim/anchor cases pass the complete22-update original comparison:
+body, auxiliaries, shots, palette, carrier and parent bytes match each frame.
+Pending capture refuses withdrawal; the released actor can withdraw, leaving
+the original32HP encounter and free partner controllable. Complete futures
+replay exactly. native-toxic-final-hold child0; stateSHA256
+576a0f63d06901de5cb76d548070f4d4228e51a4b88c587a6968c91a01dc6eb4.
+
+Eight actual free-partner buster clears and eight captured-death survivor clears
+pass on9c6afc282be1fc79affbd2b170189f9798ad99d13b1db5c26a0ad43a87248ed9:
+native-toxic-qualified-clear and native-toxic-qualified-survivor child0. A one-HP
+captive dies on the actual21st ceiling update; both bindings clear, only that
+actor falls, and24 survivor updates retain movement and the living32HP boss.
+Native ordinary busters reflect during the occupied guard, then earn the later
+vulnerable defeat. These clears are not evidence of rescue by killing an
+occupied captor. The native13:F7BF reward writes1FC6; its acquired bit is20 and
+the final byteDC. One reward and complete stage1 arrival retain lives2, clean
+old bindings and preserve the original living/fallen roster. Both runs of each
+case replay the entire machine; return2433updates for living pairs,2553 for the
+fallen-captive cases, followed by64 arrival updates.
+
+Current production also passes the full existing Crawfish/Buffalo hold/release
+references (native-toxic-captors), native activation/support/shared-assist
+regressions (native-toxic-frontier-regression), mid-allocation codec and
+transactional preflight (native-toxic-preflight): all child0. Invalid hostile
+tag31 is refused without changing the machine; both rosters pass27 malformed
+cases and four truncations. native-toxic-final-builds child0 includes the GUI
+and four CTests; GUI SHA256
+c34ceb9e85ff7c520229c516bf62a86a55fb2ba01ca267bbbfad8ac6f0ef7395.
+
+Other capture families and E07-E10/D12 remain open. A03 cold upward admission
+is the next active check; no owner playtest or release has occurred.

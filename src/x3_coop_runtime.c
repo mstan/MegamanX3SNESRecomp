@@ -98,10 +98,13 @@ static SolidPass solid;
 /* The native column loop remains interruptible and owns all allocation.
  * Only its pending column selection is extra simulation state. */
 /* At most two native scans of one horizontal column plus ten vertical
- * columns fit in31 entries. Keep scan order and row ranges, rather than
+ * columns need at most22 entries. Keep scan order and row ranges, rather than
  * treating the whole retention rectangle as an admission frontier. */
 typedef struct ViewSpawnEntry {uint8_t column,scan;} ViewSpawnEntry;
-typedef struct ViewSpawn {ViewSpawnEntry entries[31];uint8_t frontier[2],count,cursor,active;} ViewSpawn;
+/* At most22 native frontier spans; keep earned hostile captures in the
+ * same serialized shared-world block, separate from NPC and effect slots. */
+typedef struct ViewSpawn {ViewSpawnEntry entries[27];uint8_t hostile_captive[8];
+  uint8_t frontier[2],count,cursor,active;} ViewSpawn;
 enum {FRONTIER_LEFT=1,FRONTIER_RIGHT=2,FRONTIER_UP=4,FRONTIER_DOWN=8,
       FRONTIER_FULL=16,FRONTIER_KNOWN=32,SCAN_FULL=0,SCAN_UP=2,SCAN_DOWN=4};
 static ViewSpawn view_spawn;
@@ -175,7 +178,7 @@ static void view_spawn_clear(void){
   view_spawn.count=view_spawn.cursor=view_spawn.active=0;
 }
 static void view_spawn_add(int column,unsigned scan){
-  if(column<0 || column>=8192 || view_spawn.count>=31)return;
+  if(column<0 || column>=8192 || view_spawn.count>=27)return;
   ViewSpawnEntry *e=&view_spawn.entries[view_spawn.count++];
   e->column=(uint8_t)(column/32);e->scan=(uint8_t)scan;
 }
@@ -827,17 +830,34 @@ static int support_slot(unsigned d) {
 /* Keep the earned victim through each captor's authored release continuation.
  * Crawfish has no Buffalo3B.80 flag: only action0/sub4 and the immediate
  * defeated controller still own the captive; D399 completes release itself. */
+static bool acid_carrier(unsigned d){
+  return hostile_projectile(d) && g_ram[d] && g_ram[d+10]==0x22 && !g_ram[d+11] &&
+      (g_ram[d+1]==0 || g_ram[d+1]==2);
+}
+static bool acid_captive_of(unsigned parent){
+  for(unsigned i=0;i<8;++i)if(view_spawn.hostile_captive[i] &&
+      (view_spawn.hostile_captive[i]-1)/2==parent && acid_carrier(0x1318+i*64))return true;
+  return false;
+}
 static bool native_captor_context(unsigned d){
+  if(hostile_projectile(d))return acid_carrier(d) && view_spawn.hostile_captive[(d-0x1318)/64];
   if(!g_ram[d] || !g_ram[d+1])return false;
+  if(g_ram[d+10]==0x59)return g_ram[d+1]==4 || acid_captive_of((d-0xd18)/64);
   if(g_ram[d+10]==0x52)return (g_ram[d+0x3b]&128)!=0;
   return g_ram[d+10]==0x54 && (g_ram[d+1]==4 ||
       (g_ram[d+1]==2 && !g_ram[d+2] && g_ram[d+3]==4));
 }
 static bool native_captor_holding(unsigned d){
+  if(hostile_projectile(d))return acid_carrier(d);
+  if(g_ram[d+10]==0x59)return acid_captive_of((d-0xd18)/64);
   return g_ram[d+1]==2 && g_ram[d+3]==4 &&
       ((g_ram[d+10]==0x52 && g_ram[d+2]==0x0a) || (g_ram[d+10]==0x54 && !g_ram[d+2]));
 }
 static unsigned native_captive_owner(unsigned d){
+  if(hostile_projectile(d)){
+    unsigned tag=view_spawn.hostile_captive[(d-0x1318)/64];
+    return tag && acid_carrier(d)?(tag-1)&1:2;
+  }
   int slot=support_slot(d);
   if(slot<0 || slot>=15 || !native_captor_context(d))return 2;
   unsigned owner=(attachments[slot]>>2)&3;
@@ -867,6 +887,8 @@ static bool captured_player(unsigned seat){
      * hold or the victim's unfinished capture/release pose remains busy. */
     if(native_captor_holding(d) || b[2]==0x16 || b[0xa3]==0x96)return true;
   }
+  for(unsigned d=0x1318;d<0x1518;d+=64)
+    if(native_captive_owner(d)==seat && native_captor_holding(d))return true;
   return false;
 }
 /* The solo boss retires when its only body has zero HP. With a living
@@ -963,6 +985,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   if(!X3CoopRuntimeReady())return;
   unsigned at=pc&0xffff,d=cpu->D;
   if(at==0xdd1a || at==0xdcb3 || at==0xdafa) {
+    if(hostile_projectile(d) && !acid_carrier(d))view_spawn.hostile_captive[(d-0x1318)/64]=0;
     int attachment=support_slot(d);
     if(attachment>=0 && !native_captor_context(d))
       attachments[attachment]&=(uint8_t)~12;
@@ -996,12 +1019,14 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
     }
     return;
   }
-  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x52 || g_ram[d+10]==0x54)){
+  if((at==0xdc68 || at==0xdc8c) && hostile_projectile(d) && !acid_carrier(d))
+    view_spawn.hostile_captive[(d-0x1318)/64]=0;
+  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x52 || g_ram[d+10]==0x54 || g_ram[d+10]==0x59)){
     int slot=support_slot(d);
     if(slot>=0){
       if(!native_captor_context(d) || (g_ram[d+10]==0x54 && native_captive_owner(d)<2 &&
           state.players[native_captive_owner(d)].life!=X3_COOP_ALIVE && !native_captor_holding(d)))attachments[slot]&=(uint8_t)~12;
-      else if(!(attachments[slot]&12) && g_ram[X3_COOP_BODY+0xa3]==0x96)
+      else if(g_ram[d+10]!=0x59 && !(attachments[slot]&12) && g_ram[X3_COOP_BODY+0xa3]==0x96)
         /*03:CC5B/03:D31A and04:D034 earned the grip in this projected body. */
         attachments[slot]=(uint8_t)((attachments[slot]&~12u)|128u|(4u<<state.current));
     }
@@ -1391,6 +1416,21 @@ static void object_boundary(CpuState *cpu,uint32_t pc) {
 static void effect_boundary(CpuState *cpu,uint32_t pc){
   if(!X3CoopRuntimeReady())return;
   unsigned at=pc&0x7fffff;
+  if(at==0x02d8f8){
+    if(!hostile_projectile(cpu->X))return;
+    unsigned i=(cpu->X-0x1318)/64;view_spawn.hostile_captive[i]=0;
+    int parent=support_slot(cpu->D);
+    /* Only13:F87E creates the carrier after CC5C won the real dash contact.
+     * The other acid variants and every reused hostile slot stay unbound. */
+    if(parent>=0 && parent<15 && g_ram[cpu->D+10]==0x59 && !state.wipe &&
+        cpu_read16(cpu,0,(uint16_t)(cpu->S+1))==0xf881 &&
+        ((cpu_read16(cpu,0,(uint16_t)(cpu->S+2))>>8)&127)==0x13 &&
+        state.players[state.current].life==X3_COOP_ALIVE){
+      view_spawn.hostile_captive[i]=(uint8_t)(1+2*parent+state.current);
+      attachments[parent]=(uint8_t)((attachments[parent]&~12u)|128u|(4u<<state.current));
+    }
+    return;
+  }
   if(at==0x02d8c1){
     int i=effect_index(cpu->X);if(i<0)return;
     /* D859 and the other allocators share this successful return. Reset on
@@ -1753,7 +1793,7 @@ void X3CoopRuntimeFrame(void) {
   }
   static const uint32_t contact_pcs[]={0x04cb31,0x04cb74,0x04cb73,0x04cbc3,
       0x04cd69,0x04ce3b,0x04ced8,0x04cedb,0x04cfe3,0x04cc5c,0x04cc63,0x04cc6b,0x04cd64};
-  static const uint32_t effect_pcs[]={0x02d8c1,0x00db0f,0x00db34,0x00db1b,0x00db42,0x00db1e,0x00db45};
+  static const uint32_t effect_pcs[]={0x02d8f8,0x02d8c1,0x00db0f,0x00db34,0x00db1b,0x00db42,0x00db1e,0x00db45};
   for(unsigned i=0;i<sizeof(effect_pcs)/sizeof(*effect_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(effect_pcs[i],effect_boundary))enabled=false;
   static const uint32_t object_pcs[]={0x00da7f,0x00da9f,0x00db9f,0x00dbc0,
@@ -1862,14 +1902,15 @@ uint32_t X3CoopRuntimeDigest(void){
   X3CoopRuntimeSave(&stream.io);memcpy(&state,&prior,sizeof(state));return stream.hash;
 }
 static bool view_spawn_valid(const ViewSpawn *v) {
-  if(v->count>31 || v->cursor>v->count || v->active>1)return false;
+  if(v->count>27 || v->cursor>v->count || v->active>1)return false;
   if(v->active && !v->count)return false;
   if(!v->active && (v->count || v->cursor))return false;
   for(unsigned seat=0;seat<2;++seat){unsigned f=v->frontier[seat];
     if(f && (!(f&FRONTIER_KNOWN) || (f&~63u) || ((f&3)==3) || ((f&12)==12) ||
        ((f&FRONTIER_FULL) && (f&15))))return false;
   }
-  for(unsigned i=0;i<31;++i){const ViewSpawnEntry *e=&v->entries[i];
+  for(unsigned i=0;i<8;++i)if(v->hostile_captive[i]>30)return false;
+  for(unsigned i=0;i<27;++i){const ViewSpawnEntry *e=&v->entries[i];
     if(i<v->count){if(e->scan>5)return false;}
     else if(e->column || e->scan)return false;
   }
@@ -1878,7 +1919,7 @@ static bool view_spawn_valid(const ViewSpawn *v) {
 static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePass *t,
                          const ContactPass *hit,const ObjectPass *obj,const NativePass *art,
                          const WorldTarget *world,const PickupRefill *healing,const NativeScene *script,
-                         const SolidPass *support,const uint8_t *attachment_bits) {
+                         const SolidPass *support,const uint8_t *attachment_bits,const ViewSpawn *spawn) {
   unsigned a=c->pass,b=t->pass,h=hit->native.pass,o=obj->native.pass,v=art->pass,q=support->native.pass;
   if(a>2 || b>2 || h>2 || o>2 || v>2 || q>2 || (a!=0)+(b!=0)+(h!=0)+(o!=0)+(v!=0)+(q!=0)>1)return false;
   for(unsigned i=0;i<SHARED_ATTACHMENTS;++i){
@@ -1887,6 +1928,7 @@ static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePa
   }
   if(world->active>1 || world->seat>1)return false;
   if(!s->initialized){
+    for(unsigned i=0;i<8;++i)if(spawn->hostile_captive[i])return false;
     for(unsigned i=0;i<SHARED_ATTACHMENTS;++i)if(attachment_bits[i])return false;
     return !(a || b || h || o || v || q || world->active);
   }
@@ -1907,6 +1949,10 @@ static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePa
     int captive_slot=support_slot(world->slot);
     bool captive=captive_slot>=0 && captive_slot<15 &&
         ((attachment_bits[captive_slot]>>2)&3)==(1u<<world->seat);
+    if(hostile_projectile(world->slot)){
+      unsigned tag=spawn->hostile_captive[(world->slot-0x1318)/64];
+      captive=tag && ((tag-1)&1)==world->seat;
+    }
     bool cleanup=captive || world->slot==0xcc8 || (healing->active && healing->slot==world->slot && healing->seat==world->seat) ||
         (script->phase && script->kind && script->owner==world->seat);
     unsigned seat=s->players[world->seat].life==X3_COOP_ALIVE || cleanup?world->seat:s->anchor;
@@ -1990,7 +2036,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   if(!X3CoopViewsLoad(views,sizeof(views),false) || !view_spawn_valid(&spawn) || bounds.native.pass>3)return false;
   if(!X3CoopDecode(&loaded,bytes,X3CoopEncodedSize()) || !refill_decode(&healing,refill_bytes,&loaded) ||
      !scene_decode(&scripted,scene_bytes,&loaded) || !participation_valid(participation,&scripted,&loaded) ||
-     !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,attachment_bits))return false;
+     !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,attachment_bits,&spawn))return false;
   if(!menu_decode(&paired,menu_bytes,&loaded) || (paired.phase &&
       ((participation[7]&PROFILE_LEARNER) || scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
        world.active || support.native.pass || spawn.active || bounds.native.pass)))return false;
@@ -2037,7 +2083,7 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
   if(world.active && effect_index(world.slot)>=0 && owners[effect_index(world.slot)]!=world.seat+1)return false;
   if(!X3CoopPresentationPreflight(p,X3CoopPresentationEncodedSize()))return false;
   p+=X3CoopPresentationEncodedSize();memcpy(&support,p,sizeof(support));p+=sizeof(support);
-  if(!passes_valid(&decoded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,p))return false;
+  if(!passes_valid(&decoded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,p,&spawn))return false;
   PairedMenu paired;
   if(!menu_decode(&paired,p+sizeof(attachments),&decoded) || (paired.phase &&
       ((pending&PROFILE_LEARNER) || scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
