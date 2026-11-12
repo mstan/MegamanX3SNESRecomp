@@ -79,3 +79,12 @@ preparation. Original acquisition flag banks, native recorded control,
 retirement and exact replay retain X ownership. The remaining S09/V route
 and presentation requirements are independent; see COOP_DEVELOPMENT.md for
 the frozen binaries and qualified scope.
+
+G08 contact follow-up: native Gravity Beetle class25 moving orbs and timed
+parent-following fields ignore CB31 hit and remain live. Original character
+references exposed the same consumed-source guard omission; class25 now uses
+the existing20/26/27 persistent continuation. Both eligible native damages,
+one world source update, real source fatalities, survivor/living clears,
+pre-reward child retirement and full reward/arrival replay pass. Actual
+consumed03 and balanced native returns remain qualified. See G08 evidence
+in COOP_DEVELOPMENT.md; this does not accept other captive families.

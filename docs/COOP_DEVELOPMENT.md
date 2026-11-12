@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 108/180; 72 open/partial. Accepted areas: 3/15
+**Accepted touch points: 109/180; 71 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G07 accepted (7/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G08 accepted (8/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -4030,3 +4030,58 @@ child0. Mechanics stateSHAa0af33db; rush stateSHA092f871a; production GUI SHA256
 32b324ba06ec905d6683d342a72a8c11164a05e57f1701e832eee694cb8c44fe;
 state/GUI/fourCTest pass. Actual108/180 accepted,72 open,3/15 areas(R/M/N).
 Other capture families, visuals and remaining campaign routes stay open.
+
+### Native Gravity Beetle orb and timed-field contracts — G08
+
+G08 is accepted. The actual stage8 checkpoint2 route and native P2 door
+inputs admit class56/32HP with both actors free, floor1472 and arena7424..7680.
+Native13:DCA0/DE40 selects its own attacks. Moving kind0 orbs and parent-following
+kind2 fields are actual class25 children with the allocator-earned parent+38.
+Their angular variant0B is native state, rather than a fixed synthetic variant.
+
+The moving orb exposed a persistent-contact omission: original X16→14 and
+Zero28→26 became14/28 in the previous paired update. Native08:AB5C ignores
+CB31 hit and leaves the orb alive. Class25 now joins the existing20/26/27
+persistent contract; ordinary consumed shots retain their one-hit guard. Four
+roster/anchor comparisons now damage both bodies exactly as their original
+references, update source01/primary2 once and replay the complete machine.
+
+Eight roster/victim/anchor cases earn the native small orb atf325, source
+7568/1463 and parent7649/1437,81px apart. Its actual update kills only the
+approached one-HP actor. The survivor retains24 real movement ticks beside
+the live32HP boss, earns its defeat with a real buster, and completes the
+native reward and full next-stage return. Both roster orders and either
+survivor retain the fallen actor without revival or a life debit.
+
+With only bossHP assisted to8, the original AI earns its actual timed field
+atf105, parent/source7632/1447, native animation0F&40 pulse, sourcekind2/HP8.
+The native06:EFA4/EFAE hitbox projects forward and upward. An approach24px
+forward and50px above lies inside that hitbox and outside the boss body.
+There is no invented96px aura, gravity pull or stun. Four original/paired
+comparisons prove actual eight-damage field contact for both native bodies:
+X16→8/Zero28→20, with one source update and exact complete paired replay.
+Four actual source-observed field fatalities retain the living8HP encounter
+and survivor control, then earn native survivor clears and stage returns.
+Four living-pair cases also defeat that native field phase and complete the
+full reward/return. Native guard/recovery runs normally; the living-pair
+buster earns defeat at141 updates. No attack, death, defeat or reward result
+is supplied. Position, health and personal protection are prerequisites.
+
+All sixteen full clears add only native1FC4/acquiredmask10/DC, preserve lives2
+and the living/fallen roster, and complete2553 return plus64 arrival updates.
+Every complete future repeats exactly. Four additional real parent kills
+leave zero active class25 children20updates after defeat, parentprimary4,
+before reward or loader reset; those futures also replay exactly. The earlier
+60px forward setup could not select an eligible in-arena field and was rejected
+as a setup failure; the actual24px/−50px native hitbox approach qualifies it.
+
+Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json →
+gravity_beetle. native-beetle-survivors-normal/reversed, field-overlap,
+field-survivors, field-living, field-cleanup, contact-regression and final-builds
+all child0. Actual consumed03, balanced native registers/scratch/object/health,
+and four each prior Catfish/Tiger persistent overlaps pass. State/GUI/fourCTest
+pass. Orb mechanics SHA6181d5f4; timed-field/regression SHA
+5cb436a84489995a56f9dcd43d8859c2f38fc9a6c1a054b8ee69e3fb17a4b991;
+production GUI SHAbe904e6f673fbc5386d363cbd1a8ba3e6cf8ab87ac0ba794464798edb9b56c64.
+Actual109/180 accepted,71 open,3/15 areas(R/M/N). No other capture, visual or
+campaign criterion receives acceptance from these permutations.
