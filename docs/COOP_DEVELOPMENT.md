@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 105/180; 75 open/partial. Accepted areas: 3/15
+**Accepted touch points: 106/180; 74 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G03/G06 accepted (4/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G04/G06 accepted (5/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -1348,12 +1348,12 @@ the next campaign stage with X16HP and Zero28HP, both alive.
 | Native stage / boss | Main class | Earned native weapon byte |
 | --- | --- | --- |
 | 2 / Blizzard Buffalo | 52 | 1FC8:00→DC |
-| 3 / Gravity Beetle | 59 | 1FC6:00→DC |
-| 4 / Toxic Seahorse | 57 | 1FBC:00→DC |
+| 3 / Toxic Seahorse | 59 | 1FC6:00→DC |
+| 4 / Tunnel Rhino | 57 | 1FBC:00→DC |
 | 5 / Volt Catfish | 58 | 1FC0:00→DC |
 | 6 / Crush Crawfish | 54 | 1FC2:00→DC |
-| 7 / Tunnel Rhino | 55 | 1FCA:00→DC |
-| 8 / Neon Tiger | 56 | 1FC4:00→DC |
+| 7 / Neon Tiger | 55 | 1FCA:00→DC |
+| 8 / Gravity Beetle | 56 | 1FC4:00→DC |
 
 Evidence: `campaign-maverick-entries-server-result.log` and
 `campaign-maverick-clears-server-result.log` (both child0); unique ready/clear
@@ -3873,3 +3873,50 @@ child0 includes production GUI and4CTest; GUI SHA256
 
 Other frontiers, complete per-stage presentation, remaining campaign mechanics,
 owner/DualSense checks and final release remain open.
+
+
+### Native Tunnel Rhino hazards, drill deaths and complete clears — G04
+
+G04 is accepted. The native checkpoint2 loader and actual P2 Right door route
+reach class57/32HP with both actors released. The real13:E493 controller earns
+its normal leaps and drill attack; no attack state or projectile is supplied.
+At32HP the large class23/variant0 drill travels at least80px clear of the boss
+before contact. At an assisted8HP the native controller selects its alternate
+attack and emits class23/variant4. These health values select real native phases;
+the test never supplies damage, defeat, death or reward flags.
+
+Eight32HP roster/victim/anchor cases and four8HP roster/victim cases let a real
+separated drill kill the approached one-HP actor on its first update. Existing
+hostile scheduler boundaries observe that exact source earning the fatal hit.
+The other actor then moves for24 world ticks while the live boss retains32/8HP,
+with no team fade, wipe or freeze. Every complete-machine future replays exactly.
+The first floor-height probe missed the airborne drill in native geometry; the
+qualified approach uses its actual height. That setup miss was not a game defect.
+
+All eight32HP survivor cases and four low-health living-pair cases also earn an
+actual partner buster defeat and complete the original reward and next-stage
+arrival twice.13:E9C7 writes the native1FBC reward: acquired mask01, final byteDC.
+Exactly that weapon is added; prior acquisitions and lives2 remain unchanged.
+The fallen actor stays fallen, or both living actors remain alive, through the
+2553-update return and64 further arrival updates. Native floor1216 and neutral
+firing prerequisites are used; no defeat or transition result is forced.
+
+Outside the arena, the actual checkpoint1 loader prepares the authored
+class0B/3C:DFA8 at4752,880 (flagFC14). Original DB06 column allocation and native
+constructors establish an entered-room prerequisite; this bypasses traversal and
+is not a cold-activation check. Both characters in either seat match the original
+controller for96 updates: body, motion, source, personal pools and palettes.
+Actual contact on update2 removes twoHP (X16→14, Zero28→26), the free actor stays
+alive, the world advances96 times and every full-machine replay agrees.
+A prior mere teleport skipped native admission and was rejected as an invalid
+setup. No engine/runtime correction was needed for these qualified mechanics.
+
+Evidence in build-coop/qa-state/native-crawfish-capture-qualification.json ->
+tunnel_rhino: native-rhino-survivor-clear child0 on state463635e6;
+native-rhino-low-fatal and native-rhino-living-clear child0 on1332851d;
+native-rhino-stage-qualified child0 on2f68e18c; native-rhino-ctest child0
+(four checks). Exact hashes, fixture paths and receipts are retained there.
+The earlier native stage table's boss-name labels have also been corrected;
+its numeric stage/class/reward results were already accurate.
+
+Actual106/180 accepted,74 open/partial; R/M/N remain the three accepted areas.
