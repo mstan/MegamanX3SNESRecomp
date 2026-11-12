@@ -56,10 +56,10 @@ static void native_support_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
   check(support_position(0,5)==before[0]-4 && support_position(1,5)==before[2]+2,
         "restored histories carry the same two actors");
   size_t expected=RtlSaveSnapshotToMemory(extra,capacity);
-  modified[prepared-X3_COOP_MENU_STATE_BYTES-31]|=4;
-  check(!RtlLoadSnapshotFromMemory(modified,prepared),"invalid support rider bits are refused before load");
+  modified[prepared-X3_COOP_MENU_STATE_BYTES-31]|=16;
+  check(!RtlLoadSnapshotFromMemory(modified,prepared),"unknown native attachment bits are refused before load");
   size_t after=RtlSaveSnapshotToMemory(modified,capacity);
-  same(extra,expected,modified,after,"invalid rider state leaves the machine unchanged");
+  same(extra,expected,modified,after,"invalid attachment state leaves the machine unchanged");
   check(RtlLoadSnapshotFromMemory(snapshot,size),"support probes restore their starting machine");
 }
 static void native_support_turn_checks(uint8_t *base,size_t n,unsigned d,uint8_t *work,size_t capacity){

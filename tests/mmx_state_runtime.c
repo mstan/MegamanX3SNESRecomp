@@ -13,6 +13,7 @@ static unsigned coop_x(unsigned seat) {
 static void door_install_player(const X3CoopState *setup);
 static unsigned view_read(unsigned address);
 static void view_word(unsigned address,unsigned value);
+static void vehicle_install_view(const X3CoopViewState *views,unsigned seat);
 static void native_gameplay_update(unsigned keys,bool original);
 static void native_return_on_support(size_t capacity);
 static void team_hazard_body(uint8_t *b,unsigned x,unsigned y);
@@ -67,6 +68,10 @@ int main(int argc,char **argv) {
       check(!RtlLoadSnapshotFromMemory(damaged,size),"unenrolled state cannot contain a pending participation request");
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(saved,size,after,after_size,"refused unenrolled participation state leaves the machine unchanged");
+      memcpy(damaged,saved,size);damaged[size-X3_COOP_MENU_STATE_BYTES-31]=132;
+      check(!RtlLoadSnapshotFromMemory(damaged,size),"unenrolled snapshot cannot claim native captive ownership");
+      after_size=RtlSaveSnapshotToMemory(after,cap);
+      same(saved,size,after,after_size,"refused unenrolled attachment leaves the full machine unchanged");
     }
     const char *fixture=getenv("X3_COOP_TEST_STATE");
     if(fixture && *fixture) {
@@ -216,6 +221,8 @@ int main(int argc,char **argv) {
       check(reversed && *reversed,"team retry coverage supplies both actual native rosters");
       native_team_retry_checks(fixture,reversed,saved,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_BUFFALO_MECHANICS_STATE");
+    if(fixture && *fixture)native_buffalo_capture_checks(fixture,saved,after,cap);
     fixture=getenv("X3_COOP_CAMPAIGN_SURVIVOR_STATE");
     if(fixture && *fixture){
       check(RtlLoadSnapshot(fixture),"authored earned-intro boss survivor fixture loads");

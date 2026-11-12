@@ -3511,3 +3511,66 @@ Evidence: build-coop/qa-state/native-ice-force-qualification.json.
 
 No production changes were needed for these two criteria beyond the existing
 widescreen correction. Actual100/180 accepted,80open/partial,3/15areas(R/M/N).
+
+### Native Buffalo captive retention and closed-arena views — partial G02/E07/E08
+
+A real native charge earns Buffalo's grip at03:CC5B/04:D034. Moving the free
+partner nearer then exposed a defect: the next NPC update selected that free
+body and moved it to the hand, leaving the original captive behind. The old
+09acb12abdc8a8ddeccd8f4091aaa06fd98d5fa087d077c524a420cd959a547d state
+executable preserves the failing native-buffalo-capture run. No attack, capture,
+release or success flags were supplied.
+
+The runtime retains the actual successful victim in two existing attachment
+bits per native slot. It projects that body through the original hold and
+immediate defeat-script continuation, clears the bits on native release,
+retirement, reuse and stage construction, and refuses participation changes
+while the living boss physically holds its victim. Dead-boss script ownership
+does not count as a physical capture. The snapshot remains413057bytes. Unknown
+attachment bits, competing owners and unenrolled attachment claims are refused
+transactionally.
+
+The original final-door flag1F5D.80 persists throughout Buffalo combat. Using it
+as an ongoing camera-sharing condition copied the canonical actor's camera
+into the other view and produced a1px captive displacement discrepancy. Actual
+native scenes now own camera commitment. Both views initialize from the native
+scene's release and subsequently follow their own bodies. Native door limits
+can raise their minimum before replacing the previous maximum; each private
+view preserves that native locked point until its exit. Camera timing remains
+00DA38, including the earlier qualified P10 target-order guard.
+
+Native-buffalo-capture-matrix exits0 on
+5a857ceabb08b8089f1b9355d520249712c94d5e7dccc21c192c83004d2a4710. Eight
+fresh cases cover both rosters, either victim, and canonical/noncanonical
+victims. Every139 native hold/wall-release frames match the complete victim
+body, owned pools, palette and64-byte captor, with only the established native
+body-DMA request bit normalized. The single-actor reference installs the
+victim's complete private camera. The free actor retains its input; both public
+withdrawals refuse without changing the machine; whole-machine replay agrees.
+
+Native-buffalo-kill-matrix exits0 on
+1e84cc853ccb9d7d8e92fccd4b3f4609decab99f2e017e9d76e33a96f0a431da. All
+eight fresh cases begin at an actually earned grip. Only boss1HP/cooldown,
+personal health/protection and shooter position are assisted. A real partner
+shot earns primary4/HP0, native cleanup releases the victim, and the original
+defeat continuation retains its owner until the actual rewardDC and stage1
+playable return after2553frames. Both actors remain alive, lives remain2,
+all captive bits retire, and the complete future replays exactly. Requiring
+those bits to clear immediately at the lethal hit was an invalid test
+assumption; they describe the original script continuation until retirement.
+
+The GUI build and four CTests pass; GUI SHA256
+06d732d94f6103c10bb8d42612052960644da8955bc576fd355f3d0b3811b510. Relevant
+intro/rescue/fallen-participant regressions pass on
+e6f386b75d35f9ff8059be3932e8c9123e4bb52211305a574fed2ab7670a4d67. The
+combined scene/support/preflight gate passes on
+dca69e1b42147bdea931a15307ad3eb7dd8172e9e463104edcb522643660221a.
+Its former rider-only malformed-bit assertion now uses undefined bit16, since
+bit4 is a valid captive owner. The released stage1 door passes preflight and
+restore after the native transient-limit correction.
+
+The half-health beam is separate remaining authored work. Actual AI emits its
+class20/variant2 source after344frames without supplied attack/spawn flags.
+The matched freeze/escape comparison is in progress. G02/E07/E08 remain open
+overall; this evidence does not cover every authored captor or all lifecycle
+exits. Actual acceptance remains100/180,80open/partial and3/15areas.

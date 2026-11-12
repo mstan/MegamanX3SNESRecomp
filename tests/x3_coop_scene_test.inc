@@ -143,6 +143,7 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   check(support_position(0,5)>before0+10 && support_position(1,5)==before1,
         "P1 resumes independent native control after transport while P2 stays parked by its own input");
   size_t moving=RtlSaveSnapshotToMemory(expected,capacity);
+  if(!X3CoopRuntimePreflight(expected,moving)){const X3CoopViewState *v=X3CoopViewsState();fprintf(stderr,"released door views stage%u masks%u/%u valid%u scene%u nativeflag%02x\n",v->stage,v->valid,v->camera_valid,X3CoopViewsValidState(v),X3CoopRuntimeSceneActive(),g_ram[0x1f5d]);for(unsigned seat=0;seat<2;++seat)fprintf(stderr,"released door seat%u camera%u,%u targets%u/%u/%u/%u current%u/%u/%u/%u\n",seat,v->camera[seat][0],v->camera[seat][1],v->limits[seat][0],v->limits[seat][1],v->limits[seat][2],v->limits[seat][3],v->current[seat][0],v->current[seat][1],v->current[seat][2],v->current[seat][3]);check(RtlSaveSnapshot("native-released-door-preflight.sav"),"invalid released-door machine saves without a picker");}
   check(X3CoopRuntimePreflight(expected,moving),"moving released door scene passes actor-state preflight");
   check(RtlLoadSnapshotFromMemory(expected,moving),"moving released door scene restores in the current build");
   if(output && *output){
