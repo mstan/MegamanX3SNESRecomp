@@ -805,7 +805,12 @@ static unsigned native_beam_target(unsigned d){
   return chosen;
 }
 static bool captured_player(unsigned seat){
-  for(unsigned d=0xd18;d<0x10d8;d+=64)if((g_ram[d+0x27]&127) && native_captive_owner(d)==seat)return true;
+  const uint8_t *b=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+  for(unsigned d=0xd18;d<0x10d8;d+=64)if((g_ram[d+0x27]&127) && native_captive_owner(d)==seat){
+    /* The boss retains3B.80 during its recovery after D0C0. Only its actual
+     * hold or the victim's unfinished capture/release pose remains busy. */
+    if((g_ram[d+1]==2 && g_ram[d+2]==0x0a && g_ram[d+3]==4) || b[2]==0x16 || b[0xa3]==0x96)return true;
+  }
   return false;
 }
 static void refill_retired_cleanup(unsigned d,unsigned seat){

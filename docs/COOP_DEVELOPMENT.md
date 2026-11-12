@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 100/180; 80 open/partial. Accepted areas: 3/15
+**Accepted touch points: 101/180; 79 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -58,7 +58,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | Blast Hornet admission and Zero survivor reward observed; ordinary next-stage flow and other routes open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G02 accepted (2/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -3633,3 +3633,36 @@ G02 remains open while the additional authored grab input-escape and weakness
 release decisions are resolved. No new complete enemy/campaign criterion is
 claimed from these subcases. Actual acceptance remains100/180,80open/partial
 and3/15areas; presentation, owner validation and final delivery remain open.
+
+### Buffalo native input escape and weakness release — G02 accepted
+
+G02 is accepted after reconciling the earlier earned-intro/native arena and
+leader entry records with the current ice, charge/grip, beam, weakness, clear
+and actual return checks above. This is one campaign touch point; enemy capture
+criteria remain open for other authored actors. Actual acceptance is101/180,
+79open/partial and3/15areas.
+
+Native Jump edges earn the actual grip release atframe30, while3B.80 and its
+script binding persist throughframe139. The old physical-capture guard wrongly
+refused an otherwise ready withdrawal atframe41. The runtime now distinguishes
+the actual0A/sub4 hold and unfinished victim pose from the boss's continuing
+recovery script; it retains script ownership through native cleanup.
+Native-buffalo-release-withdraw preserves the failure on
+75847953bccdfb882ba46a1e9c79675addcaed672b689e88f3fbb051f753682f.
+
+Native-buffalo-shake-qualified exits0 on
+08b7f2f2b7d1c1180456a17add2f96676cafedc6be52ba01669fdc933b284407. All eight
+fresh roster/victim/anchor cases earn native release30, allow withdrawal after
+actual control resumes, preserve the original busy refusals, and still match
+every139 body/pool/palette/captor frames and the complete replay. The temporary
+withdrawal probe restores its exact snapshot before that ongoing comparison.
+
+Native-buffalo-nonlethal-matrix exits0 on the same executable. In four applicable
+roster/anchor cases native X selects prerequisite-acquired Parasitic Bomb and
+fires a real attack while Zero is genuinely held. The actual hit reduces the
+live boss32→29, selects native0E recovery and queues88 only on the real victim.
+The free shooter remains unscripted; the released victim withdraws safely, and
+the whole32-frame native recovery future and hit timing replay exactly. No
+Zero special weapon, capture/release state, damage or success result is supplied.
+Final state/GUI builds and four CTests pass; GUI SHA256
+fef300868460c413fc8553d517875269f2b0330901404ab322164af86b1cddb3.
