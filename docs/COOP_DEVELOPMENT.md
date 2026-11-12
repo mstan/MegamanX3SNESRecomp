@@ -3666,3 +3666,54 @@ the whole32-frame native recovery future and hit timing replay exactly. No
 Zero special weapon, capture/release state, damage or success result is supplied.
 Final state/GUI builds and four CTests pass; GUI SHA256
 fef300868460c413fc8553d517875269f2b0330901404ab322164af86b1cddb3.
+
+
+### Native Crawfish capture ownership and release (G06/E07–E10 partial)
+
+A real stage6 checkpoint2 entry and native door/intro produce the32-HP
+class54 Crawfish. Checkpoint2 must be selected after the loader reaches
+D1=4,D2=0; selecting it before that reset reaches checkpoint0 instead.
+The native X entry independently passes. No capture/attack/clear flags are
+supplied: the actual charge and CC5C collision earn the grip.
+
+That grip exposed three distinct defects: a nearer free body replaced its
+victim, the free physical port incremented the captive escape counter, and
+the noncanonical health meter retained its native damage-update bit. The
+existing attachment owner now follows Crawfish's real action0/sub4 hold
+and immediate defeat continuation; D399 completes release and clears it.
+The captive's physical input is borrowed and restored around the one NPC
+update, and the second living health meter acknowledges03:906D/90BB's
+health/clamp contract at the existing HUD boundary. No snapshot fields or
+additional world/audio updates were introduced.
+
+Actual periodic capture damage can kill a one-HP captive. The solo
+04:D8D5 retirement then incorrectly marked the shared boss for removal.
+With a living partner, the two observable native boundaries now use the
+original03:D399 release/animation/recovery instead. The31st damage frame
+falls only the captive;24 subsequent input frames retain the32-HP boss,
+clear the binding, advance24 world ticks and move the surviving actor.
+Compiled03:D352/04:D8D5 entries retain the same boundary checks.
+
+Final state binary b4f2152a6b22165388f16442aef64d83ecd3e8c3422bb73b76786f4b1ace8687
+passes8 full191-frame native holds with five damage ticks,8 real30-frame
+input escapes,8 fatal-grip futures and8 real partner-projectile captor
+kills. Each hold/escape compares every body, pool, palette and source byte
+(the established body17.80 DMA request is normalized); busy withdrawal
+refuses transactionally. Released withdrawal leaves the living encounter
+running without a stale binding or false retirement. Kill cases earn
+exactly one new acquired weapon bit08 at1FC2=DC, reach the actual2553-frame
+stage1 return, finish both arrivals and preserve lives. Full futures replay
+exactly. Four additional actual captured-death survivor clears pass on
+eb37538b67e7e70cf9b626bf4e690f329bf88c6b51c6145da87c981e1c62c68e:
+either X/Zero in either roster retains the fallen partner/zero HP through
+the real reward and next-stage arrival. These are executions beneath the
+existing criteria, not additional acceptance points.
+
+The8 Buffalo native139-frame grip/Jump/released-withdraw futures and
+affected private flags, menus/shared supplies, healing and transactional
+preflight regressions pass on the final source. State/GUI builds and all
+four CTest gates pass; GUI SHA256
+afc7f4a9f228e7b717fc7538ba6cb221f833049beaf9df39f0379bf04e55dd37.
+Exact jobs/receipts are summarized in qa-state/native-crawfish-capture-qualification.json.
+G06's authored vertical-room route and other captor families remain open;
+acceptance stays101/180. No owner playtest or release is implied.

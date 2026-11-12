@@ -781,9 +781,22 @@ static int support_slot(unsigned d) {
   if(d>=0x1518 && d<0x1818 && !((d-0x1518)%48))return 15+(int)((d-0x1518)/48);
   return -1;
 }
+/* Keep the earned victim through each captor's authored release continuation.
+ * Crawfish has no Buffalo3B.80 flag: only action0/sub4 and the immediate
+ * defeated controller still own the captive; D399 completes release itself. */
+static bool native_captor_context(unsigned d){
+  if(!g_ram[d] || !g_ram[d+1])return false;
+  if(g_ram[d+10]==0x52)return (g_ram[d+0x3b]&128)!=0;
+  return g_ram[d+10]==0x54 && (g_ram[d+1]==4 ||
+      (g_ram[d+1]==2 && !g_ram[d+2] && g_ram[d+3]==4));
+}
+static bool native_captor_holding(unsigned d){
+  return g_ram[d+1]==2 && g_ram[d+3]==4 &&
+      ((g_ram[d+10]==0x52 && g_ram[d+2]==0x0a) || (g_ram[d+10]==0x54 && !g_ram[d+2]));
+}
 static unsigned native_captive_owner(unsigned d){
   int slot=support_slot(d);
-  if(slot<0 || slot>=15 || !g_ram[d] || g_ram[d+10]!=0x52 || !(g_ram[d+0x3b]&128))return 2;
+  if(slot<0 || slot>=15 || !native_captor_context(d))return 2;
   unsigned owner=(attachments[slot]>>2)&3;
   return owner==1?0:owner==2?1:2;
 }
@@ -809,9 +822,23 @@ static bool captured_player(unsigned seat){
   for(unsigned d=0xd18;d<0x10d8;d+=64)if((g_ram[d+0x27]&127) && native_captive_owner(d)==seat){
     /* The boss retains3B.80 during its recovery after D0C0. Only its actual
      * hold or the victim's unfinished capture/release pose remains busy. */
-    if((g_ram[d+1]==2 && g_ram[d+2]==0x0a && g_ram[d+3]==4) || b[2]==0x16 || b[0xa3]==0x96)return true;
+    if(native_captor_holding(d) || b[2]==0x16 || b[0xa3]==0x96)return true;
   }
   return false;
+}
+/* The solo boss retires when its only body has zero HP. With a living
+ * partner, release a dead Crawfish captive through D399's original animation,
+ * control cleanup and recovery instead of retiring the shared encounter. */
+static void captive_death_boundary(CpuState *cpu,uint32_t pc){
+  unsigned d=cpu->D;
+  if(!X3CoopRuntimeReady() || state.wipe || !enemy_actor(d) || g_ram[d+10]!=0x54 ||
+      !target.active || target.slot!=d || !native_captor_holding(d))return;
+  unsigned owner=native_captive_owner(d);
+  if(owner>=2 || state.players[owner].life==X3_COOP_ALIVE ||
+      state.players[owner^1].life!=X3_COOP_ALIVE)return;
+  unsigned at=pc&0x7fffff;
+  if(at==0x04d8d5)interp_bridge_pre_opcode_redirect((pc&0x800000)|0x04d8e0);
+  else if(at==0x03d352)interp_bridge_pre_opcode_redirect((pc&0x800000)|0x03d399);
 }
 static void refill_retired_cleanup(unsigned d,unsigned seat){
   X3CoopPlayer *p=&state.players[seat];
@@ -894,7 +921,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   unsigned at=pc&0xffff,d=cpu->D;
   if(at==0xdd1a || at==0xdcb3 || at==0xdafa) {
     int attachment=support_slot(d);
-    if(attachment>=0 && (!g_ram[d] || !g_ram[d+1] || g_ram[d+10]!=0x52 || !(g_ram[d+0x3b]&128)))
+    if(attachment>=0 && !native_captor_context(d))
       attachments[attachment]&=(uint8_t)~12;
     unsigned captive=native_captive_owner(d),beam=native_beam_target(d);
     bool capsule=native_capsule(d),intro=intro_capture_actor(d),x_only=x_pickup(d) || capsule || intro;
@@ -916,24 +943,30 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
         X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
     bool retired=state.players[seat].life!=X3_COOP_ALIVE;
     if(retired && !pending)return;
-    if(!pickup && !door && !capsule && !intro && seat==state.anchor)return;
+    if(!pickup && !door && !capsule && !intro && seat==state.anchor && captive>=2)return;
     target=(WorldTarget){(uint16_t)d,cpu->S,1,(uint8_t)seat};
     if(retired)X3CoopProjectRetired(&state,g_ram,seat);
     else X3CoopProject(&state,g_ram,seat);
+    /*03:D695 counts physical input edges during Crawfish's actual hold. */
+    if(g_ram[d+10]==0x54 && !g_ram[0x1f63]){
+      if(seat)memcpy(g_ram+0xa8,g_ram+0xae,6);else primary_input_restore();
+    }
     return;
   }
-  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && g_ram[d+10]==0x52){
+  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x52 || g_ram[d+10]==0x54)){
     int slot=support_slot(d);
     if(slot>=0){
-      if(!g_ram[d] || !(g_ram[d+0x3b]&128))attachments[slot]&=(uint8_t)~12;
+      if(!native_captor_context(d) || (g_ram[d+10]==0x54 && native_captive_owner(d)<2 &&
+          state.players[native_captive_owner(d)].life!=X3_COOP_ALIVE && !native_captor_holding(d)))attachments[slot]&=(uint8_t)~12;
       else if(!(attachments[slot]&12) && g_ram[X3_COOP_BODY+0xa3]==0x96)
-        /*03:CC5B and04:D034 just earned the grip in this projected body. */
+        /*03:CC5B/03:D31A and04:D034 earned the grip in this projected body. */
         attachments[slot]=(uint8_t)((attachments[slot]&~12u)|128u|(4u<<state.current));
     }
   }
   /* Native item/enemy/hostile-shot continuations follow the actual RTS;
    * the original JSR frame has been consumed. */
   if(target.active && d==target.slot && cpu->S==(uint16_t)(target.s+2)) {
+    if(g_ram[d+10]==0x54 && !g_ram[0x1f63]){primary_input_restore();modal_input_project();}
     intro_capture_begin(d);
     if(scene.phase && scene.kind && target.seat==scene.owner && state.players[scene.owner].life!=X3_COOP_ALIVE &&
        enemy_actor(d) && (g_ram[d+10]==0x4d || g_ram[d+10]==0x4e || g_ram[d+10]==0x5c)){
@@ -1125,6 +1158,14 @@ static void presentation_boundary(CpuState *cpu,uint32_t pc) {
   if(!X3CoopRuntimeReady() || X3CoopNativePauseActive(g_ram))return;
   pc&=0x7fffff;
   if(pc==0x038dd7) {
+    /*03:906D/90BB acknowledges the canonical health meter's dirty bit.
+     * The second personal meter uses the same health/clamp contract without
+     * rerunning the shared HUD, OAM submission or world audio work. */
+    unsigned other=state.current^1;X3CoopPlayer *p=&state.players[other];
+    if(p->life==X3_COOP_ALIVE && (p->body[0x27]&128)){
+      unsigned hp=p->body[0x27]&127;
+      p->body[0x27]=(uint8_t)(hp<p->maximum_health?hp:p->maximum_health);
+    }
     X3CoopPresentationBegin(&state,g_ram,cpu_read16(cpu,cpu->DB,0x6621),cpu_read16(cpu,cpu->DB,0x6623));
   } else if(pc==0x038df0) {
     /* JSL7E:26A0 has waited for the original sprite program to finish. */
@@ -1692,6 +1733,8 @@ void X3CoopRuntimeFrame(void) {
       0x00dafa,0x00daaf,0x00dad3};
   for(unsigned i=0;i<sizeof(target_pcs)/sizeof(*target_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(target_pcs[i],target_boundary))enabled=false;
+  if(!interp_bridge_add_pre_opcode_hook(0x04d8d5,captive_death_boundary) ||
+     !interp_bridge_add_pre_opcode_hook(0x03d352,captive_death_boundary))enabled=false;
   static const uint32_t target_queries[]={0x02e142,0x02daa7,0x02dac6};
   for(unsigned i=0;i<sizeof(target_queries)/sizeof(*target_queries);++i)
     if(!interp_bridge_add_pre_opcode_hook(target_queries[i],target_query))enabled=false;
@@ -1811,7 +1854,10 @@ static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePa
   if(active && (base>1 || s->wipe || s->current!=(base^(active->pass==2)) ||
      s->players[s->current].life!=X3_COOP_ALIVE))return false;
   if(world->active) {
-    bool cleanup=world->slot==0xcc8 || (healing->active && healing->slot==world->slot && healing->seat==world->seat) ||
+    int captive_slot=support_slot(world->slot);
+    bool captive=captive_slot>=0 && captive_slot<15 &&
+        ((attachment_bits[captive_slot]>>2)&3)==(1u<<world->seat);
+    bool cleanup=captive || world->slot==0xcc8 || (healing->active && healing->slot==world->slot && healing->seat==world->seat) ||
         (script->phase && script->kind && script->owner==world->seat);
     unsigned seat=s->players[world->seat].life==X3_COOP_ALIVE || cleanup?world->seat:s->anchor;
     if(h?hit->seat!=seat:q?support->restore!=seat:!s->wipe && s->current!=seat)return false;
