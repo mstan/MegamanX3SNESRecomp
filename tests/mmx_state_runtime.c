@@ -46,6 +46,7 @@ static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned se
 #include "x3_coop_preflight_test.inc"
 #include "x3_coop_midpass_test.inc"
 #include "x3_coop_vehicle_test.inc"
+#include "x3_coop_terrain_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -329,6 +330,8 @@ int main(int argc,char **argv) {
       native_display_checks("enemy",saved,size,after,damaged,cap);
       native_target_checks(saved,size,after,cap);
     }
+    fixture=getenv("X3_COOP_LADDER_STATE");
+    if(fixture && *fixture)native_ladder_checks(fixture,saved,after,cap);
     fixture=getenv("X3_COOP_DESTROY_SUPPORT_STATE");
     if(fixture && *fixture)native_destructible_support_checks(fixture,saved,after,cap);
     fixture=getenv("X3_COOP_SEPARATE_PLATFORM_STATE");

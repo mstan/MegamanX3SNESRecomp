@@ -295,9 +295,12 @@ static void view_bounds_boundary(CpuState *cpu,uint32_t pc) {
     unsigned partner=state.anchor^1;
     X3CoopCapture(&state,g_ram);
     if(X3CoopViewsIndependent()){
-      X3CoopViewsUpdate(g_ram,&state,false,false);
-      X3CoopView v=X3CoopViewsFollowPlayer(g_ram,&state,partner);
       const X3CoopViewState *views=X3CoopViewsState();
+      /* Native00DA0D moves the camera before00DA2D applies region scripts.
+       * Valid targets stay committed until00DE43; reparsing here would
+       * apply the next region one camera step before the original. */
+      if(!(views->valid&(1u<<partner)))X3CoopViewsUpdate(g_ram,&state,false,false);
+      X3CoopView v=X3CoopViewsFollowPlayer(g_ram,&state,partner);
       X3CoopProject(&state,g_ram,partner);
       for(unsigned i=0;i<4;++i)putword(g_ram+0x1e66+i*2,
           views->camera_valid&(1u<<partner)?views->current[partner][i]:views->limits[partner][i]);

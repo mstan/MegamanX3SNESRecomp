@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 95/180; 85 open/partial. Accepted areas: 3/15
+**Accepted touch points: 96/180; 84 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -54,7 +54,7 @@ campaign or co-op gameplay acceptance.
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | P01-P05/P14-P16 accepted (8/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
+| Supports/hazards | P01-P05/P10/P14-P16 accepted (9/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07/C09/C10/C12 accepted (9/12); armored parts, attack origins and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
@@ -3361,3 +3361,41 @@ native X/Zero PNGs show the appropriate bright survivor and jungle. These checks
 qualify corpse color/brightness isolation; the remaining general visual, HUD,
 weather, aspect and audio criteria stay open. Actual95/180 accepted,85open,
 3/15rollups.
+
+### Authored ladders and native camera-limit timing — P10
+
+P10 is accepted. Native-ladder-region-timing exits0 on state SHA256
+5c3854e504e5697fd1217627d202ecffb18ad1e13ab853508c6add6484a72202.
+A real native stage2 load supplies the free start. The live collision map has
+ladder columns atx1472/capy704/run720..848 andx2384/capy608/run624..688
+(types12/13 hex). Body/camera positioning bypasses travel; native column1408
+admits all four actual3C:D557/D55E/D565/D56C region scripts in the16-byte1D18
+pool before either reference. No attachment, movement, exit or limit result is
+written. Neutral waiting below this hanging ladder is not an attachment proof.
+
+Both roster orders and both tested seats run240 real input frames:120Up,
+90Down, then30Right with the initial Jump edge. The tested actor is non-anchor
+in co-op; the other actor grabs the separate ladder and then holds its rung.
+Every original/co-op frame matches position, vertical/horizontal velocity,
+native pose/substate, health, grounded flags, camera coordinates and all four
+current camera limits. Both characters traverse the long and short paths,
+clear the authored upper ledge/ceiling boundary, descend through native top
+admission and lower exit, and detach. The long path additionally requires
+Jump from an actual2A mid-climb pose. Original X reachesy687 and Zero679 at
+its upper cap; the short path reaches591/583. World advancement is once per
+frame and the complete paired-machine future replays exactly.
+
+The complete native reference exposed one premature private limit update:
+00DA0D moves the native camera before00DA2D executes region scripts. Parsing
+valid region targets again inside the private body-bound pass applied the next
+left boundary before the original camera. The pass now initializes missing
+views there and retains already committed targets until normal00DE43 admission.
+No new state fields or native entry bridges are added. Earlier teleported
+references without the actual native region controllers are excluded.
+
+Native-ladder-private-pit-regression exits0 on the same binary, retaining all
+four actual independent-room deaths and the original live class05 support
+control. The GUI rebuild and all four CTests pass. This accepts the ladder
+mechanic and its per-view native boundaries; remaining general frontier,
+terrain, crush, visual and performance criteria remain open. Actual96/180
+accepted,84open,3/15rollups.
