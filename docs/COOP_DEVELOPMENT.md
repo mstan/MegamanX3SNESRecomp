@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 106/180; 74 open/partial. Accepted areas: 3/15
+**Accepted touch points: 107/180; 73 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G04/G06 accepted (5/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G06 accepted (6/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -3920,3 +3920,60 @@ The earlier native stage table's boss-name labels have also been corrected;
 its numeric stage/class/reward results were already accurate.
 
 Actual106/180 accepted,74 open/partial; R/M/N remain the three accepted areas.
+
+
+### Native Volt Catfish electrical contact and parent cleanup — G05
+
+G05 is accepted. Actual stage5 checkpoint2 and P2 Right door inputs reach the
+native class58/32HP encounter, both actors free, floor2992 and camera3328/2816.
+The existing earned-projectile/replay check now also uses this original arena,
+class27 electrical sources and native13:F0BE reward at1FC0 (acquiredmask04/DC).
+No attack, capture, death, defeat or reward result is supplied.
+
+One persistent electrical source exposed a co-op contact defect. The original
+controller's actual electrode41/primary2 damages native X16→12 and Zero28→24.
+With both living actors overlapping, the previous paired update gave12/28.
+Its single-use-shot guard stopped after the first hit even though this source
+remained live.08:AFEB/B157 ignore the CB31 result; their native parent/movement
+phases retire these hazards. Class27 now follows the existing persistent-ice
+continuation and tests both eligible actors in that one world update. Other
+single-use hostile hits still stop after their consumed contact.
+
+All four roster/anchor overlap cases now match each character's actual original
+damage, update the source once and replay the complete paired machine exactly.
+Actual consumed class03 shots and successful native A/X/Y/D/S/P/DB/PB, scratch,
+object and health returns still pass. No state-format change was needed.
+
+Eight32HP roster/victim/anchor cases earn the normal class27/variant2 electrical
+chain, advanced81px from its real parent (parent3416,2967/source3497,2962).
+Its actual update kills the one-HP actor; the free actor retains24 real movement
+ticks beside the live32HP boss. Real survivor busters then defeat it and finish
+the original reward and next-stage arrival twice per case. Four living-pair
+cases use assisted8HP to earn the actual action8 floor-electricity sequence and
+variant10 side electrodes,40px from parent. The native super guard is respected;
+ordinary fire earns its later vulnerable defeat at360..370 updates. Both living
+actors retain their roster through the full return. All twelve clears add only
+mask04, preserve lives2, retain fallen/living states and complete2553 return
+updates plus64 arrival updates, with exact whole-machine replay.
+
+All four actual electrical parent kills separately verify zero active class27
+children20 updates after defeat, while the parent remains primary4 and before
+a reward or stage loader can clear the pool. These complete futures also replay
+exactly. The child's actual+3E parent is retained from native13:F1F2/TDC.
+
+The isolated sphere0 probe did not select an in-arena separated source while
+the protected actors camped at the wall. Its native origin is parentY+16; that
+setup is not a proven co-op defect or individual sphere qualification. The real
+normal chain and super-floor/electrode sequences above are the accepted authored
+checks. An initial180-update firing bound ended during the native guard; its
+600 bound permits actual later defeat without forcing vulnerability.
+
+Exact evidence: build-coop/qa-state/native-crawfish-capture-qualification.json ->
+volt_catfish. native-catfish-normal-survivors, electrical-living,
+overlap-qualified, cleanup-qualified, contact-regression, rhino-regression and
+final-builds all child0. Full mechanics stateSHA3e7d81a3; final cleanup/Rhino
+stateSHA0eb8f126; GUI SHA256
+d239b97e43ba7ed6453dc26bc397373f433f12a90b9f1bb473bd956a75d4b3bf.
+The production GUI and fourCTest checks pass. Actual107/180 accepted,73 open;
+R/M/N remain the three accepted areas. Remaining capture, visual and other
+campaign criteria receive no extra acceptance from these permutations.
