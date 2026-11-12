@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 96/180; 84 open/partial. Accepted areas: 3/15
+**Accepted touch points: 98/180; 82 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -54,7 +54,7 @@ campaign or co-op gameplay acceptance.
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | P01-P05/P10/P14-P16 accepted (9/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
+| Supports/hazards | P01-P05/P07-P08/P10/P14-P16 accepted (11/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07/C09/C10/C12 accepted (9/12); armored parts, attack origins and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
@@ -3399,3 +3399,70 @@ control. The GUI rebuild and all four CTests pass. This accepts the ladder
 mechanic and its per-view native boundaries; remaining general frontier,
 terrain, crush, visual and performance criteria remain open. Actual96/180
 accepted,84open,3/15rollups.
+
+
+### Native one-way ladder tops — P07
+
+P07 is accepted. Native-oneway-cap-approach exits0 on state SHA256
+`990cad2bd92314566639c8d97de8b926c511e0f5e22cc270e9f74dc6e096792d`.
+The actual stage2 collision map supplies type13hex surfaces at1480,704 and
+2392,608. Both rosters and either tested non-anchor actor run160 native frames
+against the original controller. Each actor first earns a native ground Jump;
+a position-only teleport then puts the already jumping body24px below its
+cap. No Up/Down, ladder attachment, action, velocity, grounding, landing or
+rider result is supplied. Actual regional controllers are admitted through
+the original event column before comparison.
+
+Both characters pass upward through the underside and land on descent. X
+stands17px above the cap at native landing frame36; Zero stands25px above it
+at frame32. Their ascent minima are674 on the704 cap and578 on the608 cap.
+Right input then carries the body across the tile edge onto the neighboring
+native floor. Every body/velocity/pose/HP/ground sample, private camera and
+current limit matches original; all four complete-machine futures replay
+exactly and the world advances160 times. Evidence:
+`build-coop/qa-state/native-oneway-qualification.json`.
+
+The Gravity Well class37 lift is excluded from this check: original04:BFAE
+resolves every side, including its underside/crush path. It is a solid lift,
+not the game's one-way mechanism. An initial48px-below-cap approach also
+failed to clear the top in original because it exceeded the measured Jump
+clearance; moving the position prerequisite closer established the actual
+positive. Neither rejected setup is recorded as a co-op defect or pass.
+
+Actual97/180 accepted,83 open/partial; R/M/N remain the three accepted areas.
+
+
+### Native slope charge/origins and widescreen source lifetime — P08
+
+P08 is accepted on state SHA256
+`2d04c4b97f626960c937f2ff3a583c30584414ae39919fb5a38bd41f7ff4e58f`; native-slope-widescreen exits0 for both
+rosters and either non-anchor actor. The real stage2 ramp uses collision
+profiles0C/0B/0A/09 at832/848/864/880,Y928. Actors earn charge through180 real
+input frames on the free native floor before a position-only approach. The
+original slope pushes the body downhill, including against walking/dash
+input; the check follows that real traversal rather than inventing an uphill
+standing requirement. Every run touches all four grounded ramp profiles.
+X height changes911..926 with charge6 and12/29grounded samples; Zero changes
+903..918 with charge8 and16samples. Actual attacks allocate while grounded,
+including the charged X shot at actor837,912/muzzle863,905 and native Zero
+shot at actor879,915/muzzle887,906. These are actual original results.
+
+The comparison found an objective source-lifetime regression at frame42: X
+retains8 native particles/counter8 in the original but7 in co-op. Its main
+projectile also starts retirement early. The original title widens horizontal
+object windows for widescreen in generated and private-ROM execution. The
+co-op cull replacement had kept stock bounds, bypassing those established
+constants. Native-slope-lifetime preserves this failure on26dd5b66... and
+its original/paired current-build snapshots. An initial camera-phase
+experiment did not resolve it and was fully reverted.
+
+The runtime now reuses the existing X3WsObjWinAdd for horizontal extents at
+02:D58A/D611/D636 and00:DF9F, retaining the same native-controller exclusion.
+Variable-radius D5AB/D5DA contracts remain native. No new serialized state
+is added. All96 body/camera/limit/charge/facing/palette/auxiliary/projectile
+samples and the full-machine futures now match original in all four cases.
+A margin-disabled original/co-op control, both-roster private pits and all
+four P07/P10 cases pass on the same binary; four CTests pass. GUI build0,
+SHA256`eff3e6cb26197f0c27da0987c74dc138e6a21b9f9753b547bbb6415d161f1b26`. Evidence:
+`build-coop/qa-state/native-slope-qualification.json`. C08 retains its separate
+ground/air/facing acceptance. Actual98/180 accepted,82open/partial,3/15areas.

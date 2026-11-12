@@ -13,6 +13,7 @@
 
 extern uint8_t g_ram[0x20000];
 extern Snes *g_snes;
+extern uint16_t X3WsObjWinAdd(uint16_t base);
 static bool enabled;
 static bool stock_zero,stock_exit_pending;
 static bool learner_enabled,learner_rescue;
@@ -234,6 +235,12 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
     case 0x02d636:left=top=32;right=288;bottom=256;next=0xd656;break;
     case 0x00df9f:left=32;right=288;top=0;bottom=242;next=0xdfbc;break;
     default:return;
+  }
+  /* These four native X-window pairs use the existing widescreen margin
+   * in generated code and the private ROM. Variable-radius D5AB/D5DA
+   * are unmodified native contracts and retain their caller's radius. */
+  if(at==0x02d58a || at==0x02d611 || at==0x02d636 || at==0x00df9f){
+    left=X3WsObjWinAdd((uint16_t)left);right=X3WsObjWinAdd((uint16_t)right);
   }
   int x=word(g_ram+d+5),y=word(g_ram+d+8);
   X3CoopView chosen=X3CoopViewsForPlayer(g_ram,&state,state.anchor,false);
