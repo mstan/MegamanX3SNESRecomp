@@ -97,7 +97,13 @@ typedef struct SolidPass {
 static SolidPass solid;
 /* The native column loop remains interruptible and owns all allocation.
  * Only its pending column selection is extra simulation state. */
-typedef struct ViewSpawn {uint8_t columns[64],count,cursor,active;} ViewSpawn;
+/* At most two native scans of one horizontal column plus ten vertical
+ * columns fit in31 entries. Keep scan order and row ranges, rather than
+ * treating the whole retention rectangle as an admission frontier. */
+typedef struct ViewSpawnEntry {uint8_t column,scan;} ViewSpawnEntry;
+typedef struct ViewSpawn {ViewSpawnEntry entries[31];uint8_t frontier[2],count,cursor,active;} ViewSpawn;
+enum {FRONTIER_LEFT=1,FRONTIER_RIGHT=2,FRONTIER_UP=4,FRONTIER_DOWN=8,
+      FRONTIER_FULL=16,FRONTIER_KNOWN=32,SCAN_FULL=0,SCAN_UP=2,SCAN_DOWN=4};
 static ViewSpawn view_spawn;
 typedef struct ViewBounds {NativePass native;uint8_t camera[64],scratch[24];} ViewBounds;
 static ViewBounds view_bounds;
@@ -159,38 +165,75 @@ static bool view_record_wanted(unsigned flag) {
     int dy=(int16_t)(y-word(g_ram+0x1e60));
     return dx>=-31 && dx<257 && dy>=-32 && dy<256;
   }
-  /* A leading native column includes records up to31px beyond its origin.
-   * This frontier stays within even the narrow D636 retirement rectangle.
-   * Admitting at D58A's wider retention margin can consume an event before
-   * its first D636 draw, leaving a held visit for an already-retired actor. */
-  return X3CoopViewsContains(g_ram,&state,x&~31u,y,31,257,32,256,0,false);
+  /* Native vertical scans include the aligned column at cameraX-32 and
+   * the32px row beginning cameraY+240. This union is only the live region;
+   * actual admission below uses the original directional scan spans. */
+  return X3CoopViewsContains(g_ram,&state,x&~31u,y,63,257,32,272,0,false);
+}
+static void view_spawn_clear(void){
+  memset(view_spawn.entries,0,sizeof(view_spawn.entries));
+  view_spawn.count=view_spawn.cursor=view_spawn.active=0;
+}
+static void view_spawn_add(int column,unsigned scan){
+  if(column<0 || column>=8192 || view_spawn.count>=31)return;
+  ViewSpawnEntry *e=&view_spawn.entries[view_spawn.count++];
+  e->column=(uint8_t)(column/32);e->scan=(uint8_t)scan;
 }
 static void view_spawn_begin(void) {
-  memset(&view_spawn,0,sizeof(view_spawn));
+  view_spawn_clear();
   for(unsigned col=0;col<256;++col) {
     unsigned first=word(g_ram+0xf800+col*2),end=word(g_ram+0xf802+col*2);
     if(first<0xfa02 || end>0xfffc || end<first || (end-first)%5)continue;
-    bool candidate=false;
-    for(unsigned flag=first;flag<end;flag+=5) {
-      if(!view_record_wanted(flag))X3CoopViewsMark(flag,false);
-      else if(g_ram[flag])X3CoopViewsMark(flag,true);
-      else if(!X3CoopViewsSeen(flag))candidate=true;
+    for(unsigned flag=first;flag<end;flag+=5)
+      X3CoopViewsMark(flag,view_record_wanted(flag) && g_ram[flag]);
+  }
+  for(unsigned i=0;i<2;++i){unsigned seat=state.anchor^i;
+    const uint8_t *body=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+    if(state.players[seat].life!=X3_COOP_ALIVE || !(body[0x27]&127) || body[2]==12)continue;
+    X3CoopView v=X3CoopViewsForPlayer(g_ram,&state,seat,false);
+    unsigned flags=view_spawn.frontier[seat];
+    if(!flags || (flags&FRONTIER_FULL)){
+      for(int col=((int)v.x-32)&~31,n=0;n<10;++n,col+=32)view_spawn_add(col,seat|SCAN_FULL);
+      continue;
     }
-    if(candidate && view_spawn.count<sizeof(view_spawn.columns))
-      view_spawn.columns[view_spawn.count++]=(uint8_t)col;
+    /*00:DE43 admits the horizontal frontier before the vertical row. */
+    if(flags&FRONTIER_LEFT)view_spawn_add(v.x&~31,seat|SCAN_FULL);
+    if(flags&FRONTIER_RIGHT)view_spawn_add((v.x+256)&~31,seat|SCAN_FULL);
+    unsigned scan=flags&FRONTIER_UP?SCAN_UP:flags&FRONTIER_DOWN?SCAN_DOWN:SCAN_FULL;
+    if(scan!=SCAN_FULL)for(int col=((int)v.x-32)&~31,n=0;n<10;++n,col+=32)view_spawn_add(col,seat|scan);
   }
   view_spawn.active=view_spawn.count!=0;
+}
+static void view_spawn_span(unsigned index,bool next){
+  const ViewSpawnEntry *e=&view_spawn.entries[index];
+  X3CoopView v=X3CoopViewsForPlayer(g_ram,&state,e->scan&1,false);
+  unsigned scan=e->scan&~1u;
+  putword(g_ram,(unsigned)e->column*32-(next?32:0));
+  putword(g_ram+2,scan==SCAN_DOWN?v.y+240:v.y-32);
+  putword(g_ram+4,scan==SCAN_FULL?288:32);
 }
 static void view_world_boundary(CpuState *cpu,uint32_t pc) {
   if(stage_pending())return;
   unsigned at=pc&0x7fffff;
   if(at==0x00da38) {
+    const X3CoopViewState *before=X3CoopViewsState();uint16_t prior[2][2];
+    memcpy(prior,before->camera,sizeof(prior));unsigned prior_valid=before->camera_valid,prior_stage=before->stage;
     if(enabled && state.initialized && intro_cinematic()){scene_tick();return;}
     if(enabled && state.initialized)stock_tick();
     if(enabled && state.initialized)scene_tick();
     if(enabled && state.initialized && X3CoopViewsIndependent()) {
       X3CoopCapture(&state,g_ram);
       X3CoopViewsEndFrame(g_ram,&state,view_scene(),false);
+      const X3CoopViewState *after=X3CoopViewsState();
+      for(unsigned seat=0;seat<2;++seat){unsigned bit=1u<<seat,flags=FRONTIER_KNOWN;
+        if(!(after->camera_valid&bit)){view_spawn.frontier[seat]=0;continue;}
+        if(!view_spawn.frontier[seat] || !(prior_valid&bit) || prior_stage!=after->stage)flags|=FRONTIER_FULL;
+        else{unsigned x=after->camera[seat][0],y=after->camera[seat][1];
+          if((x&~31u)!=(prior[seat][0]&~31u))flags|=x<prior[seat][0]?FRONTIER_LEFT:FRONTIER_RIGHT;
+          if(y!=prior[seat][1])flags|=y<prior[seat][1]?FRONTIER_UP:FRONTIER_DOWN;
+        }
+        view_spawn.frontier[seat]=(uint8_t)flags;
+      }
     }
     if(enabled && state.initialized)participation_tick();
     if(enabled && state.initialized)learner_tick();
@@ -208,19 +251,19 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
     X3CoopCapture(&state,g_ram);
     X3CoopViewsUpdate(g_ram,&state,false,false);view_spawn_begin();
     if(!view_spawn.active) {interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xdecf);return;}
-    putword(g_ram,view_spawn.columns[0]*32);putword(g_ram+2,0);putword(g_ram+4,0x1fff);
+    view_spawn_span(0,false);
     putword(g_ram+6,view_spawn.count);
     interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xdec0);return;
   }
   if(at==0x00dec3 && view_spawn.active) {
     if(++view_spawn.cursor<view_spawn.count)
-      putword(g_ram,view_spawn.columns[view_spawn.cursor]*32-32);
+      view_spawn_span(view_spawn.cursor,true);
     return;
   }
-  if(at==0x00decf) {memset(&view_spawn,0,sizeof(view_spawn));return;}
+  if(at==0x00decf) {view_spawn_clear();return;}
   if(at==0x00df1e) {
     unsigned flag=word(g_ram+0x14);
-    if(!view_record_wanted(flag) || X3CoopViewsSeen(flag))
+    if(!view_record_wanted(flag))
       interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xdf82);
     return;
   }
@@ -1819,10 +1862,17 @@ uint32_t X3CoopRuntimeDigest(void){
   X3CoopRuntimeSave(&stream.io);memcpy(&state,&prior,sizeof(state));return stream.hash;
 }
 static bool view_spawn_valid(const ViewSpawn *v) {
-  if(v->count>sizeof(v->columns) || v->cursor>v->count || v->active>1)return false;
+  if(v->count>31 || v->cursor>v->count || v->active>1)return false;
   if(v->active && !v->count)return false;
   if(!v->active && (v->count || v->cursor))return false;
-  for(unsigned i=1;i<v->count;++i)if(v->columns[i]<=v->columns[i-1])return false;
+  for(unsigned seat=0;seat<2;++seat){unsigned f=v->frontier[seat];
+    if(f && (!(f&FRONTIER_KNOWN) || (f&~63u) || ((f&3)==3) || ((f&12)==12) ||
+       ((f&FRONTIER_FULL) && (f&15))))return false;
+  }
+  for(unsigned i=0;i<31;++i){const ViewSpawnEntry *e=&v->entries[i];
+    if(i<v->count){if(e->scan>5)return false;}
+    else if(e->column || e->scan)return false;
+  }
   return true;
 }
 static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePass *t,

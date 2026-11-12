@@ -15,7 +15,7 @@ static void native_transactional_snapshot_checks(const char *normal,const char *
       {"invalid scene owner",scene+6,2},{"invalid scene kind",scene+11,255},{"invalid physical history",scene+12,(uint8_t)(base[scene+12]|1)},
       {"invalid participation profile",scene+16+6,128},
       {"invalid independent policy",views,2},{"invalid view mask",views+1,4},{"invalid camera coordinate",views+6,0x21},
-      {"invalid spawn count",views+X3_COOP_VIEW_STATE_BYTES+64,65},{"unknown camera pass",bounds+24,4},{"orphan personal camera backup",bounds+24,3},
+      {"invalid spawn count",views+X3_COOP_VIEW_STATE_BYTES+64,65},{"unknown frontier flags",views+X3_COOP_VIEW_STATE_BYTES+62,128},{"contradictory horizontal frontier",views+X3_COOP_VIEW_STATE_BYTES+62,35},{"mixed initial/moving frontier",views+X3_COOP_VIEW_STATE_BYTES+62,49},{"unknown camera pass",bounds+24,4},{"orphan personal camera backup",bounds+24,3},
       {"invalid shared-effect owner",bounds+114,3},{"invalid presentation identity",presentation+6,2},{"invalid rider bits",n-X3_COOP_MENU_STATE_BYTES-31,4},{"two captive owners",n-X3_COOP_MENU_STATE_BYTES-31,140},{"unknown attachment bits",n-X3_COOP_MENU_STATE_BYTES-31,144},{"invalid menu header",n-X3_COOP_MENU_STATE_BYTES,255}
     };
     for(unsigned i=0;i<sizeof(cases)/sizeof(*cases);++i){memcpy(work,base,n);work[cases[i].at]=cases[i].value;bool accepted=RtlLoadSnapshotFromMemory(work,n);if(accepted)fprintf(stderr,"malformed snapshot accepted roster%u case%s offset%zu\n",roster,cases[i].name,cases[i].at);check(!accepted,"malformed current actor/pass/view/scene/presentation/menu input is refused before load");size_t an=RtlSaveSnapshotToMemory(after,capacity);same(base,n,after,an,"malformed current input leaves the complete machine unchanged");}

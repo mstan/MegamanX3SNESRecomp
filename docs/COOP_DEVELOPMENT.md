@@ -14,7 +14,7 @@ This is an incomplete development implementation, not a co-op release.
 - Separate alive, voluntarily absent and fallen states. The lifecycle API
   refuses fallen rejoin and partial-team retry, and transfers the anchor to
   the survivor. Development runtime handoff intercepts the native death state
-  before its global freeze; runtime death/scene wiring is not yet qualified.
+  before its global freeze; the remaining authored death and scene cases are tracked below.
 - Balanced native controller replay and post-enemy terrain replay. Enrollment
   is restricted to the native gameplay scheduler caller, excluding scripted
   controller calls. Both passes preserve elapsed guest time.
@@ -35,7 +35,8 @@ Either living actor can open the paired pause with Start. Both navigate their
 own panel; Fire selects equipment or uses a shared subtank, and Start resumes
 when healing finishes. Learner mode has focused native protection and return
 checks. Adaptive co-op presentation and network startup have pilot evidence;
-full campaign, lifecycle, presentation and online qualification remain open.
+full campaign, remaining lifecycle and presentation qualification remain open;
+accepted online checks are listed below.
 
 Full campaign is the default Zero policy. Stock restrictions start him
 withdrawn; his Select control calls him when the original game permits it.
@@ -44,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 101/180; 79 open/partial. Accepted areas: 3/15
+**Accepted touch points: 103/180; 77 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -53,12 +54,12 @@ campaign or co-op gameplay acceptance.
 | Individual death | D01-D05/D07/D09-D11/D14-D16 accepted (12/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
-| Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
+| Separated spawning | A01/A04/A06-A08/A14 accepted (6/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
 | Supports/hazards | P01-P05/P07-P08/P10-P11/P14-P16 accepted (12/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G02 accepted (2/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G02/G06 accepted (3/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -3715,5 +3716,58 @@ preflight regressions pass on the final source. State/GUI builds and all
 four CTest gates pass; GUI SHA256
 afc7f4a9f228e7b717fc7538ba6cb221f833049beaf9df39f0379bf04e55dd37.
 Exact jobs/receipts are summarized in qa-state/native-crawfish-capture-qualification.json.
-G06's authored vertical-room route and other captor families remain open;
-acceptance stays101/180. No owner playtest or release is implied.
+This capture-only checkpoint left G06's vertical-room route and other captor
+families open at101/180. The following qualification completes G06. No owner
+playtest or release is implied.
+
+
+### Native directional frontiers and Crawfish descending room (A04/G06 accepted)
+
+The actual stage6 shaft at4480,2272 drops onto floor2416, then native
+Right/Left input walks off the authored ledge and lands on floor2512.
+The distant partner remains in the starting room. Four real-gameplay
+roster/traveler cases compare every native simulation step: complete body,
+owned pools/palette, grounded height, camera and current room limits.
+X completes204 steps and Zero206. Extra video frames are permitted only
+when that entire sampled actor/camera state is unchanged; each video
+frame advances the world at most once. Actual continuous replay preserves
+the complete machine, including streamed and visible state. Video-frame
+counts differ between cases; this is not a runtime performance claim.
+
+This route exposed a real admission delay: the lower class0D enemy at
+3C:E744 /4488,2608 was created11–12 simulation steps late. The previous
+rectangle omitted both the native downward row through cameraY+272 and
+the aligned column to the left. Widening only its bottom did not fix the
+missing column and would not preserve directional eligibility.
+
+Admission now retains each view's actual native horizontal/vertical
+frontiers and scan order. The retail column allocator receives its
+original row spans; native event flags govern consumed/reused records.
+The extra held-visit admission cache is removed. At most22 native column
+spans fit the bounded31-entry queue with two frontier bytes in the same
+67-byte spawn state. Current snapshots remain413057 bytes. The canonical
+resident-background rule and the one shared world scheduler are retained.
+
+All four cases now match the original enemy birth/readiness steps exactly:
+188/189 for X and190/191 for Zero. The full body/camera/terrain comparisons,
+independent region preservation and complete continuous replay pass on
+52f0cbc5ba9bce4d8f877ccedc3a93e6c0f405646ee7f1da4993713dca4fa357.
+The existing actual P2 movement/support admission, separated regions,
+empty-gap exclusion, overlap, retired-view exclusion, shared-camera
+assists and transactional snapshot checks pass. Actual mid-allocation
+save/load retains native allocation order. Unknown active row spans and
+unknown/contradictory frontier flags are refused without changing the
+machine, qualified on final state
+c908cf69520213b9c59fbaa53efc2dfd15404f826473d91dd993857e9e93ef2b.
+
+Both real captor reference/release smoke cases and all four actual
+Crawfish captured-death survivor clears pass on the new frontiers,
+including native weapon bit08, stage1 return, complete arrival, fallen
+persistence and whole-machine replay. Final state/GUI builds and all four
+CTest gates pass; GUI SHA256
+05518dd7da7e1775bbd80bbe4f257b2cf54d7ef887258e2d7d1d709a9508a8d9.
+The preceding capture matrix plus this actual vertical-room and progression
+qualification accepts G06; the lower native admission/readiness and distant
+room boundary qualify A04. A02/A03/A05/A09–A13 and other captor families
+remain open. Accepted total103/180,77 open,3/15 areas. No release or owner
+playtest has been performed.

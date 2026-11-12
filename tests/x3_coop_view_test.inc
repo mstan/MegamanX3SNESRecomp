@@ -38,6 +38,11 @@ static void view_probe_boundary(CpuState *cpu,uint32_t pc) {
     X3CoopRuntimeSave(&view_probe.io);
     check(X3CoopRuntimePreflight(view_probe.bytes,view_probe.used),
           "real interrupted native allocation passes state preflight");
+    size_t marker=0;for(size_t i=0;i+16<view_probe.used;++i)if(!memcmp(view_probe.bytes+i,"X3S2",4)){marker=i;break;}
+    check(marker!=0,"active native allocation exposes its serialized scene/view boundary");
+    size_t scan=marker+24+X3_COOP_VIEW_STATE_BYTES+1;uint8_t saved=view_probe.bytes[scan];uint32_t digest=X3CoopRuntimeDigest();
+    view_probe.bytes[scan]=6;check(!X3CoopRuntimePreflight(view_probe.bytes,view_probe.used),"an unknown row span in the actual pending native allocation is refused");
+    check(X3CoopRuntimeDigest()==digest,"refused active row metadata leaves the full runtime unchanged");view_probe.bytes[scan]=saved;
   } else check(X3CoopRuntimeLoad(&view_probe.io),"pending union columns and visit history restore inside native allocation");
 }
 static void view_word(unsigned address,unsigned value) {
