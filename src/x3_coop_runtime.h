@@ -18,6 +18,8 @@ void X3CoopRuntimeSetLearner(bool enabled);
 bool X3CoopRuntimeLearner(void);
 bool X3CoopRuntimeZeroAvailable(void);
 bool X3CoopRuntimeSceneActive(void);
+/* Shared view locks, excluding the native playable Ride Armor HUD mode. */
+bool X3CoopRuntimeViewScene(void);
 void X3CoopRuntimeScenePresentation(X3CoopState *copy);
 void X3CoopRuntimeFrame(void);
 /* Sample once per emulated host frame, including native pause waits. */

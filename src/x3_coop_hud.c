@@ -74,6 +74,22 @@ static void meter(const Ppu *p,uint16_t *pixels,int x,unsigned value,unsigned ma
     sprite(p,pixels,x,y,tile,colors,NULL,inverted);
   }
 }
+static bool armor_hud(const Ppu *p,const X3CoopPresentedFrame *frame,unsigned seat,
+                      const uint16_t colors[16],uint16_t *pixels){
+  const X3CoopPlayer *player=&frame->players.players[seat];
+  if(player->character!=X3_COOP_X || player->life!=X3_COOP_ALIVE || player->body[2]!=0x2c ||
+      p->oam[0]!=0x5008 || p->oam[1]!=0x3486)return false;
+  /* The original03:9155 armor meter is already committed in serialized OAM.
+   * Its highest filled strip starts at80-2*HP. Reuse that visible value and
+   * native R badge, preserving lag timing without another state field. The
+   * armor can skip its own draw while flashing; its HUD must remain visible. */
+  unsigned top=80;
+  for(unsigned i=1;i<16;++i){unsigned xy=p->oam[i*2],tile=p->oam[i*2+1];
+    if((xy&255)==8 && tile==0x3480 && (xy>>8)<top)top=xy>>8;
+  }
+  meter(p,pixels,16,(80-top)/2,32,colors,false);
+  sprite(p,pixels,16,80,0x86,colors,NULL,false);return true;
+}
 void X3CoopHudPlayer(const Ppu *p,const X3CoopPresentedFrame *frame,unsigned seat,
                      const uint8_t *rom,size_t size,bool inverted,uint16_t *pixels){
   memset(pixels,0,X3_COOP_HUD_WIDTH*X3_COOP_HUD_HEIGHT*sizeof(*pixels));
@@ -107,6 +123,7 @@ void X3CoopHudPlayer(const Ppu *p,const X3CoopPresentedFrame *frame,unsigned sea
     for(unsigned pip=0;pip<(charge-2)/2;++pip)for(unsigned y=0;y<2;++y)for(unsigned x=0;x<2;++x)
       pixels[(icon_y+2+pip*3+y)*X3_COOP_HUD_WIDTH+12+x]=(uint16_t)(0x8000|color);
   }
+  if(armor_hud(p,frame,seat,colors,pixels))return;
   unsigned selection=player->body[0x33];
   if(player->character==X3_COOP_X && selection>=2 && selection<=18 && !(selection&1) &&
      (frame->weapon_energy[selection-1]&0x40) && weapon_badge(rom,size,selection,badge)){

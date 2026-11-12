@@ -44,7 +44,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 92/180; 88 open/partial. Accepted areas: 3/15
+**Accepted touch points: 93/180; 87 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -54,7 +54,7 @@ campaign or co-op gameplay acceptance.
 | Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
 | Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
 | Separated spawning | A01/A06-A08/A14 accepted (5/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | P01-P05/P14 accepted (6/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
+| Supports/hazards | P01-P05/P14/P15 accepted (7/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07/C09/C10/C12 accepted (9/12); armored parts, attack origins and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
@@ -3166,7 +3166,7 @@ retail armor appeared at1712,393, then the next original controller update
 clamped it to1264,392 using Zero's room limits and subsequently retired it.
 The original single-X reference boarded and moved the armor32px. Station
 cleanup also needed its actual X menu recipient through the late boarding
-freeze. The native station03:D777 and empty-armor03:9639 predicates both
+HUD-mode change. The native station03:D777 and empty-armor03:9639 predicates both
 explicitly reject Zero; this restriction is retained.
 
 The shared00:DA48/DA6B callback now borrows the unique X's complete personal
@@ -3202,3 +3202,61 @@ native-vehicle-regate-current-intro and -support each return0 on the same
 frozen binary, covering native captures, rescue, retired participants and
 separate original supports in both rosters.
 P15 variant damage/presentation and P16 vehicle/support lifecycle remain open.
+
+### Native vehicle variants, immediate inputs and presentation — P15
+
+P15 is accepted. Actual93/180 accepted,87open,3/15rollups. The actual native
+station selector, not a supplied vehicle result, chooses all four acquired
+variants. Real Right/Left, jump or held flight, punch and paired missile
+allocations execute with their original controllers. X is the unique native
+pilot in either seat; the other actor remains free in a distinct view.
+
+This found two additional defects. Native03:A1BC selects HUD mode0A for the
+armor meter at03:9155. Treating that value as a shared scene collapsed both
+private views onto the anchor. Runtime and presentation now share one view-lock
+policy that recognizes actual playable armor. The world callback also needed
+current-frame physical input: the stored non-anchor input was one frame old.
+It now projects the pilot's held/previous/edge words before the original armor
+call, leaving the actor controller to commit previous_actions once later.
+The private pilot keeps personal HP and gains the original armor meter/R badge,
+using the health already committed in native OAM. It remains visible when the
+armor sprite flashes and disappears after ejection. No snapshot field or format
+was added. Actual native and private pilot images were inspected for the four
+models and both roster roles; the other view retains native Zero and his meter.
+
+All12 native/normal-roster/reversed-roster variant cases return0 on frozen
+binary e194d13620188bf0a8ba3603af415e5c8ef762a2f4aa24b78b2d586a6fb866f6.
+Evidence jobs: native-vehicle-weapon-hit-original0/-coop2,
+native-vehicle-weapon-qualified-original/-coop/-reversed. Each verifies current
+port input, native jump/flight and punch/missile control plus whole-machine
+replay. An original3C:D1F4 class08 constructor supplies the actual enemy at
+1840,1056, bypassing travel by its original column admission and then position.
+Its native DB06 table gives9HP and2contact damage. Armor loses32to30 once;
+personal HP16/28 is unchanged. A no-fire control leaves the weapon target at9HP.
+Real Fire damages that target with the original punch or missile. All120 enemy
+health samples match the single-player reference exactly for every variant in
+both rosters; first damage is at zero-based sample3/3/0/2 for variants0/1/2/3. Contact and weapon
+damage replay the complete machine. A separate1HP armor prerequisite then lets
+the real hit earn destruction; the original accelerating30..1 warning and
+explosion finish before retirement and native pilot release, without supplying
+any defeat, ejection or removal flag. Post-release enemy contact can then hurt
+X normally, identically in the reference and co-op.
+
+The Frog control preparation waits for its actual idle continuation after the
+hop, not merely its first terrain contact. Hawk/Frog use held Jump through
+startup. The corrected Frog traces match native position/velocity throughout
+jump (minimumY337 from392); Hawk held flight reaches322. Single-player checks
+explicitly disable co-op after each load because restoring an enrolled state
+intentionally resumes co-op. Constructor calls use DB06 and restore the entire
+outer CPU except elapsed guest time. Earlier DB00 and mixed-reference attempts
+are discarded preparation, not native armor-immunity findings or game failures.
+Extra image rendering occurs after the replay's saved result so native PPU
+observations are not an unmatched replay operation.
+
+Machine-readable samples/source hashes: build-coop/qa-state/native-vehicle-qualification.json.
+Actual before/hurt/weapon-hit/retirement PPMs and pilot fixtures remain in the
+matching native-vehicle-weapon-* directories. Native-vehicle-p14-true-original
+returns0 on the same build, including actual Up+jump release, and the four
+native-vehicle-variant-final-ctest checks pass. P16 support/vehicle retirement,
+withdrawal/death history and the other terrain/campaign/presentation criteria
+remain separate open work.

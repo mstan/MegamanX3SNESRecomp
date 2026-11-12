@@ -45,7 +45,7 @@ void X3CoopPresentationBegin(const X3CoopState *p,const uint8_t *ram,unsigned x,
   X3CoopRuntimeScenePresentation(&queued.players);
   memcpy(queued.body_chr,body_chr,sizeof(body_chr));
   queued.camera[0]=(uint16_t)x;queued.camera[1]=(uint16_t)y;
-  bool scene=X3CoopRuntimeSceneActive() || ram[0x1f22] || ram[0x1f24] || ram[0x1f63];
+  bool scene=X3CoopRuntimeViewScene();
   for(unsigned seat=0;seat<2;++seat){
     X3CoopView v=X3CoopViewsForPlayer(ram,&queued.players,seat,scene);
     queued.views[seat][0]=(uint16_t)v.x;queued.views[seat][1]=(uint16_t)v.y;

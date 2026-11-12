@@ -112,7 +112,18 @@ static unsigned word(const uint8_t *p) {return p[0]|p[1]<<8;}
 static void putword(uint8_t *p,unsigned v) {p[0]=(uint8_t)v;p[1]=(uint8_t)(v>>8);}
 bool X3CoopRuntimeSceneActive(void){return enabled && state.initialized && scene.phase;}
 bool X3CoopRuntimeReady(void){return enabled && state.initialized && !stage_pending() && !intro_cinematic();}
-static bool view_scene(void) {return X3CoopRuntimeSceneActive() || g_ram[0x1f22] || g_ram[0x1f24] || g_ram[0x1f63];}
+/* Native03:A1BC selects the Ride Armor HUD dispatcher03:9155 with0A.
+ * This is a playable vehicle mode, not a shared cinematic/freeze. */
+static bool vehicle_mode(void){
+  if(!enabled || !state.initialized || !g_ram[0xcc8] || g_ram[0xcd2] ||
+      !(g_ram[0xcd3]&64) || g_ram[0x1f22]!=10)return false;
+  unsigned x=state.players[0].character==X3_COOP_X?0:1;
+  const uint8_t *b=x==state.current?g_ram+X3_COOP_BODY:state.players[x].body;
+  return state.players[x].life==X3_COOP_ALIVE && b[2]==0x2c;
+}
+bool X3CoopRuntimeViewScene(void){return X3CoopRuntimeSceneActive() ||
+    (g_ram[0x1f22] && !vehicle_mode()) || g_ram[0x1f24] || g_ram[0x1f63];}
+static bool view_scene(void){return X3CoopRuntimeViewScene();}
 static bool view_ready(void) {
   return enabled && state.initialized && !state.wipe && X3CoopViewsIndependent() &&
       !view_scene() && g_ram[0xd1]==4 && g_ram[0xd2]==4;
@@ -775,11 +786,21 @@ static void vehicle_boundary(CpuState *cpu,uint32_t pc){
       g_ram[0xcd2] || controller.pass || terrain.pass || contact.native.pass ||
       objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
   unsigned x=state.players[0].character==X3_COOP_X?0:1;
-  if(x==state.current)return;
-  target=(WorldTarget){0xcc8,cpu->S,1,(uint8_t)x};
-  personal_view_begin(x);
-  if(state.players[x].life==X3_COOP_ALIVE)X3CoopProject(&state,g_ram,x);
-  else X3CoopProjectRetired(&state,g_ram,x);
+  if(x!=state.current){
+    target=(WorldTarget){0xcc8,cpu->S,1,(uint8_t)x};personal_view_begin(x);
+    if(state.players[x].life==X3_COOP_ALIVE)X3CoopProject(&state,g_ram,x);
+    else X3CoopProjectRetired(&state,g_ram,x);
+  }
+  /* Native00:E49E maps only the canonical body before this world call.
+   * Project the pilot's current port now, leaving previous_actions for the
+   * one later actor-controller commit. Do not repeat its other side effects. */
+  if(!(scene.kind==SCENE_CAPSULE_AWARD && x==scene.owner && g_ram[0x1f45])){
+    unsigned held=state.players[x].life==X3_COOP_ALIVE && !scene_parked(x)?
+        X3CoopActions(RtlGetPadState(x),g_ram+0xffc0):0;
+    unsigned previous=state.players[x].previous_actions;
+    putword(g_ram+X3_COOP_BODY+0x36,held);putword(g_ram+X3_COOP_BODY+0x38,previous);
+    putword(g_ram+X3_COOP_BODY+0x3a,held&~previous);
+  }
 }
 static void vehicle_cull(CpuState *cpu,uint32_t pc){
   (void)pc;
@@ -823,7 +844,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
         (scene.phase && scene.kind && state.players[scene.owner].life!=X3_COOP_ALIVE);
     if(state.wipe || target.active || (!pickup && !door && !enemy_actor(d)) || !g_ram[d] ||
        (!pickup && !door && !capsule && !intro && !pending && !constructing_hostile && !(g_ram[d+0x27]&127)) ||
-       ((g_ram[0x1f22] || g_ram[0x1f24]) && !pending) || controller.pass || terrain.pass ||
+       (((g_ram[0x1f22] && !vehicle_mode()) || g_ram[0x1f24]) && !pending) || controller.pass || terrain.pass ||
        contact.native.pass || objects.native.pass || draw.pass || solid.native.pass || state.current!=state.anchor)return;
     /* Keep native X eligibility for weapon energy and persistent heart/tank
      * acquisitions, including when Zero is nearer or owns the shared world. */
