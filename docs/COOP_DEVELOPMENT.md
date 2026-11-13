@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 113/180; 67 open/partial. Accepted areas: 3/15
+**Accepted touch points: 114/180; 66 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G11/G13 accepted (12/16); fortress traversal, refights and endings open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G11/G13-G14 accepted (13/16); fortress traversal, final phases and endings open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -4440,3 +4440,41 @@ all four standard tests pass. Exact jobs, counterexamples and per-build scope
 remain in the existing private qualification record. Actual total113/180
 accepted,67 open,3/15 accepted areas. G12 and G14-G16 remain open, together with
 the separate lifecycle, scene, presentation, runtime and final owner checks.
+
+
+## Native refight sequence qualification
+
+G14 is accepted. Each of the eight authored class0D pads admits its native
+refight, and a real projectile defeat earns exactly one new native1FDA clear
+bit before the original automatic hub return. Four complete sequential routes
+cover both rosters and X/Zero as the entrant and finisher in either physical
+seat. Every route earns masks01/03/07/0F/1F/3F/7F/FF, preserving lives2, the
+actually earned saber flagsDC, hunter/Vile results3F and both living actors.
+Returned bodies retain their actual native character and can charge.
+
+Each real pad contact/introduction replays its complete future twice. Each
+actual winning hit, native clear and automatic hub return also replays its
+complete future twice. The return takes111 updates after the measured outro;
+no return-position assist is needed in these cases. Each boss starts with
+native32HP, remains live during an idle16-update 1HP assist, and loses its
+remaining health only to a real native projectile. Approach coordinates and
+personal protection bypass ordinary travel without supplying a result.
+
+The first original solo pad reference reaches its live refight after629
+updates. An earlier observer rejected that same live32HP main because its
+authored kind byte had become native AI state; the qualified observer follows
+the active native main. Type0 records identify the actual item pads. A prior
+type2 camera-event approach was a test setup failure in both solo and co-op.
+
+The actual Mosquitus saber award was also carried through the native Lab2
+checkpoint/door, main4A defeat and original Lab3 loader. Both actors remain
+enrolled with native X/Zero identities, and the earned DC story flags survive
+into these refights. Exact source/binary identities, per-route jobs and native
+clear/return samples remain in the existing private qualification record.
+
+The refight sequence state binary is
+733e61ee19f26dc7bfe01ca24a340318715b50f5154a246157c0c92f78e8fdc5, using the
+qualified production runtime from b621614. Actual total114/180 accepted,66 open,
+3/15 accepted areas. Unlocked-hub platform traversal and the remaining fortress
+routes stay under G12; final phases/endings and separate authored death/scene
+criteria remain open.

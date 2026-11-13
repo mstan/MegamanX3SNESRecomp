@@ -278,15 +278,15 @@ static void crawfish_retire_trace(CpuState *cpu,uint32_t pc){
   fprintf(stderr,"native CRAWFISH RETIRE pc%06x slot%04x state%u/%u/%u HP%u timer%u XY%u,%u heroHP%u hero%u/%u lock%u current%u anchor%u caller%04x\n",pc,d,g_ram[d+1],g_ram[d+2],g_ram[d+3],g_ram[d+0x27],g_ram[d+0x30],view_read(d+5),view_read(d+8),g_ram[X3_COOP_BODY+0x27],g_ram[X3_COOP_BODY+2],g_ram[X3_COOP_BODY+3],g_ram[X3_COOP_BODY+0x6e],X3CoopRuntimeState()->current,X3CoopRuntimeState()->anchor,cpu_read16(cpu,0,(uint16_t)(cpu->S+1)));
 }
 static void native_crawfish_prepare(const char *fixture,const char *output,uint8_t *base,uint8_t *work,size_t capacity){
-  unsigned stage=getenv("X3_COOP_NATIVE_BOSS_STAGE")?(unsigned)atoi(getenv("X3_COOP_NATIVE_BOSS_STAGE")):6;check(stage>=1 && (stage<=11 || stage==14),"native boss entry selects an authored Maverick or fortress checkpoint route");unsigned boss_class=stage==11?0x4a:stage==14?0x63:stage==1?0x53:stage==2?0x52:stage==3?0x59:stage==4?0x57:stage==5?0x58:stage==7?0x55:stage==8?0x56:0x54;
+  unsigned stage=getenv("X3_COOP_NATIVE_BOSS_STAGE")?(unsigned)atoi(getenv("X3_COOP_NATIVE_BOSS_STAGE")):6;check(stage>=1 && (stage<=12 || stage==14),"native boss entry selects an authored Maverick or fortress checkpoint route");unsigned boss_class=stage==11?0x4a:stage==12?0x48:stage==14?0x63:stage==1?0x53:stage==2?0x52:stage==3?0x59:stage==4?0x57:stage==5?0x58:stage==7?0x55:stage==8?0x56:0x54;
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fd3]==1,"Crawfish preparation retains the actually earned native intro");
   if(getenv("X3_COOP_NATIVE_HUNTER_CLEARS")){
     unsigned count=(unsigned)atoi(getenv("X3_COOP_NATIVE_HUNTER_CLEARS")),prior=g_ram[0x1fd8],visits=g_ram[0x1fd9],earned=getenv("X3_COOP_NATIVE_HUNTER_PRIOR")?(unsigned)atoi(getenv("X3_COOP_NATIVE_HUNTER_PRIOR")):0;check(stage==2 && (count==4 || count==7) && (earned?count==7 && (earned==1 || earned==3) && prior==earned && visits==2:!prior && !visits),"hunter prerequisites load either fresh native flags or an actually earned prior Bit outcome without supplying any admission or result");
     memset(g_ram+0x1fbb,0,16);for(unsigned i=0,left=count;i<8 && left;++i)if(i!=6){g_ram[0x1fbc+i*2]=0xdc;--left;}
     check(!g_ram[0x1fc8] && g_ram[0x1fd8]==prior && g_ram[0x1fd9]==visits,"hunter weapon-count preparation leaves the current stage uncleared and preserves every earned hunter result and visit");
   }
-  unsigned fortress_progress=g_ram[0x1faf];if(stage==11 || stage==14)check(g_ram[0x1fae]==stage && fortress_progress==1,"Lab2 checkpoint preparation retains the actually earned first-fortress progress");
-  stage_request();g_ram[0x1fae]=(uint8_t)stage;if(stage==11 || stage==14)g_ram[0x1faf]=(uint8_t)fortress_progress;
+  bool fortress=stage==11 || stage==12 || stage==14;unsigned fortress_progress=g_ram[0x1faf];if(fortress)check(g_ram[0x1fae]==stage && fortress_progress==(stage==12?2:1),"fortress checkpoint preparation retains its actually earned native progress");
+  stage_request();g_ram[0x1fae]=(uint8_t)stage;if(fortress)g_ram[0x1faf]=(uint8_t)fortress_progress;
   unsigned load=0;for(;load<1800;++load){frame(0);if(g_ram[0xd1]==4 && g_ram[0xd2]==0)break;}
   check(load<1800,"the native stage loader reaches its actual checkpoint-selection phase");unsigned checkpoint=getenv("X3_COOP_NATIVE_CHECKPOINT")?(unsigned)atoi(getenv("X3_COOP_NATIVE_CHECKPOINT")):2;check(checkpoint<=2,"native checkpoint selection is valid");g_ram[0x1fb5]=(uint8_t)checkpoint;
   unsigned ready=0;for(;ready<1800;++ready){frame(0);if(g_ram[0xd1]==4 && g_ram[0xd2]==4 && !g_ram[0x1f22] && X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive())break;}
@@ -822,6 +822,84 @@ static unsigned native_vile_form_hit(unsigned boss,unsigned shooter,uint8_t *bas
   for(;fired<1800 && !hunter_result_hit;++fired){unsigned keys=fired%8==0?SNES_PAD_Y:0;if(fired>=16 && fired%83<24)keys|=SNES_PAD_B;bool right=view_read(boss+5)>support_position(shooter,5);if(right!=((campaign_body(shooter)[0x11]&64)!=0))keys|=right?SNES_PAD_RIGHT:SNES_PAD_LEFT;frame((uint32_t)keys<<(shooter*12));if(weakness && fired<40 && fired%4==0){const X3CoopState *now=X3CoopRuntimeState();const uint8_t *shots=now->current==shooter?g_ram+X3_COOP_SHOTS:now->players[shooter].shots;fprintf(stderr,"native VILE WEAKNESS AIM f%u boss%u,%u rect%04x player%u,%u face%02x shots",fired,view_read(boss+5),view_read(boss+8),view_read(boss+0x20),support_position(shooter,5),support_position(shooter,8),campaign_body(shooter)[0x11]);for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)if(shots[j])fprintf(stderr," %02x:%u,%u",shots[j+10],shots[j+5]|(unsigned)shots[j+6]<<8,shots[j+8]|(unsigned)shots[j+9]<<8);fprintf(stderr,"\n");}}hunter_result_observing=false;
   fprintf(stderr,"native VILE REAL FORM HIT class%02x slot%04x shooter%u char%u frames%u hit%u projectile%02x HP%u state%u/%u/%u XY%u,%u actors%u,%u/%u,%u\n",kind,boss,shooter,p->character,fired,hunter_result_hit,hunter_result_class,g_ram[boss+0x27]&127,g_ram[boss+1],g_ram[boss+2],g_ram[boss+3],view_read(boss+5),view_read(boss+8),support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8));if(!hunter_result_hit)check(RtlSaveSnapshot("native-vile-form-hit-unqualified.sav"),"incomplete actual Vile firing retains its current machine");bool native_weakness=hunter_result_class==10 || hunter_result_class==19 || hunter_result_class==11 || hunter_result_class==20 || hunter_result_class==28;check(hunter_result_hit && (weakness?native_weakness:hunter_result_class==0) && !(g_ram[boss+0x27]&127),"a real native projectile collision earns the selected Vile form defeat without supplied damage or outcome flags");if(kind==0x61 && g_ram[0x1fae]==9)check((g_ram[boss+0x3c]!=0)==weakness,"the actual winning projectile chooses Vile's native destruction or escape controller");return fired;
 }
+static void native_refight_entry(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==12 && g_ram[0x1faf]==2,"refight entry consumes actual Lab3 arrival or an earned hub return");
+  bool original=getenv("X3_COOP_REFIGHT_NATIVE")!=NULL;unsigned leader=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):1;check(leader<2,"refight entrant is a physical seat");
+  unsigned pad_kind=getenv("X3_COOP_REFIGHT_KIND")?(unsigned)atoi(getenv("X3_COOP_REFIGHT_KIND")):1,mask=g_ram[0x1fda];check(pad_kind>=1 && pad_kind<=8 && !(mask&(1u<<(pad_kind-1))),"the requested authored pad has not already earned its native refight clear");
+  const uint16_t pads[8][2]={{584,1186},{744,1138},{1032,1138},{1192,1186},{664,1298},{808,1330},{968,1330},{1112,1298}};
+  unsigned px=getenv("X3_COOP_REFIGHT_X")?(unsigned)atoi(getenv("X3_COOP_REFIGHT_X")):pads[pad_kind-1][0],py=getenv("X3_COOP_REFIGHT_Y")?(unsigned)atoi(getenv("X3_COOP_REFIGHT_Y")):pads[pad_kind-1][1];
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+  if(setup.players[0].character!=(getenv("X3_COOP_HUNTER_REVERSED")?X3_COOP_ZERO:X3_COOP_X)){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
+  if(original)leader=setup.players[0].character==X3_COOP_X?0:1;
+  setup.current=setup.anchor=(uint8_t)(original?leader:leader^1);
+  for(unsigned i=0;i<2;++i){campaign_position_only(&setup.players[i],i==leader?px:px-80,py+(setup.players[i].character==X3_COOP_X?7:-1));setup.players[i].body[0x88]=(uint8_t)(i==leader?0:255);setup.players[i].body[0x27]=setup.players[i].maximum_health;}
+  check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"refight approach supplies only roster, protection and real pad coordinates");door_install_player(&setup);X3CoopViewsConfigure(!original);
+  X3CoopViewState views=*X3CoopViewsState();for(unsigned i=0;i<2;++i){views.camera[i][0]=(uint16_t)(px-128);views.camera[i][1]=(uint16_t)(py&~255u);views.current[i][0]=views.limits[i][0]=0;views.current[i][1]=views.limits[i][1]=8192;views.current[i][2]=views.limits[i][2]=0;views.current[i][3]=views.limits[i][3]=8192;}X3CoopViewsSetState(&views);vehicle_install_view(&views,setup.anchor);
+  if(original)X3CoopRuntimeEnable(false);
+  CpuState caller=g_cpu;for(unsigned col=(px-160)&~31u;col<px+192;col+=32){view_word(0,col);view_word(2,(py&~255u)-32);view_word(4,288);g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P&=(uint8_t)~0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);check(interp_bridge_run(&g_cpu,0x00ded3) && g_cpu.S==caller.S,"native visible columns admit the actual pad without supplying contact or a refight result");}uint64_t master=g_cpu.master_cycles;uint32_t cycles=g_cpu.cycles;g_cpu=caller;g_cpu.master_cycles=master;g_cpu.cycles=cycles;
+  n=RtlSaveSnapshotToMemory(base,capacity);uint8_t *future=malloc(capacity);check(future!=NULL,"actual refight admission future allocates");unsigned first_entry=0;
+  for(unsigned run=0;run<2;++run){check(RtlLoadSnapshotFromMemory(base,n),"actual refight pad restores before physical contact");if(original)X3CoopRuntimeEnable(false);
+  unsigned boss=0,elapsed=0,lives=g_ram[0x1fb4],flags=g_ram[0x1fd8];
+  for(;elapsed<1800;++elapsed){unsigned keys=(elapsed%120<6?SNES_PAD_B:0)|(elapsed%256<32?SNES_PAD_UP:0);frame((uint32_t)keys<<(original?0:leader*12));
+    for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+1]==2 && g_ram[d+10]>=0x52 && g_ram[d+10]<=0x59 && (g_ram[d+0x27]&127)==32)boss=d;
+    if(boss && !g_ram[0x1f22] && !g_ram[0x1f24] && !g_ram[X3_COOP_BODY+0x6e] && (original || (X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e])))break;
+    if(elapsed%240==239)fprintf(stderr,"native REFIGHT ENTRY WAIT f%u original%u leader%u actors%u,%u/%u,%u live%u/%u stage%u counter%u refights%02x locks%u/%u\n",elapsed,original,leader,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,g_ram[0x1fae],g_ram[0x1faf],g_ram[0x1fda],campaign_body(0)[0x6e],campaign_body(1)[0x6e]);
+  }
+  fprintf(stderr,"native REFIGHT ENTRY f%u original%u leader%u boss%04x class%02x actors%u,%u/%u,%u clears%02x\n",elapsed,original,leader,boss,boss?g_ram[boss+10]:0,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),g_ram[0x1fda]);
+  check(RtlSaveSnapshot(boss?"native-refight-actual-arena.sav":"native-refight-entry-unqualified.sav"),"actual refight approach retains its current machine without a picker");
+  check(boss && elapsed<1800 && g_ram[0x1fda]==mask && g_ram[0x1fb4]==lives && g_ram[0x1fd8]==flags,"actual pad contact admits a native32HP refight without supplying admission or clear flags");
+  if(!original)check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual refight admission retains both original living participants");
+  size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){first_entry=elapsed;memcpy(future,work,done);}else{check(elapsed==first_entry,"actual pad transport and refight introduction repeat on the same update");same(future,done,work,done,"real refight pad contact and introduction replay the entire native future exactly");}
+  }free(future);
+  if(getenv("X3_COOP_REFIGHT_ENTRY_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_REFIGHT_ENTRY_RESULT")),"actually admitted refight arena exports without a picker");
+}
+static void native_refight_clear(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==12 && g_ram[0x1faf]==2,"refight clear loads an actually admitted native Lab3 arena");
+  unsigned shooter=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):1;check(shooter<2,"refight finisher is a physical seat");
+  uint8_t *seed=malloc(capacity),*future=malloc(capacity);check(seed && future,"actual refight future buffers allocate");size_t n=RtlSaveSnapshotToMemory(seed,capacity);unsigned first_hit=0,first_outro=0,first_return=0;
+  for(unsigned run=0;run<2;++run){check(RtlLoadSnapshotFromMemory(seed,n),"actual refight arena restores before its winning attack");unsigned boss=0,mask=g_ram[0x1fda],lives=g_ram[0x1fb4],flags=g_ram[0x1fd8];
+    for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+1]==2 && g_ram[d+10]>=0x52 && g_ram[d+10]<=0x59 && (g_ram[d+0x27]&127)==32)boss=d;
+    check(boss!=0,"the actual native refight main still has its original32HP");unsigned kind=g_ram[boss+10],hit=native_vile_form_hit(boss,shooter,base,work,capacity),outro=0;
+    for(;outro<3600;++outro){frame(outro%120<6?(uint32_t)SNES_PAD_B<<(shooter*12):0);bool retired=!g_ram[boss] || g_ram[boss+10]!=kind;bool free=!campaign_body(0)[0x6e] && !campaign_body(1)[0x6e];if(retired && g_ram[0x1fda]!=mask && !g_ram[0x1f22] && !g_ram[0x1f24] && !X3CoopRuntimeSceneActive() && free)break;}
+    unsigned earned=g_ram[0x1fda],bit=earned^mask;fprintf(stderr,"native REFIGHT REAL CLEAR run%u class%02x hit%u outro%u mask%02x/%02x actors%u,%u/%u,%u life%u/%u\n",run,kind,hit,outro,mask,earned,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
+    if(outro==3600)check(RtlSaveSnapshot("native-refight-outro-unqualified.sav"),"unfinished real refight clear retains its machine");
+    check(outro<3600 && bit && !(bit&(bit-1)) && (earned&mask)==mask && g_ram[0x1fae]==12 && g_ram[0x1faf]==2 && g_ram[0x1fb4]==lives && g_ram[0x1fd8]==flags,"real native defeat records exactly one refight clear and preserves the campaign");
+    check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"the actual refight defeat retains both living actors");
+    unsigned returned=0;bool hub=false;
+    for(;returned<1800;++returned){hub=support_position(0,5)<1500 && support_position(1,5)<1500 && !X3CoopRuntimeSceneActive() && !g_ram[0x1f22] && !g_ram[0x1f24] && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e];if(hub)break;
+      if(!returned){unsigned pad=0;for(unsigned d=0x1518;d<0x1818;d+=48)if(g_ram[d] && g_ram[d+10]==0x0c)pad=d;
+        fprintf(stderr,"native REFIGHT RETURN SOURCE slot%04x class%02x kind%u XY%u/%u\n",pad,pad?g_ram[pad+10]:0,pad?g_ram[pad+11]:0,pad?view_read(pad+5):0,pad?view_read(pad+8):0);
+        if(pad){size_t live_n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState route=*X3CoopRuntimeState();X3CoopCapture(&route,g_ram);campaign_position_only(&route.players[shooter],view_read(pad+5),view_read(pad+8)+(route.players[shooter].character==X3_COOP_X?7:-1));route.players[shooter].body[0x88]=0;check(X3CoopEncode(&route,base+contact_context_offset(base,live_n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,live_n),"return approach changes only actual actor position and native contact eligibility, never a clear or warp result");door_install_player(&route);}
+      }frame((uint32_t)((returned%256<32?SNES_PAD_UP:0)|(returned%120<6?SNES_PAD_B:0))<<(shooter*12));
+    }
+    fprintf(stderr,"native REFIGHT REAL RETURN run%u frames%u hub%u mask%02x actors%u,%u/%u,%u life%u/%u\n",run,returned,hub,g_ram[0x1fda],support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
+    if(!hub)check(RtlSaveSnapshot("native-refight-return-unqualified.sav"),"unfinished actual refight return retains its machine");
+    check(hub && g_ram[0x1fda]==earned && g_ram[0x1fb4]==lives && g_ram[0x1fd8]==flags && g_ram[0x1fae]==12 && g_ram[0x1faf]==2 && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual native return contact restores the living pair to the hub with exactly its earned clear");
+    for(unsigned i=0;i<2;++i)check(campaign_body(i)[0xb6]==(X3CoopRuntimeState()->players[i].character==X3_COOP_ZERO?2:0) && !campaign_body(i)[0x7c],"actual refight return retains native character identity and permits charging");
+    size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){first_hit=hit;first_outro=outro;first_return=returned;memcpy(future,work,done);}else{check(hit==first_hit && outro==first_outro && returned==first_return,"real refight hit, clear and return repeat on the same updates");same(future,done,work,done,"actual refight hit, native clear and real return replay the entire paired future exactly");}
+  }free(seed);free(future);if(getenv("X3_COOP_REFIGHT_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_REFIGHT_RESULT")),"actually earned refight clear and hub return export without a picker");
+}
+static void native_refight_hub_exit(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==12 && g_ram[0x1faf]==2 && g_ram[0x1fda]==255,"the hub exit consumes all eight actually earned refight clears");
+  unsigned leader=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):1;check(leader<2,"the cleared hub door leader is a physical seat");
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);for(unsigned i=0;i<2;++i){check(setup.players[i].life==X3_COOP_ALIVE,"the initial hub exit reference has both living actors");setup.players[i].body[0x88]=255;}
+  check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"hub traversal protection changes no earned unlock, actor position or door result");door_install_player(&setup);n=RtlSaveSnapshotToMemory(base,capacity);uint8_t *future=malloc(capacity);check(future!=NULL,"actual cleared hub door future allocates");unsigned first=0;
+  for(unsigned run=0;run<2;++run){check(RtlLoadSnapshotFromMemory(base,n),"the actually cleared hub restores before physical exit input");unsigned f=0,lives=g_ram[0x1fb4],flags=g_ram[0x1fd8],story=g_ram[0x1fb2],waypoint=0,phase=0;
+    /* Actual hub platforms: central floor1120, then1024/1104,1184/1152,
+     * and1232/1136 before the1272 gate. Hold full dash-jumps and stop over
+     * each native landing; short periodic jumps simply drop into the hub. */
+    const unsigned route[3][2]={{1024,1104},{1184,1152},{1232,1136}};
+    for(;f<2400;++f){unsigned px=support_position(leader,5),py=support_position(leader,8),foot=setup.players[leader].character==X3_COOP_X?17:25;
+      if(waypoint<3 && (campaign_body(leader)[0x2b]&4) && px+12>=route[waypoint][0] && px<=route[waypoint][0]+12 && py+foot+1>=route[waypoint][1] && py+foot<=route[waypoint][1]+1){++waypoint;phase=0;}
+      unsigned keys=SNES_PAD_RIGHT;if(waypoint<3){keys=px+4<route[waypoint][0]?SNES_PAD_RIGHT:px>route[waypoint][0]+4?SNES_PAD_LEFT:0;if(keys && phase%64<32)keys|=SNES_PAD_A;if(phase%64>=2 && phase%64<30)keys|=SNES_PAD_B;}frame((uint32_t)keys<<(leader*12));++phase;
+      if(support_position(leader,5)>=1408 && support_position(0,5)>=1280 && support_position(1,5)>=1280 && !X3CoopRuntimeSceneActive() && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e])break;}
+    for(unsigned k=0;k<64 && f<2400;++k)frame(0);
+    fprintf(stderr,"native REFIGHT CLEARED HUB EXIT run%u leader%u frames%u waypoint%u actors%u,%u/%u,%u camera%u,%u CPP%u mask%02x life%u/%u locks%u/%u\n",run,leader,f,waypoint,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),view_read(0x1e5d),view_read(0x1e60),g_ram[0x1fb5],g_ram[0x1fda],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,campaign_body(0)[0x6e],campaign_body(1)[0x6e]);
+    if(f==2400)check(RtlSaveSnapshot("native-refight-hub-exit-unqualified.sav"),"unfinished actual unlocked hub gate retains its machine");
+    check(f<2400 && g_ram[0x1fda]==255 && g_ram[0x1fb4]==lives && g_ram[0x1fd8]==flags && g_ram[0x1fb2]==story && g_ram[0x1fae]==12 && g_ram[0x1faf]==2 && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && !X3CoopRuntimeSceneActive(),"the real earned hub unlock admits both living actors through the original exit and preserves the campaign");
+    size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){first=f;memcpy(future,work,done);}else{check(f==first,"actual unlocked hub gate clears on the same update");same(future,done,work,done,"native refight-hub exit and both actual actors replay the complete future exactly");}
+  }free(future);if(getenv("X3_COOP_REFIGHT_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_REFIGHT_RESULT")),"actually cleared hub gate exports without a picker");
+}
 static void native_mosquitus_clear(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==11 && g_ram[0x1faf]==1 && !X3CoopRuntimeSceneActive(),"Mosquitus starts in its actually earned native Lab2 arena");
   bool stock=X3CoopRuntimeStockZero();unsigned shooter=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):1;check(shooter<2,"Mosquitus finisher is a physical seat");size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
@@ -943,6 +1021,9 @@ static void native_vile_lab2_entry(const char *fixture,uint8_t *base,uint8_t *wo
   }free(future);if(getenv("X3_COOP_VILE_ENTRY_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_VILE_ENTRY_RESULT")),"actually earned Vile armor arena exports without a picker");
 }
 static void native_buffalo_capture_checks(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+ if(getenv("X3_COOP_REFIGHT_HUB_EXIT")){native_refight_hub_exit(fixture,base,work,capacity);return;}
+ if(getenv("X3_COOP_REFIGHT_CLEAR")){native_refight_clear(fixture,base,work,capacity);return;}
+ if(getenv("X3_COOP_REFIGHT_ENTRY")){native_refight_entry(fixture,base,work,capacity);return;}
  if(getenv("X3_COOP_MOSQUITUS_CLEAR")){native_mosquitus_clear(fixture,base,work,capacity);return;}
  if(getenv("X3_COOP_VILE_WARP")){native_vile_warp(fixture,base,work,capacity);return;}
  if(getenv("X3_COOP_VILE_LAB2_CLEAR") || getenv("X3_COOP_VILE_FACTORY_CLEAR")){native_vile_lab2_clear(fixture,base,work,capacity);return;}
