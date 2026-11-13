@@ -897,12 +897,20 @@ static bool acid_captive_of(unsigned parent){
       (view_spawn.hostile_captive[i]-1)/2==parent && acid_carrier(0x1318+i*64))return true;
   return false;
 }
+static bool press_claw(unsigned d){return d>=0xd18 && d<0x10d8 && g_ram[d+10]==0x5a && g_ram[d+11]==2;}
+static bool native_defeat_controller(unsigned d){
+  return d>=0xd18 && d<0x10d8 && g_ram[d+1]==4 &&
+      (g_ram[d+10]==0x46 || g_ram[d+10]==0x47 ||
+       (!g_ram[d+11] && (g_ram[d+10]==0x5a || g_ram[d+10]==0x5d)));
+}
 static bool native_captor_context(unsigned d){
   if(hostile_projectile(d))return hostile_attachment(d) && view_spawn.hostile_captive[(d-0x1318)/64];
   if(!g_ram[d] || !g_ram[d+1])return false;
+  if(native_defeat_controller(d))return true;
   if(d<0x10d8 && g_ram[d+10]==0x46)return g_ram[d+1]==4 || bit_captive_of((d-0xd18)/64);
   if(d<0x10d8 && g_ram[d+10]==0x47)return g_ram[d+1]==4;
   if(g_ram[d+10]==0x59)return g_ram[d+1]==4 || acid_captive_of((d-0xd18)/64);
+  if(press_claw(d))return g_ram[d+0x35] && (g_ram[d+1]==4 || (g_ram[d+1]==2 && g_ram[d+3]>=6));
   if(g_ram[d+10]==0x52)return (g_ram[d+0x3b]&128)!=0;
   return g_ram[d+10]==0x54 && (g_ram[d+1]==4 ||
       (g_ram[d+1]==2 && !g_ram[d+2] && g_ram[d+3]==4));
@@ -911,6 +919,7 @@ static bool native_captor_holding(unsigned d){
   if(hostile_projectile(d))return acid_carrier(d) || (bit_ring_context(d) && g_ram[d+1]==2 && g_ram[d+3]==8);
   if(g_ram[d+10]==0x46)return bit_captive_of((d-0xd18)/64);
   if(g_ram[d+10]==0x59)return acid_captive_of((d-0xd18)/64);
+  if(press_claw(d))return g_ram[d+1]==2 && g_ram[d+3]==6 && g_ram[d+0x35];
   return g_ram[d+1]==2 && g_ram[d+3]==4 &&
       ((g_ram[d+10]==0x52 && g_ram[d+2]==0x0a) || (g_ram[d+10]==0x54 && !g_ram[d+2]));
 }
@@ -930,7 +939,7 @@ static bool hunter_scene_parked(unsigned seat){
    * park the other body through the balanced actor epilogue. Live Bit rings
    * leave the partner free to move and rescue their captive. */
   for(unsigned d=0xd18;d<0x10d8;d+=64)
-    if(g_ram[d] && g_ram[d+1]==4 && (g_ram[d+10]==0x46 || g_ram[d+10]==0x47)){
+    if(g_ram[d] && native_defeat_controller(d)){
       unsigned owner=native_captive_owner(d);
       if(owner<2 && owner!=seat)return true;
     }
@@ -1124,12 +1133,23 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
       }
     }
   }
-  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x46 || g_ram[d+10]==0x47 || g_ram[d+10]==0x52 || g_ram[d+10]==0x54 || g_ram[d+10]==0x59)){
+  if((at==0xdccf || at==0xdcf3) && press_claw(d) && g_ram[d+1]>=4 && g_ram[d+0x35]){
+    unsigned owner=native_captive_owner(d);
+    if(owner<2 && state.current==owner){
+      /* Parent defeat skips CB93's D042/D0C0 release. Apply D0C0's exact
+       * body writes to this earned victim before retiring its grip; its
+       * queued88 action still runs through the native controller. */
+      uint8_t *b=g_ram+X3_COOP_BODY;
+      if(!(b[0xa5]&16)){b[0x30]=0;b[0xa3]=0x88;b[0xa5]&=127;}
+      g_ram[d+0x35]=0;
+    }
+  }
+  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x46 || g_ram[d+10]==0x47 || g_ram[d+10]==0x52 || g_ram[d+10]==0x54 || g_ram[d+10]==0x59 || press_claw(d) || native_defeat_controller(d))){
     int slot=support_slot(d);
     if(slot>=0){
       if(!native_captor_context(d) || (g_ram[d+10]==0x54 && native_captive_owner(d)<2 &&
           state.players[native_captive_owner(d)].life!=X3_COOP_ALIVE && !native_captor_holding(d)))attachments[slot]&=(uint8_t)~12;
-      else if((g_ram[d+10]==0x46 || g_ram[d+10]==0x47) && g_ram[d+1]==4 &&
+      else if(native_defeat_controller(d) &&
           !(attachments[slot]&12) && native_freeze_recipient())
         /* In-stage hunter outcomes have no new-stage constructor to hide a
          * missed D1EF. Retain the actual D1CA recipient through that script. */

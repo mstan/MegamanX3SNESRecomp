@@ -4215,12 +4215,32 @@ and complete replay. All eight Maverick clear/acquisition flags are explicit
 fortress-unlock prerequisites; they do not fabricate hunter results. These
 checkpoint approaches still bypass earlier fortress traversal.
 
-The upper0F route has a real head defeat/full arrival in one nonleading case,
-but its wider firing and separate trunk/head mechanics remain under test.
-A real native buster defeats the assisted1HP trunk in35 updates; incidental
-head damage32to31 is retained. Actual captive ownership, remaining upper
-mechanics, complete survivor permutations and later consequences still need
-qualification. G10 and G12 remain open; the suite stays110/180 accepted.
+The upper0F route now qualifies its separate native trunk and head phases.
+The free actor earns the trunk defeat with actual busters, retains incidental
+head damage and waits for all three owned shots to retire before aiming the
+head. Four living and four actual parent-contact survivor clears reach the
+native Lab2 Vile branch with exact complete replay. The actual trunk future
+also replays separately, including natural shot retirement.
+
+Eight native kind2 Press-claw captures retain their actual victim through the
+four-update carry, edge release and damage, matching original body, pools,
+palette and source bytes. Eight actual captured deaths retain a living parent
+and free survivor, then complete real head defeats and full native arrivals.
+Eight actual head shots kill an occupied parent before the claw releases.
+Retirement previously skipped its D042/D0C0 release; the existing NPC boundary
+now applies D0C0's mapped body writes and lets the native queued88 controller
+finish. The actual D1CA recipient owns the defeat script, while the existing
+balanced parking path protects the other actor while terrain is suspended.
+Child/owner cleanup precedes the next-stage pool reset. Every full future
+replays twice; lives, living/fallen roster and earned hunter flags are retained.
+
+G10 remains open for the lower fusion boss's remaining native mechanisms.
+Its actual32HP AI now earns a class43/kind2 arm capture, and comparison with
+the native body exposes another nearest-free-actor ownership mismatch. The
+kind2/4/6 arm and carrier sequence must be qualified through its real release,
+retirement, survivor and clear consequences. The entry/assisted-clear evidence
+above does not substitute for that work or G12 traversal. The suite remains
+110/180 accepted,70 open and3/15 accepted areas.
 
 Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json →
 bit_byte and exact named job receipts/logs. Earlier in-stage outcome SHA
@@ -4229,12 +4249,16 @@ living ring reference SHA
 1c23e45f34f195f88e8c3ee4b50c2a04d61eee1a6b2f96f7d0559a8098b9a8a6;
 retired-ring repair SHA
 fd2af7e9f7bb251f760d8d4e01369203013f31fe780a28695bf510d5681b6d23.
-Current Bit/fortress qualification state test SHA
+Bit/fortress qualification SHA
 6bc680ebf364ee56f3729b66a3c556c3fe6ed986ce5135d79f30e8987de7e418;
 reversed occupied-ring setup correction SHA
 8756454a40aa19189aa08c054d5894bf8c9ddc935027df202bd54d096dff3e06.
-The production GUI SHA is
-60a190d8c0cd92cf0b8cc6a747474337e81f79aaa0617acff79ff5c107260074;
-its build and all four standard CTests pass. Optional frontier tests retain
-individual unqualified setups and failures in the private compact record.
-No snapshot-format or hook-list change, owner validation or release is claimed.
+Press native/living/survivor reference SHA
+9e0bb8d0e90bb1c2610976cc3dae2b3b43ecde8a22c0f02a7cf0f28952a3ff35;
+final captured-death/occupied-parent qualification SHA
+5403a01b4cb3b32ea68b30283b2a259fcb507bb8dd928b2b9621b36a906411d1.
+The current production GUI SHA is
+4008b40165bda667bdaeb30c006c6de9f6287ce753e84495bfccdc611c03665a;
+its build and all four standard CTests pass. Individual unqualified frontier
+setups remain in the existing private compact record. No snapshot-format or
+hook-list change, owner validation or release is claimed.
