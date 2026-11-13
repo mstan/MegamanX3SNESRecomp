@@ -173,6 +173,7 @@ static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modif
   check(!memcmp(reference,g_ram+d,sizeof(reference)),"shared support matches one native platform simulation");
   check(support_position(x,8)==reference_y && support_position(zero,8)+8==reference_y,
         "both actors follow the authored moving support at their native standing heights");
+  if(getenv("X3_COOP_DIRTY_RETRY_SUPPORT")){native_dirty_team_retry(false,snapshot,modified,capacity);return;}
   if(getenv("X3_COOP_DIFFICULT_SUPPORT")){native_return_on_support(capacity);return;}
   const char *output=getenv("X3_COOP_PLATFORM_OUTPUT");
   if(output && *output)check(RtlSaveSnapshot(output),"authored support visual handoff saves");

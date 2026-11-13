@@ -4749,3 +4749,39 @@ F10 remains open for that owner/input-backend check.
 Acceptance is119/180,61 open and3/15 accepted areas. Campaign remains15/16.
 G12 fortress traversal, remaining authored support/capture/scene cases,
 presentation, runtime/portability and owner/package delivery remain open.
+
+
+## Native retry cleanup after live attacks, captures and support contacts
+
+T07 is accepted. The existing runtime reconstructs clean native contexts after
+actual team deaths; this change adds focused regression coverage. Both physical
+rosters first earn real class26 moving-support contacts, fire a live native
+buster and die through the original pit handling. The native checkpoint retry
+completes at543 updates with one life debit.
+
+Four further cases earn Godkarmachine's actual grip separately for each roster
+and captive character. Native capture contact supplies real hurt state; the
+free actor fires a live buster before its actual pit death. The captured oneHP
+participant then dies through the native attack. Retry finishes at652 updates
+at the source stage10 checkpoint2, with one life debit and retained campaign.
+No death, wipe, retry, ownership or resource result is supplied by the tests.
+
+Both characters regain their own full native maximum health and requested seat
+assignment. Old live shots, shared effect owners, capture/support attachments,
+hurt/protection and charge state are clear. Acquired weapon flags and shared
+campaign progress remain intact. Both real physical controllers move, and the
+pair remains alive with one stable debit. Every entire attack/death/retry and
+subsequent control future replays exactly twice.
+
+Support qualification uses
+c9861b372f1543f1eee68ca86fc32472dc7b8fbfe3f2a9c8f30688e723c5d938;
+capture qualification uses
+7da88da3c0ad79261bef9bc79d65c828a2f00ece7869a7f93fecaee80e7fb71e.
+The four standard tests pass. Production code and the passing GUI
+fef5903464988c2b138c6c3d9ab8b3afcdb22c5669769fed2807394afcbc6796
+are unchanged by this test-only work.
+
+All ten team-wipe/retry/game-over points now pass. Acceptance is120/180,
+60 open and4/15 accepted areas: T, R, M and N. Campaign remains15/16; actual
+fortress traversal and the remaining gameplay, presentation, runtime and
+owner/package/delivery checks are still required.
