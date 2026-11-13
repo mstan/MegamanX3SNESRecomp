@@ -1026,6 +1026,34 @@ static void x3_patch_ws_interp_obj_windows(void) {
   x3_patch_ws_interp_spawn_stream();
 }
 
+void X3HardwareReset(void){
+  /* Reboot the actual RESET vector and its clocks. A cleared SNES with the
+   * old coroutine cursor otherwise waits forever on its abandoned NMI latch. */
+  cpu_state_init(&g_cpu,g_ram);g_memsel=0;g_snesrecomp_last_hdmaen=0;
+  g_snes->beamMasterLast=0;rtl_reset_host_pacing();
+  memset(&g_snes->dbgIrqLatches,0,
+      offsetof(Snes,inVblank)-offsetof(Snes,dbgIrqLatches));
+  interp_bridge_reset_dynamic_cache();interp_bridge_set_lle_resume_pc(0);
+  interp_bridge_set_master_deadline(0);(void)interp_bridge_lle_took_wai();
+  s_lle_did_reset=false;s_lle_resume_pc=0;s_lle_host_frames=0;
+  s_lle_extra_loaded=s_execution_loaded=false;
+  X3CoopRuntimeHardwareReset();
+  memset(s_cx4_oam_x,0,sizeof(s_cx4_oam_x));memset(s_cx4_oam_valid,0,sizeof(s_cx4_oam_valid));
+  memset(g_ppu->wsOamFullXValid,0,sizeof(g_ppu->wsOamFullXValid));
+  for(int i=0;i<s_x3_ws_rom_imm_count;++i){
+    s_x3_ws_rom_imms[i].operand[0]=(uint8_t)s_x3_ws_rom_imms[i].base;
+    s_x3_ws_rom_imms[i].operand[1]=(uint8_t)(s_x3_ws_rom_imms[i].base>>8);
+  }
+  if(s_x3_ws_stream_valid){
+    static const uint8_t original[]={0xad,0x5d,0x1e,0x85,0,0x80,0x18};
+    memcpy(s_x3_ws_stream_rom.left_arm,original,sizeof(original));
+    s_x3_ws_stream_rom.right_operand[0]=0;s_x3_ws_stream_rom.right_operand[1]=1;
+    s_x3_ws_stream_rom.grid_operand[0]=0x20;s_x3_ws_stream_rom.grid_operand[1]=0;
+    s_x3_ws_stream_rom.columns_operand[0]=10;s_x3_ws_stream_rom.columns_operand[1]=0;
+  }
+  WsShadowReset();X3Display_InvalidateCoopFrame();MmxReplayStateLoaded();
+}
+
 void X3DrawPpuFrame(void) {
   X3CoopRender();
   /* Presentation only. IRQs are serviced inside RunOneFrameOfGame while the

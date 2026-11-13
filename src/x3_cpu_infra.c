@@ -16,5 +16,6 @@ const RtlGameInfo kX3GameInfo = {
   .state_save_extra = &X3StateSaveExtra,
   .state_load_extra = &X3StateLoadExtra,
   .on_state_loaded = &X3OnStateLoaded,
+  .hardware_reset = &X3HardwareReset,
   .snapshot_preflight = &X3CoopRuntimePreflight,
 };

@@ -9,6 +9,7 @@ struct SaveLoadInfo;
 /* Whole-program LLE bring-up driver. See x3_rtl.c. */
 void RunOneFrameOfGame(void);
 void X3DrawPpuFrame(void);
+void X3HardwareReset(void);
 
 /* Per-frame 16:9 HUD anchoring. Slot map inherited from X2 and NOT
  * surveyed on X3 (provenance note in x3_rtl.c); inert unless widescreen

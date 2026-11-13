@@ -26,6 +26,8 @@ void X3CoopRuntimeFrame(void);
 void X3CoopRuntimeInputFrame(uint32_t serial);
 const X3CoopState *X3CoopRuntimeState(void);
 void X3CoopRuntimeReset(void);
+/* Clear machine state after hardware reset, preserving selected options. */
+void X3CoopRuntimeHardwareReset(void);
 void X3CoopRuntimeSave(struct SaveLoadInfo *sli);
 /* Complete co-op snapshot-domain digest, without mutating the machine. */
 uint32_t X3CoopRuntimeDigest(void);

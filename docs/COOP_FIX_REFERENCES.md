@@ -98,3 +98,8 @@ avoids masking a missed contact with another bee's later damage. Actual
 absence, timed explosion, survivor/living clears, pre-reward child retirement
 and full native rewards/arrival replay pass. Existing consumed/native-return/
 other-persistent/Toxic-carrier gates pass. No new snapshot format or hook.
+
+
+| Reset reference | Parent behavior and correction | X3 disposition |
+| --- | --- | --- |
+| Active X2 runtime `8c457f287b573045a22f3b880a065f70e68cdad9`, `X2HardwareReset` | The runtime explicitly resets its separate CPU/bridge cursor and pacing before rebooting the original vector; the hardware blob alone does not own that cursor. X3 parent `8f6b931` registered no reset callback, and an actual Reset from earned credits left cleared hardware waiting at the previous coroutine. | Adapt the existing hardware-reset callback contract to X3's frame driver. Preserve the selected profile, clear discarded actor/scene/input state, restore native ROM window operands, align CPU/bridge/hardware clocks and reboot the original vector. Original solo, both selected co-op rosters and the earned no-saber ending reach fresh playable intros and replay exactly twice under G16. X2's session API and frame scheduler are not imported. |

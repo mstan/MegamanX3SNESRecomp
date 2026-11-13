@@ -898,6 +898,77 @@ static void native_sigma_escape(const char *fixture,uint8_t *base,uint8_t *work,
   free(seed);free(future);if(getenv("X3_COOP_SIGMA_ENDING_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_SIGMA_ENDING_RESULT")),"the actually reached native ending exports without a picker");
 }
 
+static void native_sigma_credits(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  bool original=getenv("X3_COOP_CREDITS_NATIVE")!=NULL;
+  check(RtlLoadSnapshot(fixture) && g_ram[0xd1]==6 && !g_ram[0xd2],"credits consume an actually earned native ending rather than supplied terminal flags");
+  if(original)X3CoopRuntimeEnable(false);
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);uint8_t *future=malloc(capacity);check(n && future,"native credits complete-future references allocate");
+  unsigned first_elapsed=0,first_cast=0,first_text=0;
+  for(unsigned run=0;run<2;++run){
+    check(RtlLoadSnapshotFromMemory(base,n),"the same earned ending restores before native epilogue and credits");if(original)X3CoopRuntimeEnable(false);
+    unsigned story=g_ram[0x1fb2],hunters=g_ram[0x1fd8],lives=g_ram[0x1fb4],last=~0u,cast=0,text=0,elapsed=0;bool names=false,final=false;
+    for(;elapsed<60000;++elapsed){
+      unsigned mode=g_ram[0xd1]|g_ram[0xd2]<<8|g_ram[0xd3]<<16|g_ram[0xd4]<<24;
+      if(mode!=last){fprintf(stderr,"native CREDITS PHASE run%u tick%u mode%u/%u/%u/%u detail%u story%02x lives%u text%u\n",run,elapsed,g_ram[0xd1],g_ram[0xd2],g_ram[0xd3],g_ram[0xd4],g_ram[0xd5],g_ram[0x1fb2],g_ram[0x1fb4],g_ram[0xdf]);last=mode;}
+      if(g_ram[0xd1]==6 && g_ram[0xd2]==2){
+        if(!cast){cast=elapsed+1;if(!run)check(RtlSaveSnapshot("native-credits-cast-start.sav"),"actual cast entry saves without a picker");}
+        if(g_ram[0xd3]==2){if(g_ram[0xdf]>text)text=g_ram[0xdf];for(unsigned d=0xd18;d<0x10d8;d+=64)names|=g_ram[d] && g_ram[d+10]==0x66;}
+        final=g_ram[0xd3]==4 && g_ram[0xd4]==4 && g_ram[0xd5]==8;
+        if(final)break;
+      }
+      if(g_ram[0xd1]!=6)check(false,"native credits cannot silently restart gameplay or return to the title early");
+      unsigned owner=original?0:X3CoopRuntimeState()->anchor;
+      frame((g_ram[0x1f3f]&128) && elapsed%120<6?(uint32_t)SNES_PAD_B<<(owner*12):0);
+      if(elapsed%2400==2399)fprintf(stderr,"native CREDITS PROGRESS run%u tick%u mode%u/%u/%u/%u detail%u text%u names%u\n",run,elapsed+1,g_ram[0xd1],g_ram[0xd2],g_ram[0xd3],g_ram[0xd4],g_ram[0xd5],text,names);
+    }
+    fprintf(stderr,"native CREDITS TERMINAL run%u original%u tick%u cast%u text%u names%u final%u story%02x/%02x hunters%02x/%02x lives%u/%u\n",run,original,elapsed,cast,text,names,final,story,g_ram[0x1fb2],hunters,g_ram[0x1fd8],lives,g_ram[0x1fb4]);
+    if(!final)check(RtlSaveSnapshot("native-credits-unqualified.sav"),"unfinished actual credits preserve their native machine");
+    check(final && cast && names && text>=0x79 && g_ram[0x1fb2]==story && g_ram[0x1fd8]==hunters && g_ram[0x1fb4]==lives,"actual native epilogue, authored scrolling credits and final hold retain the earned campaign once");
+    if(original)check(!X3CoopRuntimeEnabled(),"original credits keep the paired scheduler disabled through terminal flow");
+    size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){first_elapsed=elapsed;first_cast=cast;first_text=text;memcpy(future,work,done);}else{check(elapsed==first_elapsed && cast==first_cast && text==first_text,"actual cast, complete credits and final hold repeat on the same updates");same(future,done,work,done,"native credits and final hold replay the entire machine exactly");}
+  }
+  free(future);if(getenv("X3_COOP_CREDITS_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_CREDITS_RESULT")),"the actual native final hold exports without a picker");
+}
+
+static void native_sigma_new_game(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0xd1]==6,"native reset consumes an actually earned ending or final credits hold");
+  bool original=getenv("X3_COOP_CREDITS_NATIVE")!=NULL;
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);uint8_t *future=malloc(capacity);check(n && future,"native Reset and new-game futures allocate");unsigned first_elapsed=0;
+  for(unsigned run=0;run<2;++run){
+    check(RtlLoadSnapshotFromMemory(base,n),"the same actual ending restores before the real Reset command");
+    for(unsigned held=0;held<180;++held){unsigned owner=original?0:X3CoopRuntimeState()->anchor;frame(held%60<4?(uint32_t)(SNES_PAD_START|SNES_PAD_B)<<(owner*12):0);}
+    check(g_ram[0xd1]==6 && g_ram[0xd2]==2 && g_ram[0xd3]==4 && g_ram[0xd4]==4 && g_ram[0xd5]==8,"the original completed ending holds its final screen under native Start and B instead of inventing a continue transition");
+    size_t sn=g_sram_size;uint8_t *sram=malloc(sn?sn:1);check(sram!=NULL,"native persistent-data preservation reference allocates");if(sn)memcpy(sram,g_sram,sn);
+    RtlReset(1);check(!sn || !memcmp(sram,g_sram,sn),"the real Reset path preserves native persistent data");free(sram);
+    unsigned elapsed=0;bool started=false;
+    for(;elapsed<2400;++elapsed){
+      frame(elapsed%120<6?SNES_PAD_START:0);
+      /* The original intro first constructs X. Paired enrollment waits
+       * for ordinary native physics; Reset must not restore the old party. */
+      started=g_ram[0xd1]==4 && g_ram[0xd2]==4 && !g_ram[0x1fae] && g_ram[0x9d9]==2 && (g_ram[0x9ff]&127) && !g_ram[0xa8e] &&
+          !X3CoopRuntimeState()->initialized && X3CoopRuntimeEnabled()!=original;
+      if(started)break;
+    }
+    fprintf(stderr,"native ENDING RESET NEW GAME run%u original%u frames%u started%u mode%u/%u stage%u boss%u story%02x hunters%02x refights%02x coop%u initialized%u native%u,%u HP%u\n",run,original,elapsed,started,g_ram[0xd1],g_ram[0xd2],g_ram[0x1fae],g_ram[0x1faf],g_ram[0x1fb2],g_ram[0x1fd8],g_ram[0x1fda],X3CoopRuntimeEnabled(),X3CoopRuntimeState()->initialized,view_read(0x9dd),view_read(0x9e0),g_ram[0x9ff]);
+    if(!started)check(RtlSaveSnapshot("native-ending-reset-unqualified.sav"),"an unfinished real ending Reset retains the actual current machine");
+    check(started && !g_ram[0x1fd8] && !g_ram[0x1fda] && !g_ram[0x1fd1],"real Reset and physical Start reach the fresh native intro without carrying the old campaign or party into its rescue sequence");
+    unsigned formed=0;bool ready=false;
+    for(;formed<6000;++formed){
+      const X3CoopState *p=X3CoopRuntimeState();bool native_free=!g_ram[0x1f22] && !g_ram[0x1f24] && !g_ram[0xa46] && g_ram[0x9da]<=0x16;
+      ready=original?native_free:X3CoopRuntimeReady() && p->players[0].life==X3_COOP_ALIVE && p->players[1].life==X3_COOP_ALIVE && native_free;
+      if(ready)break;
+      frame((g_ram[0x1f3f]&128) && formed%120<6?SNES_PAD_B:0);
+      if(formed%600==599)fprintf(stderr,"native NEW GAME FORMATION run%u original%u frames%u action%02x/%02x B6%u flags%u/%u/%u/%u initialized%u XY%u/%u\n",run,original,formed+1,g_ram[0x9da],g_ram[0x9db],g_ram[0xa8e],g_ram[0x1f22],g_ram[0x1f24],g_ram[0x1f4f],g_ram[0x1f63],X3CoopRuntimeState()->initialized,view_read(0x9dd),view_read(0x9e0));
+    }
+    fprintf(stderr,"native NEW GAME CONTROL run%u original%u formed%u ready%u action%02x B6%u initialized%u chars%u/%u life%u/%u\n",run,original,formed,ready,g_ram[0x9da],g_ram[0xa8e],X3CoopRuntimeState()->initialized,X3CoopRuntimeState()->players[0].character,X3CoopRuntimeState()->players[1].character,X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
+    if(!ready)check(RtlSaveSnapshot("native-new-game-control-unqualified.sav"),"unfinished native new-game formation retains its actual current machine");
+    check(ready,"the fresh native intro reaches real player control and enrolls the selected living co-op roster at ordinary physics");
+    if(!original){unsigned desired=getenv("SNESRECOMP_X3_COOP_P1") && !strcmp(getenv("SNESRECOMP_X3_COOP_P1"),"zero")?X3_COOP_ZERO:X3_COOP_X;check(X3CoopRuntimeState()->players[0].character==desired && X3CoopRuntimeState()->players[1].character==(desired^1),"actual new-game enrollment preserves the selected physical-seat roster after Reset");}
+    size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){first_elapsed=elapsed+formed;memcpy(future,work,done);}else{check(elapsed+formed==first_elapsed,"native Reset and new-game construction repeat on the same update");same(future,done,work,done,"real Reset, native title input and fresh playable intro replay the entire machine exactly");}
+  }
+  free(future);if(getenv("X3_COOP_NEW_GAME_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_NEW_GAME_RESULT")),"the native new-game arrival exports without a picker");
+}
+
 static void native_refight_entry(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==12 && g_ram[0x1faf]==2,"refight entry consumes actual Lab3 arrival or an earned hub return");
   bool original=getenv("X3_COOP_REFIGHT_NATIVE")!=NULL;unsigned leader=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):1;check(leader<2,"refight entrant is a physical seat");
@@ -1119,6 +1190,8 @@ static void native_vile_lab2_entry(const char *fixture,uint8_t *base,uint8_t *wo
   }free(future);if(getenv("X3_COOP_VILE_ENTRY_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_VILE_ENTRY_RESULT")),"actually earned Vile armor arena exports without a picker");
 }
 static void native_buffalo_capture_checks(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  if(getenv("X3_COOP_SIGMA_NEW_GAME")){native_sigma_new_game(fixture,base,work,capacity);return;}
+  if(getenv("X3_COOP_SIGMA_CREDITS")){native_sigma_credits(fixture,base,work,capacity);return;}
   if(getenv("X3_COOP_SIGMA_ESCAPE")){native_sigma_escape(fixture,base,work,capacity);return;}
   if(getenv("X3_COOP_SIGMA_PHASE_CLEAR")){native_sigma_phase_clear(fixture,base,work,capacity);return;}
  if(getenv("X3_COOP_REFIGHT_HUB_EXIT")){native_refight_hub_exit(fixture,base,work,capacity);return;}

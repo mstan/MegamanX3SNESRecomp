@@ -4599,3 +4599,39 @@ builds and all four standard tests pass. Temporary interpreter tracing is remove
 the shared engine is unchanged. Final-phase fatal handoffs, credits/new-game
 flow, remaining routes and presentation remain open. Acceptance stays114/180,
 66 open and3/15 areas; G12 and G15-G16 are not yet accepted.
+
+
+## Earned credits and native Reset/new-game flow
+
+G16 is accepted. The earned saber and no-saber ending fixtures execute their
+actual epilogue and authored scrolling credits, including122 native text entries,
+then reach the original6/2/4/4/8 final hold. Saber co-op and genuine original
+solo both take21915 updates; the no-saber branch takes21921. Campaign flags and
+lives remain unchanged, and every complete credits future replays exactly twice.
+Native Start/B leave the final screen in its intended hold. Game-over continue
+remains the separately qualified T08 path; the ending has no invented automatic
+continue or next-stage transition.
+
+The real Reset command exposed a production defect: X3 had no hardware-reset
+callback. Cleared hardware resumed the old coroutine cursor, waiting forever
+for its discarded NMI latch. The retained failing machine stayed at0/0 after
+2400 updates. Reset now clears the title's CPU/bridge clocks and cursor, sprite
+history, native ROM window operands and co-op machine state. The selected profile
+survives; discarded scene input is not projected into cleared WRAM. Native
+persistent data follows the existing preserving Reset path.
+
+Actual Reset and physical Start reach the fresh intro at1339 updates. Original
+solo reaches ordinary control2091 updates later; co-op enrolls both living actors
+at2092, with either requested physical-seat roster. The native opening formation
+precedes enrollment and must not be mistaken for missing players. Both rosters,
+original solo and the earned no-saber final hold pass complete restart replay
+twice, with fresh campaign resources and no restored old party.
+
+Credits state8902815772b6a2ac95aad6e55d978e28fff30d68aa608fbfdba657ff8662f5f1
+and no-saber7356181310825190073f9e08340b71bdf3151f4d495b3ddde6d763da58489225
+share the unchanged credits execution path. Reset qualification uses
+400c34dd0037f56a56d450c81f07d5e4a31bb8744b98639b1d178b71983f246a.
+GUI54d1c9f76d299baad6dd270637614eb1e99e81d19d3c55b73a6baaf4ba54edd0
+builds and all four standard tests pass. Acceptance is115/180,65 open and3/15
+areas. Campaign G01-G11 and G13-G14/G16 pass; G12 and G15 remain open. This does
+not accept final-phase fatal handoffs, moving presentation, runtime or owner QA.

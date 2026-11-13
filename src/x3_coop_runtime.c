@@ -2157,6 +2157,13 @@ void X3CoopRuntimeReset(void) {
   memset(&view_bounds,0,sizeof(view_bounds));
   X3CoopPresentationReset();
 }
+void X3CoopRuntimeHardwareReset(void){
+  /* Hardware already cleared WRAM. Do not project a discarded scene's raw
+   * input or its forced body back into that newly reset machine. */
+  bool active=enabled;uint8_t both=scene.both;enabled=false;
+  memset(&scene,0,sizeof(scene));scene.both=both;
+  X3CoopRuntimeReset();enabled=active;
+}
 void X3CoopRuntimeSetP1Character(unsigned character) {
   if(!state.initialized && character<=X3_COOP_ZERO)p1_character=character;
 }
