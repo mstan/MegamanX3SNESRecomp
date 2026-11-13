@@ -4505,3 +4505,28 @@ all four standard tests pass. Earlier route positioning remains an explicit
 bypass. Doppler completion does not establish Sigma phases, authored fatality
 handoffs, terminal flow or the remaining route checks. Acceptance stays114/180,
 66 open and3/15 accepted areas; G12 and G15-G16 remain open.
+
+
+## Final-lab vertical door admission
+
+The final lab's native item6 contact was absent from co-op door admission.
+The same exact contact advanced the original X door but ignored physical P2
+Zero. Item6 now uses the existing entrant/required-pair contact policy at its
+DD07/DD1E/DD1F boundaries, before native D0E8 forced movement. One additional
+native function entry is routed; the existing serialized contact continuation
+also validates that entry. No state field or second world update is added.
+
+A distant camera/column shortcut failed in original solo too and lost a life;
+it was not a valid Sigma admission fixture. Position/velocity cheats now follow
+the actual shaft camera nodes and stop changing positions when the real door
+activates. Native camera/frontiers, admission, forced movement and Sigma's
+introduction then execute normally. Original X reaches main5E at native32HP
+in1513 updates; P2 Zero admits both living actors in1653. Lives2, shared
+campaign and both controls survive, and each complete future replays twice.
+This does not yet qualify all door policies, authored death handoffs or Sigma
+combat/transformations/endings.
+
+The actual-entry state binary is
+7a15163a7ce8b61eebcf9fbdddaa06020c1d0b7d7cd4e61a91309a910562c902.
+The updated GUI builds and four standard tests pass. Acceptance remains114/180,
+66 open and3/15 areas; G12 and G15-G16 remain open.

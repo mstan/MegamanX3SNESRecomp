@@ -487,7 +487,7 @@ static bool shared_pickup(unsigned d){return item_actor(d) && g_ram[d+10]>=2 && 
 static bool x_pickup(unsigned d){return item_actor(d) &&
     (g_ram[d+10]==1 || g_ram[d+10]==5 || g_ram[d+10]==11);}
 static bool native_door(unsigned d){return item_actor(d) &&
-    (g_ram[d+10]==7 || g_ram[d+10]==0x10 || g_ram[d+10]==0x11);}
+    (g_ram[d+10]==6 || g_ram[d+10]==7 || g_ram[d+10]==0x10 || g_ram[d+10]==0x11);}
 static bool native_transport(unsigned d){return item_actor(d) &&
     (g_ram[d+10]==0x0c || g_ram[d+10]==0x0d ||
      (g_ram[d+10]>=0x18 && g_ram[d+10]<=0x1a));}
@@ -1588,38 +1588,42 @@ static void presentation_boundary(CpuState *cpu,uint32_t pc) {
 static void door_boundary(CpuState *cpu,uint32_t pc){
   unsigned at=pc&65535,d=cpu->D;NativePass *p=&contact.native;
   if(!X3CoopRuntimeReady() || state.wipe)return;
-  if(at==0xe0ae){
+  /* The vertical DD07 contact and horizontal E0AE contact share one
+   * entrant/required-pair policy before their native forced movement. */
+  if(at==0xe0ae || at==0xdd07){
     /* Story Zero crosses the original rescue-room door while X remains
      * captured. Keep that native door inside the existing intro ownership;
      * a second co-op scene would release or wait for the captive actor. */
     if(scene.phase && scene.kind==SCENE_INTRO_ZERO)return;
-    if(scene.phase && scene.slot!=d){interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xe0f0);return;}
+    if(scene.phase && scene.slot!=d){interp_bridge_pre_opcode_redirect((pc&0xff0000)|(at==0xdd07?0xdd1e:0xe0f0));return;}
       /* A single participant still needs scene ownership through the native
        * forced walk/intro. Only the optional contact retry needs a partner. */
       if(!p->pass && target.active && target.slot==d && native_door(d) &&
          state.players[state.current].life==X3_COOP_ALIVE &&
        !controller.pass && !terrain.pass && !objects.native.pass && !draw.pass && !solid.native.pass){
-      p->entry=regs(cpu);contact.pc=0xe0ae;contact.seat=state.current;p->pass=1;
+      p->entry=regs(cpu);contact.pc=(uint16_t)at;contact.seat=state.current;p->pass=1;
       memcpy(contact.entry_scratch,g_ram,24);
     }
     return;
   }
-  if((at!=0xe0e0 && at!=0xe0f0 && at!=0xe0f1) || !p->pass || contact.pc!=0xe0ae ||
+  if(!p->pass || (contact.pc!=0xe0ae && contact.pc!=0xdd07) ||
      cpu->S!=p->entry.s || d!=p->entry.d)return;
-  bool hit=at==0xe0f1;
+  unsigned entry=contact.pc,miss=entry==0xdd07?0xdd1e:0xe0f0,success=entry==0xdd07?0xdd1f:0xe0f1;
+  if(at!=miss && at!=success && !(entry==0xe0ae && at==0xe0e0))return;
+  bool hit=at==success;
   if(p->pass==1 && (scene.both?hit:!hit)){
     const X3CoopPlayer *other=&state.players[contact.seat^1];
     if(other->life==X3_COOP_ALIVE && (other->body[0x27]&127) && other->body[2]!=0x0c){
       p->result=regs(cpu);memcpy(contact.result_scratch,g_ram,24);
       X3CoopProject(&state,g_ram,contact.seat^1);restore(cpu,&p->entry);
       memcpy(g_ram,contact.entry_scratch,24);p->pass=2;
-      interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xe0ae);return;
+      interp_bridge_pre_opcode_redirect((pc&0xff0000)|entry);return;
     }
   }
   if(p->pass==2 && scene.both){
     X3CoopProject(&state,g_ram,contact.seat);restore(cpu,&p->result);
     memcpy(g_ram,contact.result_scratch,24);
-    interp_bridge_pre_opcode_redirect((pc&0xff0000)|(hit?0xe0f1:0xe0f0));
+    interp_bridge_pre_opcode_redirect((pc&0xff0000)|(hit?success:miss));
   }
   if(hit){
     /* This is before the original door mutates locks/camera/body state.
@@ -1631,7 +1635,7 @@ static void door_boundary(CpuState *cpu,uint32_t pc){
   }else if(p->pass==2 && !scene.both){
     X3CoopProject(&state,g_ram,contact.seat);restore(cpu,&p->result);
     memcpy(g_ram,contact.result_scratch,24);
-    interp_bridge_pre_opcode_redirect((pc&0xff0000)|0xe0f0);
+    interp_bridge_pre_opcode_redirect((pc&0xff0000)|miss);
   }
   p->pass=0;
 }
@@ -1663,7 +1667,7 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
   unsigned at=pc&0xffff,d=cpu->D;
   NativePass *p=&contact.native;
   if(!X3CoopRuntimeReady() || state.wipe)return;
-  if(p->pass && contact.pc==0xe0ae)return;
+  if(p->pass && (contact.pc==0xe0ae || contact.pc==0xdd07))return;
   if(at==0xcc5c){
     if(!p->pass && target.active && target.slot==d && shared_pickup(d) &&
        cpu->X==X3_COOP_BODY && partner_ready() && !refill.active && !controller.pass &&
@@ -2196,7 +2200,7 @@ void X3CoopRuntimeFrame(void) {
   static const uint32_t presentation_pcs[]={0x038dd7,0x038df0,0x038f70};
   for(unsigned i=0;i<sizeof(presentation_pcs)/sizeof(*presentation_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(presentation_pcs[i],presentation_boundary))enabled=false;
-  static const uint32_t door_pcs[]={0x01e0ae,0x01e0e0,0x01e0f0,0x01e0f1};
+  static const uint32_t door_pcs[]={0x01e0ae,0x01e0e0,0x01e0f0,0x01e0f1,0x01dd07,0x01dd1e,0x01dd1f};
   for(unsigned i=0;i<sizeof(door_pcs)/sizeof(*door_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(door_pcs[i],door_boundary))enabled=false;
   if(!interp_bridge_add_pre_opcode_hook(0x01cf02,full_campaign_door_sensor))enabled=false;
@@ -2309,7 +2313,7 @@ static bool passes_valid(const X3CoopState *s,const NativePass *c,const NativePa
   }
   if((a && c->entry.d!=X3_COOP_BODY) || (b && t->entry.d!=X3_COOP_BODY))return false;
   if(h){
-    if(hit->pc==0xcc5c || hit->pc==0xe0ae){
+    if(hit->pc==0xcc5c || hit->pc==0xe0ae || hit->pc==0xdd07){
       if(!item_actor(hit->native.entry.d) || !world->active || world->slot!=hit->native.entry.d ||
          world->seat!=hit->seat || (hit->pc==0xcc5c && hit->native.entry.x!=X3_COOP_BODY))return false;
     }else if((hit->pc!=0xcb31 && hit->pc!=0xcb74) || !enemy_actor(hit->native.entry.d))return false;
