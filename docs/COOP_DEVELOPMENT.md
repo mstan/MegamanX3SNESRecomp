@@ -4822,3 +4822,42 @@ previously validated GUI are unchanged.
 Acceptance is121/180,59 open and4/15 accepted areas. D06 and D12 remain open
 in the death area. Campaign remains15/16; remaining fortress traversal,
 gameplay, presentation, runtime and owner/package delivery are still required.
+
+
+## Captured fatalities retain a visible, independent survivor
+
+D12 is accepted. Real native Buffalo charges first earn their actual grips.
+Personal health and vulnerability prerequisites let the native wall impact kill either
+captured character after139 updates. The native source is class52 at0D18;
+its capture is still active immediately before the fatal update. A nearer free
+partner never inherits the grip or makes a position jump. The old captor binding
+clears, Buffalo remains alive at32HP, and the survivor keeps native movement and
+visible body art without a shared life debit.
+
+The actual half-health beam also earns its own freeze child before the fatal
+prerequisite. A frozen victim at oneHP survives512 neutral updates: freezing
+alone does not earn fatal damage. Position-only contact with the living boss
+instead earns native fatal damage in one update while the victim is still
+frozen. Its old child owner and all three native capture latches clear. The
+other character remains visible and independently controllable; the boss stays
+alive at16HP. No capture, death, release or result flag is supplied.
+
+Both Buffalo routes pass all16 roster/victim/prior-camera-owner combinations.
+Each entire fatality, ownership cleanup and24-update survivor-control future
+replays exactly twice. The actual native damage observer identifies0D18 in all
+cases; free-partner position is stable during each fatal approach.
+
+The existing fatal futures also now check actual native rendered body art
+through the survivor-control interval. All56 combinations pass for Crawfish,
+Toxic Seahorse, Bit's ring, Press Disposer, Godkarmachine's arm and slam, and
+Hornet's attached timed explosion. Each retains its existing real damage,
+attachment retirement, living encounter and complete-machine replay checks.
+Previously qualified reward/next-stage futures remain valid; this focused run
+ends after the relevant captured-death aftermath.
+
+Qualification uses state-test SHA256
+811c52c114517f39e2d60b0ece9a9c01fe87207650d562e356c8f7b414c034c3.
+All four standard tests pass. This is test-only coverage; production and the
+previously validated GUI are unchanged. Acceptance is122/180,58 open,4/15 areas.
+D06 remains open in the death area. E09 still needs its separate withdrawal
+scope reconciled with the existing held/released participation evidence.

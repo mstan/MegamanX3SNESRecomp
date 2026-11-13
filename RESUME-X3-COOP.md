@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-The active goal continues. Current acceptance is **121/180;59 open;4/15 areas (T,R,M,N)**.
+The active goal continues. Current acceptance is **122/180;58 open;4/15 areas (T,R,M,N)**.
 Campaign G01-G11 and G13-G16 pass; G12 remains open. Earlier110/118/119/120-point
 checkpoints below are historical. Read the latest sections of
 `docs/COOP_DEVELOPMENT.md` and the existing private
@@ -34,11 +34,20 @@ preflight pass. Fatal output and the144-update unfrozen survivor future replay
 exactly. Four existing floor-spike cases and four standard tests also pass.
 This is test-only coverage; the existing runtime needed no new fix.
 
-Next decisions: D12 needs the remaining captured/carried fatal-handoff scope,
-including Buffalo's existing native grip/freeze earners. Reuse existing
-per-family evidence before adding checks. P06 is authored falling/collapsing-
-support activation; P12 is
-pinch/crush. Do not confuse those definitions. A late lift-edge setup was
+D12 now passes actual Buffalo grip and freeze fatalities, both characters,
+rosters and prior camera owners. Native grip impact kills at139 updates; real
+boss contact kills the genuinely frozen victim at1. Bindings, freeze-child
+owners and capture latches clear; the free partner remains visibly controllable.
+All16 Buffalo cases and56 existing captor/attachment fatal cases pass actual
+native-art checks and complete-future replay twice. State-test SHA256 is
+811c52c114517f39e2d60b0ece9a9c01fe87207650d562e356c8f7b414c034c3.
+The four standard tests pass; production/GUI code is unchanged.
+
+Next decisions: reconcile E09's withdrawal scope using the existing busy-grip,
+released-victim and actual Hornet attachment-withdrawal evidence plus the now
+qualified captured-death futures. Add only a missing concrete participation
+check if needed. D06 still needs an actual authored lethal crush. P06 is
+falling/collapsing-support activation; P12 is pinch/crush. Do not confuse those definitions. A late lift-edge setup was
 rejected because the real charged cast had already reached its upper endpoint
 before the test moved the rider; the unqualified extension was removed. Reuse
 actual source/caller and original-game references before qualifying a new
@@ -46,7 +55,7 @@ support transition. D06 still requires a genuine authored lethal crush;
 class37/26 explicitly protect their contact. G12 still requires actual fortress
 traversal/exits beyond the accepted admissions and boss/ending flows.
 
-Remaining IDs: D06,D12;F10;A02,A05,A09-A13;P06,P09,P12,P13;
+Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P09,P12,P13;
 E05-E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
 Q01-Q06;Z01-Z04. No release has been delivered. Computer Use or desktop/browser
 UI automation requires the owner's explicit approval; current automation uses
