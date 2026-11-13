@@ -4478,3 +4478,30 @@ qualified production runtime from b621614. Actual total114/180 accepted,66 open,
 3/15 accepted areas. Unlocked-hub platform traversal and the remaining fortress
 routes stay under G12; final phases/endings and separate authored death/scene
 criteria remain open.
+
+
+## Doppler native script world ownership
+
+Doppler's actual final hit previously retained the correct NPC script recipient
+but left shared dialogue/stage tasks on the other actor's canonical body. Both
+X and Zero then remained in the native death continuation after6400 updates.
+Selecting the real finisher as world owner before the same encounter completed
+both native futures at4807 updates, establishing the ownership dependency.
+
+At the balanced NPC return, an actually tagged native script now commits its
+living recipient's body/view as world owner. This reuses the existing native
+freeze binding and serialized fields; it adds no native hook or simulation pass.
+Four roster/finisher cases now earn the actual stage13/counter3 loader, preserve
+both living actors, campaign flags and lives, release both controls, and replay
+the complete future exactly twice. The genuinely earned no-saber branch also
+passes its real Doppler door/introduction, defeat and final-lab arrival with
+story1C and refightsFF; the saber branch retains its earnedDC.
+
+State qualification4d22ad670d757747d887aa493c23e6a4d3818679433bd051e7e80fdcf1a30c63
+passes the affected Mosquitus roles/story, stock restrictions, alternate Lab2
+main, Bit destruction and an eight-refight sequence. GUI
+f59413e924ab6a67bbd8ecc33f5276fc8f4a61bd34e11ff198a9613d2ea7aeac builds;
+all four standard tests pass. Earlier route positioning remains an explicit
+bypass. Doppler completion does not establish Sigma phases, authored fatality
+handoffs, terminal flow or the remaining route checks. Acceptance stays114/180,
+66 open and3/15 accepted areas; G12 and G15-G16 remain open.

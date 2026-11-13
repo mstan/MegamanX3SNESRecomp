@@ -1334,6 +1334,15 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
         refill_retired_cleanup(d,refill.seat);memset(&refill,0,sizeof(refill));
       }
     }
+    if(enemy_actor(d) && native_script_actor(d) && state.current!=state.anchor &&
+       state.players[state.current].life==X3_COOP_ALIVE && (g_ram[X3_COOP_BODY+0x27]&127) &&
+       (!scene.phase || scene.owner==state.current)){
+      /* D1CA's actual recipient must also own the canonical body read by
+       * shared dialogue and stage tasks outside this NPC's borrowed pass.
+       * Commit only after its native RTS has balanced the projection. */
+      X3CoopViewsAdoptPlayer(g_ram,&state,state.current,false);
+      state.anchor=state.current;anchor_palette();
+    }
     target.active=0;
     settle_deaths();
     if(!state.wipe)X3CoopProject(&state,g_ram,state.anchor);
