@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 110/180; 70 open/partial. Accepted areas: 3/15
+**Accepted touch points: 111/180; 69 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G09 accepted (9/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G10 accepted (10/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -4264,7 +4264,7 @@ setups remain in the existing private compact record. No snapshot-format or
 hook-list change, owner validation or release is claimed.
 
 
-### Fusion capture group and retired-victim release
+### Fusion capture group and retired-victim release ? G10 accepted
 
 The lower fortress fusion boss coordinates NPC43 kinds2/4/6 through CD90/CD91.
 Its actual arm capture now retains D034's recipient across the slammer and
@@ -4292,9 +4292,13 @@ fallen actor and lives retained. Complete futures replay exactly twice.
 
 Eight actual parent kills during the arm hold also pass native child release,
 binding cleanup before pool reset, both living arrivals and complete replay.
-The first occupied-carrier parent kill passes its distinct release path;
-remaining carrier permutations are running. G10 remains open pending that
-qualification. The total remains110/180 accepted,70 open and3/15 areas.
+All eight occupied-carrier parent kills also pass that distinct native release
+path, child-binding cleanup before stage reset, both living arrivals and exact
+whole-world replay. Together with the actually earned05/0D/07/0F hunter outcomes,
+completed lower/upper doors and each branch's actual fortress clear/next-stage
+consequences, this accepts G10. The suite is111/180 accepted,69 open and3/15
+accepted areas. G11-G16 remain open; these checkpoint approaches do not qualify
+untraversed fortress routes or Vile combat.
 
 The full native-reference/fatal test binary is
 `7ff6c6293a964ba74381af354ab5a9d353dd84dc1a85ff99a347246d98f2c969`;
