@@ -482,6 +482,15 @@ static bool hostile_projectile(unsigned d) {
 static bool enemy_actor(unsigned d) {
   return (d>=0x0d18 && d<0x10d8 && !((d-0x0d18)%64)) || hostile_projectile(d);
 }
+static bool scene_rom(unsigned a,unsigned n,unsigned *value);
+static bool native_boss_actor(unsigned d){
+  if(d<0x0d18 || d>=0x10d8 || (d-0x0d18)%64)return false;
+  /*02:E15C loads authored health from06:E291 in five-byte class records.
+   * NPC26 is contact damage; NPC27 is mutable remaining health. */
+  unsigned kind=g_ram[d+10],health;
+  /* Kaiser bypasses02:E15C:05:99C6/9B3B constructs its32HP bar itself. */
+  return kind==0x5f || (kind && kind<=0x6b && scene_rom(0x06e291+(kind-1)*5,1,&health) && health==32);
+}
 static bool item_actor(unsigned d){return d>=0x1518 && d<0x1818 && !((d-0x1518)%48);}
 static bool shared_pickup(unsigned d){return item_actor(d) && g_ram[d+10]>=2 && g_ram[d+10]<=4;}
 static bool x_pickup(unsigned d){return item_actor(d) &&
@@ -1216,7 +1225,9 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
         X3CoopNearest(&state,g_ram,word(g_ram+d+5),word(g_ram+d+8));
     bool retired=state.players[seat].life!=X3_COOP_ALIVE;
     if(retired && !pending)return;
-    if(!pickup && !door && !capsule && !intro && seat==state.anchor && captive>=2)return;
+    /* A boss's native caller must retain a fatal attack's actual producer,
+     * including when its initial nearest target was already the anchor. */
+    if(!pickup && !door && !capsule && !intro && seat==state.anchor && captive>=2 && !native_boss_actor(d))return;
     target=(WorldTarget){(uint16_t)d,cpu->S,1,(uint8_t)seat};
     if(retired)X3CoopProjectRetired(&state,g_ram,seat);
     else X3CoopProject(&state,g_ram,seat);
@@ -1712,6 +1723,18 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
   /* Shared terminal instructions also serve nested helpers. Match the real
    * caller's balanced return frame and actor before closing a contact pass. */
   if(!p->pass || cpu->S!=p->entry.s || cpu->D!=p->entry.d)return;
+  if((contact.pc==0xcb31 || contact.pc==0xcb74) && (cpu->A&255) &&
+     native_boss_actor(d) && !(g_ram[d+0x27]&127) &&
+     target.active && target.slot==d && !(attachments[(d-0xd18)/64]&12) &&
+     state.players[state.current].life==X3_COOP_ALIVE && (g_ram[X3_COOP_BODY+0x27]&127)){
+    /* Native damage has actually depleted this boss. Keep the producer for
+     * the remaining caller and its later freeze; restoring the first target
+     * here gives a second actor's final hit to the wrong script recipient.
+     * An existing captive binding still owns its required release. */
+    unsigned slot=(d-0xd18)/64;
+    attachments[slot]=(uint8_t)((attachments[slot]&~12u)|128u|64u|(4u<<state.current));
+    target.seat=state.current;p->pass=0;settle_deaths();return;
+  }
   if(p->pass==1) {
     bool hit=(cpu->A&255)!=0;
     unsigned hostile_kind=g_ram[d+10];

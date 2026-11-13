@@ -4530,3 +4530,37 @@ The actual-entry state binary is
 7a15163a7ce8b61eebcf9fbdddaa06020c1d0b7d7cd4e61a91309a910562c902.
 The updated GUI builds and four standard tests pass. Acceptance remains114/180,
 66 open and3/15 areas; G12 and G15-G16 remain open.
+
+
+## Native fatal-attack producer and Sigma transformations
+
+A successful second player's fatal damage scan restored the NPC's first target
+before returning to its caller. Kaiser Sigma then froze that nearer actor and
+waited on its controller, even when the finisher already owned the world. The
+native damage result now retains its actual living producer through the caller
+and later script freeze. Existing captive bindings retain their required release.
+Boss updates keep a balanced target scope even when the first target is already
+the anchor. Classification uses the original class initialization records and
+Kaiser's custom constructor; no hook, snapshot field or extra world step is added.
+
+Both real Kaiser wins now reach native virus60 at64HP in2169 updates, retaining
+the living pair, controls, campaign and lives. X earns the actual charged03 hit
+at223 updates; Zero earns charged01 at1075. Both reach native charge12, and both
+complete futures replay exactly twice. Upper-head aiming follows the actual
+head rectangle above overlapping arm rectangles. Normal-shot attempts did not
+deplete Kaiser; no weapon damage or victory result is supplied by the tests.
+
+The first Sigma form also transforms into native5F at32HP after real X/Zero
+winning hits, with both living actors and exact future replay. The actually
+earned no-saber1C branch passes its introduction and first transformation too.
+The second form reuses its authored kind byte for AI, so its observer follows
+the unique active main instead of requiring a constant constructor kind.
+
+Kaiser qualification uses
+ec7b7d7dbca5d9cf40ce71b6ad0625e7f0a4687ebdb57278ae11a4a110cbaefa.
+Five Mosquitus roles, eight captured Bit-parent cleanup permutations, both real
+Doppler clears and an eight-refight sequence pass with the updated runtime.
+GUI36565ff5c5dd25d096bda9fd045fc7ea2d7651da581c9e7f62bb2c8681c7dc72
+builds and all four standard tests pass. Virus escape, actual terminal flow,
+remaining routes and authored fatal handoffs remain open. Acceptance stays
+114/180,66 open and3/15 accepted areas; G12 and G15-G16 are not yet accepted.
