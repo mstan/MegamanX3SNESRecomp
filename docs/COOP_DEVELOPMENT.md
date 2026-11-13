@@ -4704,3 +4704,48 @@ builds and all four standard tests pass. Acceptance is118/180,62 open and
 3/15 accepted areas; campaign remains15/16. G12 traversal, S12 simultaneous
 last-hit/death and the other scene, presentation, runtime and owner delivery
 criteria remain open.
+
+
+## Simultaneous boss defeat and actor fatality
+
+S12 is accepted. A real winning projectile and actual native pit fatal occur
+in the same native world update, with either a living partner or the actual
+last participant. The setup retains the earned projectile and changes only
+the fatal actor's position before native pit calculation. It supplies no
+damage, death, victory or retry result. The native world counter distinguishes
+these events from merely occurring within one host frame.
+
+The first Sigma transformation exposed a real cleanup defect. The retained
+winning actor was fallen, so the original sole-body HP check skipped its
+shared input-lock cleanup even though a partner kept the encounter alive.
+The lock remained127. The small compiled cleanup routine now uses the existing
+co-op interpreter routing. For that actual fallen producer and living partner,
+the original kind/stage cleanup checks run without changing HP or selecting a
+different winning actor. Original solo and complete team wipes retain their
+native priority and retry cost. No snapshot field or format is added.
+
+All24 paired first-Sigma/Kaiser cases pass both physical rosters, both actual
+winning actors, both initial owners with a survivor, and last-participant wipes.
+Original Buffalo plus12 paired cases pass actual Frost Shield/native stage
+return or one source-checkpoint retry. Three shared-camera cases also cover a
+winning Zero whose partner dies, a winning X who dies, and a reversed-roster
+last-Zero wipe. Both genuine native solo Sigma forms retain one retry. Native
+solo's generated pit uses its actual127 damage/zero-HP result and matching
+winning/current world counter; paired cases observe the actual pit boundary.
+
+Every complete future replays exactly twice, including real physical movement,
+retained fallen participants, campaign resources and later stability. The
+first-Sigma survivor regains normal control at2102/2103 updates with shared
+lock0 and no life debit. State qualification uses
+53cfbb32157bef7abb92fb95f1e78f387e9e668e9b9101cbfcc90f0e232fea6e.
+GUI fef5903464988c2b138c6c3d9ab8b3afcdb22c5669769fed2807394afcbc6796
+builds and all four standard tests pass.
+
+A separate earned-fallen component test passes pause, current-build state
+restore, host display/options callbacks and returned input for both characters
+and physical rosters. It does not establish physical controller reconnect;
+F10 remains open for that owner/input-backend check.
+
+Acceptance is119/180,61 open and3/15 accepted areas. Campaign remains15/16.
+G12 fortress traversal, remaining authored support/capture/scene cases,
+presentation, runtime/portability and owner/package delivery remain open.

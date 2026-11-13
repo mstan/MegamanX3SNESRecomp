@@ -50,6 +50,7 @@ static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned se
 #include "x3_coop_midpass_test.inc"
 #include "x3_coop_vehicle_test.inc"
 #include "x3_coop_terrain_test.inc"
+#include "x3_coop_persistence_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -255,6 +256,8 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_paired_menu_checks(saved,size,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_FALLEN_PERSISTENCE_STATE");
+    if(fixture && *fixture)native_fallen_persistence(fixture,saved,after,cap);
     fixture=getenv("X3_COOP_SHARED_STATE");
     if(fixture && *fixture){
       check(RtlLoadSnapshot(fixture),"native shared camera fixture loads");

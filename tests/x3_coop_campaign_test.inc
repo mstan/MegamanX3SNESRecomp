@@ -492,12 +492,26 @@ static void native_hornet_attachment_checks(const char *fixture,uint8_t *base,ui
 
 static unsigned hunter_result_source,hunter_result_class,hunter_result_capture_source;
 static bool hunter_result_observing,hunter_result_hit,hunter_result_captive;
+static unsigned simultaneous_hit_tick;
 static void hunter_result_probe(CpuState *cpu,uint32_t pc){
   if(hunter_result_observing && !hunter_result_hit && cpu->D==hunter_result_source &&
       (pc==0x00dccf || pc==0x00dcf3) && g_ram[cpu->D+1]==4 && !(g_ram[cpu->D+0x27]&127)){
-    hunter_result_hit=true;hunter_result_class=g_ram[0x1f2f];
+    hunter_result_hit=true;hunter_result_class=g_ram[0x1f2f];simultaneous_hit_tick=g_ram[0x9cc];
     hunter_result_captive=hunter_result_capture_source && g_ram[hunter_result_capture_source+1]==2 && (g_ram[hunter_result_capture_source+10]==0x43?(g_ram[hunter_result_capture_source+11]==6?g_ram[hunter_result_capture_source+3]<=2:g_ram[hunter_result_capture_source+3]>=4 && g_ram[hunter_result_capture_source+3]<=12):g_ram[hunter_result_capture_source+0x35]);
   }
+}
+static unsigned simultaneous_pit_seat,simultaneous_pit_y;
+static bool simultaneous_pit_armed;
+static void simultaneous_pit_position(CpuState *cpu,uint32_t pc){
+  if(!simultaneous_pit_armed || !hunter_result_hit || (pc&0x7fffff)!=0x00dfd0 ||
+      cpu->D!=0x1e58 || X3CoopRuntimeState()->current!=simultaneous_pit_seat ||
+      g_ram[0x9cc]!=simultaneous_hit_tick)return;
+  /* Original00:DFD0 calls the native camera-follow routine after NPC contact.
+   * Move only its actual projected body before that routine computes the
+   * candidate camera position used by the later native pit comparison.
+   * Moving earlier can change the attack; moving atE2A2 is too late. */
+  view_word(X3_COOP_BODY+8,simultaneous_pit_y);view_word(X3_COOP_BODY+0x24,simultaneous_pit_y);
+  g_ram[X3_COOP_BODY+7]=0;simultaneous_pit_armed=false;
 }
 static void native_hunter_outcome(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity);
 static void native_bit_ring(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
@@ -886,6 +900,8 @@ static void native_vile_warp(const char *fixture,uint8_t *base,uint8_t *work,siz
     if(!mode){native_return=g_ram[0xe0];native_marker=g_ram[0x1fdb];}else{check(g_ram[0xe0]==native_return && g_ram[0x1fdb]==native_marker && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e],"the real lower actor admits Vile while the separated upper partner and both actual warp-return contexts survive");size_t done=RtlSaveSnapshotToMemory(work,capacity);if(mode==1){paired_warp=warp;paired_arrival=f;memcpy(future,work,done);}else{check(warp==paired_warp && f==paired_arrival,"actual native Vile warp and arrival repeat on the same updates");same(future,done,work,done,"real lower-view event admission, native Vile transport and both-body construction replay the entire world exactly");}}
   }free(future);if(getenv("X3_COOP_VILE_WARP_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_VILE_WARP_RESULT")),"actually earned factory entry and native return context export without a picker");
 }
+static size_t simultaneous_hit_seed_size;
+static uint32_t simultaneous_hit_input;
 static unsigned native_vile_form_hit(unsigned boss,unsigned shooter,uint8_t *base,uint8_t *work,size_t capacity){
   unsigned kind=g_ram[boss+10];bool charged=kind==0x5f && getenv("X3_COOP_SIGMA_CHARGED");unsigned charge_peak=0,charge_hold=getenv("X3_COOP_SIGMA_CHARGE_HOLD")?(unsigned)atoi(getenv("X3_COOP_SIGMA_CHARGE_HOLD")):216;bool saber_seen=false;if(charged)check(charge_hold>=32 && charge_hold<400,"the charged-shot reference uses a bounded physical button hold");check(g_ram[boss] && g_ram[boss+1]==2 && (g_ram[boss+0x27]&127)==32,"each actual Vile form begins at its native32HP before health assistance");size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState shot=*X3CoopRuntimeState();X3CoopCapture(&shot,g_ram);for(unsigned i=0;i<2;++i)if(shot.players[i].life==X3_COOP_ALIVE){shot.players[i].body[0x27]=shot.players[i].maximum_health;shot.players[i].body[0x88]=255;}
   check(X3CoopEncode(&shot,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"Vile pre-hit protection changes only living personal health and protection");door_install_player(&shot);g_ram[boss+0x27]=1;g_ram[boss+0x37]=0;for(unsigned f=0;f<16;++f)frame(0);check(g_ram[boss] && g_ram[boss+10]==kind && g_ram[boss+1]==2 && (g_ram[boss+0x27]&127)==1,"assisted oneHP Vile remains live without an actual attack");
@@ -896,8 +912,79 @@ static unsigned native_vile_form_hit(unsigned boss,unsigned shooter,uint8_t *bas
       unsigned live_rect=view_read(boss+0x20),live_at=0x30000+(live_rect&32767);check(live_rect>=32768 && live_at+4<=g_snes->cart->romImageSize,"the moving Sigma head retains its actual native damage rectangle");
       campaign_position_only(actor,view_read(boss+5)-64,(unsigned)((int)view_read(boss+8)+(int8_t)g_snes->cart->rom[live_at+1]+(getenv("X3_COOP_SIGMA_HEAD_TOP")?4-(int)g_snes->cart->rom[live_at+3]:0)+(actor->character==X3_COOP_X?4:-4)));memset(actor->body+0x1a,0,4);
       check(X3CoopEncode(&aim,base+contact_context_offset(base,aim_n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,aim_n),"charged attack positioning changes only the actual muzzle approach and velocity, never charge, hit or boss result");door_install_player(&aim);
-    }unsigned keys=charged?(fired%420<charge_hold || fired%4==0?SNES_PAD_Y:0):(fired%8==0?SNES_PAD_Y:0);if(fired>=16 && fired%83<24)keys|=SNES_PAD_B;bool right=view_read(boss+5)>support_position(shooter,5);if(right!=((campaign_body(shooter)[0x11]&64)!=0))keys|=right?SNES_PAD_RIGHT:SNES_PAD_LEFT;frame((uint32_t)keys<<(shooter*12));if(charged){unsigned level=campaign_body(shooter)[0x58];if(level>charge_peak)charge_peak=level;saber_seen|=campaign_body(shooter)[2]==0x5c;}if(weakness && fired<40 && fired%4==0){const X3CoopState *now=X3CoopRuntimeState();const uint8_t *shots=now->current==shooter?g_ram+X3_COOP_SHOTS:now->players[shooter].shots;fprintf(stderr,"native VILE WEAKNESS AIM f%u boss%u,%u rect%04x player%u,%u face%02x shots",fired,view_read(boss+5),view_read(boss+8),view_read(boss+0x20),support_position(shooter,5),support_position(shooter,8),campaign_body(shooter)[0x11]);for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)if(shots[j])fprintf(stderr," %02x:%u,%u",shots[j+10],shots[j+5]|(unsigned)shots[j+6]<<8,shots[j+8]|(unsigned)shots[j+9]<<8);fprintf(stderr,"\n");}}hunter_result_observing=false;
+    }unsigned keys=charged?(fired%420<charge_hold || fired%4==0?SNES_PAD_Y:0):(fired%8==0?SNES_PAD_Y:0);if(fired>=16 && fired%83<24)keys|=SNES_PAD_B;bool right=view_read(boss+5)>support_position(shooter,5);if(right!=((campaign_body(shooter)[0x11]&64)!=0))keys|=right?SNES_PAD_RIGHT:SNES_PAD_LEFT;if(getenv("X3_COOP_SIGMA_LAST_HIT_FATAL")){simultaneous_hit_seed_size=RtlSaveSnapshotToMemory(base,capacity);simultaneous_hit_input=(uint32_t)keys<<(shooter*12);check(simultaneous_hit_seed_size!=0,"real winning-shot search retains its complete preceding frame");}frame((uint32_t)keys<<(shooter*12));if(charged){unsigned level=campaign_body(shooter)[0x58];if(level>charge_peak)charge_peak=level;saber_seen|=campaign_body(shooter)[2]==0x5c;}if(weakness && fired<40 && fired%4==0){const X3CoopState *now=X3CoopRuntimeState();const uint8_t *shots=now->current==shooter?g_ram+X3_COOP_SHOTS:now->players[shooter].shots;fprintf(stderr,"native VILE WEAKNESS AIM f%u boss%u,%u rect%04x player%u,%u face%02x shots",fired,view_read(boss+5),view_read(boss+8),view_read(boss+0x20),support_position(shooter,5),support_position(shooter,8),campaign_body(shooter)[0x11]);for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)if(shots[j])fprintf(stderr," %02x:%u,%u",shots[j+10],shots[j+5]|(unsigned)shots[j+6]<<8,shots[j+8]|(unsigned)shots[j+9]<<8);fprintf(stderr,"\n");}}hunter_result_observing=false;
   fprintf(stderr,"native VILE REAL FORM HIT class%02x slot%04x shooter%u char%u frames%u hit%u projectile%02x charge%u saber%u HP%u state%u/%u/%u XY%u,%u actors%u,%u/%u,%u\n",kind,boss,shooter,p->character,fired,hunter_result_hit,hunter_result_class,charge_peak,saber_seen,g_ram[boss+0x27]&127,g_ram[boss+1],g_ram[boss+2],g_ram[boss+3],view_read(boss+5),view_read(boss+8),support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8));if(!hunter_result_hit)check(RtlSaveSnapshot("native-vile-form-hit-unqualified.sav"),"incomplete actual Vile firing retains its current machine");bool native_weakness=hunter_result_class==10 || hunter_result_class==19 || hunter_result_class==11 || hunter_result_class==20 || hunter_result_class==28;if(charged && hunter_result_hit){fprintf(stderr,"native SIGMA CHARGED IDENTITY shooter%u character%u bodyB6%u damageID%02x charge%u\n",shooter,X3CoopRuntimeState()->players[shooter].character,campaign_body(shooter)[0xb6],hunter_result_class,charge_peak);check(campaign_body(shooter)[0xb6]==X3CoopRuntimeState()->players[shooter].character*2,"the actual charged Sigma finisher retains its native character controller");}check(hunter_result_hit && (charged?(charge_peak && (hunter_result_class==1 || hunter_result_class==3)):weakness?native_weakness:hunter_result_class==0) && !(g_ram[boss+0x27]&127),"a real native projectile collision earns the selected Vile form defeat without supplied damage or outcome flags");if(kind==0x61 && g_ram[0x1fae]==9)check((g_ram[boss+0x3c]!=0)==weakness,"the actual winning projectile chooses Vile's native destruction or escape controller");return fired;
+}
+static void native_simultaneous_last_hit(unsigned boss,unsigned shooter,uint8_t *base,uint8_t *work,size_t capacity){
+  bool original=getenv("X3_COOP_SIGMA_LAST_HIT_NATIVE")!=NULL,partner=getenv("X3_COOP_SIGMA_LAST_HIT_PARTNER")!=NULL;
+  bool other=getenv("X3_COOP_SIMULTANEOUS_OTHER")!=NULL;unsigned victim=other?shooter^1:shooter;
+  check(!other || partner,"a different fatal actor requires an actual living winning partner");
+  check(!original || !partner,"the native solo comparison has one actual participant");unsigned next_class=g_ram[boss+10]==0x5f?0x60:0x5f;bool maverick=g_ram[0x1fae]>=1 && g_ram[0x1fae]<=8;unsigned reward=0x1fbc+(g_ram[0x1fae]==2?6:0)*2,prior_reward=g_ram[reward];
+  size_t n=simultaneous_hit_seed_size;check(n && RtlLoadSnapshotFromMemory(base,n),"simultaneous outcome restores the actual frame before a real winning projectile");
+  X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+  check(setup.players[shooter].life==X3_COOP_ALIVE && setup.players[shooter^1].life==(partner?X3_COOP_ALIVE:X3_COOP_FALLEN) &&
+      g_ram[boss+1]==2 && (g_ram[boss+0x27]&127)==1,"the last-hit cut has its actual living/fallen roster and live oneHP boss");
+  check(!original || setup.players[shooter].character==X3_COOP_X,"the original simultaneous reference requires the actual native X controller");
+  check(RtlSaveSnapshot("native-simultaneous-before-position.sav"),"the earned pre-winning frame retains its unmodified machine");
+  if(original || other)campaign_position_only(&setup.players[victim],support_position(victim,5),view_read(0x1e60)+400);
+  check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"last-hit preparation retains the earned projectile and roster; only native pit positioning may change");door_install_player(&setup);
+  n=RtlSaveSnapshotToMemory(base,capacity);uint8_t *future=malloc(capacity);check(future!=NULL,"simultaneous native outcome future allocates");
+  check(interp_bridge_add_pre_opcode_hook(0x00e30a,shared_pit_probe),"simultaneous outcome observes the actual native late pit-damage boundary");
+  check(interp_bridge_add_pre_opcode_hook(0x00dfd0,simultaneous_pit_position),"the paired race positions its actual actor before native camera follow, after the winning collision");
+  unsigned first_arrival=0;
+  for(unsigned run=0;run<2;++run){
+    check(RtlLoadSnapshotFromMemory(base,n),"the same real projectile and pit approach restore before their shared native update");
+    if(original)X3CoopRuntimeEnable(false);
+    unsigned lives=g_ram[0x1fb4],stage=g_ram[0x1fae],cpp=g_ram[0x1fb5],flags=g_ram[0x1fd8],story=g_ram[0x1fb2];
+    hunter_result_source=boss;hunter_result_hit=false;hunter_result_observing=true;shared_pit_victim=victim;shared_pit_damage=0;shared_pit_tick=simultaneous_hit_tick=0;
+    uint32_t input=original?(simultaneous_hit_input>>(shooter*12))&4095:simultaneous_hit_input;
+    simultaneous_pit_seat=victim;simultaneous_pit_y=view_read(0x1e60)+400;simultaneous_pit_armed=!original && !other;
+    frame(input);hunter_result_observing=false;bool positioned=!simultaneous_pit_armed;simultaneous_pit_armed=false;
+    bool fatal=original?!(g_ram[X3_COOP_BODY+0x27]&127):X3CoopRuntimeState()->players[victim].life==X3_COOP_FALLEN && (partner?!X3CoopRuntimeState()->wipe && X3CoopRuntimeState()->players[victim^1].life==X3_COOP_ALIVE:X3CoopRuntimeState()->wipe);
+    fprintf(stderr,"native SIMULTANEOUS TRIGGER run%u original%u boss%02x shooter%u char%u victim%u hit%u damageID%02x pit%u fatal%u bossHP%u actorHP%u lives%u/%u phase%u/%u\n",run,original,g_ram[boss+10],shooter,setup.players[shooter].character,victim,hunter_result_hit,hunter_result_class,shared_pit_damage,fatal,g_ram[boss+0x27]&127,original?(g_ram[X3_COOP_BODY+0x27]&127):(campaign_body(victim)[0x27]&127),lives,g_ram[0x1fb4],g_ram[0xd1],g_ram[0xd2]);
+    check(RtlSaveSnapshot("native-simultaneous-trigger.sav"),"the actual shared winning-hit and fatal update retains its complete result");
+    /* The original generated camera does not enter the interpreter's E30A
+     * observer. Its unmodified127 damage result and zeroHP, from the body
+     * placed below the native pit boundary, provide that native reference.
+     * Paired execution must also hit the actual late pit observer. */
+    bool pit=shared_pit_damage || (original && g_ram[X3_COOP_BODY+0x26]==127 && fatal);
+        fprintf(stderr,"native SIMULTANEOUS WORLD ID original%u winning%u pit%u current%u\n",original,simultaneous_hit_tick,shared_pit_tick,g_ram[0x9cc]);
+    /* Original00:D970 increments9CC at active-world entry. Host frame cuts
+     * alone do not prove that the two native events belong to one update. */
+    check(hunter_result_hit && pit && fatal && (original || (positioned && simultaneous_hit_tick==shared_pit_tick)) && !(g_ram[boss+0x27]&127),"the real winning projectile and actor pit fatal share one actual native world update");
+    unsigned arrival=0;bool observed_loss=false;unsigned previous_ready_mask=~0u;
+    for(;arrival<8000;++arrival){
+      unsigned prior_x=support_position(victim^1,5),prior_y=support_position(victim^1,8);
+      frame(arrival%120<6?(original?SNES_PAD_B:(uint32_t)SNES_PAD_B<<((partner?victim^1:shooter)*12)):0);
+      if(!observed_loss && (g_ram[0x1fb4]!=lives || (partner && X3CoopRuntimeState()->players[victim^1].life!=X3_COOP_ALIVE))){
+        const X3CoopState *loss=X3CoopRuntimeState();const uint8_t *b=campaign_body(victim^1);observed_loss=true;
+        fprintf(stderr,"native SIMULTANEOUS FIRST LOSS f%u partner%u lives%u/%u life%u/%u freeXY%u,%u->%u,%u HP%u action%u/%u lock%u script%02x phase%u/%u freeze%u/%u camera%u,%u bounds%u/%u anchor%u current%u scene%u boss%u/%u/%u class%02x\n",arrival,partner,lives,g_ram[0x1fb4],loss->players[0].life,loss->players[1].life,prior_x,prior_y,support_position(victim^1,5),support_position(victim^1,8),b[0x27],b[2],b[3],b[0x6e],b[0xa3],g_ram[0xd1],g_ram[0xd2],g_ram[0x1f22],g_ram[0x1f24],view_read(0x1e5d),view_read(0x1e60),view_read(0x1e62),view_read(0x1e64),loss->anchor,loss->current,X3CoopRuntimeSceneActive(),g_ram[boss+1],g_ram[boss+2],g_ram[boss+3],g_ram[boss+10]);
+        check(RtlSaveSnapshot("native-simultaneous-first-loss.sav"),"the first actual survivor loss or native debit retains its complete machine");
+      }
+      if(g_ram[0x1fb4]!=lives && (partner || g_ram[0x1fb4]+1!=lives))check(false,"simultaneous clear/death uses only the intended native retry cost");
+      bool ready=(partner?g_ram[0x1fb4]==lives:g_ram[0x1fb4]+1==lives) && (partner && maverick?g_ram[0x1fae]==1 && (g_ram[reward]&64):g_ram[0x1fae]==stage) && g_ram[0xd1]==4 && g_ram[0xd2]==4 && !g_ram[0x1f4f] && !g_ram[0x1f22] && !g_ram[0x1f24];
+      if(original)ready&=g_ram[X3_COOP_BODY+1]==2 && g_ram[X3_COOP_BODY+2]<0x1c && (g_ram[X3_COOP_BODY+0x27]&127) && !g_ram[X3_COOP_BODY+0x6e];
+      else{const X3CoopState *s=X3CoopRuntimeState();ready&=X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && !s->wipe;for(unsigned seat=0;seat<2;++seat){const uint8_t *b=campaign_body(seat);if(partner && seat==victim){ready&=s->players[seat].life==X3_COOP_FALLEN;continue;}ready&=s->players[seat].life==X3_COOP_ALIVE && b[1]==2 && b[2]<0x1c && b[0xb6]==s->players[seat].character*2 && !b[0x6e] && (!b[0xa3] || b[0xa3]==0x80);}}
+      if(partner && !maverick){bool next=false;for(unsigned d=0xd18;d<0x10d8;d+=64)next|=g_ram[d] && g_ram[d+10]==next_class && g_ram[d+1]==2 && (next_class==0x60 || (g_ram[d+0x27]&127)==32);ready&=next;}
+      if(partner && !maverick){
+        bool next=false;for(unsigned d=0xd18;d<0x10d8;d+=64)next|=g_ram[d] && g_ram[d+10]==next_class && g_ram[d+1]==2 && (next_class==0x60 || (g_ram[d+0x27]&127)==32);
+        const uint8_t *b=campaign_body(victim^1);unsigned mask=(next?1u:0u)|((g_ram[0xd1]==4 && g_ram[0xd2]==4)?2u:0u)|(!g_ram[0x1f4f]?4u:0u)|(!g_ram[0x1f22]?8u:0u)|(!g_ram[0x1f24]?16u:0u)|(!b[0x6e]?32u:0u)|((!b[0xa3] || b[0xa3]==0x80)?64u:0u)|(ready?128u:0u);
+        if(next && mask!=previous_ready_mask){previous_ready_mask=mask;fprintf(stderr,"native SIMULTANEOUS READY f%u next%02x mask%02x flag4f%u freeHP%u action%u/%u B6%u lock%u A3%02x life%u/%u ready%u\n",arrival,next_class,mask,g_ram[0x1f4f],b[0x27],b[2],b[3],b[0xb6],b[0x6e],b[0xa3],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,ready);check(RtlSaveSnapshot("native-simultaneous-next-phase-ready.sav"),"the actual next-phase native control prerequisite retains its machine");}
+      }
+      if(ready)break;
+    }
+    fprintf(stderr,"native SIMULTANEOUS OUTCOME run%u original%u partner%u arrival%u stage%u CPP%u/%u lives%u/%u phase%u/%u script%u flags%02x/%02x story%02x/%02x\n",run,original,partner,arrival,g_ram[0x1fae],cpp,g_ram[0x1fb5],lives,g_ram[0x1fb4],g_ram[0xd1],g_ram[0xd2],g_ram[0x1f4f],flags,g_ram[0x1fd8],story,g_ram[0x1fb2]);
+    check(RtlSaveSnapshot("native-simultaneous-outcome.sav"),"the actual simultaneous native outcome retains its whole future");
+    check(arrival<8000 && (partner && maverick?g_ram[0x1fb5]==0 && (g_ram[reward]&64):g_ram[0x1fb5]==cpp && g_ram[reward]==prior_reward) && g_ram[0x1fd8]==flags && (!maverick || !partner?g_ram[0x1fb2]==story:true),"actual simultaneous final-hit/death settles its one retry or surviving-partner victory with the intended native reward and campaign");
+    if(!partner && !original)check(X3CoopRuntimeState()->players[0].character==setup.players[0].character &&
+        X3CoopRuntimeState()->players[1].character==setup.players[1].character,"a simultaneous team retry preserves the requested physical-seat roster");
+    unsigned settled_stage=g_ram[0x1fae];
+    for(unsigned i=0;i<(original || partner?1u:2u);++i){unsigned seat=partner?victim^1:i,x=original?view_read(X3_COOP_BODY+5):support_position(seat,5);for(unsigned tick=0;tick<24;++tick)frame((uint32_t)SNES_PAD_RIGHT<<(seat*12));check((original?view_read(X3_COOP_BODY+5):support_position(seat,5))>x,"each surviving or retried native controller actually moves after simultaneous hit/death");}
+    for(unsigned tick=0;tick<120;++tick)frame(0);
+    check((partner?g_ram[0x1fb4]==lives && X3CoopRuntimeState()->players[victim].life==X3_COOP_FALLEN:g_ram[0x1fb4]+1==lives) && g_ram[0x1fae]==settled_stage && g_ram[0xd1]==4 && g_ram[0xd2]==4,"a settled simultaneous outcome cannot later revive its fallen actor or debit another retry");
+    size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){first_arrival=arrival;memcpy(future,work,done);}else{check(arrival==first_arrival,"the simultaneous native outcome settles on the same update");same(future,done,work,done,"actual winning hit, same-update actor fatal and settled native outcome replay the whole machine exactly");}
+  }
+  free(future);
 }
 static void native_sigma_phase_clear(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   bool second=getenv("X3_COOP_SIGMA_SECOND")!=NULL,survivor=getenv("X3_COOP_SIGMA_SURVIVOR")!=NULL;unsigned main_class=second?0x5f:0x5e,next_class=second?0x60:0x5f;
@@ -907,6 +994,7 @@ static void native_sigma_phase_clear(const char *fixture,uint8_t *base,uint8_t *
   if(getenv("X3_COOP_HUNTER_REVERSED")){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
   setup.current=setup.anchor=(uint8_t)(getenv("X3_COOP_HUNTER_OWNER_ANCHOR")?shooter:shooter^1);
   check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"Sigma combat selects only roster and the opposite initial world owner");door_install_player(&setup);
+  if(getenv("X3_COOP_SIMULTANEOUS_SHARED"))X3CoopViewsConfigure(false);
   uint8_t *seed=malloc(capacity),*future=malloc(capacity);check(seed && future,"actual Sigma transformation complete futures allocate");n=RtlSaveSnapshotToMemory(seed,capacity);unsigned first_hit=0,first_arrival=0;
   for(unsigned run=0;run<2;++run){
     check(RtlLoadSnapshotFromMemory(seed,n),"the same native Sigma arena restores before a real winning projectile");unsigned boss=0;
@@ -927,6 +1015,7 @@ static void native_sigma_phase_clear(const char *fixture,uint8_t *base,uint8_t *
     }
     if(survivor)check(X3CoopRuntimeState()->players[shooter^1].life==X3_COOP_FALLEN && X3CoopRuntimeState()->players[shooter].life==X3_COOP_ALIVE,"final-phase survivor progression cannot revive or replace the actual fallen participant");
     unsigned hit=native_vile_form_hit(boss,shooter,base,work,capacity),arrival=0,next=0;
+    if(getenv("X3_COOP_SIGMA_LAST_HIT_FATAL")){native_simultaneous_last_hit(boss,shooter,base,work,capacity);free(seed);free(future);return;}
     for(;arrival<8000;++arrival){frame(arrival%120<6?(uint32_t)SNES_PAD_B<<(shooter*12):0);next=0;
       for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==next_class && g_ram[d+1]==2 && (second || (g_ram[d+0x27]&127)==32))next=d;
       if(next && X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && !g_ram[0x1f22] && !g_ram[0x1f24] && !campaign_body(shooter)[0x6e] && (survivor || !campaign_body(shooter^1)[0x6e]))break;
@@ -939,6 +1028,19 @@ static void native_sigma_phase_clear(const char *fixture,uint8_t *base,uint8_t *
   free(seed);free(future);if(getenv("X3_COOP_SIGMA_PHASE_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_SIGMA_PHASE_RESULT")),"the actually constructed next Sigma phase exports without a picker");
 }
 
+static void native_maverick_simultaneous(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  bool partner=getenv("X3_COOP_SIGMA_LAST_HIT_PARTNER")!=NULL;
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==2 && g_ram[0x1fb5]==2 && g_ram[0xd22]==0x52 && (g_ram[0xd3f]&127)==32 && !(g_ram[0x1fc8]&64),"normal stage-clear race starts in the earned live Buffalo arena with no Frost Shield reward");
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+  unsigned shooter=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):0;check(shooter<2,"normal stage-clear shooter is a real physical seat");
+  if(getenv("X3_COOP_HUNTER_REVERSED")){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
+  setup.current=setup.anchor=(uint8_t)(getenv("X3_COOP_HUNTER_OWNER_ANCHOR")?shooter:shooter^1);
+  for(unsigned seat=0;seat<2;++seat){setup.players[seat].body[0x27]=setup.players[seat].maximum_health;setup.players[seat].body[0x88]=255;}
+  if(!partner)campaign_position_only(&setup.players[shooter^1],setup.players[shooter^1].body[5]|(unsigned)setup.players[shooter^1].body[6]<<8,view_read(0x1e60)+400);
+  check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"normal boss race supplies roster, protection and optional partner pit position only");door_install_player(&setup);X3CoopViewsConfigure(getenv("X3_COOP_SIMULTANEOUS_SHARED")==NULL);
+  if(!partner){unsigned f=0;for(;f<12 && X3CoopRuntimeState()->players[shooter^1].life==X3_COOP_ALIVE;++f)frame(0);check(f<12 && X3CoopRuntimeState()->players[shooter^1].life==X3_COOP_FALLEN && X3CoopRuntimeState()->players[shooter].life==X3_COOP_ALIVE && (g_ram[0xd3f]&127)==32,"a real prior partner pit death leaves the actual last actor and uninjured Buffalo, without supplied fallen state");}
+  native_vile_form_hit(0xd18,shooter,base,work,capacity);native_simultaneous_last_hit(0xd18,shooter,base,work,capacity);
+}
 static void native_sigma_escape(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   bool original=getenv("X3_COOP_SIGMA_ESCAPE_NATIVE")!=NULL,survivor=getenv("X3_COOP_SIGMA_ESCAPE_SURVIVOR")!=NULL;
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==13 && g_ram[0x1faf]==3 && !X3CoopRuntimeSceneActive(),"final escape consumes the actually constructed native virus phase");
@@ -1280,6 +1382,7 @@ static void native_vile_lab2_entry(const char *fixture,uint8_t *base,uint8_t *wo
   }free(future);if(getenv("X3_COOP_VILE_ENTRY_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_VILE_ENTRY_RESULT")),"actually earned Vile armor arena exports without a picker");
 }
 static void native_buffalo_capture_checks(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  if(getenv("X3_COOP_NATIVE_BOSS_LAST_HIT")){native_maverick_simultaneous(fixture,base,work,capacity);return;}
   if(getenv("X3_COOP_SIGMA_NEW_GAME")){native_sigma_new_game(fixture,base,work,capacity);return;}
   if(getenv("X3_COOP_SIGMA_CREDITS")){native_sigma_credits(fixture,base,work,capacity);return;}
   if(getenv("X3_COOP_SIGMA_ESCAPE")){native_sigma_escape(fixture,base,work,capacity);return;}

@@ -18,10 +18,10 @@ static void shared_prepare(const uint8_t *base,size_t n,uint8_t *work,X3CoopStat
 static unsigned shared_distance(void){
   unsigned x=coop_x(0),other=coop_x(1);return x>other?x-other:other-x;
 }
-static unsigned shared_pit_victim,shared_pit_damage;
+static unsigned shared_pit_victim,shared_pit_damage,shared_pit_tick;
 static void shared_pit_probe(CpuState *cpu,uint32_t pc){
   if((pc&0x7fffff)==0x00e30a && cpu->D==0x1e58 && g_ram[0x9fe]==127 &&
-      X3CoopRuntimeState()->current==shared_pit_victim)++shared_pit_damage;
+      X3CoopRuntimeState()->current==shared_pit_victim){++shared_pit_damage;shared_pit_tick=g_ram[0x9cc];}
 }
 static void shared_pit_prepare(const char *ground,unsigned victim,uint8_t *base,uint8_t *work,size_t capacity){
     check(RtlLoadSnapshot(ground) && g_ram[0x1fae]==5,"authored pit starts from the real stage5 terrain map");

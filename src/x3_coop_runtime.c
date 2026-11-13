@@ -1049,6 +1049,18 @@ static unsigned native_script_owner(void){
 static void native_script_boundary(CpuState *cpu,uint32_t pc){
   if(!X3CoopRuntimeReady() || state.wipe)return;
   unsigned d=cpu->D;int slot=support_slot(d);if(slot<0 || slot>=15 || !g_ram[d])return;
+  if(pc==0x3fe26c){
+    /* The common defeat cleanup skips its shared input-lock release when
+     * its sole native body has died. A retained fallen producer still owns
+     * this call, but a living partner keeps the encounter world alive. Take
+     * the original kind/stage cleanup checks without changing either HP or
+     * the actual winning actor's ownership. */
+    if(target.active && target.slot==d && native_boss_actor(d) &&
+       native_script_actor(d) && state.players[state.current].life==X3_COOP_FALLEN &&
+       state.players[state.current^1].life==X3_COOP_ALIVE && !(g_ram[X3_COOP_BODY+0x27]&127))
+      interp_bridge_pre_opcode_redirect(0x3fe273);
+    return;
+  }
   if((pc&65535)==0xd1dd){
     /* D1CA has actually queued9E in this projected body. Record the native
      * call's recipient once; later NPC proximity must not select another.
@@ -2256,7 +2268,8 @@ void X3CoopRuntimeFrame(void) {
   if(!interp_bridge_add_pre_opcode_hook(0x03b2b9,mosquitus_scene_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x03b2ff,mosquitus_scene_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x03b344,mosquitus_scene_boundary))enabled=false;
-  if(!interp_bridge_add_pre_opcode_hook(0x04d1dd,native_script_boundary) ||
+  if(!interp_bridge_add_pre_opcode_hook(0x3fe26c,native_script_boundary) ||
+     !interp_bridge_add_pre_opcode_hook(0x04d1dd,native_script_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x04d210,native_script_boundary))enabled=false;
   if(!interp_bridge_add_pre_opcode_hook(0x01ec30,full_campaign_transport_character) ||
      !interp_bridge_add_pre_opcode_hook(0x01ec47,full_campaign_transport_character))enabled=false;

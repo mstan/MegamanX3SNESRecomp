@@ -1,29 +1,38 @@
 # Mega Man X3 co-op — committed stopping point and full continuation
 
-## Current continuation — 2026-11-13
+## Current continuation ? 2026-11-13
 
-The active goal continues. Current acceptance is **118/180;62 open;3/15 areas**.
-Campaign G01-G11 and G13-G16 pass; G12 remains open. The original110-point
-checkpoint and its first unresolved decisions below are historical. Read the
-latest sections of docs/COOP_DEVELOPMENT.md and the existing private
-build-coop/qa-state/native-crawfish-capture-qualification.json before choosing
-the next check. Preserve the solo/local-only restrictions and full180 scope.
+The active goal continues. Current acceptance is **119/180;61 open;3/15 areas**.
+Campaign G01-G11 and G13-G16 pass; G12 remains open. Earlier110/118-point
+checkpoints below are historical. Read the latest sections of
+`docs/COOP_DEVELOPMENT.md` and the existing private
+`build-coop/qa-state/native-crawfish-capture-qualification.json` before choosing
+the next check. Preserve solo/local-only restrictions and the full180 scope.
 
-D13/T06 now pass actual horizontal/vertical door and both native transport-root
-survivor/full-wipe cases, both rosters/owners, real physical control, native
-checkpoint references and complete replay. Terrain-checked replacement fixes
-the fatal door transfer; retiring an uncommitted owned transport fixes the
-source-stage retry. The apparent final-intro lock was missing dialogue input
-in the test, now corrected. Current GUI builds and four standard tests pass.
+D13/T06 pass native door/transport survivor and wipe outcomes. S12 now passes
+actual same-world winning projectile/fatality with Buffalo, first Sigma and
+Kaiser, both rosters/owners and living-partner/last-participant outcomes. A dead
+winning actor had bypassed native shared input-lock cleanup; the original
+cleanup checks now run for its living partner without HP or producer changes.
+The full42-case qualification includes native solo references and shared-camera
+cases, with each whole future replayed twice. Current GUI and four standard
+tests pass. F10 pause/restore/options/input-return components pass; actual
+physical controller reconnect remains open.
 
-Next concrete decision: S12 actual winning projectile and last-actor death in
-the same world update. Reuse the earned final-boss survivor fixtures and real
-charged-hit helper; observe both native outcomes without supplying hit/death/
-victory flags, compare the original native behavior and replay the whole future.
-G12 still requires real fortress traversal/exits rather than the existing entry
-bypasses. RemainingIDs: D06,D08,D12;T07;F10;A02,A05,A09-A13;
-P06,P09,P12,P13;E05-E10,E12-E14;C06,C11;S04-S07,S09-S14;G12;
-V01-V14;Q01-Q06;Z01-Z04. No release has been delivered.
+Next decisions: P06 is authored falling/collapsing-support activation; P12 is
+pinch/crush. Do not confuse those definitions. A late lift-edge setup was
+rejected because the real charged cast had already reached its upper endpoint
+before the test moved the rider; the unqualified extension was removed. Reuse
+actual source/caller and original-game references before qualifying a new
+support transition. D06 still requires a genuine authored lethal crush;
+class37/26 explicitly protect their contact. G12 still requires actual fortress
+traversal/exits beyond the accepted admissions and boss/ending flows.
+
+Remaining IDs: D06,D08,D12;T07;F10;A02,A05,A09-A13;P06,P09,P12,P13;
+E05-E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
+Q01-Q06;Z01-Z04. No release has been delivered. Computer Use or desktop/browser
+UI automation requires the owner's explicit approval; current automation uses
+repository tools and headless game interfaces.
 
 Updated 2026-11-12. This is a handoff, not completion of the co-op goal.
 
