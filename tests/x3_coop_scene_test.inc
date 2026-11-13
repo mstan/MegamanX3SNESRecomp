@@ -80,6 +80,7 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   check(view_read(0x1e5d)==2416 && view_read(0x1e60)==1280,
         "gate camera adopts the entering region before changing world ownership");
   size_t admitted=RtlSaveSnapshotToMemory(expected,capacity);
+  if(getenv("X3_COOP_DOOR_FATAL")){native_scene_fatal(false,remote,work,expected,capacity);return;}
   uint8_t *admitted_state=malloc(admitted),*finished=malloc(capacity);
   check(admitted_state && finished,"native scene replay and refusal buffers allocate");
   memcpy(admitted_state,expected,admitted);size_t scene_chunk=door_scene_chunk(expected,admitted);

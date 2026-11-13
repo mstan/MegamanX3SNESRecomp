@@ -601,7 +601,7 @@ static bool terrain_class(int x,int y,unsigned *type){
   if((address&65535)<32768 || at>=g_snes->cart->romImageSize)return false;
   *type=g_snes->cart->rom[at]&63;return true;
 }
-static bool landing_clear(int x,int floor,unsigned height,int source_x,int source_y){
+static bool landing_clear(int x,int floor,unsigned height,int source_x,int source_y,unsigned ignored){
   /* Native floor classes34..3D are flat solids. Never return onto spikes,
    * slopes, one-way or transient supports; wait for a clear terrain floor. */
   for(int dx=-8;dx<=8;dx+=4){unsigned type;
@@ -610,10 +610,11 @@ static bool landing_clear(int x,int floor,unsigned height,int source_x,int sourc
   for(int y=floor-(int)height;y<floor;++y)for(int dx=-10;dx<=10;dx+=5){unsigned type;
     if(!terrain_class(x+dx,y,&type) || (type && type!=13 && type!=14))return false;
   }
-  /* A clear box across a closed door/wall is not a usable return. Keep the
-   * route back to the living participant clear too, including shared actors. */
+  /* Rejoin/catch-up also need a clear route back to the living participant.
+   * An admitted scene owns that traversal; its retired owner's old height
+   * can now be inside the new floor, so only the destination box applies. */
   int left=x<source_x?x:source_x,right=x>source_x?x:source_x;
-  for(int cx=left;cx<=right;++cx){unsigned type;
+  for(int cx=left;!ignored && cx<=right;++cx){unsigned type;
     if(!terrain_class(cx,source_y-8,&type) || (type && type!=13 && type!=14))return false;
   }
   /* Leave space for native enemies, projectiles and shared supports. Their
@@ -622,7 +623,7 @@ static bool landing_clear(int x,int floor,unsigned height,int source_x,int sourc
     unsigned begin=pool==0?0x0cc8:pool==1?0x0d18:0x1518;
     unsigned end=pool==0?0x0d18:pool==1?0x1518:0x1818,stride=pool==0?80:pool==1?64:48;
     for(unsigned d=begin;d<end;d+=stride){
-      if(!g_ram[d])continue;
+      if(!g_ram[d] || d==ignored)continue;
       int ox=word(g_ram+d+5),oy=word(g_ram+d+8),half_x=24,half_y=32;
       unsigned address=word(g_ram+d+0x20);size_t at=0x30000+(address&32767);
       if(address>=32768 && at+4<=g_snes->cart->romImageSize){const uint8_t *r=g_snes->cart->rom+at;
@@ -668,7 +669,7 @@ bool X3CoopRuntimeZeroAvailable(void){
       !(g_ram[0x1f5d]&0x80) && !(g_ram[0x1fe1]&1) && !(g_ram[0x1fb2]&0x40);
 }
 typedef struct SafeLanding {uint16_t shape,x,y;} SafeLanding;
-static bool find_landing(unsigned seat,const uint8_t *owner,X3CoopView view,SafeLanding *landing){
+static bool find_landing(unsigned seat,const uint8_t *owner,X3CoopView view,SafeLanding *landing,unsigned ignored){
   unsigned shape=state.players[seat].character==X3_COOP_ZERO?0xb40e:0xb404;
   size_t at=0x30000+(shape&32767);
   if(at+9>g_snes->cart->romImageSize)return false;
@@ -678,11 +679,19 @@ static bool find_landing(unsigned seat,const uint8_t *owner,X3CoopView view,Safe
   if(address<32768 || owner_at+9>g_snes->cart->romImageSize)return false;
   const uint8_t *own_rect=g_snes->cart->rom+owner_at;
   int px=word(owner+5),py=word(owner+8)+(int8_t)own_rect[6]+own_rect[8]+1;
-  const int gaps[]={32,-32,48,-48,64,-64,16,-16,0};
-  for(unsigned i=0;i<sizeof(gaps)/sizeof(*gaps);++i){int x=px+gaps[i];
+  const int normal[]={32,-32,48,-48,64,-64,16,-16,0},replacement[]={0,16,-16,32,-32,48,-48,64,-64};
+  const int *gaps=ignored?replacement:normal;
+  for(unsigned i=0;i<sizeof(normal)/sizeof(*normal);++i){int x=px+gaps[i];
     if(x-12<view.x || x+12>=view.x+256)continue;
-    for(int offset=-16;offset<=24;++offset){int floor=py+offset;
-      if(floor-(int)height<view.y || floor>=view.y+224 || !landing_clear(x,floor,height,px,word(owner+8)))continue;
+    /* An admitted vertical door can commit a different floor in this view.
+     * Keep the usual nearby search, then search the committed native field
+     * for the nearest clear floor instead of retaining the old room's Y. */
+    int center=py<view.y?view.y:py>=view.y+224?view.y+223:py;
+    unsigned attempts=41+(ignored?2*224+1:0);
+    for(unsigned sample=0;sample<attempts;++sample){
+      unsigned scan=sample<41?0:sample-41,distance=(scan+1)/2;
+      int floor=sample<41?py+(int)sample-16:center+((scan&1)?-(int)distance:(int)distance);
+      if(floor-(int)height<view.y || floor>=view.y+224 || !landing_clear(x,floor,height,ignored?x:px,word(owner+8),ignored))continue;
       *landing=(SafeLanding){(uint16_t)shape,(uint16_t)x,(uint16_t)(floor-(int8_t)rect[6]-rect[8]-1)};
       return true;
     }
@@ -701,7 +710,7 @@ static bool rejoin_player(unsigned seat){
   if(seat>1 || !X3CoopRuntimeReady() || state.wipe || state.players[seat].life!=X3_COOP_ABSENT ||
      !(state.players[seat].body[0x27]&127) || state.players[seat].body[2]==12)return false;
   SafeLanding landing;X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,state.anchor,false);
-  if(!find_landing(seat,g_ram+X3_COOP_BODY,view,&landing))return false;
+  if(!find_landing(seat,g_ram+X3_COOP_BODY,view,&landing,0))return false;
   X3CoopCapture(&state,g_ram);land_player(seat,&landing);
   if(!X3CoopRejoin(&state,seat))return false;
   restore_x_armor(seat);
@@ -719,7 +728,7 @@ static void shared_catchup_tick(void){
   unsigned lead=shared_leader(axis),lag=lead^1;
   const uint8_t *owner=lead==state.current?g_ram+X3_COOP_BODY:state.players[lead].body;
   X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,lead,false);SafeLanding landing;
-  if(!find_landing(lag,owner,view,&landing))return;
+  if(!find_landing(lag,owner,view,&landing,0))return;
   /* Borrow the leader only if necessary to edit the stored lagging body.
    * Catch-up changes neither participant's life, health nor weapon choice. */
   X3CoopCapture(&state,g_ram);
@@ -832,7 +841,14 @@ static void scene_tick(void){
     intro_change_owner(owner,SCENE_INTRO_RETURN);scene_install(owner);
   }
   settle_deaths();
-  if(state.wipe || scene.stage!=g_ram[0x1fae]){scene_clear();return;}
+  if(state.wipe || scene.stage!=g_ram[0x1fae]){
+    /* The team died before this transport committed its destination. Its
+     * delayed item task must not turn a later death-animation substate into
+     * warp completion while the native retry is already running. */
+    if(state.wipe && scene.stage==g_ram[0x1fae] && !scene.kind && native_transport(scene.slot))
+      g_ram[scene.slot]=0;
+    scene_clear();return;
+  }
   if(state.players[scene.owner].life!=X3_COOP_ALIVE){
     if(scene.kind){
       /* The required X context finishes the existing native capsule task,
@@ -846,7 +862,17 @@ static void scene_tick(void){
     /* Continue the existing native task with the survivor. Transfer only its
      * forced position/action, retaining the survivor's character and HP. */
     unsigned survivor=state.anchor;const uint8_t *old=state.players[scene.owner].body;
-    scene_cancel_transients(survivor);scene_place(survivor,old);
+    if(native_door(scene.slot)){
+      /* Start the replacement on actual clear terrain. A corpse can be below
+       * the pit boundary; an airborne replacement can miss the native walk's
+       * camera commitment. The admitted door owns its own opening animation. */
+      uint8_t door_pose[X3_COOP_BODY_BYTES];memcpy(door_pose,old,sizeof(door_pose));
+      putword(door_pose+8,word(g_ram+scene.slot+8));
+      putword(door_pose+0x20,state.players[scene.owner].character==X3_COOP_ZERO?0xb40e:0xb404);
+      X3CoopView view={(int)word(g_ram+0x1e5d),(int)word(g_ram+0x1e60)};SafeLanding landing;
+      if(!find_landing(survivor,door_pose,view,&landing,scene.slot))return;
+      land_player(survivor,&landing);restore_x_armor(survivor);
+    }else{scene_cancel_transients(survivor);scene_place(survivor,old);}
     uint8_t *b=state.players[survivor].body;unsigned phase=g_ram[scene.slot+1];
     if(native_transport(scene.slot)){
       /* EC35 uses the capsule center and D1CA's warp action. Door walking

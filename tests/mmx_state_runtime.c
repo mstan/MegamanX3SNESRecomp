@@ -18,6 +18,7 @@ static size_t combat_owners(const uint8_t *bytes,size_t n);
 static void native_gameplay_update(unsigned keys,bool original);
 static void native_return_on_support(size_t capacity);
 static void team_hazard_body(uint8_t *b,unsigned x,unsigned y);
+static void native_scene_fatal(bool transport,unsigned leader,uint8_t *base,uint8_t *work,size_t capacity);
 static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned seat,unsigned index,unsigned mode,uint8_t *work,uint8_t *after,size_t capacity);
 #include "x3_coop_contact_test.inc"
 #include "x3_coop_target_test.inc"
@@ -222,6 +223,8 @@ int main(int argc,char **argv) {
       check(reversed && *reversed,"team retry coverage supplies both actual native rosters");
       native_team_retry_checks(fixture,reversed,saved,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_NATIVE_SCENE_FATAL_STATE");
+    if(fixture && *fixture){check(RtlLoadSnapshot(fixture) && !g_ram[X3_COOP_BODY+0xb6],"matched original fatal scene loads its actually admitted native X body");X3CoopRuntimeEnable(false);native_original_transport_fatal(saved,after,cap);}
     fixture=getenv("X3_COOP_BUFFALO_MECHANICS_STATE");
     if(fixture && *fixture)native_buffalo_capture_checks(fixture,saved,after,cap);
     fixture=getenv("X3_COOP_CAMPAIGN_SURVIVOR_STATE");

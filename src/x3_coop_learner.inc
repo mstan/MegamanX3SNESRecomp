@@ -7,7 +7,7 @@ static bool learner_landing(SafeLanding *landing){
   const uint8_t *learner=state.current==1?g_ram+X3_COOP_BODY:state.players[1].body;
   if(!(owner[0x27]&127) || owner[2]==12 || !(learner[0x27]&127) || learner[2]>0x16 ||
       learner[0x64] || learner[0x6e])return false;
-  return find_landing(1,owner,X3CoopViewsForPlayer(g_ram,&state,0,false),landing);
+  return find_landing(1,owner,X3CoopViewsForPlayer(g_ram,&state,0,false),landing,0);
 }
 static void learner_damage_boundary(CpuState *cpu,uint32_t pc){
   if(!learner_enabled || !X3CoopRuntimeReady() || state.wipe || state.current!=1 ||

@@ -4666,3 +4666,41 @@ Acceptance is116/180,64 open and3/15 accepted areas. Campaign G12 remains open;
 the other15 campaign points pass. Simultaneous last-hit/death S12, remaining
 door/transport cases, traversal, presentation, runtime and owner delivery gates
 remain separate unresolved criteria.
+
+## Fatal door ownership and interrupted transport retry
+
+D13 and T06 are accepted. An actual native pit death during door admission
+previously copied the dead owner's lethal Y into the living replacement,
+causing a second death and an unintended team retry. Door handoff now reuses
+the existing terrain-checked landing search in the committed native field.
+Only the admitted door is excluded from its obstacle checks; actor clearance,
+hazards and other native objects remain checked. Ordinary rejoin, learner and
+catch-up retain their original search and route checks.
+
+A team wipe before transport commitment also left its delayed item alive.
+That item could interpret a later death-animation substate as warp completion
+and load the destination during retry. The same-stage owned transport now
+retires when the team wipes, allowing the original source-stage retry once.
+No checkpoint, progress latch, snapshot format or native hook was added.
+
+Actual native deaths qualify ordinary horizontal gates, the final vertical
+gate, Vile's factory transport and the distinct refight-pad transport root.
+Both rosters and both actual scene owners pass survivor and full-wipe cases;
+the Vile cases also reverse the initial world owner. Survivors retain the
+fallen actor and native character controller, finish the real scene and move
+under physical input without a life debit. Full wipes restore both native
+controllers, debit one life and retry at the checkpoint independently observed
+from the exact admitted original-game seed. Every complete future replays
+exactly twice. The final vertical intro additionally needs real dialogue
+confirmation on1F3F bit7; the test now sends that physical input.
+
+State d9f3764dc3ee1ed08128d3b12a51a54cd8727df55cd74bd65508620ff049d65f
+qualifies horizontal gates, refight pads and Vile wipes; unchanged Vile survivor
+control retains its earlier eight-case evidence. State
+a9e6927f940867b8b7b9bef10a776a58af97b7867c1f54937a31ef5f16f50166
+qualifies all eight vertical survivor/wipe cases. GUI
+8ad31b37a74bb8655327973d0091b4dd72aefacfdcf0d654efef52ae79159fcb
+builds and all four standard tests pass. Acceptance is118/180,62 open and
+3/15 accepted areas; campaign remains15/16. G12 traversal, S12 simultaneous
+last-hit/death and the other scene, presentation, runtime and owner delivery
+criteria remain open.
