@@ -1163,14 +1163,19 @@ static bool captured_player(unsigned seat){
   return false;
 }
 /* The solo boss retires when its only body has zero HP. With a living
- * partner, keep the shared encounter active while its dead captive releases.
- * Crawfish also needs D399's original control cleanup and recovery. */
+ * partner, keep the shared encounter active while its retired recipient
+ * releases. Buffalo can retain that recipient after a real Jump escape and
+ * voluntary withdrawal; its binding owns the entire caller, including the
+ * update that finally clears3B.80. Crawfish also needs D399's cleanup. */
 static void captive_death_boundary(CpuState *cpu,uint32_t pc){
   unsigned d=cpu->D;
   if(!X3CoopRuntimeReady() || state.wipe || !enemy_actor(d) ||
-      (g_ram[d+10]!=0x54 && g_ram[d+10]!=0x46) ||
-      !target.active || target.slot!=d || !native_captor_holding(d))return;
-  unsigned owner=native_captive_owner(d);
+      !target.active || target.slot!=d)return;
+  bool buffalo=g_ram[d+10]==0x52 && d>=0xd18 && d<0x10d8 &&
+      (attachments[(d-0xd18)/64]&12);
+  if(!buffalo && ((g_ram[d+10]!=0x54 && g_ram[d+10]!=0x46) ||
+      !native_captor_holding(d)))return;
+  unsigned owner=buffalo?target.seat:native_captive_owner(d);
   if(owner>=2 || state.players[owner].life==X3_COOP_ALIVE ||
       state.players[owner^1].life!=X3_COOP_ALIVE)return;
   unsigned at=pc&0x7fffff;

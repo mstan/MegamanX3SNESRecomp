@@ -209,6 +209,60 @@ static void native_buffalo_nonlethal_release(unsigned victim,uint8_t *base,uint8
   }free(future);
 }
 
+/* Participation is tested only after the native attack has earned its hold
+ * and, separately, completed its own living release. */
+static void native_held_withdraw_refusal(unsigned victim,uint8_t *base,uint8_t *work,size_t capacity){
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);
+  check(!X3CoopRuntimeWithdraw(victim),"actual held participation waits for native release");
+  same(base,n,work,RtlSaveSnapshotToMemory(work,capacity),"actual held withdrawal refusal changes no part of the machine");
+}
+static void native_released_withdraw(unsigned boss,unsigned victim,uint8_t *base,uint8_t *work,size_t capacity){
+  unsigned survivor=victim^1;
+  if(getenv("X3_COOP_BUFFALO_BEAM")){
+    size_t parked=RtlSaveSnapshotToMemory(base,capacity);X3CoopState ready=*X3CoopRuntimeState();X3CoopCapture(&ready,g_ram);
+    campaign_position_only(&ready.players[survivor],6144,support_position(survivor,8));
+    check(X3CoopEncode(&ready,base+contact_context_offset(base,parked),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,parked),"post-beam control uses authored open floor while preserving actual health, hurt and capture state");door_install_player(&ready);
+  }
+  for(unsigned f=0;f<16;++f)frame(0);
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);uint8_t *future=malloc(capacity);check(future!=NULL,"actual released withdrawal future allocates");unsigned wait_frame=0,move_frame=0;
+  for(unsigned run=0;run<2;++run){
+    check(RtlLoadSnapshotFromMemory(base,n),"actual living native release restores before withdrawal");
+    unsigned wait=0;for(;wait<128;++wait){if(X3CoopRuntimeWithdraw(victim))break;frame(0);}
+    if(wait==128)check(RtlSaveSnapshot("native-released-withdraw-refused.sav"),"unqualified native released participation retains its machine");
+    check(wait<128 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ABSENT,"the actually released living victim withdraws after native recovery");
+    unsigned before=support_position(survivor,5),clock=g_ram[0x9cc],lives=g_ram[0x1fb4],hp=g_ram[boss+0x27]&127;
+    /* Buffalo's freeze leaves the free actor against the right arena wall.
+     * Real inward Jump input clears that authored edge and the boss body. */
+    unsigned pad=g_ram[boss+10]==0x52?((before<6144?SNES_PAD_RIGHT:SNES_PAD_LEFT)|SNES_PAD_B):(before<view_read(boss+5)?SNES_PAD_LEFT:SNES_PAD_RIGHT);bool visible=false;
+    bool beam=getenv("X3_COOP_BUFFALO_BEAM")!=NULL;unsigned moved=0;
+    for(;moved<(beam?128:24);++moved){
+      if(beam && moved>=24 && abs((int16_t)(support_position(survivor,5)-before))>10 && !campaign_body(survivor)[0x30] && campaign_body(survivor)[2]>=4 && campaign_body(survivor)[2]<=8)break;
+      unsigned input=beam?((pad&~SNES_PAD_B)|(moved&1?SNES_PAD_B:0)):pad;
+      frame((uint32_t)input<<(survivor*12));visible|=campaign_visible_body(survivor);
+    }
+    size_t done=RtlSaveSnapshotToMemory(work,capacity),owners=combat_owners(work,done);unsigned bound=0,stale=0;
+    for(unsigned i=0;i<15;++i)bound|=work[done-X3_COOP_MENU_STATE_BYTES-31+i]&12;
+    for(unsigned i=0;i<40;++i)stale+=work[owners+i]==victim+1;
+    unsigned cleanup=0;
+    while((bound || stale) && cleanup<256){
+      check(X3CoopRuntimeState()->players[survivor].life==X3_COOP_ALIVE && !campaign_body(survivor)[0x6e] && campaign_body(survivor)[0xa3]!=0x96,"the free partner stays unbound while the old native capture script finishes");
+      frame(0);++cleanup;done=RtlSaveSnapshotToMemory(work,capacity);owners=combat_owners(work,done);bound=stale=0;
+      for(unsigned i=0;i<15;++i)bound|=work[done-X3_COOP_MENU_STATE_BYTES-31+i]&12;
+      for(unsigned i=0;i<40;++i)stale+=work[owners+i]==victim+1;
+    }
+    if(cleanup){for(unsigned f=0;f<24;++f){frame((uint32_t)pad<<(survivor*12));visible|=campaign_visible_body(survivor);}done=RtlSaveSnapshotToMemory(work,capacity);}
+    const uint8_t *free_body=campaign_body(survivor);
+    fprintf(stderr,"native RELEASED WITHDRAW run%u class%02x victim%u char%u wait%u freeX%u->%u visible%u life%u/%u HP%u bossHP%u/%u bound%u stale%u cleanup%u lock%u script%02x ticks%u lives%u/%u\n",run,g_ram[boss+10],victim,X3CoopRuntimeState()->players[victim].character,wait,before,support_position(survivor,5),visible,X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,contact_hp(victim),hp,g_ram[boss+0x27]&127,bound,stale,cleanup,free_body[0x6e],free_body[0xa3],(uint8_t)(g_ram[0x9cc]-clock),lives,g_ram[0x1fb4]);
+    if(bound || stale || !visible || free_body[0x6e])check(RtlSaveSnapshot("native-released-withdraw-stalled.sav"),"actual released withdrawal ownership or visibility failure retains its machine");
+    fprintf(stderr,"native RELEASED WITHDRAW FLAGS active%u retire%u freeBody%u/%u globals%u/%u wipe%u\n",g_ram[boss],g_ram[boss+0x30],free_body[2],free_body[3],g_ram[0x1f22],g_ram[0x1f24],X3CoopRuntimeState()->wipe);
+    bool outcome=X3CoopRuntimeState()->players[victim].life==X3_COOP_ABSENT && contact_hp(victim) && X3CoopRuntimeState()->players[survivor].life==X3_COOP_ALIVE && g_ram[boss] && (g_ram[boss+0x27]&127)==hp && !g_ram[boss+0x30] && !bound && !stale && visible && !free_body[0x6e] && free_body[0xa3]!=0x96 && free_body[2]!=0x74 && support_position(survivor,5)!=before && !g_ram[0x1f22] && !g_ram[0x1f24] && !X3CoopRuntimeState()->wipe && g_ram[0x1fb4]==lives && cleanup<256 && (!beam || moved<128) && (uint8_t)(g_ram[0x9cc]-clock)==(uint8_t)(moved+cleanup+(cleanup?24:0));
+    if(!outcome)check(RtlSaveSnapshot("native-released-withdraw-outcome-unqualified.sav"),"actual released withdrawal failure retains every native encounter flag");
+    check(outcome,"actual released withdrawal leaves no old binding and preserves the visible independently moving partner and live encounter");
+    if(!run){wait_frame=wait;move_frame=moved;memcpy(future,work,done);}else{check(wait==wait_frame && moved==move_frame,"actual native recovery and physical movement repeat on the same updates");same(future,done,work,done,"actual released withdrawal and entire visible survivor future replay the complete machine exactly");}
+  }free(future);
+}
+
+extern uint16_t X3WsObjWinAdd(uint16_t base);
 static void native_buffalo_captive_death(unsigned victim,bool frozen,uint8_t *base,uint8_t *work,size_t capacity);
 static void native_buffalo_beam_checks(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==2 && g_ram[0xd22]==0x52 && g_ram[0xd3f]==32,"beam route restores the real ready Buffalo encounter");
@@ -258,6 +312,7 @@ static void native_buffalo_beam_checks(const char *fixture,uint8_t *base,uint8_t
   enum {BEAM_FRAMES=720};BuffaloHeldSample *trace=malloc(BEAM_FRAMES*sizeof(*trace));uint8_t *future=malloc(capacity);check(trace && future,"actual beam comparison buffers allocate");unsigned ran=0;
   for(unsigned paired=0;paired<2;++paired){check(RtlLoadSnapshotFromMemory(base,n),"original and paired beams restore the same actual native source");
     if(!paired){X3CoopState solo=*X3CoopRuntimeState();solo.current=solo.anchor=(uint8_t)victim;memcpy(work,base,n);check(X3CoopEncode(&solo,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"single-actor native beam reference selects its actual victim");door_install_player(&solo);X3CoopViewsConfigure(false);vehicle_install_view(&beam_views,victim);X3CoopRuntimeEnable(false);}
+    check(X3WsObjWinAdd(32)==32,"original and paired beam references use the same native-width simulation culling");
     bool frozen=false;unsigned clock=g_ram[0x9cc];
     for(unsigned f=0;f<(paired?ran:BEAM_FRAMES);++f){unsigned pad=f<90?0:(f&1?SNES_PAD_LEFT:SNES_PAD_RIGHT|SNES_PAD_B);frame(paired?(uint32_t)pad<<(victim*12):pad);BuffaloHeldSample now;buffalo_held_sample(&now,victim,!paired);memcpy(now.enemy,g_ram+slot,64);frozen|=now.body[0x6e]!=0;
       if(!(f%30))fprintf(stderr,"native BUFFALO BEAM CONTACT paired%u f%u victim%u body%u/%u frozen%u script%02x HP%u source%u/%u/%u flags%02x boss%u/%u/%u\n",paired,f,victim,now.body[2],now.body[3],now.body[0x6e],now.body[0xa3],now.body[0x27]&127,g_ram[slot],g_ram[slot+1],g_ram[slot+2],g_ram[slot+0x3f],g_ram[0xd19],g_ram[0xd1a],g_ram[0xd1b]);
@@ -282,6 +337,7 @@ static void native_buffalo_beam_checks(const char *fixture,uint8_t *base,uint8_t
 
   }
   free(future);free(trace);
+  if(getenv("X3_COOP_CAPTURE_WITHDRAW"))native_released_withdraw(0xd18,victim,base,work,capacity);
 }
 
 static bool crawfish_retire_observe;
@@ -591,6 +647,7 @@ static void native_bit_ring(const char *fixture,uint8_t *base,uint8_t *work,size
     fprintf(stderr,"native BIT RING QUALIFY paired%u victim%u char%u frames%u release%u locks%u/%u source%u flag%u\n",paired,victim,setup.players[victim].character,ran,first_release,paired?campaign_body(0)[0x6e]:g_ram[X3_COOP_BODY+0x6e],paired?campaign_body(1)[0x6e]:0,g_ram[ring],g_ram[0x1cd91]);check(first_release>64 && ran<RING_STEPS && !g_ram[ring] && !g_ram[0x1cd91],"actual ring requires physical edges and fully retires after its original release");
     if(!paired)release=first_release;else{check(first_release==release && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && !campaign_body(free_seat)[0x6e],"the actual captive escapes while the free partner retains independent controls");size_t done=RtlSaveSnapshotToMemory(future,capacity);check(RtlLoadSnapshotFromMemory(base,n),"real ring capture restores for whole-machine replay");for(unsigned f=0;f<ran;++f){uint32_t input=f>=64 && !(f&1)?(uint32_t)SNES_PAD_B<<(victim*12):0;if(f<8)input|=(uint32_t)SNES_PAD_RIGHT<<(free_seat*12);frame(input);}same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"actual ring hold, escape and native cleanup replay the entire machine exactly");}
   }free(future);
+  if(getenv("X3_COOP_CAPTURE_WITHDRAW"))native_released_withdraw(boss,victim,base,work,capacity);
 }
 static void native_hunter_outcome(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==2,"hunter outcome starts in an actually earned live stage2 encounter");unsigned boss=0;
@@ -773,6 +830,7 @@ static void native_god_capture(const char *fixture,uint8_t *base,uint8_t *work,s
   for(;elapsed<3600;++elapsed){for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==0x43 && g_ram[d+11]==2 && g_ram[d+1]==2 && g_ram[d+3]==2 && view_read(d+5)>5632 && view_read(d+5)<5888){source=d;n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState contact=*X3CoopRuntimeState();X3CoopCapture(&contact,g_ram);campaign_position_only(&contact.players[victim],view_read(source+5),view_read(source+8)-12);contact.players[victim].body[0x27]=contact.players[victim].maximum_health;contact.players[victim].body[0x30]=contact.players[victim].body[0x88]=contact.players[victim].body[0x8a]=contact.players[victim].body[0x6b]=0;check(X3CoopEncode(&contact,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"actual native moving God arm is approached using only body position, health and contact protection");door_install_player(&contact);break;}
     frame(0);if(source && g_ram[source] && g_ram[source+1]==2 && g_ram[source+3]>=4 && campaign_body(victim)[0xa3]==0x96){caught=true;break;}}
   fprintf(stderr,"native GOD EARNED GRIP frames%u caught%u source%04x class%02x kind%u state%u/%u/%u victim%u char%u HP%u parentHP%u XY%u,%u\n",elapsed,caught,source,g_ram[source+10],g_ram[source+11],g_ram[source+1],g_ram[source+2],g_ram[source+3],victim,setup.players[victim].character,contact_hp(victim),g_ram[boss+0x27]&127,view_read(source+5),view_read(source+8));if(!caught)check(RtlSaveSnapshot("native-god-grip-unqualified.sav"),"incomplete actual God grip retains its machine");check(caught && (g_ram[boss+0x27]&127)==32,"actual native God AI allocates its moving arm and earns its own CB31/D034 capture");check(RtlSaveSnapshot("native-god-earned-grip.sav"),"actual God grip exports without a picker");
+  if(getenv("X3_COOP_CAPTURE_WITHDRAW"))native_held_withdraw_refusal(victim,base,work,capacity);
   if(getenv("X3_COOP_DIRTY_RETRY_CAPTURE")){native_dirty_team_retry(true,base,work,capacity);return;}
   if(getenv("X3_COOP_GOD_FATAL")){native_god_captive_death(boss,source,victim,base,work,capacity);return;}
   if(getenv("X3_COOP_GOD_KILL")){
@@ -784,11 +842,13 @@ static void native_god_capture(const char *fixture,uint8_t *base,uint8_t *work,s
     bool saw_carrier=false;unsigned free_x=support_position(free_seat,5);
     for(unsigned f=0;f<(mode?ran:GOD_STEPS);++f){unsigned clock=g_ram[0x9cc];frame(mode && f<8?(uint32_t)SNES_PAD_LEFT<<(free_seat*12):0);BuffaloHeldSample now;buffalo_held_sample(&now,victim,!mode);memcpy(now.enemy,g_ram+source,64);uint8_t group[GOD_POOL];native_god_group_sample(group);unsigned delta=(uint8_t)(g_ram[0x9cc]-clock);if(delta>1 || (mode && delta!=ticks[f]))check(false,"God chain matches native world cadence without a doubled update");
       bool live_carrier=false;for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==0x43 && g_ram[d+11]==6 && g_ram[d+1]<=2){live_carrier=true;if(!saw_carrier && !mode)carrier_birth=f+1;saw_carrier=true;}
+      if(mode && live_carrier && f+1==carrier_birth && getenv("X3_COOP_CAPTURE_WITHDRAW"))check(!X3CoopRuntimeWithdraw(victim),"actual God carrier waits for its own living release before withdrawal");
       if(!mode){ticks[f]=(uint8_t)delta;trace[f]=now;memcpy(pools+f*GOD_POOL,group,GOD_POOL);ran=f+1;if(!(now.body[0x27]&127)){fprintf(stderr,"native GOD ORIGINAL FATAL frame%u body%u script%02x source%u/%u/%u carrier%u flags%02x/%02x\n",f,now.body[2],now.body[0xa3],g_ram[source+1],g_ram[source+2],g_ram[source+3],saw_carrier,g_ram[0x1cd90],g_ram[0x1cd91]);check(RtlSaveSnapshot("native-god-original-fatal.sav"),"actual original God fatal reference retains its machine");check(false,"native healthy God reference remains alive before separate fatal-contact coverage");}if(saw_carrier && !live_carrier && now.body[0xa3]!=0x96)break;}
       else if(memcmp(&now,&trace[f],sizeof(now)) || memcmp(pools+f*GOD_POOL,group,GOD_POOL)){unsigned diff=0;while(diff<sizeof(now) && ((uint8_t*)&now)[diff]==((uint8_t*)&trace[f])[diff])++diff;unsigned nd=0;while(nd<GOD_POOL && pools[f*GOD_POOL+nd]==group[nd])++nd;if(nd<GOD_POOL)fprintf(stderr,"native GOD NPC DIFFERENCE frame%u address%04x slot%04x field%02x native%02x paired%02x\n",f,0xd18+nd,0xd18+(nd/64)*64,nd%64,pools[f*GOD_POOL+nd],group[nd]);fprintf(stderr,"native GOD GRIP DIFFERENCE frame%u byte%u native%02x paired%02x body%u script%02x source%u/%u/%u carrier%u flags%02x/%02x\n",f,diff,diff<sizeof(now)?((uint8_t*)&trace[f])[diff]:0,diff<sizeof(now)?((uint8_t*)&now)[diff]:0,now.body[2],now.body[0xa3],g_ram[source+1],g_ram[source+2],g_ram[source+3],saw_carrier,g_ram[0x1cd90],g_ram[0x1cd91]);check(RtlSaveSnapshot("native-god-grip-mismatch.sav"),"actual God grip mismatch retains its machine");check(false,"actual God arm, slammer and carrier retain the earned victim and full native body, pools, palette and NPC state beside the nearer free actor");}}
     fprintf(stderr,"native GOD COMPLETE CHAIN mode%u victim%u char%u frames%u carrierBirth%u carrier%u body%u script%02x HP%u freeX%u->%u flags%02x/%02x\n",mode,victim,setup.players[victim].character,ran,carrier_birth,saw_carrier,mode?campaign_body(victim)[2]:g_ram[X3_COOP_BODY+2],mode?campaign_body(victim)[0xa3]:g_ram[X3_COOP_BODY+0xa3],mode?contact_hp(victim):g_ram[X3_COOP_BODY+0x27]&127,free_x,support_position(free_seat,5),g_ram[0x1cd90],g_ram[0x1cd91]);check(ran<GOD_STEPS && saw_carrier,"the actual original arm capture reaches its slammer, real carrier allocation and native final release");if(mode){check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && support_position(free_seat,5)!=free_x,"the full actual God grip leaves both living actors and real free-partner movement intact");size_t done=RtlSaveSnapshotToMemory(work,capacity);if(mode==1)memcpy(future,work,done);else same(future,done,work,done,"the full real God arm, slam, carrier and release replay the entire machine exactly");}}
   free(trace);free(pools);free(future);check(RtlSaveSnapshot("native-god-complete-chain.sav"),"the complete actual God capture future exports without a picker");
 
+  if(getenv("X3_COOP_CAPTURE_WITHDRAW"))native_released_withdraw(boss,victim,base,work,capacity);
 }
 static void native_press_capture(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==10 && !X3CoopRuntimeSceneActive(),"Press claw starts after actual upper fortress door completion");for(unsigned f=0;f<8;++f)frame(0);unsigned boss=0,claw=0,trunk=0;
@@ -803,6 +863,7 @@ static void native_press_capture(const char *fixture,uint8_t *base,uint8_t *work
     frame(0);const uint8_t *b=campaign_body(victim);if(g_ram[claw+0x35] && (b[2]==0x16 || b[0xa3]==0x96)){caught=true;break;}}
   fprintf(stderr,"native PRESS EARNED CLAW f%u caught%u victim%u char%u claw%04x state%u/%u/%u held%u XY%u,%u body%u script%02x HP%u\n",elapsed,caught,victim,setup.players[victim].character,claw,g_ram[claw+1],g_ram[claw+2],g_ram[claw+3],g_ram[claw+0x35],view_read(claw+5),view_read(claw+8),campaign_body(victim)[2],campaign_body(victim)[0xa3],contact_hp(victim));
   if(!caught)check(RtlSaveSnapshot("native-press-claw-unqualified.sav"),"incomplete actual Press claw approach retains its machine");check(caught,"actual native claw movement and CB31 contact earn D034 capture without a supplied capture result");check(RtlSaveSnapshot("native-press-earned-claw.sav"),"actual earned Press claw exports without a picker");
+  if(getenv("X3_COOP_CAPTURE_WITHDRAW"))native_held_withdraw_refusal(victim,base,work,capacity);
   if(getenv("X3_COOP_PRESS_FATAL")){native_press_captive_death(boss,claw,victim,base,work,capacity);return;}if(getenv("X3_COOP_PRESS_KILL")){native_fortress_hunter_clear("native-press-earned-claw.sav",base,work,capacity);return;}
   n=RtlSaveSnapshotToMemory(base,capacity);setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);campaign_position_only(&setup.players[free_seat],view_read(claw+5),view_read(claw+8));setup.players[free_seat].body[0x88]=255;check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"free partner approaches the occupied claw without changing its actual victim");door_install_player(&setup);X3CoopViewState views=*X3CoopViewsState();n=RtlSaveSnapshotToMemory(base,capacity);check(!X3CoopRuntimeWithdraw(victim),"the actually occupied Press claw refuses living withdrawal");
   enum{PRESS_STEPS=256};BuffaloHeldSample *trace=calloc(PRESS_STEPS,sizeof(*trace));uint8_t *future=malloc(capacity);check(trace && future,"Press native capture comparison and complete replay allocate");unsigned ran=0;
@@ -810,6 +871,7 @@ static void native_press_capture(const char *fixture,uint8_t *base,uint8_t *work
     for(unsigned f=0;f<(mode?ran:PRESS_STEPS);++f){unsigned clock=g_ram[0x9cc];frame(mode && f<8?(uint32_t)SNES_PAD_RIGHT<<(free_seat*12):0);BuffaloHeldSample now;buffalo_held_sample(&now,victim,!mode);memcpy(now.enemy,g_ram+claw,64);check((uint8_t)(g_ram[0x9cc]-clock)==1,"actual Press carry advances the shared world once");if(!mode){trace[f]=now;ran=f+1;if(!g_ram[claw+0x35] && now.body[2]!=0x16 && now.body[0xa3]!=0x96)break;}else if(memcmp(&now,&trace[f],sizeof(now))){unsigned diff=0;while(diff<sizeof(now) && ((uint8_t*)&now)[diff]==((uint8_t*)&trace[f])[diff])++diff;fprintf(stderr,"native PRESS CLAW DIFFERENCE frame%u byte%u native%02x paired%02x body%u script%02x held%u\n",f,diff,((uint8_t*)&trace[f])[diff],((uint8_t*)&now)[diff],now.body[2],now.body[0xa3],g_ram[claw+0x35]);check(RtlSaveSnapshot("native-press-claw-mismatch.sav"),"actual Press ownership mismatch retains the complete machine");check(false,"occupied native Press claw retains its actual victim and complete native carry/release state beside a closer free partner");}}
     fprintf(stderr,"native PRESS COMPLETE CLAW mode%u victim%u frames%u body%u script%02x held%u HP%u/%u\n",mode,victim,ran,mode?campaign_body(victim)[2]:g_ram[X3_COOP_BODY+2],mode?campaign_body(victim)[0xa3]:g_ram[X3_COOP_BODY+0xa3],g_ram[claw+0x35],contact_hp(0),contact_hp(1));check(ran<PRESS_STEPS && !g_ram[claw+0x35],"actual native Press carry reaches its authored edge release");if(mode){check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && !campaign_body(free_seat)[0x6e],"actual Press carry preserves both living actors and free partner controls");size_t done=RtlSaveSnapshotToMemory(work,capacity);if(mode==1)memcpy(future,work,done);else same(future,done,work,done,"actual Press carry and release replay the complete machine exactly");}}
   free(trace);free(future);
+  if(getenv("X3_COOP_CAPTURE_WITHDRAW"))native_released_withdraw(boss,victim,base,work,capacity);
 }
 static void native_fortress_hunter_clear(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==10 && !X3CoopRuntimeSceneActive(),"fortress clear starts after actual shared door completion");
@@ -1456,6 +1518,12 @@ static void native_buffalo_capture_checks(const char *fixture,uint8_t *base,uint
   frame(0);const uint8_t *b=campaign_body(victim);if((g_ram[0xd53]&128) && (b[2]==0x74 || b[0xa3]==0x96)){caught=true;break;}check(contact_hp(0) && contact_hp(1),"protected capture approach preserves both actual living participants");
  }
  fprintf(stderr,"native BUFFALO EARNED GRIP victim%u char%u f%u caught%u actions%04x boss%u/%u/%u flags%02x body%u/%u script%02x HP%u/%u\n",victim,setup.players[victim].character,elapsed,caught,actions,g_ram[0xd19],g_ram[0xd1a],g_ram[0xd1b],g_ram[0xd53],campaign_body(victim)[2],campaign_body(victim)[3],campaign_body(victim)[0xa3],contact_hp(0),contact_hp(1));check(caught,"the real native charge and collision earn Buffalo's scripted grip without supplied capture flags");check(RtlSaveSnapshot("native-buffalo-earned-grab.sav"),"actual earned Buffalo grip saves directly through the test interface");
+  if(getenv("X3_COOP_CAPTURE_WITHDRAW"))native_held_withdraw_refusal(victim,base,work,capacity);
+ if(getenv("X3_COOP_CAPTURE_WITHDRAW") && getenv("X3_COOP_BUFFALO_SHAKE")){
+   for(unsigned f=0;f<41;++f)frame((f<8?(uint32_t)SNES_PAD_RIGHT<<(free_seat*12):0)|(!(f&1)?(uint32_t)SNES_PAD_B<<(victim*12):0));
+   check((g_ram[0xd53]&128) && campaign_body(victim)[0xa3]!=0x96 && campaign_body(victim)[2]!=0x74 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE,"real Jump edges release the native victim while Buffalo's recovery script still owns its old capture");
+   native_released_withdraw(0xd18,victim,base,work,capacity);return;
+ }
  if(getenv("X3_COOP_BUFFALO_FATAL")){native_buffalo_captive_death(victim,false,base,work,capacity);return;}
  if(getenv("X3_COOP_BUFFALO_WEAKNESS")){native_buffalo_nonlethal_release(victim,base,work,capacity);return;}
  if(getenv("X3_COOP_BUFFALO_KILL_HELD")){native_buffalo_destroy_captor(victim,base,work,capacity);return;}
@@ -1466,4 +1534,5 @@ static void native_buffalo_capture_checks(const char *fixture,uint8_t *base,uint
   fprintf(stderr,"native BUFFALO HELD QUALIFY paired%u victim%u char%u frames%u body%u/%u script%02x grip%02x HP%u/%u\n",paired,victim,setup.players[victim].character,ran,campaign_body(victim)[2],campaign_body(victim)[3],campaign_body(victim)[0xa3],g_ram[0xd53],contact_hp(0),contact_hp(1));check(ran<MAX_HELD && !(g_ram[0xd53]&128) && contact_hp(victim) && (uint8_t)(g_ram[0x9cc]-clock)==(uint8_t)ran,"real native wall/release cleanup completes on the original frame with a living captive and one world update");if(getenv("X3_COOP_BUFFALO_SHAKE")){fprintf(stderr,"native BUFFALO SHAKE RELEASE paired%u frame%u continuation%u\n",paired,released_at,ran);check(released_at && released_at<60,"actual captive Jump edges earn the native shake escape before the wall release");}
   if(paired){check(X3CoopRuntimeState()->players[free_seat].life==X3_COOP_ALIVE,"the nearer free actor remains independently alive throughout the native hold/release");size_t done=RtlSaveSnapshotToMemory(future,capacity);check(RtlLoadSnapshotFromMemory(base,n),"actual occupied grip restores for complete replay");for(unsigned f=0;f<ran;++f){uint32_t input=f<8?(uint32_t)SNES_PAD_RIGHT<<(free_seat*12):0;if(getenv("X3_COOP_BUFFALO_SHAKE") && !(f&1))input|=(uint32_t)SNES_PAD_B<<(victim*12);frame(input);}same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"actual captured ownership, wall release and complete two-actor future replay identically");}
  }free(future);free(trace);
+  if(getenv("X3_COOP_CAPTURE_WITHDRAW"))native_released_withdraw(0xd18,victim,base,work,capacity);
 }

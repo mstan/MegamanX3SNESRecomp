@@ -4861,3 +4861,53 @@ All four standard tests pass. This is test-only coverage; production and the
 previously validated GUI are unchanged. Acceptance is122/180,58 open,4/15 areas.
 D06 remains open in the death area. E09 still needs its separate withdrawal
 scope reconciled with the existing held/released participation evidence.
+
+
+## Correct capture recipients and safe voluntary withdrawal
+
+E07 and E09 are accepted. The actual native grab/freeze/ring/claw/carrier
+comparisons now cover the authored capture families, both characters and
+physical rosters, and either initial camera owner. The real victim's complete
+body, personal pools, palette and source retain their native behavior beside a
+nearer free actor. Existing Crawfish, Toxic Seahorse and intro role references
+supply their already qualified cases; the current Buffalo, Bit, Press Disposer
+and Godkarmachine runs preserve their strict native comparisons.
+
+An actual Jump escape exposed a separate Buffalo failure. The victim could
+withdraw after control returned while the boss still retained its capture
+script. Projecting that unavailable recipient correctly supplies zero HP, but
+native04:D8D5 then set the boss's solo-player retirement byte30 to1 despite the
+living partner. The existing retired-captor guard now also protects Buffalo's
+actual retained recipient through the entire native call, including the update
+that clears3B.80. It neither changes personal HP nor revives a participant.
+No new hook or serialized field is needed.
+
+All eight early escape/withdrawal combinations pass after the fix. Withdrawal
+at57 updates preserves the actual departed actor's health. The old script
+finishes naturally at139; its binding clears, the living boss retains32HP and
+retirement0, and the free actor keeps visible native movement. Each entire
+106-update withdrawal/cleanup/control future repeats exactly twice.
+
+The additional eight full-grip and eight freeze-release withdrawal combinations
+also pass. The freeze continuation positions only the free actor on authored
+open floor, preserving its earned health, hurt state and ownership, then uses
+real controller recovery and movement. Native solo references explicitly use
+SNESRECOMP_WS_SPAWN=0 to match co-op's native simulation culling profile; their
+complete body/source comparison remains strict. An enhanced-solo reference
+had different visibility margins despite identical camera positions.
+
+Twenty-four Bit/Press/God withdrawal cases also pass full native references and
+complete survivor futures. Reused Crawfish/Toxic/Hornet results add32 actual
+withdrawal cases. Together with the qualified captured-death outcomes, these
+establish safe refusal while held, safe departure after release, attachment
+retirement and independent surviving control. All16 Buffalo captured-fatality
+regressions pass after the runtime change. Current GUI and four standard tests
+pass. Final state-test SHA256 is
+351b68a94d9c62390ab781ac93347d71ef286e788523909129f61d6edcab8b54;
+GUI SHA256 is
+bdb87ec7b0f1d6209a4f39c7b3a5ba1f7fb2d8f21de76fce77b9049e98a38e6c.
+
+Acceptance is124/180,56 open,4/15 areas; campaign remains15/16. E08 remains
+open: the existing Toxic Seahorse buster check demonstrates actual reflection
+during a carry and a later defeat after release. That later clear does not
+establish rescue by defeating the parent while its victim is still held.

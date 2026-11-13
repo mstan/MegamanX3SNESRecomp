@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-The active goal continues. Current acceptance is **122/180;58 open;4/15 areas (T,R,M,N)**.
+The active goal continues. Current acceptance is **124/180;56 open;4/15 areas (T,R,M,N)**.
 Campaign G01-G11 and G13-G16 pass; G12 remains open. Earlier110/118/119/120-point
 checkpoints below are historical. Read the latest sections of
 `docs/COOP_DEVELOPMENT.md` and the existing private
@@ -43,10 +43,27 @@ native-art checks and complete-future replay twice. State-test SHA256 is
 811c52c114517f39e2d60b0ece9a9c01fe87207650d562e356c8f7b414c034c3.
 The four standard tests pass; production/GUI code is unchanged.
 
-Next decisions: reconcile E09's withdrawal scope using the existing busy-grip,
-released-victim and actual Hornet attachment-withdrawal evidence plus the now
-qualified captured-death futures. Add only a missing concrete participation
-check if needed. D06 still needs an actual authored lethal crush. P06 is
+E07/E09 now pass real recipient retention and safe withdrawal. An early
+Buffalo Jump escape/withdrawal had left its native retirement byte30 set1:
+the old script still projected its unavailable recipient's zeroHP body. The
+existing guard now preserves the living encounter through that entire retained
+caller. All8 early cases pass natural script cleanup and exact106-update
+survivor futures;16 full-grip/freeze withdrawal cases,24 Bit/Press/God cases,
+and the existing Crawfish/Toxic/Hornet withdrawal evidence also pass. All16
+Buffalo captured fatalities still pass. Current state-test SHA256 is
+351b68a94d9c62390ab781ac93347d71ef286e788523909129f61d6edcab8b54;
+GUI is bdb87ec7b0f1d6209a4f39c7b3a5ba1f7fb2d8f21de76fce77b9049e98a38e6c.
+GUI/four standard tests pass; all jobs are terminal. The beam reference uses
+SNESRECOMP_WS_SPAWN=0 to match co-op's native simulation margins. Post-beam
+control places only the free body on actual open floor; health/hurt and all
+capture state remain earned.
+
+Next decision: E08 still needs actual occupied Toxic parent-rescue qualification
+or an evidence-backed native applicability decision. Its current buster path
+reflects during the carry and defeats the boss after release; that is not proof
+of occupied rescue. Reuse native_toxic_capture_checks/native_destroy_captor and
+the existing native-toxic-entry-arena.sav; inspect the native guard/weapon
+contract before choosing a real legal attack. D06 still needs an actual authored lethal crush. P06 is
 falling/collapsing-support activation; P12 is pinch/crush. Do not confuse those definitions. A late lift-edge setup was
 rejected because the real charged cast had already reached its upper endpoint
 before the test moved the rider; the unqualified extension was removed. Reuse
@@ -56,7 +73,7 @@ class37/26 explicitly protect their contact. G12 still requires actual fortress
 traversal/exits beyond the accepted admissions and boss/ending flows.
 
 Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P09,P12,P13;
-E05-E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
+E05,E06,E08,E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
 Q01-Q06;Z01-Z04. No release has been delivered. Computer Use or desktop/browser
 UI automation requires the owner's explicit approval; current automation uses
 repository tools and headless game interfaces.
