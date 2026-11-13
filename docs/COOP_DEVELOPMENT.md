@@ -4264,7 +4264,7 @@ setups remain in the existing private compact record. No snapshot-format or
 hook-list change, owner validation or release is claimed.
 
 
-### Fusion capture group and retired-victim release ? G10 accepted
+### Fusion capture group and retired-victim release: G10 accepted
 
 The lower fortress fusion boss coordinates NPC43 kinds2/4/6 through CD90/CD91.
 Its actual arm capture now retains D034's recipient across the slammer and
@@ -4309,3 +4309,33 @@ Production GUI
 builds, all four standard CTests pass, and focused actual Bit-ring and Press
 claw references pass after the capture-group changes. Remaining campaign,
 scene, presentation, owner and package gates remain open.
+
+
+### Native Lab2 Vile two-form continuation (G11 partial)
+
+The actually earned first-fortress result now supplies the Lab2 stage14
+checkpoint2 fixture while retaining its original1FAF fortress counter1. Only
+earlier ordinary travel is bypassed. Four roster/physical-leader cases execute
+the real doors, descent and armor introduction, admit both living actors and
+replay the entire1909-update future exactly twice. No admission or scene-phase
+flags are supplied.
+
+Four roster/shooter cases then defeat the actual class63 armor and its
+originally32HP class61/kind2 on-foot successor. Each form first starts32HP,
+then survives16 idle updates at assisted1HP before a real normal-buster
+collision earns its defeat. The native armor-to-foot transition takes752
+updates; actual postfight confirmation and loading reach Lab3 stage12 with
+fortress counter1FAF advancing1->2, unchanged hunter outcomes/lives and both
+original full-campaign actors alive and controllable. Each complete two-form
+future, including next-stage construction and64 arrival updates, replays
+exactly twice. A separate stage-derived1FD5 byte is not the fortress counter;
+the setup retains earned progress rather than resetting it with the generic
+standalone-stage helper.
+
+These native checks pass on state test
+`a768a6381d2d7df9e6d237810f8610a60c025b316d55f00be632d40f55dbaea5`.
+Production code remains at the qualified fusion-capture implementation.
+G11 is still open for Vile's earlier optional route/outcome and its alternate
+later branch. This does not accept untraversed factory/fortress routes or
+substitute for the remaining survivor, scene or presentation checks. The suite
+remains111/180 accepted,69 open and3/15 accepted areas.
