@@ -43,6 +43,17 @@ void X3CoopViewsCommitNative(const uint8_t *r,const X3CoopState *p){
     }
   }
 }
+void X3CoopViewsCommitNativeLocks(const uint8_t *r,const X3CoopState *p){
+  if(!state.independent || !p->initialized || state.stage!=r[0x1fae])return;
+  for(unsigned axis=0;axis<2;++axis){unsigned i=axis*2,current=word(r+0x1e66+i*2),target=word(r+targets[i]),camera=word(r+(axis?0x1e60:0x1e5d));
+    if(current!=word(r+0x1e68+i*2) || target!=word(r+targets[i+1]) || current>8192 || target>8192 || camera>8192)continue;
+    for(unsigned seat=0;seat<2;++seat)if(living(r,p,seat)){
+      state.limits[seat][i]=state.limits[seat][i+1]=(uint16_t)target;
+      state.current[seat][i]=state.current[seat][i+1]=(uint16_t)current;
+      state.camera[seat][axis]=(uint16_t)camera;state.valid|=(uint8_t)(1u<<seat);state.camera_valid|=(uint8_t)(1u<<seat);
+    }
+  }
+}
 void X3CoopViewsPlayerLimits(const uint8_t *r,const X3CoopState *p,unsigned seat,int out[4]){
   for(unsigned i=0;i<4;++i)out[i]=word(r+0x1e66+i*2);
   if(state.independent && p->initialized && seat<2 && state.stage==r[0x1fae] && (state.valid&(1u<<seat)))

@@ -246,6 +246,11 @@ static void view_world_boundary(CpuState *cpu,uint32_t pc) {
     if(enabled && state.initialized && X3CoopViewsIndependent()) {
       X3CoopCapture(&state,g_ram);
       X3CoopViewsEndFrame(g_ram,&state,view_scene(),false);
+      /* The virus escape advances native hard camera locks every world tick.
+       * Authored region targets must not reopen a partner's old boss view. */
+      if(!view_scene() && g_ram[0x1fae]==13)for(unsigned d=0xd18;d<0x10d8;d+=64)
+        if(g_ram[d] && g_ram[d+10]==0x60){X3CoopViewsCommitNativeLocks(g_ram,&state);break;}
+
       const X3CoopViewState *after=X3CoopViewsState();
       for(unsigned seat=0;seat<2;++seat){unsigned bit=1u<<seat,flags=FRONTIER_KNOWN;
         if(!(after->camera_valid&bit)){view_spawn.frontier[seat]=0;continue;}
@@ -488,6 +493,7 @@ static bool native_boss_actor(unsigned d){
   /*02:E15C loads authored health from06:E291 in five-byte class records.
    * NPC26 is contact damage; NPC27 is mutable remaining health. */
   unsigned kind=g_ram[d+10],health;
+  if(kind<0x46 || kind>0x63)return false; /* Exclude32HP stage objects and story helpers. */
   /* Kaiser bypasses02:E15C:05:99C6/9B3B constructs its32HP bar itself. */
   return kind==0x5f || (kind && kind<=0x6b && scene_rom(0x06e291+(kind-1)*5,1,&health) && health==32);
 }
@@ -988,8 +994,21 @@ static bool native_script_actor(unsigned d){
       !(attachments[slot]&64))return false;
   unsigned tag=(attachments[slot]>>2)&3;if(tag!=1 && tag!=2)return false;
   if(g_ram[d+1]>=4)return true; /* Keep a defeated script's recipient to retirement. */
+  /* Final64 follows03:C142's actual recorded-control recipient, including
+   * its later helper/dialogue, until that one native script retires. */
+  if(g_ram[0x1fae]==13 && g_ram[d+10]==0x64 && !g_ram[d+11])return true;
   unsigned owner=tag-1;const uint8_t *b=owner==state.current?g_ram+X3_COOP_BODY:state.players[owner].body;
   return b[0xa3]==0x9e || (b[2]==0x1e && (b[0x6e]&128));
+}
+static unsigned native_recorded_owner(unsigned d){
+  if(!enemy_actor(d) || g_ram[0x1fae]!=13 || g_ram[d+10]!=0x64 || g_ram[d+11] || !g_ram[0x1f4f])return 2;
+  unsigned owner=2;
+  for(unsigned seat=0;seat<2;++seat){
+    const uint8_t *b=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+    if(state.players[seat].life!=X3_COOP_ALIVE || b[2]!=0x66 || !(b[0x6e]&128))continue;
+    if(owner<2)return 2;owner=seat;
+  }
+  return owner;
 }
 static unsigned native_script_owner(void){
   /* The native Zero helper continues the Mosquitus story after its source
@@ -1205,7 +1224,13 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
     int attachment=support_slot(d);
     if(attachment>=0 && !native_captor_context(d))
       attachments[attachment]&=(uint8_t)~76;
-    unsigned captive=native_captive_owner(d),beam=native_beam_target(d);
+    /*03:C142 starts D24B before constructing final64. Bind the actual
+     * forced-control body instead of letting the nearer free partner own
+     * 3F:ED33's66/8 wait. Reuse the native-script attachment and lifetime. */
+    unsigned recorded=native_recorded_owner(d);
+    if(recorded<2 && attachment>=0 && attachment<15)
+      attachments[attachment]=(uint8_t)((attachments[attachment]&~12u)|128u|64u|(4u<<recorded));
+    unsigned captive=recorded<2?recorded:native_captive_owner(d),beam=native_beam_target(d);
     bool capsule=native_capsule(d),intro=intro_capture_actor(d),x_only=x_pickup(d) || capsule || intro;
     /* Hostile constructors choose aim before populating native HP. */
     bool constructing_hostile=at==0xdcb3 && hostile_projectile(d) && !g_ram[d+1];

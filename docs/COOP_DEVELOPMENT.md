@@ -4564,3 +4564,38 @@ GUI36565ff5c5dd25d096bda9fd045fc7ea2d7651da581c9e7f62bb2c8681c7dc72
 builds and all four standard tests pass. Virus escape, actual terminal flow,
 remaining routes and authored fatal handoffs remain open. Acceptance stays
 114/180,66 open and3/15 accepted areas; G12 and G15-G16 are not yet accepted.
+
+
+## Native virus escape and final-scene ownership
+
+The final helper64 now retains03:C142/D24B's actual recorded-control actor.
+Previously3F:ED33 borrowed the nearer free partner and waited forever for that
+idle body to reach66/8. The existing script attachment, controller parking,
+modal input and balanced world-owner machinery carry the actual recipient
+through the helper's retirement. No native hook or snapshot field is added.
+
+The virus's moving native hard camera locks also update both living private
+views. Independent camera-region retention keeps03:DDF3's original bounds;
+its per-view parser already retains both native regions. Previously those
+scratch bounds inherited a widened presentation operand from before the
+native-width ending. Restoring the same machine after an ending changed two
+interpreter progress-counter updates despite identical eventual gameplay.
+The complete futures now match without excluding any state bytes.
+
+Position/velocity cheats follow the actual pursuit scroll to its1536 limit,
+then stop. Native gravity lands the actors and real Right input crosses the
+2032 final trigger. Earlier airborne and unstreamed shortcuts failed original
+solo too and are not accepted routes. X-led and Zero-led saber runs reach the
+actual ending6/0/progress5 at5704/5703 terminal updates. The actually earned
+no-saber1C branch reaches it at5805; its real charged03 Kaiser hit uses native
+charge6, rather than the saber branch's12. Both players, lives2 and earned
+campaign flags survive. All three complete futures replay exactly twice.
+
+State9d147216ad6149d5c5966cb696a299c87db9c9d455eb36f9829cd772640c8542
+passes those branches, the four-roster native ladder/region-retirement reference
+and the actual P2 final-lab door/introduction. GUI
+18d686f5b2f19ded0bffaf16784774ae37b5909fd96afdea2663cb7ea28eee76
+builds and all four standard tests pass. Temporary interpreter tracing is removed;
+the shared engine is unchanged. Final-phase fatal handoffs, credits/new-game
+flow, remaining routes and presentation remain open. Acceptance stays114/180,
+66 open and3/15 areas; G12 and G15-G16 are not yet accepted.
