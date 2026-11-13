@@ -4635,3 +4635,34 @@ GUI54d1c9f76d299baad6dd270637614eb1e99e81d19d3c55b73a6baaf4ba54edd0
 builds and all four standard tests pass. Acceptance is115/180,65 open and3/15
 areas. Campaign G01-G11 and G13-G14/G16 pass; G12 and G15 remain open. This does
 not accept final-phase fatal handoffs, moving presentation, runtime or owner QA.
+
+## Final-phase fatal handoffs and presentation-independent activation
+
+G15 is accepted. Actual first-Sigma or Kaiser contact kills the selected actor;
+the living partner earns the native winning projectile and transformation.
+Both physical-seat rosters and both survivors retain the fallen participant,
+lives and shared campaign through the virus escape and native ending. The
+earned no-saber branch also passes with either survivor. Zero's charged winning
+hit retains his native controller; physical button holds supply the charge.
+Neither death, damage, phase nor ending results are written by these checks.
+
+Unified escape exposed a complete-replay mismatch: the prior scene's presentation
+margin changed the first restored activation operands and interpreter progress
+counter. The desktop co-op adapter already uses native simulation fields and
+composes extra columns on the host. The title now applies that contract to all
+co-op activation margins, replacing the narrower independent-region exception.
+Original solo keeps its existing widescreen activation behavior.
+
+State5af322ab69eea0077154f6e011707f0df13d7c1e34947b64344dd3e602f7d99e
+passes actual Unified survivor escape, independent no-saber Zero escape,
+genuine original solo escape and first-form fatal transformation; each complete
+future matches exactly twice. The affected four-roster native upper-region,
+scanout and retired-view checks pass. GUI
+d013a3e29ed1445093196e09db3e59c318a49b8daf2ba1a7d6ff59d0b4440390
+builds and all four standard tests pass. Earlier survivor permutations retain
+their exact jobs and identities in the existing private qualification record.
+
+Acceptance is116/180,64 open and3/15 accepted areas. Campaign G12 remains open;
+the other15 campaign points pass. Simultaneous last-hit/death S12, remaining
+door/transport cases, traversal, presentation, runtime and owner delivery gates
+remain separate unresolved criteria.

@@ -103,3 +103,11 @@ other-persistent/Toxic-carrier gates pass. No new snapshot format or hook.
 | Reset reference | Parent behavior and correction | X3 disposition |
 | --- | --- | --- |
 | Active X2 runtime `8c457f287b573045a22f3b880a065f70e68cdad9`, `X2HardwareReset` | The runtime explicitly resets its separate CPU/bridge cursor and pacing before rebooting the original vector; the hardware blob alone does not own that cursor. X3 parent `8f6b931` registered no reset callback, and an actual Reset from earned credits left cleared hardware waiting at the previous coroutine. | Adapt the existing hardware-reset callback contract to X3's frame driver. Preserve the selected profile, clear discarded actor/scene/input state, restore native ROM window operands, align CPU/bridge/hardware clocks and reboot the original vector. Original solo, both selected co-op rosters and the earned no-saber ending reach fresh playable intros and replay exactly twice under G16. X2's session API and frame scheduler are not imported. |
+
+G15 activation follow-up uses X3's existing `diagnostic_prepare_frame` contract:
+co-op keeps `native_widescreen=0` for its simulation PPU and composes extra
+columns on the host. The former independent-only camera-region exception did
+not cover Unified restore after an ending. Co-op activation margins now follow
+that native-field contract directly, so the previous presentation cannot choose
+guest operands. Actual Unified and independent survivor endings replay the
+whole machine exactly; genuine original solo retains its widened behavior.

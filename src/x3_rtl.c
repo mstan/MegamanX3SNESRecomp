@@ -572,6 +572,12 @@ bool X3UseNativeFrame(void) {
 }
 
 static int x3_ws_spawn_margin(void) {
+  /* Co-op composes extra columns on the host over native simulation fields.
+   * Match the desktop adapter's native-width PPU contract even on the first
+   * update after restoring from a differently sized scene. Presentation state
+   * from the abandoned timeline cannot select guest activation operands. */
+  if (X3CoopRuntimeEnabled())
+    return 0;
   static int s_enabled = -1;
   if (s_enabled < 0) {
     const char *e = getenv("SNESRECOMP_WS_SPAWN");
@@ -1005,14 +1011,8 @@ static void x3_patch_ws_interp_obj_windows(void) {
     uint16_t margin = (uint16_t)x3_ws_spawn_margin();
     for (int i = 0; i < s_x3_ws_rom_imm_count; i++) {
       X3WsRomImm *site = &s_x3_ws_rom_imms[i];
-      /* Independent co-op retains camera regions against both native views.
-       * Its03:DDF3 scratch bounds must not inherit a presentation margin
-       * left by the previous scene (notably the native-width epilogue). */
-      size_t offset=(size_t)(site->operand-g_snes->cart->rom);
-      unsigned region_margin=X3CoopRuntimeReady() && X3CoopViewsIndependent() &&
-          offset>=0x1ddf3 && offset<0x1de18?0:margin;
       uint16_t value =
-          (uint16_t)(site->base + site->margin_scale * region_margin);
+          (uint16_t)(site->base + site->margin_scale * margin);
       site->operand[0] = (uint8_t)value;
       site->operand[1] = (uint8_t)(value >> 8);
     }
