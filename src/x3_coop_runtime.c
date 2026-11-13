@@ -487,6 +487,9 @@ static bool x_pickup(unsigned d){return item_actor(d) &&
     (g_ram[d+10]==1 || g_ram[d+10]==5 || g_ram[d+10]==11);}
 static bool native_door(unsigned d){return item_actor(d) &&
     (g_ram[d+10]==7 || g_ram[d+10]==0x10 || g_ram[d+10]==0x11);}
+static bool native_transport(unsigned d){return item_actor(d) &&
+    (g_ram[d+10]==0x0c || g_ram[d+10]==0x0d ||
+     (g_ram[d+10]>=0x18 && g_ram[d+10]<=0x1a));}
 static bool native_capsule(unsigned d){return enemy_actor(d) && !hostile_projectile(d) && g_ram[d+10]==0x4d;}
 static unsigned native_pad(unsigned seat){
   unsigned input=RtlGetPadState(seat),native=0;
@@ -793,8 +796,16 @@ static void scene_tick(void){
     unsigned survivor=state.anchor;const uint8_t *old=state.players[scene.owner].body;
     scene_cancel_transients(survivor);scene_place(survivor,old);
     uint8_t *b=state.players[survivor].body;unsigned phase=g_ram[scene.slot+1];
-    b[0xa3]=(uint8_t)(0x80|(!g_ram[scene.slot] || phase>=10?0x1e:phase<=4?0x18:phase==6?0x1c:0x1e));
-    b[0x6e]=(uint8_t)(phase==8?128:1);
+    if(native_transport(scene.slot)){
+      /* EC35 uses the capsule center and D1CA's warp action. Door walking
+       * actions cannot finish EC4C's animation wait for a new survivor. */
+      putword(b+5,word(g_ram+scene.slot+5));putword(b+8,word(g_ram+scene.slot+8));
+      putword(b+0x22,word(b+5));putword(b+0x24,word(b+8));
+      b[0xa3]=0x9e;b[0x6e]=128;
+    }else{
+      b[0xa3]=(uint8_t)(0x80|(!g_ram[scene.slot] || phase>=10?0x1e:phase<=4?0x18:phase==6?0x1c:0x1e));
+      b[0x6e]=(uint8_t)(phase==8?128:1);
+    }
     scene.owner=(uint8_t)survivor;scene.phase=2;scene.tick=0;
     scene_install(survivor);
     }
@@ -928,8 +939,8 @@ static bool god_part_context(unsigned d){
 }
 static bool native_defeat_controller(unsigned d){
   return d>=0xd18 && d<0x10d8 && g_ram[d+1]==4 &&
-      (g_ram[d+10]==0x46 || g_ram[d+10]==0x47 ||
-       (!g_ram[d+11] && (g_ram[d+10]==0x5a || g_ram[d+10]==0x5d)));
+      (g_ram[d+10]==0x46 || g_ram[d+10]==0x47 || g_ram[d+10]==0x61 ||
+       (!g_ram[d+11] && (g_ram[d+10]==0x4a || g_ram[d+10]==0x5a || g_ram[d+10]==0x5d)));
 }
 static bool native_captor_context(unsigned d){
   if(hostile_projectile(d))return hostile_attachment(d) && view_spawn.hostile_captive[(d-0x1318)/64];
@@ -1119,7 +1130,7 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
     /* Hostile constructors choose aim before populating native HP. */
     bool constructing_hostile=at==0xdcb3 && hostile_projectile(d) && !g_ram[d+1];
     bool pickup=at==0xdafa && (x_only || shared_pickup(d));
-    bool door=at==0xdafa && native_door(d) && g_ram[d+1]<=2;
+    bool door=at==0xdafa && (native_door(d) || native_transport(d)) && g_ram[d+1]<=2;
     unsigned station_owner=enemy_actor(d) && g_ram[d+10]==0x2f?vehicle_menu_owner():2;
     bool pending=captive<2 || station_owner<2 || (pickup && refill.active && refill.slot==d) || ((capsule || intro) && !g_ram[d+1]) ||
         (scene.phase && scene.kind && state.players[scene.owner].life!=X3_COOP_ALIVE);
@@ -1222,6 +1233,14 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
       }
     }
   }
+  if((at==0xdaaf || at==0xdad3) && native_transport(d) && g_ram[d] &&
+      g_ram[d+2]==2 && !scene.phase && native_freeze_recipient()){
+    /* EC15 earned CC5C contact and D1CA in this projected actor. Commit
+     * that actor's view and native terrain/controller ownership together:
+     * the parked former anchor must not own the grounded EC4C warp wait. */
+    X3CoopViewsAdoptPlayer(g_ram,&state,state.current,false);
+    state.anchor=state.current;anchor_palette();scene_begin(d,SCENE_DOOR);
+  }
   /* Native item/enemy/hostile-shot continuations follow the actual RTS;
    * the original JSR frame has been consumed. */
   if(target.active && d==target.slot && cpu->S==(uint16_t)(target.s+2)) {
@@ -1311,6 +1330,25 @@ static void shared_pickup_character(CpuState *cpu,uint32_t pc){
    * capacity, amount, timer and sounds; omit stock Zero-only exclusions. */
   cpu->A&=0xff00;cpu->_flag_Z=1;cpu->_flag_N=0;cpu_mirrors_to_p(cpu);
   interp_bridge_pre_opcode_redirect((pc&0xff0000)|((pc+3)&65535));
+}
+static void full_campaign_transport_character(CpuState *cpu,uint32_t pc){
+  if(!X3CoopRuntimeReady() || stock_zero || !native_transport(cpu->D) ||
+      state.players[state.current].character!=X3_COOP_ZERO)return;
+  if((pc&65535)==0xec30){
+    if(g_ram[cpu->D+10]!=0x1a)return;
+    /* EC30 follows the stock LDA B6 eligibility check. Keep Zero's real
+     * character/context; full-campaign mode permits this actual contact. */
+    cpu->A&=0xff00;cpu->_flag_Z=1;cpu->_flag_N=0;cpu_mirrors_to_p(cpu);
+  }else{
+    /* EC42 has placed the native recipient at an X-centered capsule Y.
+     * Zero's standing collision feet extend eight pixels farther down.
+     * Align those feet before D1CA queues the original grounded warp;
+     * otherwise the constructor puts him through the floor it must await. */
+    const uint8_t *rom=g_snes->cart->rom;
+    const uint8_t *x=rom+0x33404,*zero=rom+0x3340e;
+    int delta=(int8_t)x[6]+x[8]-(int8_t)zero[6]-zero[8];
+    putword(g_ram+X3_COOP_BODY+8,(uint16_t)(word(g_ram+X3_COOP_BODY+8)+delta));
+  }
 }
 static void full_campaign_door_sensor(CpuState *cpu,uint32_t pc){
   if(!X3CoopRuntimeReady() || !item_actor(cpu->D) || g_ram[cpu->D+10]!=10)return;
@@ -2021,6 +2059,8 @@ void X3CoopRuntimeFrame(void) {
   static const uint32_t pickup_characters[]={0x01d837,0x01d9cd,0x01da25,0x01da7c};
   for(unsigned i=0;i<sizeof(pickup_characters)/sizeof(*pickup_characters);++i)
     if(!interp_bridge_add_pre_opcode_hook(pickup_characters[i],shared_pickup_character))enabled=false;
+  if(!interp_bridge_add_pre_opcode_hook(0x01ec30,full_campaign_transport_character) ||
+     !interp_bridge_add_pre_opcode_hook(0x01ec47,full_campaign_transport_character))enabled=false;
   static const uint32_t solid_pcs[]={0x04bfae,0x04bfce,0x04c021,0x04c07e,
       0x04c07f,0x04c09d,0x00dd1a,0x00dafa,0x00dccf,0x00dcf3,0x00dc68,0x00dc8c};
   for(unsigned i=0;i<sizeof(solid_pcs)/sizeof(*solid_pcs);++i)

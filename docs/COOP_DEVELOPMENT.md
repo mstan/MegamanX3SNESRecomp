@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 111/180; 69 open/partial. Accepted areas: 3/15
+**Accepted touch points: 112/180; 68 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G10 accepted (10/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G11 accepted (11/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -4339,3 +4339,54 @@ G11 is still open for Vile's earlier optional route/outcome and its alternate
 later branch. This does not accept untraversed factory/fortress routes or
 substitute for the remaining survivor, scene or presentation checks. The suite
 remains111/180 accepted,69 open and3/15 accepted areas.
+
+
+### Native optional Vile outcomes and later routes - G11
+
+G11 is accepted. Real class1A contact now retains its actual recipient through
+native EC4C/EC72/ED00 transport. Full-campaign Zero passes the native stock-only
+character exclusion, retains his real character, and uses his own standing
+foot alignment at the X-centered capsule. The balanced item return commits the
+recipient's view and native terrain/controller anchor together. Height alignment
+alone did not repair the nonleading transport; committing its actual owner did.
+Stock restrictions retain the original eligibility rule.
+
+All eight roster/physical-leader/anchor combinations earn the Buffalo-to-factory
+warp, preserving native source2/return-marker0, hunter0F, lives2 and both living
+actors. The native X control takes56 warp plus256 arrival updates; paired cases
+take57/58 plus291/292. Actual mid-scene save/load produces the same complete
+future as uninterrupted transport. A stale frontier cache in the first manual
+approach was a test setup error; the qualified comparison admits the real item.
+
+The actual factory arrival then passes both doors and the armor introduction.
+Each native32HP form remains live for16 idle updates after a1HP assist; only a
+real projectile earns defeat. Normal buster clears pass with four roster/shooter
+permutations and earn2F. X's actually acquired selection10 produces a winning
+native class1C on either physical seat and earns3F. Both native outros release
+the pair, and real contact with the authored return capsule reaches source2,
+checkpoint1, without changing lives or reviving/withdrawing a participant.
+Every complete two-form/outro/return future repeats exactly twice.
+
+The native defeated controllers for61 and the alternate Lab2 main4A now retain
+D1CA's actual recipient through the existing attachment bytes and balanced
+controller parking. Without61 binding, a retired factory Vile left Zero locked128
+after3600 updates. Without4A binding, the alternate clear advanced the campaign
+with Zero fallen. The qualified main4A clear retains both living actors through
+2177 updates and actual Lab3 arrival. No new snapshot fields or format are used.
+
+Actually earned2F and3F are carried through a real first-fortress head defeat.
+The original selection reaches stage14 after2316 updates for2F and stage11 after
+2318 for3F, with native counter1 and the pair intact. The later stage14 armor63
+and on-foot61 clear reaches stage12/counter2 after3497 updates. All four alternate
+Lab2 door leaders and main4A shooters pass; the main-only HP assist leaves the
+native32HP children untouched. Both later branches preserve their earned Vile
+flags and lives, and every complete clear/next-stage future replays exactly.
+
+Ordinary approach/escape terrain and prior campaign unlock travel are explicit
+bypasses; direct fortress entry supplies the eight Maverick prerequisites, never
+Vile or hunter results. Those traversal checks remain under G12. Scene-owner
+death/wipe and the broader lifecycle criteria remain independently open. GUI
+40381098ae1a63ea0a790d9afdbc3d74f7f2b52e9020bc2e32f48e772b32bd17 and all four
+standard tests pass. The main4A matrix uses state8d3b1e5a; raw jobs, samples,
+source/binary identities and counterexamples remain in the existing private
+qualification record. Actual total112/180 accepted,68 open,3/15 accepted areas.
