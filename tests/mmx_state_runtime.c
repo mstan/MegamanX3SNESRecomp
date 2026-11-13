@@ -20,6 +20,8 @@ static void native_return_on_support(size_t capacity);
 static void team_hazard_body(uint8_t *b,unsigned x,unsigned y);
 static void native_scene_fatal(bool transport,unsigned leader,uint8_t *base,uint8_t *work,size_t capacity);
 static void native_dirty_team_retry(bool capture,uint8_t *base,uint8_t *work,size_t capacity);
+static void campaign_position_only(X3CoopPlayer *p,unsigned x,unsigned y);
+static const uint8_t *campaign_body(unsigned seat);
 static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned seat,unsigned index,unsigned mode,uint8_t *work,uint8_t *after,size_t capacity);
 #include "x3_coop_contact_test.inc"
 #include "x3_coop_target_test.inc"

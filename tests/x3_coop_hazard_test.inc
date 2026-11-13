@@ -1,24 +1,35 @@
 /* Actual stage5 spike row1632..1759/y1472; the other actor stands on the
  * adjacent authored plateau at1568/y1392. No damage/death result is supplied. */
-static unsigned spike_victim,spike_damage,spike_controller,spike_terrain;
+static unsigned spike_victim,spike_damage,spike_controller,spike_terrain,spike_entry_tick;
+static bool spike_controller_required,spike_controller_independent,spike_entry_living;
 static void spike_damage_probe(CpuState *cpu,uint32_t pc){
-  (void)pc;
-  if(cpu->D!=X3_COOP_BODY || X3CoopRuntimeState()->current!=spike_victim ||
-      (g_ram[0x9ff]&127) || g_ram[0x9fe]!=127)return;
+  if(cpu->D!=X3_COOP_BODY || X3CoopRuntimeState()->current!=spike_victim)return;
+  if(pc==0x048008){if(spike_controller_required){spike_entry_living=(g_ram[0x9ff]&127)!=0;spike_entry_tick=g_ram[0x9cc];}return;}
+  if(pc==0x048084){if(!spike_controller_required || !spike_entry_living || spike_entry_tick!=g_ram[0x9cc] || g_ram[0x9da]!=0x0c || (g_ram[0x9ff]&127))return;}
+  else if((g_ram[0x9ff]&127) || g_ram[0x9fe]!=127)return;
   ++spike_damage;
   view_probe.io.func=view_probe_io;view_probe.used=0;view_probe.load=false;
   X3CoopRuntimeSave(&view_probe.io);
   check(X3CoopRuntimePreflight(view_probe.bytes,view_probe.used),"actual pending lethal-terrain state passes runtime preflight");
   /* Runtime wire: controller entry/result registers are12 bytes each. */
-  spike_controller|=view_probe.bytes[X3CoopEncodedSize()+24]!=0;
+  spike_controller|=view_probe.bytes[X3CoopEncodedSize()+24];
   spike_terrain|=view_probe.bytes[X3CoopEncodedSize()+26+24]!=0;
+  if(spike_controller_independent && spike_controller && X3CoopRuntimeState()->current!=X3CoopRuntimeState()->anchor){
+    size_t vi=0;for(size_t i=X3CoopEncodedSize();i+8<view_probe.used;++i)if(!memcmp(view_probe.bytes+i,"X3J2",4)){vi=i+8;break;}
+    size_t at=vi+X3_COOP_VIEW_STATE_BYTES+67+24;check(vi && at<view_probe.used && view_probe.bytes[at]==3,"secondary in-controller fatal retains its actual independent personal-camera projection");
+    fprintf(stderr,"native INDEPENDENT CONTROLLER FATAL seat%u pass%u personal%u tick%u\n",spike_victim,spike_controller,view_probe.bytes[at],g_ram[0x9cc]);
+  }
 }
 static void native_spike_checks(const char *normal,const char *reversed,uint8_t *base,uint8_t *work,size_t capacity){
   uint8_t *replay=malloc(capacity);check(replay!=NULL,"fatal-contact replay buffer allocates");
+  spike_controller_required=getenv("X3_COOP_CONTROLLER_SPIKE")!=NULL;
+  spike_controller_independent=spike_controller_required && getenv("X3_COOP_CONTROLLER_SPIKE_INDEPENDENT");
   /* Default terrain contact runs after the controllers. Observe B5A9 after
    * the real collision, before B5AB projects the other body's terrain pass.
    * The ordinary AOT damage helper is not interpreted with learner off. */
-  check(interp_bridge_add_pre_opcode_hook(0x04b5a9,spike_damage_probe) &&
+  check(interp_bridge_add_pre_opcode_hook(0x048008,spike_damage_probe) &&
+        interp_bridge_add_pre_opcode_hook(0x048084,spike_damage_probe) &&
+        interp_bridge_add_pre_opcode_hook(0x04b5a9,spike_damage_probe) &&
         interp_bridge_add_pre_opcode_hook(0x00e30a,shared_pit_probe),"native lethal-terrain and pit observations register");
   for(unsigned roster=0;roster<2;++roster)for(unsigned victim=0;victim<2;++victim){
     check(RtlLoadSnapshot(roster?reversed:normal) && g_ram[0x1fae]==5 &&
@@ -26,27 +37,54 @@ static void native_spike_checks(const char *normal,const char *reversed,uint8_t 
         !X3CoopRuntimeStockZero(),"spike route uses actual stage5 and the requested default roster");
     size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
     for(unsigned seat=0;seat<2;++seat){
-      uint8_t *b=setup.players[seat].body;unsigned x=seat==victim?1680:1568;
-      unsigned y=seat==victim?1400:setup.players[seat].character==X3_COOP_ZERO?1367:1375;
+      uint8_t *b=setup.players[seat].body;unsigned x=spike_controller_required?1128:seat==victim?1680:1568;
+      unsigned y=spike_controller_required?(setup.players[seat].character==X3_COOP_ZERO?663:671):seat==victim?1400:setup.players[seat].character==X3_COOP_ZERO?1367:1375;
+      if(spike_controller_required){b[0x30]=b[0x88]=b[0x8a]=0;}
       b[5]=b[0x22]=(uint8_t)x;b[6]=b[0x23]=(uint8_t)(x>>8);
       b[8]=b[0x24]=(uint8_t)y;b[9]=b[0x25]=(uint8_t)(y>>8);
       b[4]=b[7]=b[2]=b[3]=0;memset(b+0x1a,0,6);
     }
-    shared_prepare(base,n,work,&setup);view_word(0x1e5d,1456);view_word(0x1e7a,1456);
+    shared_prepare(base,n,work,&setup);view_word(0x1e5d,spike_controller_required?1032:1456);view_word(0x1e7a,spike_controller_required?1032:1456);
     /* Match the actual upper-room camera band to this QA teleport. Keeping
      * the lower entry room's bounds makes native B59B push both bodies down
      *16 pixels per frame, burying the otherwise safe partner in its floor. */
     const unsigned vertical[]={0x1e60,0x1e7c,0x1e6a,0x1e6c,0x1e78,0x1e7e};
-    for(unsigned i=0;i<sizeof(vertical)/sizeof(*vertical);++i)view_word(vertical[i],1280);
+    for(unsigned i=0;i<sizeof(vertical)/sizeof(*vertical);++i)view_word(vertical[i],spike_controller_required?(i<2?576:i==2 || i==4?512:1024):1280);
+    if(spike_controller_independent){
+      X3CoopViewsConfigure(true);X3CoopViewState v=*X3CoopViewsState();v.independent=v.initialized=1;v.stage=5;v.valid=v.camera_valid=3;
+      for(unsigned seat=0;seat<2;++seat){v.camera[seat][0]=1032;v.camera[seat][1]=576;v.current[seat][0]=v.limits[seat][0]=0;v.current[seat][1]=v.limits[seat][1]=8192;v.current[seat][2]=v.limits[seat][2]=512;v.current[seat][3]=v.limits[seat][3]=1024;}X3CoopViewsSetState(&v);vehicle_install_view(&v,setup.anchor);
+    }
+    if(spike_controller_required){
+      for(unsigned f=0;f<12;++f)frame(0);check(campaign_body(victim)[0x2b]&4,"controller-fatal approach first earns actual native ground contact");
+      for(unsigned f=0;f<8;++f)frame((uint32_t)SNES_PAD_B<<(victim*12));unsigned falling=0;
+      for(;falling<90;++falling){const uint8_t *b=campaign_body(victim);if(b[2]==8 && (int16_t)(b[0x1c]|b[0x1d]<<8)<0 && !(b[0x2b]&4))break;frame(0);}
+      check(falling<90,"real physical Jump and gravity earn the downward native controller before spike positioning");
+      n=RtlSaveSnapshotToMemory(base,capacity);setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+      /* Earn actual wall-slide on3B above the authored3F column. The
+       * open right face is at1040; no wall/contact/action flag is supplied. */
+      campaign_position_only(&setup.players[victim],1046,setup.players[victim].character==X3_COOP_X?697:693);
+      check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"solid-wall preparation changes only the already falling actor's position");door_install_player(&setup);
+      unsigned wall=0;for(;wall<8 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE && (campaign_body(victim)[2]!=0x12 || campaign_body(victim)[3]!=2);++wall)frame((uint32_t)SNES_PAD_LEFT<<(victim*12));
+      check(RtlSaveSnapshot("native-controller-wallslide-prerequisite.sav"),"the actual native wall-slide prerequisite retains its machine");
+      fprintf(stderr,"native WALL SLIDE victim%u char%u frames%u action%u/%u HP%u flags%02x/%02x XY%u,%u\n",victim,X3CoopRuntimeState()->players[victim].character,wall,campaign_body(victim)[2],campaign_body(victim)[3],contact_hp(victim),campaign_body(victim)[0x2b],campaign_body(victim)[0x2c],support_position(victim,5),support_position(victim,8));
+      check(wall<8 && contact_hp(victim) && campaign_body(victim)[2]==0x12 && campaign_body(victim)[3]==2,"real directional input earns native wall-slide on the solid section before any lethal position");
+      n=RtlSaveSnapshotToMemory(base,capacity);setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+      campaign_position_only(&setup.players[victim],support_position(victim,5),setup.players[victim].character==X3_COOP_X?777:773);
+      check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"wall-slide continues down the authored column using position-only preparation");door_install_player(&setup);
+    }
+    if(spike_controller_required)check(RtlSaveSnapshot("native-controller-side-spike-approach.sav"),"the earned falling side approach retains its complete machine");
     spike_victim=shared_pit_victim=victim;spike_damage=spike_controller=spike_terrain=shared_pit_damage=0;
+    spike_entry_living=false;uint32_t approach=spike_controller_required?(uint32_t)SNES_PAD_LEFT<<(victim*12):0;
     unsigned elapsed=0;size_t contact_size=0;
     for(;elapsed<180 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE;++elapsed){
-      contact_size=RtlSaveSnapshotToMemory(base,capacity);frame(0);
+      contact_size=RtlSaveSnapshotToMemory(base,capacity);frame(approach);
     }
     const X3CoopState *s=X3CoopRuntimeState();
     fprintf(stderr,"authored spike roster%u seat%u frames%u fatalSelections%u controller%u terrain%u pit%u life%u/%u xy%u/%u\n",
         roster,victim,elapsed,spike_damage,spike_controller,spike_terrain,shared_pit_damage,
         s->players[0].life,s->players[1].life,coop_x(victim),support_position(victim,8));
+    if(spike_controller_required)check(RtlSaveSnapshot("native-controller-side-spike-outcome.sav"),"the actual side-spike result retains its complete native machine");
+    if(spike_controller_required)check(spike_controller && !spike_terrain,"native authored spike fatal must occur inside its actual active controller, outside the post-enemy terrain pass");
     check(elapsed<180 && spike_damage==1 && !shared_pit_damage && s->players[victim].life==X3_COOP_FALLEN &&
         s->players[victim^1].life==X3_COOP_ALIVE && s->anchor==(victim^1) && !s->wipe,
         "actual spike contact kills only the actor above the authored row and retains the free partner");
@@ -55,7 +93,7 @@ static void native_spike_checks(const char *normal,const char *reversed,uint8_t 
     uint8_t *pixels=malloc(pixel_size);check(pixels!=NULL,"actual fatal-output buffer allocates");
     memcpy(pixels,g_ppu->renderBuffer,pixel_size);
     check(contact_size && RtlLoadSnapshotFromMemory(base,contact_size),"last actual frame before spike contact restores");
-    frame(0);size_t replay_size=RtlSaveSnapshotToMemory(replay,capacity);
+    frame(approach);size_t replay_size=RtlSaveSnapshotToMemory(replay,capacity);
     same(work,fatal_size,replay,replay_size,"fatal spike contact replays the complete machine and survivor handoff");
     CaptureSimulationFrame(1);
     check(!memcmp(pixels,g_ppu->renderBuffer,pixel_size),"actual displayed fatal-contact pixels replay identically");
@@ -63,6 +101,15 @@ static void native_spike_checks(const char *normal,const char *reversed,uint8_t 
     check(RtlLoadSnapshotFromMemory(work,fatal_size),"actual fatal-contact outcome restores");
     replay_size=RtlSaveSnapshotToMemory(replay,capacity);
     same(work,fatal_size,replay,replay_size,"actual fallen and survivor contexts restore immediately");
+    if(spike_controller_required){
+      uint8_t *future=malloc(capacity);check(future!=NULL,"controller-fatal survivor whole future allocates");unsigned lives=g_ram[0x1fb4];
+      for(unsigned run=0;run<2;++run){check(RtlLoadSnapshotFromMemory(work,fatal_size),"the actual in-controller fatal restores before its entire survivor future");unsigned before=coop_x(victim^1),clock=g_ram[0x9cc];
+        for(unsigned f=0;f<24;++f)frame((uint32_t)SNES_PAD_LEFT<<((victim^1)*12));check(coop_x(victim^1)<before,"actual controller-fatal survivor retains physical movement");
+        for(unsigned f=0;f<120;++f)frame(0);for(unsigned a=0x1f25;a<=0x1f2b;++a)check(!g_ram[a],"fatal selection inside a running actor cannot freeze shared world pools");
+        check((uint8_t)(g_ram[0x9cc]-clock)==144 && g_ram[0x1fb4]==lives && X3CoopRuntimeState()->players[victim].life==X3_COOP_FALLEN && X3CoopRuntimeState()->players[victim^1].life==X3_COOP_ALIVE && g_ram[0xd1]==4 && g_ram[0xd2]==4,"actual in-controller death leaves one continuing world and a stable native survivor");
+        size_t done=RtlSaveSnapshotToMemory(base,capacity);if(!run)memcpy(future,base,done);else same(future,done,base,done,"actual in-controller fatal and complete unfrozen survivor future replay the whole machine exactly");
+      }free(future);continue;
+    }
     if(getenv("X3_COOP_TRANSITION_MENU")){
       X3CoopPlayer fallen=X3CoopRuntimeState()->players[victim];X3CoopMenuInfo panel;
       menu_press(victim,0x1000);check(!X3CoopMenuRead(&panel) && !(g_ram[0x1f37]&1),"an actual fallen actor cannot own native pause");

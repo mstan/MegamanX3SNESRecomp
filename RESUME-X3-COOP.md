@@ -1,9 +1,9 @@
 # Mega Man X3 co-op — committed stopping point and full continuation
 
-## Current continuation ? 2026-11-13
+## Current continuation - 2026-11-13
 
-The active goal continues. Current acceptance is **120/180;60 open;4/15 areas (T,R,M,N)**.
-Campaign G01-G11 and G13-G16 pass; G12 remains open. Earlier110/118/119-point
+The active goal continues. Current acceptance is **121/180;59 open;4/15 areas (T,R,M,N)**.
+Campaign G01-G11 and G13-G16 pass; G12 remains open. Earlier110/118/119/120-point
 checkpoints below are historical. Read the latest sections of
 `docs/COOP_DEVELOPMENT.md` and the existing private
 `build-coop/qa-state/native-crawfish-capture-qualification.json` before choosing
@@ -26,7 +26,18 @@ and controls return with full health and one retry debit. Complete futures
 match twice. All ten team-wipe/retry/game-over points pass, so T joins R/M/N as
 an accepted area. Production/GUI code is unchanged; four standard tests pass.
 
-Next decisions: P06 is authored falling/collapsing-support activation; P12 is
+D08 now passes real wall-slide deaths in Shared and Independent simulation,
+both characters/physical rosters. The actual native controller has positive
+entry HP, then selects zeroHP/action0C inside active controller1/2, outside
+terrain/pit handling. Independent secondary projection3 and pending-state
+preflight pass. Fatal output and the144-update unfrozen survivor future replay
+exactly. Four existing floor-spike cases and four standard tests also pass.
+This is test-only coverage; the existing runtime needed no new fix.
+
+Next decisions: D12 needs the remaining captured/carried fatal-handoff scope,
+including Buffalo's existing native grip/freeze earners. Reuse existing
+per-family evidence before adding checks. P06 is authored falling/collapsing-
+support activation; P12 is
 pinch/crush. Do not confuse those definitions. A late lift-edge setup was
 rejected because the real charged cast had already reached its upper endpoint
 before the test moved the rider; the unqualified extension was removed. Reuse
@@ -35,7 +46,7 @@ support transition. D06 still requires a genuine authored lethal crush;
 class37/26 explicitly protect their contact. G12 still requires actual fortress
 traversal/exits beyond the accepted admissions and boss/ending flows.
 
-Remaining IDs: D06,D08,D12;F10;A02,A05,A09-A13;P06,P09,P12,P13;
+Remaining IDs: D06,D12;F10;A02,A05,A09-A13;P06,P09,P12,P13;
 E05-E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
 Q01-Q06;Z01-Z04. No release has been delivered. Computer Use or desktop/browser
 UI automation requires the owner's explicit approval; current automation uses

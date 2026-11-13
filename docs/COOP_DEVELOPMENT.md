@@ -4785,3 +4785,40 @@ All ten team-wipe/retry/game-over points now pass. Acceptance is120/180,
 60 open and4/15 accepted areas: T, R, M and N. Campaign remains15/16; actual
 fortress traversal and the remaining gameplay, presentation, runtime and
 owner/package/delivery checks are still required.
+
+
+## Authored fatal selection inside native controllers
+
+D08 is accepted. Real Jump, gravity and directional input earn wall-slide12/2
+on stage5's solid3B column. A position-only continuation down its authored3F
+section lets the original wall-slide controller select death. The observation
+records positive HP at native controller entry, then zero HP/native action0C
+before its return in the same native world update. Serialized controller pass1
+or2 is active, terrain pass is0, and no pit call occurs. No action, collision,
+damage or death result is supplied by this continuation.
+
+Both characters and physical rosters pass in Shared and Independent simulation.
+The Independent secondary cases additionally retain and validate the actual
+personal-camera projection3 during the pending fatal controller. The current
+snapshot preflight accepts those genuine transient states. The displayed fatal
+frame and complete fatal machine replay exactly. The entire144-update survivor
+future also matches twice: real movement continues, shared world pools stay
+unfrozen, the victim stays fallen, and no retry resource is debited.
+
+The four existing floor-spike cases also pass, including their native fatal
+frame/output replay and survivor control. Their observations remain terrain
+pass1/controller0. An earlier falling side contact had that same later-pass
+result; it was not accepted as an in-controller fatal. The valid setup first
+earns the real wall-slide and keeps both actors within the Shared camera's
+160-pixel vertical separation rule.
+
+Shared controller qualification and floor regression use
+25d3ceacc42f5987225da949350dc8ee683c9346b49a12fe76bc56f5ed1ebc42.
+Independent qualification uses
+91360dd16f35e79337938c6c1749bb8705935e91c432b44a9606fe27771586e7.
+All four standard tests pass. This is test-only coverage; production and the
+previously validated GUI are unchanged.
+
+Acceptance is121/180,59 open and4/15 accepted areas. D06 and D12 remain open
+in the death area. Campaign remains15/16; remaining fortress traversal,
+gameplay, presentation, runtime and owner/package delivery are still required.
