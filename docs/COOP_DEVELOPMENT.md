@@ -4188,26 +4188,39 @@ retirement91. Busy withdrawal is refused; each full paired future replays
 exactly. An initial parent-overlap approach and a later unprotected interruption
 by parent damage were rejected as setups for the isolated escape check.
 
-A real oneHP ring victim then dies on native contact at55 updates. Previously
-the fallen body's retained capture pose kept the ring, global latch and parent
-binding alive. A retired owner's ring now takes its original39:AC5A release
-continuation. The measured Zero-death case clears all three, leaves Bit alive
-at32HP and X controllable for24 real world ticks, and replays exactly twice.
-Other fatal-ring roster/anchor cases and complete survivor progression remain
-unqualified. The latest survivor-clear probe emits native busters but does not
-land its final hit within1200 updates; X remains alive at2985/1455 while Bit is
-at3039/1447 with1HP. Its fixed initial aiming input needs investigation against
-the actual moving target; this is not yet classified as an engine defect.
+Actual oneHP ring deaths now pass all eight roster/victim/prior-anchor cases.
+Native04:D8D5 previously saw the projected fallen captive and permanently
+set Bit's retirement byte, disabling subsequent attack collision. The existing
+Crawfish captive-death boundary now also keeps Bit active while its ring
+releases. Both actual survivors earn a real buster retreat and cross into the
+next room, preserving the fallen actor, acquisitions and lives. The complete
+futures replay exactly twice. Physical aiming follows the moving hunter; a
+stale initial facing was a separate test prerequisite.
 
-Native stage10 event columns contain the lower fusion record45 at5808/1920
-and upper5A record at5856/1600. Earned result05 reaches the actual live5D fusion
-boss and43 parts; earned0F reaches the live5A parent and four native parts.
-The alternate approach requires its skipped upper pre-room columns. These are
-branch-entry fixtures, not G12 traversal acceptance. Both observed approaches
-leave X behind the entrance while P2 reaches the arena; shared door completion,
-all mixed-outcome consequences, native boss mechanics/clears and subsequent
-progression remain open. The entry observer must select5A kind0 before using
-its returned slot as the damageable parent.
+Eight occupied-ring parent defeats also retain both living actors and finish
+the actual next-room exit. Native AC5A deferred the capture latch to the
+defeated parent; in-stage retirement could leave that latch set after the ring
+was gone. The existing hostile boundary now clears the earned ring's latch
+with its retirement. Source/lock/latch cleanup and complete replay pass. A
+second roster reversal inside the nested outcome test was a setup error and
+is corrected without changing runtime roster behavior.
+
+All four earned results05/0D/07/0F now admit their actual fortress branches
+through completed native door scenes. The earlier outside P1 observations
+stopped before scene completion; both living actors now enter together without
+a door runtime change. Parent5A selection requires kind0. The lower05/0D/07
+branches each pass four roster/shooter real projectile defeats and full native
+Lab2 Vile-branch(stage14) arrivals, with unchanged earned hunter results/lives
+and complete replay. All eight Maverick clear/acquisition flags are explicit
+fortress-unlock prerequisites; they do not fabricate hunter results. These
+checkpoint approaches still bypass earlier fortress traversal.
+
+The upper0F route has a real head defeat/full arrival in one nonleading case,
+but its wider firing and separate trunk/head mechanics remain under test.
+A real native buster defeats the assisted1HP trunk in35 updates; incidental
+head damage32to31 is retained. Actual captive ownership, remaining upper
+mechanics, complete survivor permutations and later consequences still need
+qualification. G10 and G12 remain open; the suite stays110/180 accepted.
 
 Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json →
 bit_byte and exact named job receipts/logs. Earlier in-stage outcome SHA
@@ -4216,10 +4229,12 @@ living ring reference SHA
 1c23e45f34f195f88e8c3ee4b50c2a04d61eee1a6b2f96f7d0559a8098b9a8a6;
 retired-ring repair SHA
 fd2af7e9f7bb251f760d8d4e01369203013f31fe780a28695bf510d5681b6d23.
-Current state test SHA
-47e109e3c1afed475edf5469de09d4c7e216da85ca92a8ad6538543bf13576db;
-current GUI SHA
-ce13455ffc45136f44c7592d055cf1f98f3d95bd21af3b5f86c5150cd0b77fdf.
-The current GUI build and all four standard CTests pass. The optional full
-survivor-clear probe fails as described above. No snapshot-format or hook-list
-change. No G10 acceptance, owner validation or release is claimed.
+Current Bit/fortress qualification state test SHA
+6bc680ebf364ee56f3729b66a3c556c3fe6ed986ce5135d79f30e8987de7e418;
+reversed occupied-ring setup correction SHA
+8756454a40aa19189aa08c054d5894bf8c9ddc935027df202bd54d096dff3e06.
+The production GUI SHA is
+60a190d8c0cd92cf0b8cc6a747474337e81f79aaa0617acff79ff5c107260074;
+its build and all four standard CTests pass. Optional frontier tests retain
+individual unqualified setups and failures in the private compact record.
+No snapshot-format or hook-list change, owner validation or release is claimed.

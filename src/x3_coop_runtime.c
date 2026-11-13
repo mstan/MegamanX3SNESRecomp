@@ -965,18 +965,19 @@ static bool captured_player(unsigned seat){
   return false;
 }
 /* The solo boss retires when its only body has zero HP. With a living
- * partner, release a dead Crawfish captive through D399's original animation,
- * control cleanup and recovery instead of retiring the shared encounter. */
+ * partner, keep the shared encounter active while its dead captive releases.
+ * Crawfish also needs D399's original control cleanup and recovery. */
 static void captive_death_boundary(CpuState *cpu,uint32_t pc){
   unsigned d=cpu->D;
-  if(!X3CoopRuntimeReady() || state.wipe || !enemy_actor(d) || g_ram[d+10]!=0x54 ||
+  if(!X3CoopRuntimeReady() || state.wipe || !enemy_actor(d) ||
+      (g_ram[d+10]!=0x54 && g_ram[d+10]!=0x46) ||
       !target.active || target.slot!=d || !native_captor_holding(d))return;
   unsigned owner=native_captive_owner(d);
   if(owner>=2 || state.players[owner].life==X3_COOP_ALIVE ||
       state.players[owner^1].life!=X3_COOP_ALIVE)return;
   unsigned at=pc&0x7fffff;
   if(at==0x04d8d5)interp_bridge_pre_opcode_redirect((pc&0x800000)|0x04d8e0);
-  else if(at==0x03d352)interp_bridge_pre_opcode_redirect((pc&0x800000)|0x03d399);
+  else if(at==0x03d352 && g_ram[d+10]==0x54)interp_bridge_pre_opcode_redirect((pc&0x800000)|0x03d399);
 }
 static void refill_retired_cleanup(unsigned d,unsigned seat){
   X3CoopPlayer *p=&state.players[seat];
@@ -1100,6 +1101,10 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
   }
   if((at==0xdc68 || at==0xdc8c) && hostile_projectile(d)){
     unsigned i=(d-0x1318)/64;
+    /* AC5A leaves the latch to the defeated parent while1F54 is04. The
+     * hunter can finish without a stage reset; retire this earned ring's
+     * latch with its source so it cannot leak into the next encounter. */
+    if(bit_ring_kind(d) && g_ram[d+1]>=4 && view_spawn.hostile_captive[i])g_ram[0x1cd91]=0;
     if(!hostile_attachment(d))view_spawn.hostile_captive[i]=0;
     else if(hornet_attachment(d) && g_ram[d+0x37]!=2 && !view_spawn.hostile_captive[i]){
       int parent=support_slot(word(g_ram+d+0x38));
