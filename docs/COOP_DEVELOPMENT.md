@@ -4262,3 +4262,46 @@ The current production GUI SHA is
 its build and all four standard CTests pass. Individual unqualified frontier
 setups remain in the existing private compact record. No snapshot-format or
 hook-list change, owner validation or release is claimed.
+
+
+### Fusion capture group and retired-victim release
+
+The lower fortress fusion boss coordinates NPC43 kinds2/4/6 through CD90/CD91.
+Its actual arm capture now retains D034's recipient across the slammer and
+newly allocated carrier, using the existing attachment bytes and world state.
+The root keeps this metadata while targeting a living survivor after captive
+death. The actual D1CA defeat recipient takes ownership of the outro.
+No snapshot-format change or additional native hook is required.
+
+All eight roster/victim/prior-anchor cases pass the complete396-update native
+arm/slam/carrier/release reference, including the carrier's actual allocation
+at324. Every byte of the victim's body, own pools/palette and coordinated
+captors agrees on each update; the entire paired world replays exactly twice.
+The separate static kind0 body can contact the free partner and is covered by
+paired-world replay. Healthy X uses the legitimate eight-heart32HP maximum:
+the unupgraded native16HP reference dies during the slam, rather than reaching
+a living release. Native attack and capture/result fields are never supplied.
+
+Native F5ED skips carrier creation when the slam kills its captive, leaving
+F56E waiting forever on CD91. A retired bound actor now takes that arm's native
+D0C0 release and completed-carrier handshake. Sixteen fatal cases cover death
+during the arm hold and later slam, both rosters/victims/anchors. Each retains
+the32HP live parent, clears the binding, permits24 free-survivor updates and
+earns the actual survivor kill and Lab2 stage14 arrival with the original
+fallen actor and lives retained. Complete futures replay exactly twice.
+
+Eight actual parent kills during the arm hold also pass native child release,
+binding cleanup before pool reset, both living arrivals and complete replay.
+The first occupied-carrier parent kill passes its distinct release path;
+remaining carrier permutations are running. G10 remains open pending that
+qualification. The total remains110/180 accepted,70 open and3/15 areas.
+
+The full native-reference/fatal test binary is
+`7ff6c6293a964ba74381af354ab5a9d353dd84dc1a85ff99a347246d98f2c969`;
+the expanded carrier-parent observer is
+`fa7eeaf6bb4707fdaa7f26f826222265a0ed46ebb3549d3f7623ce4e6e4e2b62`.
+Production GUI
+`2421cb0fa8412b3662d9e08204b9c9d3780c15b58f10fc196d5712b088fb8a11`
+builds, all four standard CTests pass, and focused actual Bit-ring and Press
+claw references pass after the capture-group changes. Remaining campaign,
+scene, presentation, owner and package gates remain open.

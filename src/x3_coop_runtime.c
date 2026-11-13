@@ -898,6 +898,34 @@ static bool acid_captive_of(unsigned parent){
   return false;
 }
 static bool press_claw(unsigned d){return d>=0xd18 && d<0x10d8 && g_ram[d+10]==0x5a && g_ram[d+11]==2;}
+static bool god_part(unsigned d){return d>=0xd18 && d<0x10d8 && g_ram[d+10]==0x43 &&
+    (g_ram[d+11]==2 || g_ram[d+11]==4 || g_ram[d+11]==6);}
+static bool god_grip_active(unsigned d){
+  if(!god_part(d) || !g_ram[d])return false;
+  if(g_ram[d+11]==2)return g_ram[d+1]==2 && g_ram[d+3]>=4 && g_ram[d+3]<=12;
+  return g_ram[d+11]==6 && (!g_ram[d+1] || (g_ram[d+1]==2 && g_ram[d+3]<=2));
+}
+static bool god_capture_active(void){
+  for(unsigned d=0xd18;d<0x10d8;d+=64)if(god_grip_active(d))return true;
+  return false;
+}
+static unsigned god_capture_owner(void){
+  if(!god_capture_active())return 2;
+  /* One authored God controller coordinates both arms and the dropped
+   * carrier through CD90/CD91. A constructor must inherit that recipient,
+   * rather than the unrelated body currently nearest its new slot. */
+  for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==0x5d && !g_ram[d+11]){
+    unsigned owner=(attachments[(d-0xd18)/64]>>2)&3;if(owner==1 || owner==2)return owner-1;
+  }
+  for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d+1] && god_grip_active(d)){
+    unsigned owner=(attachments[(d-0xd18)/64]>>2)&3;if(owner==1 || owner==2)return owner-1;
+  }
+  return 2;
+}
+static bool god_part_context(unsigned d){
+  if(g_ram[d+11]==4)return g_ram[d+1]==2 && g_ram[d+3]<=2 && g_ram[0x1cd91] && god_capture_owner()<2;
+  return god_grip_active(d) || (g_ram[d+1]>=4 && (attachments[(d-0xd18)/64]&12));
+}
 static bool native_defeat_controller(unsigned d){
   return d>=0xd18 && d<0x10d8 && g_ram[d+1]==4 &&
       (g_ram[d+10]==0x46 || g_ram[d+10]==0x47 ||
@@ -907,6 +935,8 @@ static bool native_captor_context(unsigned d){
   if(hostile_projectile(d))return hostile_attachment(d) && view_spawn.hostile_captive[(d-0x1318)/64];
   if(!g_ram[d] || !g_ram[d+1])return false;
   if(native_defeat_controller(d))return true;
+  if(g_ram[d+10]==0x5d && !g_ram[d+11])return god_capture_active();
+  if(god_part(d))return god_part_context(d);
   if(d<0x10d8 && g_ram[d+10]==0x46)return g_ram[d+1]==4 || bit_captive_of((d-0xd18)/64);
   if(d<0x10d8 && g_ram[d+10]==0x47)return g_ram[d+1]==4;
   if(g_ram[d+10]==0x59)return g_ram[d+1]==4 || acid_captive_of((d-0xd18)/64);
@@ -919,6 +949,8 @@ static bool native_captor_holding(unsigned d){
   if(hostile_projectile(d))return acid_carrier(d) || (bit_ring_context(d) && g_ram[d+1]==2 && g_ram[d+3]==8);
   if(g_ram[d+10]==0x46)return bit_captive_of((d-0xd18)/64);
   if(g_ram[d+10]==0x59)return acid_captive_of((d-0xd18)/64);
+  if(g_ram[d+10]==0x5d && !g_ram[d+11])return god_capture_active();
+  if(god_part(d))return god_grip_active(d);
   if(press_claw(d))return g_ram[d+1]==2 && g_ram[d+3]==6 && g_ram[d+0x35];
   return g_ram[d+1]==2 && g_ram[d+3]==4 &&
       ((g_ram[d+10]==0x52 && g_ram[d+2]==0x0a) || (g_ram[d+10]==0x54 && !g_ram[d+2]));
@@ -927,6 +959,15 @@ static unsigned native_captive_owner(unsigned d){
   if(hostile_projectile(d)){
     unsigned tag=view_spawn.hostile_captive[(d-0x1318)/64];
     return tag && hostile_attachment(d)?(tag-1)&1:2;
+  }
+  if(god_part(d)){
+    unsigned owner=(attachments[(d-0xd18)/64]>>2)&3;
+    if(g_ram[d+1] && god_part_context(d) && (owner==1 || owner==2))return owner-1;
+    return god_grip_active(d) || (g_ram[d+11]==4 && g_ram[d+1]==2 && g_ram[d+3]<=2 && g_ram[0x1cd91])?god_capture_owner():2;
+  }
+  if(g_ram[d+10]==0x5d && !g_ram[d+11] && g_ram[d+1]==2){
+    unsigned owner=god_capture_owner();
+    return owner<2 && state.players[owner].life==X3_COOP_ALIVE?owner:2;
   }
   int slot=support_slot(d);
   if(slot<0 || slot>=15 || !native_captor_context(d))return 2;
@@ -1102,6 +1143,15 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
      * HP alone. Its own AC5A continuation releases the ring/global latch
      * without binding the survivor or retiring the living parent. */
     if(retired && bit_ring_context(d) && g_ram[d+1]==2 && g_ram[d+3]==8)g_ram[d+3]=10;
+    if(retired && god_grip_active(d)){
+      /* F5ED omits the carrier when CD6A kills its captive, leaving F56E
+       * waiting forever on CD91. Take that arm's own D0C0 release and the
+       * carrier-complete handshake; the living parent still finishes its
+       * native retraction. A retired carrier takes its own F692 release. */
+      g_ram[0x1cd91]=0;g_ram[0x1cd90]|=2;
+      if(g_ram[d+11]==2)g_ram[d+3]=12;
+      else {g_ram[d+3]=2;g_ram[d+0x38]=1;}
+    }
     /*03:D695 and39:AC3C count the actual captive's physical input edges. */
     if((g_ram[d+10]==0x54 || bit_ring_kind(d)) && !g_ram[0x1f63]){
       if(seat)memcpy(g_ram+0xa8,g_ram+0xae,6);else primary_input_restore();
@@ -1144,19 +1194,32 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
       g_ram[d+0x35]=0;
     }
   }
-  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x46 || g_ram[d+10]==0x47 || g_ram[d+10]==0x52 || g_ram[d+10]==0x54 || g_ram[d+10]==0x59 || press_claw(d) || native_defeat_controller(d))){
+  if((at==0xdccf || at==0xdcf3) && god_part(d) && g_ram[d+11]!=4 && g_ram[d+1]>=4 &&
+      (attachments[(d-0xd18)/64]&12)){
+    unsigned owner=native_captive_owner(d);uint8_t *b=g_ram+X3_COOP_BODY;
+    if(owner<2 && state.current==owner){
+      if(b[0xa3]==0x96 && !(b[0xa5]&16)){b[0x30]=0;b[0xa3]=0x88;b[0xa5]&=127;}
+      attachments[(d-0xd18)/64]&=(uint8_t)~12;
+    }
+  }
+  if((at==0xdccf || at==0xdcf3) && enemy_actor(d) && (g_ram[d+10]==0x46 || g_ram[d+10]==0x47 || g_ram[d+10]==0x52 || g_ram[d+10]==0x54 || g_ram[d+10]==0x59 || press_claw(d) || god_part(d) || native_defeat_controller(d))){
     int slot=support_slot(d);
     if(slot>=0){
       if(!native_captor_context(d) || (g_ram[d+10]==0x54 && native_captive_owner(d)<2 &&
           state.players[native_captive_owner(d)].life!=X3_COOP_ALIVE && !native_captor_holding(d)))attachments[slot]&=(uint8_t)~12;
       else if(native_defeat_controller(d) &&
-          !(attachments[slot]&12) && native_freeze_recipient())
+          (!(attachments[slot]&12) || g_ram[d+10]==0x5d) && native_freeze_recipient())
         /* In-stage hunter outcomes have no new-stage constructor to hide a
          * missed D1EF. Retain the actual D1CA recipient through that script. */
         attachments[slot]=(uint8_t)((attachments[slot]&~12u)|128u|(4u<<state.current));
       else if(g_ram[d+10]!=0x46 && g_ram[d+10]!=0x47 && g_ram[d+10]!=0x59 && !(attachments[slot]&12) && g_ram[X3_COOP_BODY+0xa3]==0x96)
         /*03:CC5B/03:D31A and04:D034 earned the grip in this projected body. */
         attachments[slot]=(uint8_t)((attachments[slot]&~12u)|128u|(4u<<state.current));
+      if(god_part(d) && (attachments[slot]&12)){
+        for(unsigned parent=0xd18;parent<0x10d8;parent+=64)
+          if(g_ram[parent] && g_ram[parent+10]==0x5d && !g_ram[parent+11] && g_ram[parent+1]==2)
+            attachments[(parent-0xd18)/64]=(uint8_t)(128|(attachments[slot]&12));
+      }
     }
   }
   /* Native item/enemy/hostile-shot continuations follow the actual RTS;
