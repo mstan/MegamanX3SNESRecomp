@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("coop_hooks", ROOT / "tools/apply_coop_hooks.py")
@@ -27,8 +28,10 @@ class CompiledBoundaries(unittest.TestCase):
 
     def test_retired_boundary_has_no_stale_bridge_or_include(self):
         original = "RecompReturn bank_03_B2A7_M1X1(CpuState *cpu) {\n  g_cpu_entry_s[g_recomp_stack_top - 1] = _entry_s;\n}\n"
-        stale = HOOKS.MARKER + ' #include "snes/interp_bridge.h"\n' + original
-        self.assertEqual(HOOKS.apply(stale), (original, 0))
+        stale, count = HOOKS.apply(original)
+        self.assertEqual(count, 1)
+        with patch.dict(HOOKS.TARGETS, {3: HOOKS.TARGETS[3] - {0xB2A7}}):
+            self.assertEqual(HOOKS.apply(stale), (original, 0))
 
 
 if __name__ == "__main__":

@@ -45,7 +45,7 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
   if((pc&0x7fffff)==0x03ad70 && !scene.phase && cpu->D==0x0cc8 &&
      state.players[x].life!=X3_COOP_ALIVE && state.players[zero].life==X3_COOP_ALIVE &&
      state.current==zero && state.anchor==zero && g_ram[X3_COOP_BODY+0xb6]==2){
-    scene_begin(cpu->D,SCENE_INTRO_RETIRED_X);
+    scene_begin(cpu->D,SCENE_NATIVE_CINEMATIC);
     /* Original Zero's exit consumes the capture/exchange token. A survivor
      * that skipped capture has not acquired it, so own it for this exchange
      * and let the original cleanup release it instead of underflowing. */
@@ -83,7 +83,7 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
          * the real Zero context while native WRAM belongs to that cinematic;
          * the fallen/absent X is never enrolled or captured from it. */
         X3CoopCapture(&state,g_ram);scene_cancel_transients(zero);
-        intro_change_owner(zero,SCENE_INTRO_RETIRED_X);
+        intro_change_owner(zero,SCENE_NATIVE_CINEMATIC);
       }
       break;
     case 0x03ad7f:
@@ -99,7 +99,7 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
       }
       break;
     case 0x03aed9:
-      if(intro_cinematic()){
+      if(native_cinematic()){
         /* Native palette/lock cleanup has returned; the NPC retires next.
          * Adopt its finished floor using Zero's retained body/resources. */
         scene_place(zero,g_ram+X3_COOP_BODY);

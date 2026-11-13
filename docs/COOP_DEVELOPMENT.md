@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 112/180; 68 open/partial. Accepted areas: 3/15
+**Accepted touch points: 113/180; 67 open/partial. Accepted areas: 3/15
 (snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
 campaign or co-op gameplay acceptance.
 
@@ -59,7 +59,7 @@ campaign or co-op gameplay acceptance.
 | Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
 | Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
 | Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G11 accepted (11/16); remaining authored mechanics and campaign branches open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
+| Campaign branches | G01-G11/G13 accepted (12/16); fortress traversal, refights and endings open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
 | Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
 | Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
 | Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
@@ -4390,3 +4390,53 @@ death/wipe and the broader lifecycle criteria remain independently open. GUI
 standard tests pass. The main4A matrix uses state8d3b1e5a; raw jobs, samples,
 source/binary identities and counterexamples remain in the existing private
 qualification record. Actual total112/180 accepted,68 open,3/15 accepted areas.
+
+
+## Native Mosquitus and saber-transfer qualification
+
+G13 is accepted. Native freeze/release boundaries now retain the actual script
+recipient in the existing serialized NPC attachment bytes. This keeps Zero's
+winning hit on his original encounter branch and gives the triggering physical
+controller ownership of subsequent dialogue. Live introductions release that
+binding normally; defeated scripts keep it until retirement.
+
+The original story helper temporarily reconstructs X in the solo player body.
+The existing cinematic bridge now retains both real participants through that
+sequence, supplies retained X health instead of the unused solo exchange backup,
+and restores the living roster at the finished native floor. Previously the
+sequence could strand Zero or interpret the unused backup as X's death.
+Forced scene returns also clear the abandoned action's native charge-inhibit
+counter; retaining it allowed X to walk/fire but prevented charging afterward.
+No new snapshot fields are needed. Actual mid-cinematic save/load repeats the
+complete future; an unsupported cinematic stage is rejected transactionally.
+
+Both rosters and physical Zero seats earn the native saber/loss flags, preserve
+X's 13 HP and selected weapon, retain full-campaign Zero at the native 1 HP,
+and cross the real exit/checkpoint together without a life debit. Both world
+anchor choices pass. A withdrawn or previously fallen X retains that exact
+participation state without revival. Actual X-finisher counterparts finish
+without awarding the saber. Prior fallen/withdrawn setup uses lifecycle APIs;
+these cases do not claim authored fatality coverage. Ordinary route approaches
+are explicit positioning bypasses; actual encounter admission, winning hits,
+story results and exits are earned.
+
+Stock restrictions allow an already-called Zero through the authored Mosquitus
+approach and encounter. The actual native award then permanently retires him,
+recalls a living withdrawn X when needed, refuses Zero rejoin and lets X exit.
+Canonical and reversed rosters pass. Full-campaign policy retains Zero despite
+the native stock call predicate becoming false after that same story award.
+
+The actually earned saber is usable by X beside living Zero. On both rosters,
+420-update comparisons match each character's original commands, charge, pose,
+controls, palette, owned pools and real native damage windows on every frame;
+both reach native charge12. X's saber damage is active at updates279-280 and
+Zero's at303-315. The complete paired combat future replays exactly. Existing
+intro capture/rescue/helper-death checks and the alternate Lab2 main clear
+through actual Lab3 arrival pass with the updated runtime.
+
+State qualification uses5ce35d96881ca61994100ade37f6fe6b3d563efe644858b603667a74a891f4fc.
+GUI12c96180e2933c762931f87f727a4c92b2b14dde77663eef168dd8d598596205 builds and
+all four standard tests pass. Exact jobs, counterexamples and per-build scope
+remain in the existing private qualification record. Actual total113/180
+accepted,67 open,3/15 accepted areas. G12 and G14-G16 remain open, together with
+the separate lifecycle, scene, presentation, runtime and final owner checks.

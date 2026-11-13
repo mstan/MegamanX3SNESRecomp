@@ -8,7 +8,8 @@ static void primary_input_restore(void){
 static void modal_input_project(void){
   if(!enabled || !state.initialized || g_ram[0x1f63] || menu_pending() || X3CoopNativePauseActive(g_ram))return;
   if(!scene.phase && (!g_ram[0x1f22] || vehicle_mode()) && !g_ram[0x1f4f] && g_ram[0xd1]==4 && g_ram[0xd2]==4)return;
-  unsigned owner=scene.phase?scene.owner:state.anchor;
+  unsigned owner=scene.phase?scene.owner:native_script_owner();
+  if(owner>1)owner=state.anchor;
   if(state.players[owner].life!=X3_COOP_ALIVE)owner=state.anchor;
   if(state.players[owner].life!=X3_COOP_ALIVE && !state.wipe)return;
   if(owner)memcpy(g_ram+0xa8,g_ram+0xae,6);
