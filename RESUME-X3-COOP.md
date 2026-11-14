@@ -2,8 +2,8 @@
 
 ## Current continuation - 2026-11-13
 
-**126/180 accepted;54 open;4/15 areas (T,R,M,N).** E08 is now accepted after
-P09. Campaign G01-G11 and G13-G16 pass; G12 remains open. The full180 objective
+**127/180 accepted;53 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
+after P09. Campaign G01-G11 and G13-G16 pass; G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
 latest `docs/COOP_DEVELOPMENT.md` entries supersede their next-action directions.
@@ -55,11 +55,23 @@ Stop expanding those experiments: positive authored-family kills establish E08.
 The optional strict self-cast regression remains; failed raw diagnostics are
 retained privately. Do not weaken it or restart a positioning calibration loop.
 
-Next concrete gameplay check: E10 actual captor/child-slot reuse. The existing
-Bit ring helper now has an optional continuation that waits for live native AI
-to reallocate the retired ring slot, contacts it with the opposite character,
-and checks fresh ownership and native escape/full replay. This is prepared,
-not accepted; collect the build and run it before expanding support tooling.
+E10 now passes actual same-child-slot reuse in all8 roster/victim/prior-owner
+cases. After the first real ring escapes/retires, live Bit allocates a fresh
+ring into the same1318 slot at1361/1363 updates. Its old tag/latch are0 before
+contact. The opposite character earns the new lock; only that character and
+the parent receive the new tag/binding. Actual physical escape retires the
+second ring without rebinding the old victim, losing either actor or ending
+the32HP encounter. Every complete native future replays exactly twice. This
+adds to the existing retired-captor slot reset/intro references. Production is
+unchanged; all4 standard tests pass. Frozen state SHA256 is
+5c4d3bee51ea718de4d77e77b7f5a97bedb319ee17e32377ecf65b221219c6b6.
+Receipts native-bit-ring-reuse-first/rest/ctest are child0.
+
+Next reconcile the legacy boss fixture names against actual native art/rewards
+without adding acceptance for relabeling, then advance the next unresolved
+mechanic using existing checks. A six-fixture muted native screenshot job is
+running; it copies each resume input and verifies the canonical hash. No owner
+UI automation or playtest has been started.
 
 D06 still needs an actual authored lethal crush. F10 physical controller
 reconnect, G12 fortress routes/exits, presentation/runtime checks and owner QA
@@ -67,7 +79,7 @@ remain. Prior D13/T06,S12,T07,D08,D12,E07/E09 and P09 evidence is preserved in
 the existing development/private records; do not repeat unchanged suites.
 
 Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P12,P13;
-E05,E06,E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
+E05,E06,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
 Q01-Q06;Z01-Z04.
 
 Use repository tools and headless game/TCP interfaces. Computer Use requires

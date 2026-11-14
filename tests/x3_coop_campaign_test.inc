@@ -609,6 +609,37 @@ static void simultaneous_pit_position(CpuState *cpu,uint32_t pc){
   g_ram[X3_COOP_BODY+7]=0;simultaneous_pit_armed=false;
 }
 static void native_hunter_outcome(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity);
+static void native_bit_ring_reuse(unsigned boss,unsigned ring,unsigned old_victim,uint8_t *base,uint8_t *work,size_t capacity){
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);unsigned victim=old_victim^1;
+  uint8_t *future=malloc(capacity);check(future!=NULL,"actual reused ring future allocates");
+  check(!g_ram[ring] && !g_ram[0x1cd91] && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e],"first earned ring is fully retired before any slot reuse");
+  unsigned first_spawn=0,first_catch=0,first_release=0;
+  for(unsigned run=0;run<2;++run){
+    check(RtlLoadSnapshotFromMemory(base,n),"actual retired ring restores before the next native allocation");
+    unsigned spawned=0;for(;spawned<1800;++spawned){frame(0);if(g_ram[ring] && g_ram[ring+10]==0x2a && !g_ram[ring+0x37] && g_ram[ring+1]==2 && (g_ram[ring+3]==2 || g_ram[ring+3]==6) && (g_ram[ring+0xe]&128) && abs((int)view_read(ring+5)-(int)view_read(boss+5))>=64)break;}
+    if(spawned==1800)check(RtlSaveSnapshot("native-bit-ring-reuse-allocation-unqualified.sav"),"missing actual native ring reallocation retains its machine");
+    check(spawned<1800 && view_read(ring+0x38)==boss && g_ram[boss+1]==2 && (g_ram[boss+0x27]&127)==32,"the still-live native parent allocates a fresh ring into the exact retired child slot");
+    size_t cut=RtlSaveSnapshotToMemory(work,capacity),owners=combat_owners(work,cut),spawn=owners-114-67;
+    check(!work[spawn+54+(ring-0x1318)/64] && !g_ram[0x1cd91] && !campaign_body(old_victim)[0x6e],"fresh native allocation carries no old captive tag or capture latch");
+    X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+    campaign_position_only(&setup.players[victim],view_read(ring+5),view_read(ring+8));
+    setup.players[victim].body[0x30]=setup.players[victim].body[0x88]=setup.players[victim].body[0x8a]=setup.players[victim].body[0x6b]=0;
+    campaign_position_only(&setup.players[old_victim],view_read(ring+5)<2944?3024:2864,1472-(setup.players[old_victim].character==X3_COOP_X?17:25));
+    setup.players[old_victim].body[0x88]=255;
+    check(X3CoopEncode(&setup,work+contact_context_offset(work,cut),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,cut),"opposite actor approaches the fresh ring with position and protection assistance only");door_install_player(&setup);
+    unsigned caught=0;for(;caught<12;++caught){frame(0);if(g_ram[ring+1]==2 && g_ram[ring+3]==8 && (campaign_body(victim)[0x6e]&128))break;}
+    cut=RtlSaveSnapshotToMemory(work,capacity);owners=combat_owners(work,cut);spawn=owners-114-67;
+    unsigned tag=work[spawn+54+(ring-0x1318)/64],binding=work[cut-X3_COOP_MENU_STATE_BYTES-31+(boss-0xd18)/64]&12;
+    fprintf(stderr,"native BIT RING REUSE run%u slot%04x spawn%u old%u new%u catch%u tag%u binding%u locks%u/%u\n",run,ring,spawned,old_victim,victim,caught,tag,binding,campaign_body(0)[0x6e],campaign_body(1)[0x6e]);
+    if(caught==12 || tag!=1+2*((boss-0xd18)/64)+victim || campaign_body(old_victim)[0x6e])check(RtlSaveSnapshot("native-bit-ring-reuse-contact-unqualified.sav"),"incorrect fresh ring recipient retains the complete machine");
+    check(caught<12 && tag==1+2*((boss-0xd18)/64)+victim && binding==(4u<<victim) && !campaign_body(old_victim)[0x6e],"the reused native child and parent bind only the newly contacted actor");
+    unsigned released=0;for(;released<160;++released){frame(released>=32 && !(released&1)?(uint32_t)SNES_PAD_B<<(victim*12):0);check(!campaign_body(old_victim)[0x6e],"reused ring never restores the previous victim's lock");if(!g_ram[ring] && !g_ram[0x1cd91] && !campaign_body(victim)[0x6e])break;}
+    check(released>=32 && released<160,"only the newly captured actor's real physical escape retires the reused ring");
+    cut=RtlSaveSnapshotToMemory(work,capacity);owners=combat_owners(work,cut);spawn=owners-114-67;
+    check(!work[spawn+54+(ring-0x1318)/64] && !(work[cut-X3_COOP_MENU_STATE_BYTES-31+(boss-0xd18)/64]&12) && contact_hp(0) && contact_hp(1) && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && g_ram[boss+1]==2 && (g_ram[boss+0x27]&127)==32 && !g_ram[0x1fd8],"second native release clears new ownership without losing either actor or ending the encounter");
+    if(!run){first_spawn=spawned;first_catch=caught;first_release=released;memcpy(future,work,cut);}else{check(spawned==first_spawn && caught==first_catch && released==first_release,"fresh allocation, opposite capture and release repeat on their native updates");same(future,cut,work,cut,"actual native child-slot reuse and opposite-victim capture replay the whole machine exactly");}
+  }free(future);
+}
 static void native_bit_ring(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==2,"Bit ring starts in the actually earned hunter room");unsigned boss=0;
   for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==0x46 && g_ram[d+1]==2 && (g_ram[d+0x27]&127)==32)boss=d;
@@ -647,6 +678,7 @@ static void native_bit_ring(const char *fixture,uint8_t *base,uint8_t *work,size
     fprintf(stderr,"native BIT RING QUALIFY paired%u victim%u char%u frames%u release%u locks%u/%u source%u flag%u\n",paired,victim,setup.players[victim].character,ran,first_release,paired?campaign_body(0)[0x6e]:g_ram[X3_COOP_BODY+0x6e],paired?campaign_body(1)[0x6e]:0,g_ram[ring],g_ram[0x1cd91]);check(first_release>64 && ran<RING_STEPS && !g_ram[ring] && !g_ram[0x1cd91],"actual ring requires physical edges and fully retires after its original release");
     if(!paired)release=first_release;else{check(first_release==release && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && !campaign_body(free_seat)[0x6e],"the actual captive escapes while the free partner retains independent controls");size_t done=RtlSaveSnapshotToMemory(future,capacity);check(RtlLoadSnapshotFromMemory(base,n),"real ring capture restores for whole-machine replay");for(unsigned f=0;f<ran;++f){uint32_t input=f>=64 && !(f&1)?(uint32_t)SNES_PAD_B<<(victim*12):0;if(f<8)input|=(uint32_t)SNES_PAD_RIGHT<<(free_seat*12);frame(input);}same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"actual ring hold, escape and native cleanup replay the entire machine exactly");}
   }free(future);
+  if(getenv("X3_COOP_BIT_RING_REUSE"))native_bit_ring_reuse(boss,ring,victim,base,work,capacity);
   if(getenv("X3_COOP_CAPTURE_WITHDRAW"))native_released_withdraw(boss,victim,base,work,capacity);
 }
 static void native_hunter_outcome(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){

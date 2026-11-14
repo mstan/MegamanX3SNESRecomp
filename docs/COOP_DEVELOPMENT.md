@@ -5046,3 +5046,27 @@ do not negate the positive authored-family cleanup checks and are not expanded
 into another acceptance prerequisite. No special weapons are imported to Zero.
 Acceptance is126/180,54open,4/15areas. S06/S13 and the other remaining criteria
 retain their separate scope.
+
+
+## Actual native child-slot reuse with the opposite victim - E10
+
+E10 is accepted. The existing exact original/paired Bit ring comparison now
+continues after the first earned capture, physical escape and full retirement.
+The still-live32HP parent must allocate another original kind0 ring into the
+exact same1318 child slot. All eight roster/victim/prior-owner cases earn that
+allocation at1361/1363 updates; no object, class or capture result is supplied.
+The fresh allocation has no old captive tag or latch. Position/protection
+assistance lets the opposite actor contact it, earning the new native lock.
+Only that actor and parent acquire the new owner. The previous victim remains
+unlocked throughout the new hold/escape, and real physical edges from the new
+victim retire the second ring and clear both bindings. Both actors retain
+positive health/life and the32HP encounter remains live with no outcome flag.
+Every whole allocation/contact/escape future replays exactly twice. Existing
+retired-captor slot reset and native intro references cover the corresponding
+NPC lifetime reset; the hostile pool now has direct repeated-allocation proof.
+
+Production and GUI are unchanged. Frozen state-test SHA256 is
+5c4d3bee51ea718de4d77e77b7f5a97bedb319ee17e32377ecf65b221219c6b6;
+native-bit-ring-reuse-first/rest/ctest receipts are child0 and all four standard
+tests pass. Acceptance is127/180,53open,4/15areas. Other enemy/scene criteria
+remain open independently.
