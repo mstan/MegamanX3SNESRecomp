@@ -223,4 +223,6 @@ static void native_ladder_checks(const char *fixture,uint8_t *base,uint8_t *work
   }
 
   if(cold){free(images);g_config.widescreen=prior_wide;X3Display_SetLocalSplit(prior_split);X3Display_SetPresentationSeat(prior_seat);X3CoopHudSetLayout(prior_hud);}
+  const char *runtime_output=getenv("X3_COOP_LADDER_RUNTIME_OUTPUT");
+  if(runtime_output && *runtime_output)check(RtlSaveSnapshot(runtime_output),"qualified two-region ladder future exports for matched built-runtime measurement");
 }

@@ -78,7 +78,7 @@ static void native_dirty_team_retry(bool capture,uint8_t *base,uint8_t *work,siz
   X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
   check(setup.players[0].life==X3_COOP_ALIVE && setup.players[1].life==X3_COOP_ALIVE && !setup.wipe,"dirty retry starts with both actual living participants");
   size_t n=RtlSaveSnapshotToMemory(base,capacity);unsigned victim=2,riders=0,captors=0;
-  for(unsigned i=0;i<31;++i){unsigned a=base[n-X3_COOP_MENU_STATE_BYTES-31+i];riders|=a&3;captors|=a&12;}
+  for(unsigned i=0;i<31;++i){unsigned a=base[contact_menu_offset(base,n)-31+i];riders|=a&3;captors|=a&12;}
   if(capture){for(unsigned seat=0;seat<2;++seat)if(campaign_body(seat)[0xa3]==0x96)victim=seat;check(victim<2 && captors,"dirty retry consumes an actually earned native capture and its retained owner");setup.players[victim].body[0x27]=1;}
   else check(riders==3,"dirty retry consumes two actually earned riders on an authored native support");
   unsigned shooter=capture?victim^1:0;

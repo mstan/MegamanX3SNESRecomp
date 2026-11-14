@@ -1,7 +1,7 @@
 /* Native event admission and camera contracts. Teleports prepare positions;
  * the retail allocator, culling predicates and camera arithmetic decide results. */
 #include "../src/x3_coop_view.h"
-typedef struct ViewCodecProbe {SaveLoadInfo io;uint8_t bytes[131072];size_t used;bool load;} ViewCodecProbe;
+typedef struct ViewCodecProbe {SaveLoadInfo io;uint8_t bytes[262144];size_t used;bool load;} ViewCodecProbe;
 static ViewCodecProbe view_probe;
 static unsigned view_probe_action;
 static unsigned view_read(unsigned address);

@@ -1,3 +1,12 @@
+#include "../src/x3_coop_menu.h"
+static size_t contact_menu_offset(const uint8_t *data,size_t size){
+  size_t native=X3CoopMenuNativeEncodedSize();
+  if(size<native || memcmp(data+size-native,"X3U1",4))native=0;
+  check(size>=native+X3_COOP_MENU_STATE_BYTES,"native menu wire has its complete declared span");
+  size_t at=size-native-X3_COOP_MENU_STATE_BYTES;
+  check(!memcmp(data+at,"X3M1",4) || !memcmp(data+at,"X3M2",4),"native menu wire is located before its optional view contexts");
+  return at;
+}
 /* Contract probes against the cartridge's real collision routines. These use
  * isolated geometry fixtures, not an assertion of stage/AI coverage. */
 #include "../src/x3_coop_render.h"

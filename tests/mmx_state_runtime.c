@@ -74,7 +74,7 @@ int main(int argc,char **argv) {
       check(!RtlLoadSnapshotFromMemory(damaged,size),"unenrolled state cannot contain a pending participation request");
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(saved,size,after,after_size,"refused unenrolled participation state leaves the machine unchanged");
-      memcpy(damaged,saved,size);damaged[size-X3_COOP_MENU_STATE_BYTES-31]=132;
+      memcpy(damaged,saved,size);damaged[contact_menu_offset(saved,size)-31]=132;
       check(!RtlLoadSnapshotFromMemory(damaged,size),"unenrolled snapshot cannot claim native captive ownership");
       after_size=RtlSaveSnapshotToMemory(after,cap);
       same(saved,size,after,after_size,"refused unenrolled attachment leaves the full machine unchanged");

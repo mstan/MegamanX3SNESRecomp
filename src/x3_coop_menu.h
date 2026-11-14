@@ -11,4 +11,6 @@ typedef struct X3CoopMenuInfo {
 bool X3CoopMenuRead(X3CoopMenuInfo *out);
 /* Presentation-only native reference for pixel qualification. */
 void X3CoopMenuNativeReference(bool enabled);
+bool X3CoopMenuNativePicture(unsigned seat,struct Ppu *out);
+size_t X3CoopMenuNativeEncodedSize(void);
 void X3CoopMenuDraw(const struct Ppu *ppu,uint8_t *pixels,size_t pitch,unsigned width,int seat);

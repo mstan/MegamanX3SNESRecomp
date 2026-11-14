@@ -2,10 +2,12 @@
 #include "x3_coop_view.h"
 #include "x3_coop_present.h"
 #include "x3_coop_menu.h"
+#include "x3_native_resources.h"
 #include "common_rtl.h"
 #include "snes/cart.h"
 #include "snes/snes.h"
 #include "snes/ppu.h"
+#include "snes/cx4.h"
 #include "snes/interp_bridge.h"
 #include "snes/saveload.h"
 #include <stdio.h>
@@ -2193,6 +2195,7 @@ bool X3CoopRuntimeEnabled(void) {return enabled;}
 const X3CoopState *X3CoopRuntimeState(void) {return &state;}
 void X3CoopRuntimeReset(void) {
   memset(&menu,0,sizeof(menu));
+  native_menus_reset();
   learner_rescue=false;
   memset(&state,0,sizeof(state));memset(&controller,0,sizeof(controller));
   memset(participation_hold,0,sizeof(participation_hold));
@@ -2314,8 +2317,9 @@ void X3CoopRuntimeFrame(void) {
   if(!interp_bridge_add_pre_opcode_hook(0x13c164,capsule_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x13c250,capsule_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x13c5bd,capsule_boundary))enabled=false;
-  static const uint32_t menu_pcs[]={0x00a2fa,0x00a36f,0x00c6d6,0x00c8d0,0x00c93e,
-      0x00cf13,0x00cf1c,0x00ceac,0x00cb64,0x00cb67};
+  static const uint32_t menu_pcs[]={0x00a2fa,0x00a36f,0x00c6d6,0x00c5db,0x00dd59,0x00cc5b,
+      0x008162,0x00c77f,0x00c79b,0x00c8a6,0x00c8b2,0x00c6f8,
+      0x00ceac,0x00cb64,0x00cb67};
   for(unsigned i=0;i<sizeof(menu_pcs)/sizeof(*menu_pcs);++i)
     if(!interp_bridge_add_pre_opcode_hook(menu_pcs[i],menu_boundary))enabled=false;
 }
@@ -2347,6 +2351,8 @@ void X3CoopRuntimeSave(SaveLoadInfo *sli) {
   X3CoopPresentationSave(sli);
   sli->func(sli,&solid,sizeof(solid));sli->func(sli,attachments,sizeof(attachments));
   uint8_t menu_bytes[MENU_BYTES];menu_encode(menu_bytes);sli->func(sli,menu_bytes,sizeof(menu_bytes));
+  uint8_t native_magic[4]={'X','3','U','1'};sli->func(sli,native_magic,4);
+  sli->func(sli,(uint8_t *)&native_menus+4,sizeof(native_menus)-4);
 }
 /* Reuse the complete snapshot stream for peer confirmation. Its normal save
  * synchronizes the projected body; hashing must leave the live context intact. */
@@ -2496,11 +2502,15 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   if(!X3CoopPresentationLoad(sli))return false;
   sli->func(sli,&support,sizeof(support));sli->func(sli,attachment_bits,sizeof(attachment_bits));
   uint8_t menu_bytes[MENU_BYTES];PairedMenu paired;sli->func(sli,menu_bytes,sizeof(menu_bytes));
+  bool native_menu_wire=!memcmp(menu_bytes,"X3M2",4);
+  static NativeMenus staged_native;
+  memset(&staged_native,0,sizeof(staged_native));memcpy(staged_native.magic,"X3U1",4);
+  if(native_menu_wire)sli->func(sli,&staged_native,sizeof(staged_native));
   if(!X3CoopViewsLoad(views,sizeof(views),false) || !view_spawn_valid(&spawn) || bounds.native.pass>3)return false;
   if(!X3CoopDecode(&loaded,bytes,X3CoopEncodedSize()) || !refill_decode(&healing,refill_bytes,&loaded) ||
      !scene_decode(&scripted,scene_bytes,&loaded) || !participation_valid(participation,&scripted,&loaded) ||
      !passes_valid(&loaded,&c,&t,&hit,&obj,&art,&world,&healing,&scripted,&support,attachment_bits,&spawn))return false;
-  if(!menu_decode(&paired,menu_bytes,&loaded) || (paired.phase &&
+  if(!menu_decode(&paired,menu_bytes,&loaded) || !native_menus_valid(&staged_native,&paired,&loaded) || (paired.phase &&
       ((participation[7]&PROFILE_LEARNER) || scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
        world.active || support.native.pass || spawn.active || bounds.native.pass)))return false;
   if(scripted.phase && (scripted.kind==SCENE_STAGE_ENTRY || scripted.kind==SCENE_NATIVE_CINEMATIC) &&
@@ -2512,6 +2522,7 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
   state=loaded;controller=c;terrain=t;contact=hit;objects=obj;draw=art;target=world;solid=support;
   refill=healing;scene=scripted;
   menu=paired;
+  native_menus=staged_native;
   memcpy(participation_hold,participation+4,sizeof(participation_hold));
   stock_zero=(participation[6]&PROFILE_STOCK)!=0;stock_exit_pending=(participation[7]&PROFILE_STOCK)!=0;
   learner_enabled=(participation[6]&PROFILE_LEARNER)!=0;learner_rescue=(participation[7]&PROFILE_LEARNER)!=0;
@@ -2523,6 +2534,10 @@ bool X3CoopRuntimeLoad(SaveLoadInfo *sli) {
 }
 bool X3CoopRuntimePreflight(const void *data,size_t size) {
   size_t payload=X3CoopEncodedSize(),tail=payload+sizeof(controller)+sizeof(terrain)+sizeof(contact)+sizeof(objects)+sizeof(draw)+sizeof(target)+8+16+8+sizeof(solid)+sizeof(attachments)+MENU_BYTES+X3_COOP_VIEW_STATE_BYTES+sizeof(view_spawn)+sizeof(view_bounds)+sizeof(effect_owner)+X3CoopPresentationEncodedSize();
+  const NativeMenus *native_wire=data && size>=sizeof(NativeMenus) &&
+      !memcmp((const uint8_t *)data+size-sizeof(NativeMenus),"X3U1",4)?
+      (const NativeMenus *)((const uint8_t *)data+size-sizeof(NativeMenus)):NULL;
+  if(native_wire)tail+=sizeof(NativeMenus);
   if(!data || size<tail)return false;
   X3CoopState decoded;
   const uint8_t *p=(const uint8_t *)data+size-tail;
@@ -2551,6 +2566,9 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
   if(!menu_decode(&paired,p+sizeof(attachments),&decoded) || (paired.phase &&
       ((pending&PROFILE_LEARNER) || scripted.phase || healing.active || c.pass || t.pass || hit.native.pass || obj.native.pass || art.pass ||
        world.active || support.native.pass || spawn.active || bounds.native.pass)))return false;
+  const uint8_t *menu_wire=p+sizeof(attachments);
+  if(native_wire){if(memcmp(menu_wire,"X3M2",4) || !native_menus_valid(native_wire,&paired,&decoded))return false;}
+  else if(memcmp(menu_wire,"X3M1",4) || paired.phase)return false;
   if(paired.phase && size>tail){
     size_t ram_at;size_t guest=RtlSnapshotGuestLayout(NULL,&ram_at);
     if(!guest || ram_at>size || size-ram_at<0x20000)return false;

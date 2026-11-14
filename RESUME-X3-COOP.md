@@ -8,6 +8,53 @@ and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
 latest `docs/COOP_DEVELOPMENT.md` entries supersede their next-action directions.
 
+## Native cartridge pause continuation - 2026-11-14
+
+The per-character cartridge pause replacement is validated locally. Shared
+output shows the requesting character; split output shows each original screen,
+including a read-only native screen for a fallen character. Original navigation,
+weapon ownership, shared tank costs/locks, Exit eligibility and one paused world
+remain. There is no separate host menu layout or confirmation modal.
+
+Final state-test SHA256:
+3693255e4d51b5fde2020add5fd51ffb567659572252dc2424cfdf77a00ce78c.
+Final GUI SHA256:
+e41b6bd6ebaaee35adcb5ed46f69b69466b5d84432f5a8b32e8a6b2bc4fef591.
+Full snapshots are554210 bytes with X3M2 controls and X3U1 native pictures.
+Active older menu snapshots are rejected; inactive X3M1 fixtures remain usable.
+Current-build replay/rewind/rollback and native persistent saves remain required.
+
+Both rosters/either requester match complete original weapon and actual admitted
+page8 equipment images, also with gold armor and an existing selected weapon.
+Each56-tick native heal, simultaneous tank ownership, concurrent separate tanks,
+interrupted/full-machine restore, malformed transaction, resume/weapon commit
+and native Exit passes. Door/fatal-contact menu overlap and the actual survivor
+checks pass. Ignored high address bits wrap to64KiB VRAM; cached healing cannot
+contradict tank ownership. All4 standard tests pass. The two actual delayed-input
+peer cases match all15 compared RuntimeSave cuts with no reported desync.
+Do not repeat accepted native-menu gates without a relevant change or failure.
+
+The native owner review in build-coop/qa-state/owner-review has3 small setups:
+controller ownership, reconnect with X fallen, and original per-character pause
+screens. Shared/Split choices are readable and remembered. Its manifest points
+to the current frozen GUI; the automated setup verification is child0. Prior
+observations are preserved, and new observations include their binary and view.
+The old owner game and selector were observed closed before replacement.
+The updated interactive handoff is prepared; consult session.json and saved
+observations for its actual running/review state before touching any process.
+Never interrupt an active owner playtest or query its TCP while the owner tests.
+
+This correction adds no acceptance point:130/180,50open,4/15 areas remain.
+Physical controller and owner presentation checks still require observations.
+Continue a decision-ready remaining criterion while those observations are
+pending. Keep the G12 navigation calibration frozen, and do not retain the
+neutral resource-index candidate or restart that local tuning loop. The known
+separated-view runtime p95 remains an unresolved Q03 qualification gap.
+Keep delivery unchanged while acceptance remains open. After the entire
+applicable objective is resolved and validated, automatically deliver the verified
+X3 ZIP through the established completion steps below. Remote push and central
+sync remain outside this local continuation.
+
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage
 are validated locally. The original F: checkout, engine and UI remain unchanged.

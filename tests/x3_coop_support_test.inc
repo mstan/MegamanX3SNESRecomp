@@ -284,7 +284,7 @@ static void native_jungle_rider_lifecycle(unsigned x,const unsigned slot[2],uint
   size_t cut=RtlSaveSnapshotToMemory(base,capacity);uint8_t *start=malloc(cut);check(start!=NULL,"actual jungle riders cut allocates");memcpy(start,base,cut);
   for(unsigned seat=0;seat<2;++seat){
     check(RtlLoadSnapshotFromMemory(start,cut),"each actual support withdrawal starts with both earned rider histories");unsigned own=seat==x?0:1,other=own^1;uint8_t source[64];memcpy(source,g_ram+slot[other],64);unsigned hp=contact_hp(seat^1);
-    check(X3CoopRuntimeWithdraw(seat),"the actual jungle rider can withdraw through the public lifecycle API");size_t n=RtlSaveSnapshotToMemory(work,capacity),at=n-X3_COOP_MENU_STATE_BYTES-31;
+    check(X3CoopRuntimeWithdraw(seat),"the actual jungle rider can withdraw through the public lifecycle API");size_t n=RtlSaveSnapshotToMemory(work,capacity),at=contact_menu_offset(work,n)-31;
     check(!(work[at+(slot[own]-0xd18)/64]&(1u<<seat)) && (work[at+(slot[other]-0xd18)/64]&3)==(1u<<(seat^1)) && !memcmp(source,g_ram+slot[other],64) && contact_hp(seat^1)==hp,"rider withdrawal clears only that rider while retaining the other real support, contact and health");
   }
   check(RtlLoadSnapshotFromMemory(start,cut),"real fatal support contact restores the two actual riders");
@@ -321,7 +321,7 @@ static void native_destructible_support_checks(const char *fixture,uint8_t *base
   /* Keep the shot target inside X's original projectile retirement range. */
   view_word(slot[1]+5,second);view_word(slot[1]+0x22,second);
   for(unsigned f=0;f<30;++f)frame(0);
-  n=RtlSaveSnapshotToMemory(base,capacity);size_t riders_at=n-X3_COOP_MENU_STATE_BYTES-31;
+  n=RtlSaveSnapshotToMemory(base,capacity);size_t riders_at=contact_menu_offset(base,n)-31;
   fprintf(stderr,"native jungle RIDERS X%u,%u Zero%u,%u bits%02x/%02x sourceY%u/%u HP%u/%u\n",support_position(x,5),support_position(x,8),support_position(x^1,5),support_position(x^1,8),base[riders_at+(slot[0]-0xd18)/64],base[riders_at+(slot[1]-0xd18)/64],view_read(slot[0]+8),view_read(slot[1]+8),g_ram[slot[0]+0x27],g_ram[slot[1]+0x27]);
   if(paired)check((base[riders_at+(slot[0]-0xd18)/64]&3)==(1u<<x) && (base[riders_at+(slot[1]-0xd18)/64]&3)==(1u<<(x^1)),"actual falling/contact establishes only the real rider on each jungle support");
   if(paired && getenv("X3_COOP_JUNGLE_LIFECYCLE"))native_jungle_rider_lifecycle(x,slot,base,work,capacity);

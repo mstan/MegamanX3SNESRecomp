@@ -1055,65 +1055,79 @@ All15 final rollups remain open; delivered archives and owner data are unchanged
 ## Paired native pause
 
 Either living seat can request the original00:A2FA pause; P1 wins simultaneous
-requests. Input sampling follows the common emulated frame, with Start at
-native action1000. The original weapon-cycle action0010 remains gameplay.
-The native scheduler enters and leaves pause once; shared enemies, shots and
-items remain frozen. The two panel cursors and selection histories stay
-separate. X's acquired selection commits through original00:D632, then the
-world regains its original anchor. Zero keeps his native arms.
+requests. Each character runs the cartridge's00:C6D6 drawing and controls in
+its own UI and PPU context. Shared output shows the requester; split output
+shows each character's original screen, and selected-player output shows that
+player. A fallen character retains a native screen with no active controls.
+The cartridge's title and game-start flow remain unchanged.
 
-The panels reuse native pause glyphs and the PPU fade. Shared output displays
-both panels, split gives each half its own panel, and selected-player output
-shows the selected panel. Rendering the same paused machine in these views
-leaves the complete machine identical. Controller navigation changes only
-the requesting panel. A retired actor's panel has no active controls.
+There is one paused world: enemies, hostile shots, items and both gameplay
+poses/palettes stay frozen. Only native menu logic and graphics run twice.
+The private screen includes the native UI fields, sprite descriptors, window
+buffers, palette and PPU memory. Original00:DD59/03:8DA0 completes each screen's
+sprite queue before capture. Native inline tile transfers use the original
+PPU ports; character resources use the existing exact ROM decoder and native
+upload lists. The partner starts from the original unmodified BG2 tilemap,
+so a different maximum HP cannot leave the requester's longer meter behind.
+Host drawing uses the existing detached PPU raster; there is no separate menu
+font, choice list or confirmation layout.
 
-Native00:C8B2 and C901 supply the original subtank pulse cadence, HP limit,
-sound and reserve cost. The actors borrow the one native handler in seat order.
-A shared tank has one owner. Different tanks can heal concurrently. The first
-finishing heal leaves any active tank's slot in place, and the last heal runs
-original00:CEAC repacking once. Empty tanks and full HP refuse a refill.
-Start does not close an active heal, but the other panel can still navigate.
+Native directional controls select X's acquired weapons and the original
+2x2 subtank grid. Zero keeps his own arms. X's selected weapon commits through
+original00:D632 on resume, then the world regains its original anchor. Native
+character exchange is excluded because it would replace the stored partner.
 
-Exit has one requesting owner and uses the original00:CEF4 eligibility check
-and C6F8 wait/fade. Only that owner can confirm or cancel. The focused test
-uses the real stage unlock as a prepared prerequisite, then confirms through
-actual input; it is not a boss-clear or campaign-route result.
+Native00:C8B2/C901 supply the subtank pulse cadence, HP limit, sound and reserve
+cost. The fixed order for a pause is partner then requester. A shared tank has
+one owner; distinct tanks can heal concurrently. The first finishing heal
+leaves a live tank's slot in place, and the last heal runs original00:CEAC
+repacking once. Empty reserves and full HP refuse refill. Start cannot close
+an active heal, while the other character can navigate independently.
 
-The explicit128-byte X3M1 chunk saves input edges/frame serial, both panels,
-healing fields, modal/commit ownership and any borrowed native continuation.
-Full snapshots are413017 bytes. Preflight rejects inconsistent phase, life,
-tank, cursor, CPU width, action and continuation metadata before mutation.
-Native healing matches the original HP/reserve trace over all56 full-tank
-ticks in both rosters; active-heal replay matches the whole machine. The
-interrupted pulse also restores the saved native borrow in place. A natural
-contact-death survivor can pause, restore and resume without re-enrolling the
-fallen partner. These are focused implementation checks; the final campaign,
-moving presentation, online and owner checks remain open.
+Exit uses the cartridge's Start action, original00:CEF4 eligibility and
+C6F8 wait/fade, with one native stage-exit task. It adds no confirmation modal.
+The focused eligibility fixture supplies the existing stage-unlock prerequisite;
+this checks Exit behavior rather than claiming a boss-clear or campaign route.
 
-Final menu/sole-Zero exit evidence is`native-paired-menu-zero-exit-result.log`
-under`build-coop/qa-state`. Both rosters reach the actual original stage-exit
-task and restored-world draw on confirmed Escape. Active pause is distinct
-from the restored-world values80 and81, so Escape's low bit cannot retain UI
-palette or draw ownership. If X is fallen or absent, Zero still runs his
-original equipment graphics restore. Final GUI SHA256:
-`298a0a01bba0976837671262fc66028b90684b543ed31460674a626c44ea646a`;
-state tests:`cac885d1dcc7ec539d2845ece1a8e94bc0230a84c15eda439cc38af1788a6ba4`.
+The128-byte X3M2 control chunk and pointer-free X3U1 native contexts retain
+input edges/frame serial, both screens, healing ownership and real borrowed
+CPU continuations. Full snapshots are554210 bytes. Preflight rejects malformed
+phase, life, tank, cursor, action and continuation metadata before mutation.
+Inactive X3M1 fixtures remain usable; active prior menu snapshots are rejected.
 
-The base gate passes in`native-paired-menu-final-base-result.log`.
-Stock, HUD, return, stage, reversed roster, independent routes and targeting
-pass before an outdated authored support test reads the old tail offset in
-`native-paired-menu-final-rest-result.log`. The corrected test still requires
-the original rider bits; support, capsule, both survivors and retry pass in
-`native-paired-menu-escape-result.log`. That run precedes only the sole-Zero
-exit restore change, covered by the focused final gate. Both X3 CTests pass.
+The replacement is qualified locally. Native-pause-validation-final-first,
+-gold and-weapon pass both rosters and either requester, with complete native
+weapon/equipment images matching actual cartridge references. The tests require
+actual equipment-page8 admission. They retain the56-tick original healing
+trace, interrupted pulse restore, whole-machine replay, transactional malformed
+state refusal, simultaneous resume/equipment commit and original Exit eligibility.
+Native-pause-validation-transition-door/-death retain scene admission/refusal
+and actual contact-death survivor pause/restore/resume without revival.
 
-The prototype-free launcher route opens pause with Zero at455, retains X at384,
-and lets X resume once; Zero then moves to494. The actual512x224 paired output
-is`build-coop/qa-public/paired-menu-final-split.png`; the current-build resume
-copy was loaded and consumed. The runtime observations and panel capture cover
-an isolated native-resolution profile, not adaptive widescreen or a human
-controller handoff. No final QA rollup or release is closed by this component.
+Native-pause-address-wrap also passes the same native image/control/restore
+cases with the PPU tilemap address's ignored high bit set through the original
+register port. Both background captures and private initialization wrap to the
+actual64KiB VRAM. Cached healing counters must agree with serialized tank
+ownership; their corruption is refused without changing the machine. All4
+standard CTests pass. Final state-test SHA256:
+3693255e4d51b5fde2020add5fd51ffb567659572252dc2424cfdf77a00ce78c.
+
+The built GUI shows complete original screens in shared and actual512x224
+split output, including a fallen X and living Zero. Current GUI SHA256:
+e41b6bd6ebaaee35adcb5ed46f69b69466b5d84432f5a8b32e8a6b2bc4fef591.
+Native-pause-address-online-x/-zero both pass the existing two-peer25ms delay
+and asymmetric300ms hold gate: all15 RuntimeSave comparison cuts match, native
+tank races/independent heals and resume/movement complete, and neither peer
+reports a desync. The diagnostic now permits a repeated frame after a rollback
+episode and reports its confirmed frontier. An earlier pre-correction prediction
+at4164 was immediately replayed by both peers; it is retained as a predicted
+observation rather than a comparison of confirmed equal-input states.
+
+Native-pause-address-review-setup verifies the private native review selector's
+load, seat isolation, restart and pause/release for all3 setups. Physical
+controller observations and owner presentation judgment remain separate. The
+current technical acceptance remains130/180; no extra point is assigned to
+replacing this already-counted component.
 
 ## Unified tracking and safe catch-up
 
