@@ -60,6 +60,7 @@ static void native_one_shot_revisit(uint8_t *work,uint8_t *expected,size_t capac
 #include "x3_coop_streaming_test.inc"
 #include "x3_coop_left_test.inc"
 #include "x3_coop_target_switch_test.inc"
+#include "x3_coop_parts_test.inc"
 #include "x3_coop_readiness_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
@@ -256,6 +257,8 @@ int main(int argc,char **argv) {
     }
     fixture=getenv("X3_COOP_READINESS_STATE");
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_READINESS_REVERSED_STATE");check(reversed && *reversed,"readiness supplies both native roster fixtures");native_readiness_checks(fixture,reversed,saved,after,cap);}
+    fixture=getenv("X3_COOP_PARTS_STATE");
+    if(fixture && *fixture)native_maoh_parts_checks(fixture,saved,after,cap);
     fixture=getenv("X3_COOP_BOSS_RETRY_STATE");
     if(fixture && *fixture){
       check(RtlLoadSnapshot(fixture),"authored boss retry fixture loads");

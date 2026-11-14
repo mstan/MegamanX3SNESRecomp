@@ -46,8 +46,8 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:148/180;32 open/partial. Accepted areas:6/15
-(team wipe, fallen persistence, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
+**Accepted touch points:149/180;31 open/partial. Accepted areas:7/15
+(team wipe, fallen persistence, combat ownership, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
 the end of this document; older checkpoint counts are historical.
@@ -58,9 +58,9 @@ the end of this document; older checkpoint counts are historical.
 | Team wipe |10/10|Accepted|
 | Fallen persistence |10/10|Accepted|
 | Separated spawning |12/14|A09,A13|
-| Supports/hazards |13/16|P06,P12,P13|
-| Enemy interactions |12/14|E06,E12|
-| Combat ownership |11/12|C06|
+| Supports/hazards |12/16|P06,P12,P13,P15|
+| Enemy interactions |13/14|E06|
+| Combat ownership |12/12|Accepted|
 | Doors/scripts |9/14|S06-S07,S09-S10,S14|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
@@ -5656,3 +5656,30 @@ from16 to14 without either actor dying. Both complete futures replay exactly.
 This separates readiness from an immediate projectile kill. Earlier shots
 fired before a teleport had left their native view and were an invalid setup.
 Four standard tests pass; no production code changes were needed.
+
+## Original multipart damage, armor and first-response qualification
+
+C06/E12 now use Maoh's actual head and two shielded arm records, constructed
+after the earned native rescue and the original short door/wall-jump route.
+The original and paired routes initialize the encounter at1731/1724 fields;
+another50 fields complete the native health fill before attack qualification.
+Both roster assignments and either first attack pool cover12 cases.
+
+Four head cases compare actual two-field original damage. Eight arm cases
+wait for the original contact-enabled animation phase, then execute the real
+04:CB74 collision routine and observe its04:CF13 negative-damage response.
+The arm calls use input-created shots with collision-position assistance,
+not supplied hits, shields, cooldowns or damage. This is an explicit native
+arm-response contract check, not a naturally aimed moving-arm hit claim.
+Complete contacted records, all three part HP values and the winning
+projectile pool match the original. The first reflection count is unchanged
+and the competing actor's entire live shot pool remains untouched. Every
+64-field continuation replays the complete machine exactly. Four standard
+tests pass; these checks required no production change.
+
+P15 is reopened for a separate Ride Armor presentation gap. A remote piloting
+setup lacks graphics file25 in canonical VRAM, and the private compositor
+currently omits the playable vehicle from its per-room resource resolver.
+A direct shared-PPU reference from that setup has the same missing graphics
+and is unsuitable as its visual baseline. The rendering correction and
+current-build presentation qualification remain in progress.

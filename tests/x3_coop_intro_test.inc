@@ -271,6 +271,11 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
           s->players[zero].body[0xb6]==2 && (s->players[zero].body[0x27]&127)==19 && s->players[zero].maximum_health==28,
           "original rescue preserves fallen X and Zero's personal health, refilling only a living X");
     size_t completed=RtlSaveSnapshotToMemory(work,capacity);
+    const char *rescue_output=getenv("X3_COOP_INTRO_RESCUE_OUTPUT");
+    if(!reverse && !scenario && rescue_output && *rescue_output){
+      check(RtlSaveSnapshot(rescue_output),"actually earned native rescue exports its complete current-build continuation");
+      free(cinematic);return;
+    }
     check(RtlLoadSnapshotFromMemory(expected,pending),"native restraint death restores");
     for(unsigned i=0;i<=elapsed;++i)intro_frame(intro_confirm(i));
     size_t replayed=RtlSaveSnapshotToMemory(expected,capacity);
