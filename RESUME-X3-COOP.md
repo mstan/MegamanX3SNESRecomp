@@ -40,8 +40,11 @@ screens. Shared/Split choices are readable and remembered. Its manifest points
 to the current frozen GUI; the automated setup verification is child0. Prior
 observations are preserved, and new observations include their binary and view.
 The old owner game and selector were observed closed before replacement.
-The updated interactive handoff is prepared; consult session.json and saved
-observations for its actual running/review state before touching any process.
+Local implementation commit9f1df51 is validated. The updated native selector
+and game were launched in a normal window with normal audio, paused on the
+controller-ownership setup. Read session.json and saved observations for their
+actual running/review state before touching any process. The physical and visual
+results remain pending; do not infer acceptance from the setup verification.
 Never interrupt an active owner playtest or query its TCP while the owner tests.
 
 This correction adds no acceptance point:130/180,50open,4/15 areas remain.
