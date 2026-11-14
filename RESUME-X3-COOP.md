@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**134/180 accepted;46 open;4/15 areas (T,R,M,N).** Q01-Q04 are accepted after S05. E10 and E08 are accepted
+**135/180 accepted;45 open;4/15 areas (T,R,M,N).** Q01-Q05 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -48,7 +48,7 @@ results remain pending; do not infer acceptance from the setup verification.
 Never interrupt an active owner playtest or query its TCP while the owner tests.
 
 The menu correction adds no acceptance point. The later Q01 native-solo check
-below and subsequent Q02-Q04 bring the actual total to134/180,46open,4/15 areas.
+below and subsequent Q02-Q05 bring the actual total to135/180,45open,4/15 areas.
 Physical controller and owner presentation checks still require observations.
 Continue a decision-ready remaining criterion while those observations are
 pending. Keep the G12 navigation calibration frozen, and do not retain the
@@ -113,8 +113,26 @@ Peak working sets428.1-432.3MiB remain bounded. Raw timing includes intermediate
 snapshot I/O and its isolated stalls. Actual full allocator recovery stays A13.
 native-separated-pressure-q04-v2 is child0; evidence is in
 runtime-qualification/separated-pressure-rows-default-v2 and its comparison JSON.
-Q05/Q06 remain open; next evaluate the actual NET-enabled build's delayed-input
-runtime budget. Do not repeat accepted local timing without a relevant change.
+The later Q05 check below resolves the NET-enabled budget. Q06 remains open.
+Do not repeat accepted timing without a relevant change.
+
+Q05 is accepted on NET GUI66a84831eef80106e0c6971e3e0488e5ec3b07bce778b948206ee4070cf54776.
+Two actual peers use the same fixed profile0/transcript0c17fb26,25ms datagram
+delay and a300ms asymmetric hold during native charged attacks. The original
+strict actor/effect/replay checks pass; both remain alive, no desync, actual7/8
+replayed ticks and confirmed frontiers4135/4130 beyond required4056. Both exit
+normally and retain complete timing CSVs. QA-only normal exit and public host
+frame numbers enable the measurement; no game or shared-engine behavior changes.
+Inclusive interval timing uses consecutive presentation timestamps minus only
+explicitly measured host wait, including admission/snapshot/replay work outside
+component timers. All intervals p958.251/8.197ms; guest-bearing intervals
+p958.381/8.233ms. A single45.8/47.0ms recovery interval per peer follows the
+deliberate300ms hold. Native charged-game frames remain below16.7ms. Held-frame
+presentations and raw stalls remain in the evidence; no other interval exclusion.
+native-net-runtime-combat-q05 and standard are child0 (all4tests). Evidence:
+net-lan/runtime-combat-q05-66a84831/{runtime-results.json,observations.json,
+host/frames.csv,guest/frames.csv,host/process.log,guest/process.log}.
+Q06 is the remaining runtime criterion. Keep the existing owner review untouched.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage

@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:134/180;46 open/partial. Accepted areas:4/15
+**Accepted touch points:135/180;45 open/partial. Accepted areas:4/15
 (team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -67,7 +67,7 @@ the end of this document; older checkpoint counts are historical.
 | Visuals/audio |0/14|V01-V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
-| Runtime/portability |4/6|Q05-Q06|
+| Runtime/portability |5/6|Q06|
 | Owner/package/delivery |0/4|Z01-Z04|
 
 ## Current evidence and next gate
@@ -5378,3 +5378,25 @@ Full allocator recovery stays open under A13. `native-separated-pressure-q04-v2`
 is child0; its real states, timing and comparison are retained in
 `runtime-qualification/separated-pressure-rows-default-v2` and the accompanying
 comparison JSON. Actual134/180 accepted,46open,4/15areas. Q05/Q06 remain open.
+
+### Built delayed-input and replay runtime - Q05
+
+Q05 is accepted on NET GUI SHA256
+66a84831eef80106e0c6971e3e0488e5ec3b07bce778b948206ee4070cf54776.
+Two actual peers select the same fixed profile0/transcript0c17fb26 and execute
+native charged combat over25ms delayed datagrams plus a300ms asymmetric hold.
+All original strict actor/effect/replay checks pass. Both remain alive; no
+desync, actual7/8replayed ticks, and confirmed frontiers4135/4130 beyond required
+4056. Both exit normally and retain the complete host timing CSVs.
+
+An optional QA-only normal stop and exact public host-frame number connect the
+existing live diagnostic cuts to those traces. Inclusive cost is consecutive
+presentation time minus only explicitly measured host wait. This includes
+network admission, snapshots and replay omitted by component-stage sums.
+All-interval p95 is8.251/8.197ms; actual guest-bearing interval p95 is8.381/8.233ms.
+The deliberate300ms hold produces one45.8/47.0ms recovery interval per peer.
+Raw held-frame presentations and all stalls remain in the evidence. No game,
+menu, protocol or shared-engine behavior changes. All4standard tests pass.
+`native-net-runtime-combat-q05` and `native-net-runtime-standard` are child0;
+raw observations, logs and timing are in `net-lan/runtime-combat-q05-66a84831`.
+Actual135/180 accepted,45open,4/15areas. Q06 remains open.

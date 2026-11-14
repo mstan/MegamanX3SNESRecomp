@@ -59,7 +59,7 @@ static int diagnostic_draw_frame(uint8_t *dst,size_t pitch,const uint8_t *field,
 static void diagnostic_after_frame(const SnesDesktopHostFrameStats *stats) {
   (void)stats;
 #if defined(SNES_HAS_LOBBY_CLIENT) && defined(SNESRECOMP_NET_ROLLBACK) && SNESRECOMP_TRACE
-  x3_net_diagnostic_progress();
+  x3_net_diagnostic_progress(stats->frame);
 #endif
   if(MmxReplayPlaying() && (MmxReplayFinished() || MmxReplayFailed())) {
     SDL_Event quit={0}; quit.type=SDL_QUIT; SDL_PushEvent(&quit);

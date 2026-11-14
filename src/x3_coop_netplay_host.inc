@@ -11,6 +11,7 @@
 #include "x3_coop_runtime.h"
 #include "x3_coop_view.h"
 #include "x3_coop_menu.h"
+#include "desktop/host_api.h"
 
 static const char x3_net_package[]="megaman-x3.coop";
 static const uint8_t x3_net_rom[32]={MMX_ROM_SHA256_BYTES};
@@ -201,7 +202,7 @@ static uint16_t x3_net_diagnostic_pad(uint32_t tick,int seat,uint16_t live){
   if(seat==0 && age>=140 && age<180)return 0x080;
   return 0;
 }
-static void x3_net_diagnostic_progress(void){
+static void x3_net_diagnostic_progress(unsigned host_frame){
   if(!x3_net_qa())return;
   uint32_t tick=snes_netplay_sim_tick();
   const X3CoopState *s=X3CoopRuntimeState();
@@ -218,10 +219,10 @@ static void x3_net_diagnostic_progress(void){
   uint8_t personal[4096];size_t personal_size=X3CoopEncodedSize();uint32_t personal_hash=2166136261u;
   if(personal_size>sizeof(personal) || !X3CoopEncode(s,personal,personal_size))personal_hash=0;
   else for(size_t i=0;i<personal_size;++i){personal_hash^=personal[i];personal_hash*=16777619u;}
-  fprintf(stderr,"[x3-net-qa] tick=%u age=%d view=%d initialized=%d life=%u/%u x=%u/%u phase=%u/%u/%u stage=%u characters=%u/%u stock=%u personal=%08x\n",(unsigned)tick,age,
+  fprintf(stderr,"[x3-net-qa] tick=%u age=%d view=%d initialized=%d life=%u/%u x=%u/%u phase=%u/%u/%u stage=%u characters=%u/%u stock=%u personal=%08x host_frame=%u\n",(unsigned)tick,age,
       X3Display_PresentationSeat(),s->initialized,s->players[0].life,s->players[1].life,
       s->players[0].body[5]+256u*s->players[0].body[6],s->players[1].body[5]+256u*s->players[1].body[6],
-      g_ram[0xd1],g_ram[0xd2],g_ram[0xd3],g_ram[0x1fae],s->players[0].character,s->players[1].character,X3CoopRuntimeStockZero(),personal_hash);
+      g_ram[0xd1],g_ram[0xd2],g_ram[0xd3],g_ram[0x1fae],s->players[0].character,s->players[1].character,X3CoopRuntimeStockZero(),personal_hash,host_frame);
   if(x3_net_world_qa()){
     fprintf(stderr,"[x3-net-world] tick=%u life=%u/%u wipe=%u lives=%u checkpoint=%u anchor=%u phase=%u/%u scene=%u hp=%u/%u display=%u digest=%08x episodes=%u resim=%llu desync=%u\n",tick,s->players[0].life,s->players[1].life,s->wipe,g_ram[0x1fb4],g_ram[0x1fb5],s->anchor,g_ram[0xd1],g_ram[0xd2],X3CoopRuntimeSceneActive(),s->players[0].body[0x27]&127,s->players[1].body[0x27]&127,g_ppu->inidisp,X3CoopRuntimeDigest(),snes_netplay_rb_episode_count(),(unsigned long long)snes_netplay_rb_resim_ticks(),snes_netplay_rb_desync_count());
   }
@@ -238,6 +239,9 @@ static void x3_net_diagnostic_progress(void){
     uint32_t fx=2166136261u;for(unsigned i=0x1818;i<0x1d18;++i){fx^=g_ram[i];fx*=16777619u;}
     fprintf(stderr,"[x3-net-combat] tick=%u age=%d charge=%u/%u shots=%u/%u fx=%08x episodes=%u resim=%llu desync=%u confirmed=%u life=%u/%u\n",(unsigned)tick,age,s->players[0].body[0x58],s->players[1].body[0x58],shots[0],shots[1],fx,snes_netplay_rb_episode_count(),(unsigned long long)snes_netplay_rb_resim_ticks(),snes_netplay_rb_desync_count(),snes_netplay_rb_confirmed_through(),s->players[0].life,s->players[1].life);
   }
+  const char *finish=getenv("SNESRECOMP_X3_NET_QA_EXIT");
+  if(finish && !strcmp(finish,"1") && x3_net_combat_qa() && age==480)
+    snesrecomp_request_exit();
 }
 #endif
 #endif
