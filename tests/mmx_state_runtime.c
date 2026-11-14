@@ -86,6 +86,7 @@ int main(int argc,char **argv) {
       same(saved,size,after,after_size,"refused unenrolled attachment leaves the full machine unchanged");
     }
     const char *fixture=getenv("X3_COOP_TEST_STATE");
+    combat_audio_install();
     if(fixture && *fixture) {
       X3CoopRuntimeEnable(false);
       check(RtlLoadSnapshot(fixture),"native two-actor fixture loads");

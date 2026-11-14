@@ -5596,3 +5596,24 @@ Its failed optional setup/source is retained outside the test suite under
 readiness-work/unqualified-readiness-test.inc. Stop this calibration; E13 remains
 open and no runtime defect is asserted. Total143/180,37open,5/15areas.
 Keep the live owner review and frozen navigation/crush setups untouched.
+
+## Native combat audio cadence — C11
+
+C11 is qualified without a production change. The observer reads the original
+two-byte request ring at09A2..09C1 and its09D3 write index after each real field;
+it neither intercepts guest instructions nor changes the execution backend.
+Eight240-field rapid, staggered and mixed cases plus two420-field full-charge,
+combo and saber cases cover both roster assignments. Every concurrent field
+retains both original actors' cue IDs and spatial payloads, body/palette/owned
+pools and exact complete-machine replay. SPC work remains one native timeline,
+within one32-cycle output-sample quantum of the matched individual references.
+
+Four real boss-contact cases compare each field with original actor-only
+counterfactuals from that actual pre-field world and the original first-success
+contact order. A later partner projectile may legitimately produce the native
+immune-impact cue. All eight observed hit fields match their original request
+count while the existing real damage, cooldown and projectile-history checks
+still pass. Each counterfactual restores the unchanged paired field before its
+one actual update. All three audio phases and all four standard tests pass.
+State-test SHA256: d406045ac42a3193a4b747ca8a3e0c4b542285b3cb325d5bd546ee95413e8d85.
+Music/mix listening and moving presentation remain separate under V13/V14.

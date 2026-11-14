@@ -137,6 +137,18 @@ static void native_weapon_withdrawal(const uint8_t *start,size_t sn,unsigned x,u
   check((g_ram[address]&31)<28 && X3CoopRuntimeState()->players[x].life==X3_COOP_ALIVE,"returned actor actually casts the same native weapon again without stale locks");
   fprintf(stderr,"native weapon retirement PASS index%u mode%u seat%u live%u fresh%u\n",index,mode,x,sources,fresh);
 }
+/* Resolve the native first-success contact order from this actual field.
+ * A partner's later projectile may legitimately hit an immune boss and play
+ * its original impact cue; that is distinct from a duplicate world update. */
+static unsigned native_hit_audio_reference(unsigned first,uint8_t *work,uint8_t *cut,size_t capacity){
+  size_t n=RtlSaveSnapshotToMemory(cut,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);unsigned hits[2]={0,0};
+  for(unsigned seat=0;seat<2;++seat){
+    X3CoopState solo=setup;solo.current=(uint8_t)seat;memcpy(work,cut,n);
+    check(X3CoopEncode(&solo,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"native hit-audio reference selects its actual current projectile pool");door_install_player(&solo);X3CoopRuntimeEnable(false);combat_frame(0);hits[seat]=combat_hit_cues;
+  }
+  check(RtlLoadSnapshotFromMemory(cut,n),"native hit-audio references restore the unchanged paired field before its one real update");
+  return hits[first]?hits[first]:hits[first^1];
+}
 static void native_boss_cooldown_checks(const uint8_t *base,size_t bn,uint8_t *work,uint8_t *after,size_t capacity){
   uint8_t *cut=malloc(capacity);check(cut!=NULL,"native concurrent boss comparison buffer allocates");
   for(unsigned mode=0;mode<2;++mode)for(unsigned leader=0;leader<2;++leader){
@@ -152,10 +164,13 @@ static void native_boss_cooldown_checks(const uint8_t *base,size_t bn,uint8_t *w
     view_word(0xd1d,bx);view_word(0xd3a,bx);g_ram[0xd3f]=127;g_ram[0xd4f]=0;g_ram[0x1f27]=0;
     n=RtlSaveSnapshotToMemory(work,capacity);
     check(X3CoopEncode(&live,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"actual native projectiles receive only collision positioning and contact priority prerequisites");door_install_player(&live);
-    n=RtlSaveSnapshotToMemory(cut,capacity);X3CoopRuntimeEnable(false);for(unsigned f=0;f<2;++f)frame(0);
+    n=RtlSaveSnapshotToMemory(cut,capacity);X3CoopRuntimeEnable(false);unsigned native_hit_cues[2]={0,0};for(unsigned f=0;f<2;++f){combat_frame(0);native_hit_cues[f]=combat_hit_cues;}
     uint8_t native_boss[64],native_shots[X3_COOP_SHOT_BYTES];memcpy(native_boss,g_ram+0xd18,64);memcpy(native_shots,g_ram+X3_COOP_SHOTS,sizeof(native_shots));
     unsigned damage=127-(g_ram[0xd3f]&127),cooldown=g_ram[0xd4f];fprintf(stderr,"original boss contact mode%u leader%u damage%u cooldown%u HP%u state%u/%u\n",mode,leader,damage,cooldown,g_ram[0xd3f],g_ram[0xd19],g_ram[0xd1a]);check(damage>0 && cooldown>0,"matched original live boss updates accept an attack and earn their real hit cooldown");
-    check(RtlLoadSnapshotFromMemory(cut,n),"simultaneous paired collision restores the identical original prerequisites");for(unsigned f=0;f<2;++f)frame(0);
+    check(RtlLoadSnapshotFromMemory(cut,n),"simultaneous paired collision restores the identical original prerequisites");unsigned paired_hit_cues[2]={0,0};
+    for(unsigned f=0;f<2;++f){unsigned expected_hit=combat_audio_enabled?native_hit_audio_reference(leader,work,after,capacity):0;combat_frame(0);paired_hit_cues[f]=combat_hit_cues;
+      if(combat_audio_enabled){fprintf(stderr,"native AUDIO HIT FIELD mode%u leader%u f%u expected%u actual%u\n",mode,leader,f,expected_hit,combat_hit_cues);check(combat_hit_cues==expected_hit,"each shared boss field plays the original successful native contact cue, including a real partner fallback");}}
+    if(combat_audio_enabled){fprintf(stderr,"native AUDIO HIT mode%u leader%u firstNative%u/%u paired%u/%u\n",mode,leader,native_hit_cues[0],native_hit_cues[1],paired_hit_cues[0],paired_hit_cues[1]);check(native_hit_cues[0]+native_hit_cues[1]>0,"the real native boss damage actually produces its original hit sound");}
     check((g_ram[0xd3f]&127)==(native_boss[0x27]&127) && g_ram[0xd4f]==native_boss[0x37],"two actual attack pools produce the original successful boss damage and cooldown over the same native world frames");
     RtlSaveSnapshotToMemory(work,capacity);const X3CoopState *state=X3CoopRuntimeState();
     check(!memcmp(native_shots,state->players[leader].shots,sizeof(native_shots)),"the actual first native attack retains its original full projectile and hit-history pool beside a competing actor");
