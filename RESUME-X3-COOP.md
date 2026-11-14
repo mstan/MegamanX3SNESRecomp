@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**135/180 accepted;45 open;4/15 areas (T,R,M,N).** Q01-Q05 are accepted after S05. E10 and E08 are accepted
+**136/180 accepted;44 open;5/15 areas (T,R,M,N,Q).** Q01-Q06 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -133,6 +133,29 @@ native-net-runtime-combat-q05 and standard are child0 (all4tests). Evidence:
 net-lan/runtime-combat-q05-66a84831/{runtime-results.json,observations.json,
 host/frames.csv,guest/frames.csv,host/process.log,guest/process.log}.
 Q06 is the remaining runtime criterion. Keep the existing owner review untouched.
+
+Q06 is accepted after actual Ubuntu/WSL Linux x86_64 compilation and runtime.
+Game62b4156, engine614694ab and UIcf6315ad regenerate through the supported
+strict-idempotent native pipeline and build NET-enabled Release with GCC13.3,
+SDL3.4.14 and one compile job. GUI SHA256 is
+6cf22f7098d0546ac788a6d7ab95e6b6a210a515424c7f68b2ba91472fbb7051;
+state-test SHA256 is
+be91a7610234b97b3b2c2026851bf8f122f250c092ff55cc72256145edb1ef47.
+All4standard tests, real-ROM replay/rewind, two actual native GUI runs, the
+complete co-op fixture with reference pixel verification/full-machine futures,
+and the independently earned survivor fixture pass. Shared changes retain
+portable C paths without new assembly or CPU-specific dispatch. Scope is this
+representative Linux target and existing Windows evidence, not Deck/ARM testing.
+The broad teleport fixture requires fresh admission frontiers: a settled
+independent fixture fails the identical item setup in both Windows reference
+and Linux. A native Unified GUI fixture supplies that prerequisite without
+editing success flags. Independent Linux gameplay/survivor evidence remains.
+Receipts native-linux-portability-compile and native-linux-portability-native-fixture
+are child0; phase logs/identities are in runtime-qualification/linux-portability.
+The initial postprocessor's special slot12 filename mistake is corrected without
+repeating the passing independent GUI run. Optional SDK pytest was not claimed.
+Current total136/180,44open,5/15areas. A05 P1 takeover is prepared/running but
+unaccepted. Keep the existing owner review and frozen G12 calibration untouched.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage

@@ -46,8 +46,8 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:135/180;45 open/partial. Accepted areas:4/15
-(team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
+**Accepted touch points:136/180;44 open/partial. Accepted areas:5/15
+(team wipe, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
 the end of this document; older checkpoint counts are historical.
@@ -67,7 +67,7 @@ the end of this document; older checkpoint counts are historical.
 | Visuals/audio |0/14|V01-V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
-| Runtime/portability |5/6|Q06|
+| Runtime/portability |6/6|Accepted|
 | Owner/package/delivery |0/4|Z01-Z04|
 
 ## Current evidence and next gate
@@ -5400,3 +5400,30 @@ menu, protocol or shared-engine behavior changes. All4standard tests pass.
 `native-net-runtime-combat-q05` and `native-net-runtime-standard` are child0;
 raw observations, logs and timing are in `net-lan/runtime-combat-q05-66a84831`.
 Actual135/180 accepted,45open,4/15areas. Q06 remains open.
+
+## Q06 representative Linux portability qualification
+
+Q06 is accepted on game62b4156, engine614694ab and UIcf6315ad. The supported
+strict-idempotent pipeline regenerates native code on Ubuntu/WSL Linux x86_64;
+GCC13.3 builds the NET-enabled Release game and ROM test with one compile job.
+GUI SHA256 is6cf22f7098d0546ac788a6d7ab95e6b6a210a515424c7f68b2ba91472fbb7051;
+state test isbe91a7610234b97b3b2c2026851bf8f122f250c092ff55cc72256145edb1ef47.
+All4 CTests, real-ROM replay/rewind, current-build native co-op and survivor
+GUI runs, the entire native co-op fixture with reference pixel verification
+and full-machine futures, and the actually earned independent survivor fixture
+pass. Shared changes retain portable C paths; no new assembly or CPU dispatch.
+This is representative Linux runtime evidence, not a Deck or ARM qualification.
+
+The broad teleport suite requires a fresh admission frontier. A settled
+independent fixture fails the same item preparation in both the frozen Windows
+reference and Linux. A native Unified GUI fixture supplies that prerequisite
+without changing success flags; the earlier independent gameplay evidence is
+retained. The initial postprocessor used the wrong special slot12 filename;
+its correction reuses the completed GUI run. No production or validator change.
+Optional framework pytest was not run. The compile and native-fixture measured
+receipts are child0; all phases and exact identities remain in
+`build-coop/qa-state/runtime-qualification/linux-portability`.
+
+The total is136/180 with44open and5/15areas accepted. Keep the existing owner
+review untouched. The prepared A05 takeover check remains unaccepted until its
+actual run passes; G12 navigation calibration remains frozen.
