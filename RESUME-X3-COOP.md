@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**141/180 accepted;39 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A02, A05 and A10-A12 are accepted after S05. E10 and E08 are accepted
+**142/180 accepted;38 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A02, A05, A10-A12 and E05 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -758,3 +758,27 @@ keeping that acceptance open. The instruction to prepare this handoff did not
 activate a new goal.
 
 /goal Execute G:/Temp/Codex/mmx3-coop/RESUME-X3-COOP.md to completion.
+
+## E05 native in-progress attack target changes
+
+E05 is accepted with no production change. The actual stage1 class08/01 enemy
+starts in its earned jump attack. Player positions/poses, contact protection and
+initial private camera positions prepare the check; enemy attack state, child
+constructors and results remain native. Both roster orders run240 fields twice.
+The parent updates exactly240 times, target ownership follows the nearest living
+actor and restores the world anchor each field. There are19/4 actual nearest-seat
+changes, three native02/00 projectile births and45 continuing child steps per
+run. Parent movement is at most4px and live child movement at most7px per field;
+neither parent nor child advances twice or relocates to the changed target.
+Both actors remain alive at their fixture's16/24HP. Complete machine futures
+match exactly for each roster. All4standard tests pass.
+
+State-test SHA256:
+052d00e73a4ec08aea952b82057b5c2142ac5e41f791215070aba664ba568625.
+Receipt native-target-switch-v4 is child0; raw evidence is
+build-coop/qa-state/target-switch-work/{target-switch-v4.log,standard-v4.log}.
+The initial observer ran before runtime target selection and was moved after
+the native SEP instruction. An initial prepared camera lag also culled the
+enemy before any switch; v4 supplies correct starting cameras. Those failed
+setups are retained and do not establish production defects. Total142/180,
+38open,5/15areas. E06 and E12-E14 remain; the owner review is untouched.

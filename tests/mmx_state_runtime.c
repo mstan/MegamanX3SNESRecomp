@@ -58,6 +58,7 @@ static void native_one_shot_revisit(uint8_t *work,uint8_t *expected,size_t capac
 #include "x3_coop_persistence_test.inc"
 #include "x3_coop_streaming_test.inc"
 #include "x3_coop_left_test.inc"
+#include "x3_coop_target_switch_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -387,6 +388,7 @@ int main(int argc,char **argv) {
       native_display_checks("enemy",saved,size,after,damaged,cap);
       native_target_checks(saved,size,after,cap);
     }
+    fixture=getenv("X3_COOP_TARGET_SWITCH_STATE");if(fixture && *fixture)native_target_switch_checks(fixture,saved,after,cap);
     fixture=getenv("X3_COOP_LADDER_STATE");
     if(fixture && *fixture)native_ladder_checks(fixture,saved,after,cap);
     fixture=getenv("X3_COOP_DESTROY_SUPPORT_STATE");

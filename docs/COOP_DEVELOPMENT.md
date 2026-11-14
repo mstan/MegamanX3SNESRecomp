@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:141/180;39 open/partial. Accepted areas:5/15
+**Accepted touch points:142/180;38 open/partial. Accepted areas:5/15
 (team wipe, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -59,7 +59,7 @@ the end of this document; older checkpoint counts are historical.
 | Fallen persistence |9/10|F10 physical controller reconnect|
 | Separated spawning |12/14|A09,A13|
 | Supports/hazards |13/16|P06,P12,P13|
-| Enemy interactions |9/14|E05,E06,E12-E14|
+| Enemy interactions |10/14|E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
 | Doors/scripts |8/14|S06-S07,S09-S10,S13-S14|
 | Campaign branches |15/16|G12|
@@ -5528,3 +5528,27 @@ unqualified setups. A forced constructor request after the completed chip
 preserves flags1F0F but stalls pending entry/native mode4; its saved machine is
 frozen as a caller-preparation question, without a product-defect claim.
 No production change. Total141/180,39open,5/15areas; A09/A13 remain.
+
+## E05 native in-progress attack target changes
+
+E05 is accepted with no production change. The actual stage1 class08/01 enemy
+starts in its earned jump attack. Player positions/poses, contact protection and
+initial private camera positions prepare the check; enemy attack state, child
+constructors and results remain native. Both roster orders run240 fields twice.
+The parent updates exactly240 times, target ownership follows the nearest living
+actor and restores the world anchor each field. There are19/4 actual nearest-seat
+changes, three native02/00 projectile births and45 continuing child steps per
+run. Parent movement is at most4px and live child movement at most7px per field;
+neither parent nor child advances twice or relocates to the changed target.
+Both actors remain alive at their fixture's16/24HP. Complete machine futures
+match exactly for each roster. All4standard tests pass.
+
+State-test SHA256:
+052d00e73a4ec08aea952b82057b5c2142ac5e41f791215070aba664ba568625.
+Receipt native-target-switch-v4 is child0; raw evidence is
+build-coop/qa-state/target-switch-work/{target-switch-v4.log,standard-v4.log}.
+The initial observer ran before runtime target selection and was moved after
+the native SEP instruction. An initial prepared camera lag also culled the
+enemy before any switch; v4 supplies correct starting cameras. Those failed
+setups are retained and do not establish production defects. Total142/180,
+38open,5/15areas. E06 and E12-E14 remain; the owner review is untouched.
