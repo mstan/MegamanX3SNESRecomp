@@ -57,6 +57,7 @@ static void native_one_shot_revisit(uint8_t *work,uint8_t *expected,size_t capac
 #include "x3_coop_terrain_test.inc"
 #include "x3_coop_persistence_test.inc"
 #include "x3_coop_streaming_test.inc"
+#include "x3_coop_left_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -330,6 +331,8 @@ int main(int argc,char **argv) {
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_ROUTE_REVERSED_STATE");check(reversed && *reversed,"movement activation supplies both actual rosters");native_activation_route_checks(fixture,reversed,saved,cap);}
     fixture=getenv("X3_COOP_HANDOVER_STATE");
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_HANDOVER_REVERSED_STATE");check(reversed && *reversed,"P1 takeover supplies both actual P2-first route worlds");native_activation_handover(fixture,reversed,saved,after,damaged,cap);}
+    fixture=getenv("X3_COOP_LEFT_ROUTE_STATE");
+    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_LEFT_ROUTE_REVERSED_STATE");check(reversed && *reversed,"native left movement supplies both actually earned heart rosters");native_left_activation(fixture,reversed,saved,after,cap);}
     if(getenv("X3_COOP_PERSISTENT_STREAMING")){
       const char *heart=getenv("X3_COOP_STREAMING_HEART_STATE"),*tank=getenv("X3_COOP_STREAMING_TANK_STATE");
       check(heart && tank,"permanent streaming supplies the two actual native item stages");

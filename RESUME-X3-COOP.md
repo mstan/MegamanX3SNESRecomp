@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**140/180 accepted;40 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A05 and A10-A12 are accepted after S05. E10 and E08 are accepted
+**141/180 accepted;39 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A02, A05 and A10-A12 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -223,6 +223,26 @@ six current earned fixtures remain in one-shot-revisit-work/stage*-v3*.
 Total140/180,40open,5/15areas. A02's native left-route helper is prepared in
 tests/x3_coop_left_test.inc, but not yet included, built or run. Use the actually
 earned stage5-v3-p1/p2-complete fixtures for that check. Preserve owner review.
+
+A02 is now accepted using the actually earned heart fixtures and native stage
+entry to rebuild playable terrain (stage5/1 at357/392 updates). Actual P2 right
+inputs first visit NPC736/class08/01; native culling clears FA16 and the old
+object while P1 stays384. A pose-only stop preserves position and eligibility.
+Actual left backtracking re-admits the enemy with9HP at217/186, ending221/190
+frames atP2x889/camera761 with one world tick perframe. Both retain own18/28HP;
+the two complete left futures repeat. Sixteen subsequent heart-region visits
+retain the one-shot reward and native capacity/reserve/HP, with whole futures.
+No progression, death or admission result flags are supplied. No production
+change. State-test SHA256:
+19718f42c105bbb17ee4350b43eee4fc0a9952362e513d2cddc9448d1604e05e.
+native-left-heart is child0; all4standard tests pass. Evidence: left-frontier-work/
+left-heart.log and standard-heart.log. The earlier direct teleports are invalid
+setups. A forced stage request from the completed chip retains flags1F0F but
+stalls in pending entry/native mode4; its full machine is retained separately.
+Do not turn that unqualified caller into another navigation loop or claim a
+product defect without an original-reference check. Keep it frozen for now.
+Total141/180,39open,5/15areas; A09/A13 remain. E05's existing actual native
+AI target-switch/attack case is selected next. Preserve the owner review.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage

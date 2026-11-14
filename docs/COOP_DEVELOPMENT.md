@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:140/180;40 open/partial. Accepted areas:5/15
+**Accepted touch points:141/180;39 open/partial. Accepted areas:5/15
 (team wipe, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -57,7 +57,7 @@ the end of this document; older checkpoint counts are historical.
 | Individual death |15/16|D06 authored lethal crush|
 | Team wipe |10/10|Accepted|
 | Fallen persistence |9/10|F10 physical controller reconnect|
-| Separated spawning |11/14|A02,A09,A13|
+| Separated spawning |12/14|A09,A13|
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |9/14|E05,E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
@@ -5507,3 +5507,24 @@ Measured native-one-shot-revisit-v3 is child0; all4standard tests pass. Actual
 awards, raw observations and full-future comparisons remain in
 `build-coop/qa-state/one-shot-revisit-work/stage*-v3*`.
 Total140/180,40open,5/15areas. Native P2 left admission A02 is prepared next.
+
+## A02 native P2 left backtracking and consumed rewards
+
+A02 is accepted. Earned heart fixtures retain their result through native
+stage5/stage1 constructors at357/392 updates. Actual P2 right input first visits
+NPC736/class08/01. Native culling clears its FA16 admission and old object while
+P1 remains384; a pose-only stop preserves position, terrain and eligibility.
+Actual left input readmits the eligible enemy with9HP at217/186, ending221/190
+frames at P2x889/camera761. Both retain own18/28HP, with one world tick perframe.
+The entire left future repeats exactly twice per roster. Sixteen subsequent
+heart-region visits cannot recreate the earned one-shot item or regrant capacity,
+reserves or HP; those complete futures also repeat. Stage selection/travel and
+contact protection are preparation; no result flags are supplied.
+
+State-test SHA256:19718f42c105bbb17ee4350b43eee4fc0a9952362e513d2cddc9448d1604e05e.
+Measured native-left-heart is child0; all4standard tests pass. Exact records remain
+in `build-coop/qa-state/left-frontier-work/left-heart.log`. Earlier teleports are
+unqualified setups. A forced constructor request after the completed chip
+preserves flags1F0F but stalls pending entry/native mode4; its saved machine is
+frozen as a caller-preparation question, without a product-defect claim.
+No production change. Total141/180,39open,5/15areas; A09/A13 remain.
