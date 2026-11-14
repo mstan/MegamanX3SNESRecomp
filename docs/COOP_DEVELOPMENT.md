@@ -45,27 +45,29 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points: 114/180; 66 open/partial. Accepted areas: 3/15
-(snapshot/rewind/rollback, menus/resources and netplay).** Component checks and a successful build are not
-campaign or co-op gameplay acceptance.
+**Accepted touch points:126/180;54 open/partial. Accepted areas:4/15
+(team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
+checks and successful builds do not establish campaign or gameplay acceptance.
+The current native identity correction and individual evidence are recorded at
+the end of this document; older checkpoint counts are historical.
 
-| Area | Status | Acceptance |
+| Area | Current acceptance | Remaining |
 | --- | --- | --- |
-| Individual death | D01-D05/D07/D09-D11/D14-D16 accepted (12/16); other death criteria open | Either survivor retains play and progression, with no global fade, blanking or stale freeze. |
-| Team wipe | T01-T05/T08-T10 accepted (8/10); boss/door wipe, transients and game over remain open | Simultaneous/staggered deaths produce one native retry and the intended life cost. |
-| Fallen persistence | F01-F09 accepted (9/10); reconnect/options persistence remains open | No checkpoint, stage exit, voluntary rejoin or menu revives a fallen player before team wipe. |
-| Separated spawning | A01/A03-A04/A06-A08/A14 accepted (7/14); other frontiers, lifecycle and campaign families open | Either leader activates native enemies, supports and one-shot events without duplicate visits or cross-gap activation. |
-| Supports/hazards | P01-P05/P07-P08/P10-P11/P14-P16 accepted (12/16); other support, terrain and vehicle contracts remain open | Both riders retain support, momentum and crush behavior while each platform advances once. |
-| Enemy interactions | E01-E04/E11 accepted (5/14); remaining contacts, target switching, captures and attachments open | Targeting, contact, capture and release recognize either actor and clean up victims. |
-| Combat ownership | C01-C05/C07-C10/C12 accepted (10/12); armored parts and audio remain open | Concurrent attacks retain native damage/cooldowns and clear on lifecycle exits. |
-| Doors/scripts | S01-S03/S08 accepted (4/14); all nine capsule families retain native X ownership; presentation, other scenes and authored scene deaths remain open | Either/both door policies and native scripts complete with either survivor. |
-| Campaign branches | G01-G11/G13-G14 accepted (13/16); fortress traversal, final phases and endings open | Intro, eight stages, optional encounters, fortress, refights and endings complete with either roster. |
-| Menus/resources | M01-M12 accepted (12/12); native scene/death/restore overlap gate passes | Paired navigation, shared tank spending, healing and resume cannot leak inventory or input. |
-| Visuals | Real Fit fields and independent width-isolation checks pass; full visuals/audio remain open | Both views retain correct art, lighting, HUDs, Cx4 effects, margins and transitions. |
-| Rollback/state | R01-R10 accepted (10/10); complete native interrupted-state, restore/replay, rewind and malformed-input gates pass | Complete initialized co-op snapshots, mid-pass restore, rewind and input replay agree, and malformed state is rejected. |
-| Netplay | N01-N12 accepted (12/12); actual remote checkpoint, gate/script and reward transitions pass | Two processes and LAN qualify shared/independent views, rollback, menus, deaths and disconnects. |
-| Performance/stock regression | Not qualified | Built co-op runtime meets frame budget and disabling co-op preserves stock behavior. |
-| Package/owner handoff | Not ready | Verified default settings, normal-window/audio handoff and one current ZIP in the delivery folder. |
+| Individual death |15/16|D06 authored lethal crush|
+| Team wipe |10/10|Accepted|
+| Fallen persistence |9/10|F10 physical controller reconnect|
+| Separated spawning |7/14|A02,A05,A09-A13|
+| Supports/hazards |13/16|P06,P12,P13|
+| Enemy interactions |9/14|E05,E06,E12-E14|
+| Combat ownership |10/12|C06,C11|
+| Doors/scripts |5/14|S04-S07,S09-S11,S13-S14|
+| Campaign branches |14/16|G04,G12|
+| Menus/resources |12/12|Accepted|
+| Visuals/audio |0/14|V01-V14|
+| Rollback/state |10/10|Accepted|
+| Netplay |12/12|Accepted|
+| Runtime/portability |0/6|Q01-Q06|
+| Owner/package/delivery |0/4|Z01-Z04|
 
 ## Current evidence and next gate
 
@@ -5107,3 +5109,62 @@ retained in the existing private QA directory. The next concrete evaluation
 extends the existing native projectile check to actual Gravity class59 with
 its native hostile22/kind2 orb (13:F8A9/F8E4 callF949). An initial assumed24
 probe failed to find that source and is retained as an unqualified setup.
+
+
+## Actual Gravity Beetle orb and low-health field - G08
+
+G08 is accepted with the corrected native identity, stage3/class59. The normal
+orb is hostile22/kind2; the low-health field is22/kind4. Native13:F8A9/F8E4 call
+F949 for2;13:F927 supplies4. Kind4 waits for its real native boundary contact
+before phase2/08:A759. Earlier assumed24 and wrong-low-kind2 probes were
+unqualified setups; they did not establish a runtime defect.
+
+Both actual orb types exposed a real persistent-contact omission. Their native
+CB31 caller keeps the source live, but co-op stopped after its first successful
+recipient. Original X16->8/Zero28->20 became8/28. The existing persistent rule
+now includes only22/kind2 or4; the actual kind0 captive carrier keeps its separate
+contract. No hook, native result write or state-format field is added.
+
+All four roster/first-owner comparisons for each type match both original
+complete native bodies, personal pools, palettes and the source record on its
+single update. The normal orb is isolated at192 (6822/343 vsparent6827/423);
+the actual low-health field reachesphase2 at193 (6827/300). Native AI allocates
+them without supplied attack/source state. Each paired future replays exactly.
+
+Eight fatal-source/survivor cases and four living-pair clears pass for each
+actual type. Only the real source kills the approached one-HP actor; the survivor
+keeps24actual control ticks and earns the parent defeat with real native fire.
+Living pairs also earn defeat. Actual children retire before reward/pool reset,
+then one native reward and stage1 arrival complete at2553+64 for fallen rosters
+or2433+64 for living pairs, without life debit or revived actors. Every whole
+future repeats exactly twice. The eight kind0 native carrier regressions remain
+passing, and the combined change passes the normal-source regression, current
+GUI and four standard tests.
+
+Qualified state SHA256 is
+16f3561dd3d00c43919621d93bf52fd06fb56e24b14a8c5f9603d60c8216f998;
+GUI is591c5fe3d8bd06279910a59b8b5c331085c3d758188585dbcb7e1e5df17477cb.
+Acceptance is125/180,55open,4/15areas; campaign13/16 with G04/G07/G12 open.
+The qualified capture/occupied-parent rescue and complete native intermission
+futures remain valid under this corrected Gravity identity.
+
+
+## Actual Neon Tiger wall interactions and clear - G07
+
+G07 is accepted for actual stage8/class56, retaining the legacybeetle selectors.
+All four roster/physical-seat cases let the original32HP boss earn both native
+wall contacts and its real jump:611video/worldupdates, walls3, minY1349 and
+action mask0551. Actor protection is refreshed every120updates to bypass combat
+difficulty; no boss movement, attack, collision or success result is supplied.
+The whole wall/attack future repeats exactly with both real actor contexts live.
+The subsequent actual buster defeat earns one native1FC4 reward and stage1
+arrival2553+64, both living/lives2/no locks, with each full future twice exact.
+The earlier actual Neon projectile, low-health field and native clear evidence
+under legacybeetle supplies its retained attack/contact comparisons.
+
+Frozen state SHA256 is
+0d559877d32700b9eaa33f220908ef224463646d5154e013cf9247888268172c.
+All four standard tests pass; current production GUI is unchanged from the
+combined Gravity qualification. Acceptance is126/180,54open,4/15areas;
+campaign14/16 with actual Rhino stage hazards(G04) and full fortress traversal
+(G12) still open. The corrected names add no acceptance independently.

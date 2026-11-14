@@ -2,8 +2,8 @@
 
 ## Current continuation - 2026-11-13
 
-**124/180 accepted;56 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
-after P09. Campaign12/16: G04,G07,G08 and G12 are open. The full180 objective
+**126/180 accepted;54 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
+after P09. Campaign14/16: G04 and G12 are open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
 latest `docs/COOP_DEVELOPMENT.md` entries supersede their next-action directions.
@@ -83,11 +83,45 @@ its capture/arena/clear evidence is under old toxic. These are unverified gaps,
 not newly observed runtime failures. No relabeling earns a point. The honest
 count is124/180 after reopening those3.
 
-The existing native projectile helper now has a Gravity59/class22-kind2 branch; its
-corrected-kind state build is running. Freeze/hash after the terminal build and run the
-actual native source/contact/whole-return check before further tooling.
-Native13:F8A9/F8E4 callF949 to allocate22/kind2. An initial assumed24 probe
-found no requested source and is retained child1, not a production finding.
+Current Gravity result: actual22/kind2 orb exposed a real second-recipient
+omission (native8/20HP, paired8/28). The existing persistent-contact rule now
+includes that exact kind. Normal original/paired full body, personal pools,
+palette and one source update pass all4 rosters/first owners.8 actual source
+fatalities retain24 survivor controls and complete real clear/reward/arrival
+2553+64 twice exactly;4 living-pair clears retire kind2 children before reward
+and return2433+64 twice exactly.8 kind0 carrier native regressions pass.
+Current GUI894e5d6edb78d17f2f3d28d4cebe4f4bc9c804365d98dd689addb2627b917623
+and4standard tests pass. Frozen normal state5d23ff70 records final geometry.
+
+G08 is now accepted with both actual kind2 orb and low-health kind4 field.
+Kind4 independently exposed the same second-actor omission; adding that exact
+kind resolves it. All4 original/paired complete body/pool/palette/source cases,
+8 actual field fatalities/survivor clears and4 living-pair clears pass. Every
+complete future repeats exactly, including actual child retirement before
+reward/pool reconstruction, one reward and stage1 arrival. Normal regression,
+current GUI and4standard tests pass. State16f3561dd3d00c43919621d93bf52fd06fb56e24b14a8c5f9603d60c8216f998;
+GUI591c5fe3d8bd06279910a59b8b5c331085c3d758188585dbcb7e1e5df17477cb.
+Receipts native-gravity-field-fixed-first/rest/survivors/living,
+native-gravity-normal-regression and native-gravity-final-build-gates are child0.
+
+G07 is now accepted with the correct actual Neon56/stage8 identity. All4
+roster/physical-seat wall continuations pass: native32HP boss reaches both
+walls, jumpsminY1349,611video/worldticks/actions0551, then the entire route
+replays exactly. Actual native buster defeat, one1FC4 reward and stage1 return
+2553+64 retain both living actors/lives2 and replay twice. Existing actualNeon
+projectile/field/clear evidence under legacybeetle remains valid. StateSHA256
+0d559877d32700b9eaa33f220908ef224463646d5154e013cf9247888268172c;
+native-neon-wall-first/rest/ctest are child0. All jobs are terminal/collected.
+
+Next G04 actual stage7 Tunnel Rhino hazards. Its canonical native-tiger arena
+contains the actual F800 event columns. A bounded extraction found actor records
+3C:E889/FA02 andE891/FA07: NPC35 kind1 at640/1840 and896/1840;
+NPC3F kinds0..6 at1664..2160/1048..1640; NPC34 at1912/1864(kind0)
+and3464/888(kind1); NPC33 kinds0..2 in the later tunnel. These are content
+candidates only, not mechanics acceptance. Inspect actual native behavior/art
+and reuse the original column allocator and native stage-hazard comparison.
+Do not use the old stage4/class0B hazard as actual Rhino evidence. G12 actual
+fortress traversal/exits and the remaining criteria remain independently open.
 
 D06 still needs an actual authored lethal crush. F10 physical controller
 reconnect, G12 fortress routes/exits, presentation/runtime checks and owner QA
@@ -95,7 +129,7 @@ remain. Prior D13/T06,S12,T07,D08,D12,E07/E09 and P09 evidence is preserved in
 the existing development/private records; do not repeat unchanged suites.
 
 Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P12,P13;
-E05,E06,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G04,G07,G08,G12;V01-V14;
+E05,E06,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G04,G12;V01-V14;
 Q01-Q06;Z01-Z04.
 
 Use repository tools and headless game/TCP interfaces. Computer Use requires

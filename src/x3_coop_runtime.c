@@ -1806,8 +1806,9 @@ static void contact_boundary(CpuState *cpu,uint32_t pc) {
   if(p->pass==1) {
     bool hit=(cpu->A&255)!=0;
     unsigned hostile_kind=g_ram[d+10];
-    bool persistent=hostile_kind==0x20 || hostile_kind==0x21 || (hostile_kind>=0x25 && hostile_kind<=0x27);
-    /* Native ice, Hornet bees, Beetle orbs, Tiger rays and Catfish electricity remain live
+    bool persistent=hostile_kind==0x20 || hostile_kind==0x21 ||
+        (hostile_kind==0x22 && (g_ram[d+11]==2 || g_ram[d+11]==4)) || (hostile_kind>=0x25 && hostile_kind<=0x27);
+    /* Native ice, Hornet bees, Gravity orbs, Neon claws, Rhino drills and Catfish electricity remain live
      * hazards after CB31. The ray/electrical callers ignore its hit result;
      * their own movement/parent phases retire these sources. Other
      * single-use hostile hits stop here. Player-shot scans are consumed by
