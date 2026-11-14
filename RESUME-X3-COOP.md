@@ -2,157 +2,85 @@
 
 ## Current continuation - 2026-11-13
 
-Work resumed with the owner's authorization. Current acceptance is
-**125/180;55 open;4/15 areas (T,R,M,N)**. P09 is now accepted. The prior local
-capacity block cleared enough for all preserved requests to finish; their exact
-terminal receipts were collected. The full180 objective and solo/local-only
-constraints remain unchanged. No release is ready.
-Campaign G01-G11 and G13-G16 pass; G12 remains open. Earlier110/118/119/120-point
-checkpoints below are historical. Read the latest sections of
-`docs/COOP_DEVELOPMENT.md` and the existing private
-`build-coop/qa-state/native-crawfish-capture-qualification.json` before choosing
-the next check. Preserve solo/local-only restrictions and the full180 scope.
+**126/180 accepted;54 open;4/15 areas (T,R,M,N).** E08 is now accepted after
+P09. Campaign G01-G11 and G13-G16 pass; G12 remains open. The full180 objective
+and solo/local-only constraints remain. No release is ready or delivered.
+Historical checkpoints below retain their original counts; this section and the
+latest `docs/COOP_DEVELOPMENT.md` entries supersede their next-action directions.
 
-D13/T06 pass native door/transport survivor and wipe outcomes. S12 now passes
-actual same-world winning projectile/fatality with Buffalo, first Sigma and
-Kaiser, both rosters/owners and living-partner/last-participant outcomes. A dead
-winning actor had bypassed native shared input-lock cleanup; the original
-cleanup checks now run for its living partner without HP or producer changes.
-The full42-case qualification includes native solo references and shared-camera
-cases, with each whole future replayed twice. Current GUI and four standard
-tests pass. F10 pause/restore/options/input-return components pass; actual
-physical controller reconnect remains open.
+Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
+The pending save-preflight correction and its actual menu roundtrip coverage
+are validated locally. The original F: checkout, engine and UI remain unchanged.
 
-T07 now passes actual dirty-context retries after live buster fire, two real
-moving-support riders, and each character's real Godkarmachine capture in both
-rosters. Old shot/effect/capture/support/hurt state clears; both native bodies
-and controls return with full health and one retry debit. Complete futures
-match twice. All ten team-wipe/retry/game-over points pass, so T joins R/M/N as
-an accepted area. Production/GUI code is unchanged; four standard tests pass.
+The concrete Doppler defect is fixed: a pending stage12 entry now follows the
+fresh supported native stage1 constructor from its original normal caller,
+then uses the existing enrollment gate. Four roster/prior-owner cases complete
+the actual occupied kill, child retirement, one reward, native story and arrival
+at7865/7985 updates. Both characters have positive HP16/28, visible native art
+and opposite24-update controls; lives2 and full futures repeat exactly twice.
+The explicit original reference completes7833; the old6000 bound was too short.
+Broad S06/S13 remain open.
 
-D08 now passes real wall-slide deaths in Shared and Independent simulation,
-both characters/physical rosters. The actual native controller has positive
-entry HP, then selects zeroHP/action0C inside active controller1/2, outside
-terrain/pit handling. Independent secondary projection3 and pending-state
-preflight pass. Fatal output and the144-update unfrozen survivor future replay
-exactly. Four existing floor-spike cases and four standard tests also pass.
-This is test-only coverage; the existing runtime needed no new fix.
+A second real defect was reproduced at a native reward/menu snapshot: modes0/2
+reuse1FAE as presentation data while the pending scene retains its prior stage.
+Preflight now permits that legitimate non-gameplay alias; active gameplay
+still requires the exact supported stage and existing malformed-state checks.
+All4 roster/prior-owner full futures save/load multiple actual menu boundaries
+and match the entire machine. The retained refused snapshot now restores through
+the GUI to a real stage1 arrival and independently controlled living actors.
+All12 existing stage/lifecycle/negative transaction cases, the current GUI and
+four standard tests pass. No codec/version or state migration was added.
 
-D12 now passes actual Buffalo grip and freeze fatalities, both characters,
-rosters and prior camera owners. Native grip impact kills at139 updates; real
-boss contact kills the genuinely frozen victim at1. Bindings, freeze-child
-owners and capture latches clear; the free partner remains visibly controllable.
-All16 Buffalo cases and56 existing captor/attachment fatal cases pass actual
-native-art checks and complete-future replay twice. State-test SHA256 is
-811c52c114517f39e2d60b0ece9a9c01fe87207650d562e356c8f7b414c034c3.
-The four standard tests pass; production/GUI code is unchanged.
+Validated final state-test SHA256:
+225b1e702507ec4f200b7547b4c24748e2a246c89ede8ee140524bf084010f0b.
+Current production GUI SHA256:
+4ad749d5478af0e76259cc93c3cbf947903e02902f7e12c089b0d5a015327519.
+Receipts native-reward-final-qualified, native-reward-final-ctest,
+native-reward-roundtrip-rest, native-reward-stage-preflight-regression,
+native-reward-menu-restore-gui and native-reward-validation-build-gates are child0.
 
-E07/E09 now pass real recipient retention and safe withdrawal. An early
-Buffalo Jump escape/withdrawal had left its native retirement byte30 set1:
-the old script still projected its unavailable recipient's zeroHP body. The
-existing guard now preserves the living encounter through that entire retained
-caller. All8 early cases pass natural script cleanup and exact106-update
-survivor futures;16 full-grip/freeze withdrawal cases,24 Bit/Press/God cases,
-and the existing Crawfish/Toxic/Hornet withdrawal evidence also pass. All16
-Buffalo captured fatalities still pass. Current state-test SHA256 is
-351b68a94d9c62390ab781ac93347d71ef286e788523909129f61d6edcab8b54;
-GUI is bdb87ec7b0f1d6209a4f39c7b3a5ba1f7fb2d8f21de76fce77b9049e98a38e6c.
-GUI/four standard tests pass; all jobs are terminal. The beam reference uses
-SNESRECOMP_WS_SPAWN=0 to match co-op's native simulation margins. Post-beam
-control places only the free body on actual open floor; health/hurt and all
-capture state remain earned.
+E08 now has positive native occupied-parent kills and actual victim/child cleanup
+for Buffalo grip/freeze, Crawfish, Bit ring, Press claw, God arm/carrier,
+Hornet attachments and Gravity Beetle's carrier, alongside the intro references.
+The final Gravity family has4 legal free-X/Zero-captive cases, both rosters and
+prior owners: exact winning NPC return held1/class1C, hit15, child retirement4
+with tag0 before any stage pool reconstruction, then the complete reward and
+controlled arrival above. The existing family records retain their exact jobs
+and individual counterexamples. Free Zero's original attacks reflect against
+this occupied guard; no special weapons are imported to Zero.
 
-E08 remains open. The actual stage3/NPC59 encounter is Gravity Beetle;
-native-toxic-* fixtures/selectors are legacy aliases. Four legal free-X,
-Zero-captive/prior-owner/roster cases pass the exact occupied winning return,
-native source1C hit15, real child retirement4/tag0 before stage reconstruction,
-one Gravity reward and actual next-stage arrival2673 plus64 updates. Complete
-futures replay twice. StateSHA256 is
-2a9f593075bff78752669da135d2da2f2ad803a63f44b26a6fbb252d82f0c36c;
-receipts native-rescue-third-first and native-rescue-third-rest both child0.
-Acid and Ray are acquired-inventory prerequisites; no scene completion flag is set.
+Additional charged-X precast experiments failed to earn an occupied winning
+hit. They are unqualified setups, neither passes nor an impossibility claim.
+Stop expanding those experiments: positive authored-family kills establish E08.
+The optional strict self-cast regression remains; failed raw diagnostics are
+retained privately. Do not weaken it or restart a positioning calibration loop.
 
-The two-weapon continuation enters the separate native Doppler story:
-00:A49D counts acquired weapons;00:9DE2..9E23 enters00:A58E at count2 when
-1FB0.40 is clear. A58E supplies stage12/checkpoint7. The earlier6000-update
-runs ended in that story, rather than establishing a native deadlock. The GUI
-continuation below identifies a real stale pending-stage reconstruction defect.
-Keep S06/S13 open; temporary reward-ownership experiments remain removed.
+Next concrete gameplay check: E10 actual captor/child-slot reuse. The existing
+Bit ring helper now has an optional continuation that waits for live native AI
+to reallocate the retired ring slot, contacts it with the opposite character,
+and checks fresh ownership and native escape/full replay. This is prepared,
+not accepted; collect the build and run it before expanding support tooling.
 
-Free Zero's native shot classes0/2/3 reflect against the occupied parent's
-native damage row0D;13:F482 recognizes Ray0B/14/1C. Do not give Zero special
-weapons. Captured X's normal emitter cancels natively on the captured muzzle
-pose. The actual charged pod now launches independently; its late hit and the
-next measured positioning decision are recorded below. No impossibility or
-occupied rescue is claimed from failed setups.
-
-P09 passes all four roster/physical-seat cases on stateSHA256
-0ad47f704c019347ca9676f2ac842c31ffca83fddf1be5e767384e9d522a7642.
-Receipts native-roof-exit-qualified and native-roof-exit-ctest are child0.
-Every112-update original/paired/replayed future matches the complete body,
-personal pools, palette and private camera/bounds. X uses the authored32px
-opening2768/1040/1008; Zero uses the actual48px passage5360/688/640. Both earn
-Dash by physical input on the original floor, recover safely below the roof
-for16updates and earn real Dash exits (X17Dash steps/exit60; Zero12/exit54).
-X then correctly enters native falling state8 off the floor. The previous
-predicate wrongly required Dash after that fall; no runtime change was needed.
-All four standard tests pass; the previous GUI remains valid/unchanged.
-
-E08 charged-pod readiness is now genuinely earned on state34bfed57:
-native-ready-pod-first child1 observes a real autonomous class14 pod after60
-paused-AI updates. Actual capture follows, but source1C kills the parent only
-at43, after the real captive has already released. This is a valid late hit,
-not occupied rescue or impossibility. Next use the measured pod/contact
-geometry to position the actual pre-cast closer, retaining all native startup,
-energy, capture and winning-return checks. Do not retune fake charge states.
-
-The Doppler handoff is now fixed and qualified. StateSHA256
-da2f3c9360bd6e158031b00053247c012be30d42b5c77600e17db646d3a44a5d
-and GUI1ffa1710e1a35e0c1424689b429d04c3b8ad87a07e74cb10117fdb5bd5482550
-pass actual native story/reward/new-stage reconstruction. A pending entry now
-follows only the fresh supported native normal-caller constructor, then the
-existing enrollment gate. All4roster/prior-owner occupied free-X cases finish
-at7865/7985 with real child cleanup/reward/HP16/28, visible opposite24tick
-controls, no debit and full futures twice. Explicit disabled-co-op original
-finishes7833: the old6000 cutoff was too short. GUIpairedfixed suffix1664 and
-actual two-player controls pass. Existing12stage/lifecycle/pending-save/negative
-transaction cases and4standard tests pass. This does not accept broad S06/S13
-or E08 yet. All jobs are terminal; preserve the frozen da2f3c93 for regression.
-
-The charged32px cast also fails occupied rescue: no hit through48. The actual
-96px pod at capture was6692/352 versus boss6786/423; its first hit43 was late.
-Do not try another blind position constant. The next coherent setup should
-wait for a real native emitted Ray to approach the still-paused parent, then
-let the unchanged charge/contact earn capture ahead of the winning hit. Retain
-strict source/occupancy/energy/constructor and whole-return checks. Alternatively
-resolve native applicability from complete mechanics, never from a bad setup.
-A mid-reward pending save in native non-gameplay modes also needs a focused
-current-build roundtrip: stage variable15 during weapon presentation is not an
-active stage, while the retained pending scene still names12. The current
-preflight equality assumes gameplay. Preserve strict malformed-stage rejection
-in gameplay if that legitimate non-gameplay roundtrip needs correction.
-
-GUI diagnostic scope: RuntimeLoad restores an enrolled co-op schedule even
-when the process env selects0. The input job's 'original' label therefore does
-not prove a wholly original reference. Use the existing native reward helper,
-which explicitly disables co-op after actual release, for that comparison.
-The first GUI harness passed its canonical seed directly to --resume-state;
-the host consumed that task-owned fixture. The failed source is reproducible
-with retained b8ccbc69, and paired765/native snapshots remain. All later GUI
-continuations copy disposable owned-resume inputs and verify canonical hashes.
-See doppler-input-work/continuation-results.json: native return succeeded in
-both cases, but the strict paired control assertion correctly failed. No scene
-or E08 point is accepted from these diagnostics. All jobs are terminal.
-
-D06 still needs an actual authored lethal crush; class37/26 protect contact.
-P06 is falling/collapsing-support activation; P12 is pinch/crush. G12 needs real
-fortress traversal/exits beyond accepted admissions and boss/ending flows.
+D06 still needs an actual authored lethal crush. F10 physical controller
+reconnect, G12 fortress routes/exits, presentation/runtime checks and owner QA
+remain. Prior D13/T06,S12,T07,D08,D12,E07/E09 and P09 evidence is preserved in
+the existing development/private records; do not repeat unchanged suites.
 
 Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P12,P13;
-E05,E06,E08,E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
-Q01-Q06;Z01-Z04. No release has been delivered. Computer Use or desktop/browser
-UI automation requires the owner's explicit approval; current automation uses
-repository tools and headless game interfaces.
+E05,E06,E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
+Q01-Q06;Z01-Z04.
+
+Use repository tools and headless game/TCP interfaces. Computer Use requires
+explicit owner approval. GUI --resume-state consumes its input: always copy a
+disposable test-owned resume file and verify the canonical seed hash afterward.
+RuntimeLoad re-enables enrolled co-op, so env0 alone is not an original reference.
+Native references explicitly disable co-op after the actual earned release.
+
+Keep retained q evidence/build outputs until their decisions are resolved;
+remove superseded task-owned binaries with audited non-forced cleanup later.
+No delivery folder has been touched. Complete all applicable criteria and owner
+observations, then deliver the verified one-current-build Windows ZIP to
+G:/Nextcloud/Games/SNES automatically. No remote push/PR/merge/Beads sync.
 
 Updated 2026-11-12. This is a handoff, not completion of the co-op goal.
 

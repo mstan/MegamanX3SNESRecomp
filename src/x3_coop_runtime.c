@@ -2562,8 +2562,12 @@ bool X3CoopRuntimePreflight(const void *data,size_t size) {
      (spawn.active || bounds.native.pass))return false;
   if(scripted.phase && scripted.kind==SCENE_STAGE_ENTRY && size>tail){
     size_t ram_at;size_t guest=RtlSnapshotGuestLayout(NULL,&ram_at);
-    if(!guest || ram_at>size || size-ram_at<0x20000 ||
-       scripted.stage!=((const uint8_t *)data)[ram_at+0x1fae])return false;
+    if(!guest || ram_at>size || size-ram_at<0x20000)return false;
+    const uint8_t *ram=(const uint8_t *)data+ram_at;
+    /* Native menu/reward tasks reuse1FAE for presentation while the old
+     * participants remain parked. Their retained stage need not match that
+     * temporary value. Active gameplay still requires the exact stage. */
+    if(scripted.stage!=ram[0x1fae] && ram[0xd1]!=0 && ram[0xd1]!=2)return false;
   }
   if(bounds.native.pass>3)return false;
   if(bounds.native.pass==3 && (!personal_mode || !decoded.initialized || (c.pass!=2 && t.pass!=2)))return false;

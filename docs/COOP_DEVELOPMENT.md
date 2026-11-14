@@ -5006,3 +5006,43 @@ remain open. The charged-pod setup earns a native autonomous projectile, but
 the measured96px cast hits after release and the32px cast misses; neither is
 accepted as rescue. Continue from actual projectile motion rather than supplied
 hit, capture or scene-completion state.
+
+
+## Pending snapshots through native reward menus and occupied-captor cleanup
+
+A legitimate current-build snapshot failed preflight during the native reward
+continuation: non-gameplay modes0/2 reuse1FAE for presentation while the pending
+entry retains its prior stage. Preflight now validates the complete guest/RAM
+range and permits that temporary alias outside gameplay. Active gameplay still
+requires the exact supported stage; invalid scene fields, competing native
+passes and malformed transaction rejection retain their existing checks. The
+snapshot format is unchanged.
+
+All four roster/prior-owner occupied-rescue futures now save/load multiple real
+native reward/menu boundaries and compare the complete machine immediately,
+then complete their actual reward/story/new-stage arrival and independent
+controls. Both entire futures match exactly. Twelve existing stage/lifecycle
+and negative-save cases pass; the previously refused native snapshot also
+restores through the actual GUI to stage1 with HP16/28, lives2 and opposite
+controls. Current GUI and all four standard tests pass. Final frozen state-test
+SHA256 is225b1e702507ec4f200b7547b4c24748e2a246c89ede8ee140524bf084010f0b;
+GUI is4ad749d5478af0e76259cc93c3cbf947903e02902f7e12c089b0d5a015327519.
+
+E08 is accepted from actual occupied parent kills, victim release and child
+retirement across the authored capture families: Buffalo grip/freeze, Crawfish,
+Bit ring, Press claw, God arm/carrier, Hornet attachments and Gravity Beetle's
+carrier, plus the earlier intro references. Existing family qualifications
+retain their per-case outcomes. The final Gravity cases cover both rosters and
+prior owners with free X/Zero captive: the winning native return observes the
+actual held victim and source1C, hit15, then child retirement4/tag0 before
+stage reconstruction. One actual reward and controlled arrival complete at
+7865/7985, with the entire future twice exact. The explicit original native
+continuation completes7833.
+
+Free Zero's native shots reflect from that occupied guard. Additional charged-X
+precasts did not earn an occupied kill and remain unqualified setups; they are
+neither passing evidence nor proof of impossibility. Their failed timing setups
+do not negate the positive authored-family cleanup checks and are not expanded
+into another acceptance prerequisite. No special weapons are imported to Zero.
+Acceptance is126/180,54open,4/15areas. S06/S13 and the other remaining criteria
+retain their separate scope.
