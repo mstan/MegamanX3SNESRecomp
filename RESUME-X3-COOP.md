@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**131/180 accepted;49 open;4/15 areas (T,R,M,N).** Q01 is accepted after S05. E10 and E08 are accepted
+**133/180 accepted;47 open;4/15 areas (T,R,M,N).** Q01-Q03 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -48,12 +48,12 @@ results remain pending; do not infer acceptance from the setup verification.
 Never interrupt an active owner playtest or query its TCP while the owner tests.
 
 The menu correction adds no acceptance point. The later Q01 native-solo check
-below brings the actual total to131/180,49open,4/15 areas.
+below and subsequent Q02/Q03 bring the actual total to133/180,47open,4/15 areas.
 Physical controller and owner presentation checks still require observations.
 Continue a decision-ready remaining criterion while those observations are
 pending. Keep the G12 navigation calibration frozen, and do not retain the
 neutral resource-index candidate or restart that local tuning loop. The known
-separated-view runtime p95 remains an unresolved Q03 qualification gap.
+separated-view runtime gap is resolved by the later Q03 qualification below.
 Keep delivery unchanged while acceptance remains open. After the entire
 applicable objective is resolved and validated, automatically deliver the verified
 X3 ZIP through the established completion steps below. Remote push and central
@@ -68,8 +68,39 @@ its menu, the paused world stops, co-op enrollment/menu ownership stays inactive
 and both builds replay their complete guest futures. Only the documented host
 DSP output ring is excluded from replay comparison; guest DSP state remains.
 Receipts native-stock-disabled-v4-current and baseline are child0. Evidence is
-in build-coop/qa-state/runtime-qualification/stock-disabled-v4. Q02-Q06 remain
-open; do not call an independent simulation's shared presentation Unified.
+in build-coop/qa-state/runtime-qualification/stock-disabled-v4. The later Q02/Q03
+checks cover runtime; an independent simulation's shared presentation is not Unified.
+
+Q02 is accepted: actual Unified independent=0 and disabled co-op run the same
+native stage1 world/starting X pose on GUIe41b6bd6,120warmup frames,8 simultaneous
+jump/fire cycles and120tail frames. Each has616 measured samples. Native mean
+3.392/p954.340ms; Unified mean4.431/p955.554/max6.331ms with0samples>16.7ms.
+Unified first frame.120s and peak working set285.9MiB; both actors remain living,
+full-health and unlocked. Scope is SDL dummy/software with muted emulated audio;
+no desktop GPU or separated-view claim. native-unified-runtime-measure is child0;
+raw CSV/logs/snapshots/results are in runtime-qualification/matched-unified-v1.
+The later Q03 qualification below resolves the separated-view raster gap.
+Q04-Q06 remain open.
+
+Q03 is accepted. The actual portable tile-row renderer resolves each8pixel
+fragment's tilemap/ROM indirection once, retaining per-pixel resource/palette
+seams and the original large-tile/mosaic path. Same-binary reference/candidate
+split mean16.136->9.153ms, p9518.733->10.978ms, raster10.809->3.902ms. Selected
+P1 mean10.241->6.663ms, p9512.521->8.033ms; shared is neutral. Actual default
+GUI f462ba1da5cca7634e629dca585ca10227c818fa11fb65213e9a995e80888bfd then passes
+split p9510.869ms and P1 p957.584ms. All18 captured presented images, full guest
+futures and WRAM match; simulation advances once in every presentation. Every
+background pixel/color additionally matches the original implementation through
+the moving stage1/stage2 workloads and actual native fixture regression,
+including342/448px adaptive panes, restore and transactional negative checks.
+All4standard tests pass. State binary cb1155910d682f3c6227b1812e397ca5aad9df126f158944d6c182e961077d95.
+The25 remaining test-only attachment locations after X3U1 now use the existing
+wire locator; actual unknown-bit rejection/unchanged-machine checks pass.
+Evidence: runtime-qualification/separated-rows-*-v1-results.json and
+initial-rows-verify-v1-results.json; native-tile-rows-* receipts all child0.
+Scope is local Windows SDL dummy/software; Q05's NET-enabled budget remains
+open. Keep the live owner review on its existing build untouched. Next resolve
+actual pool/effect pressure under Q04, rather than restarting accepted timing.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage

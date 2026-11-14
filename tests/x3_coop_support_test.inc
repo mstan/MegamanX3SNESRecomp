@@ -56,7 +56,7 @@ static void native_support_checks(uint8_t *snapshot,size_t size,uint8_t *modifie
   check(support_position(0,5)==before[0]-4 && support_position(1,5)==before[2]+2,
         "restored histories carry the same two actors");
   size_t expected=RtlSaveSnapshotToMemory(extra,capacity);
-  modified[prepared-X3_COOP_MENU_STATE_BYTES-31]|=16;
+  modified[contact_menu_offset(modified,prepared)-31]|=16;
   check(!RtlLoadSnapshotFromMemory(modified,prepared),"unknown native attachment bits are refused before load");
   size_t after=RtlSaveSnapshotToMemory(modified,capacity);
   same(extra,expected,modified,after,"invalid attachment state leaves the machine unchanged");
@@ -200,7 +200,7 @@ static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modif
     int gap=(int)support_position(other,8)+(int)feet-(int)y;
     size_t riding=RtlSaveSnapshotToMemory(modified,capacity);
     check(support_position(departing,8)+jump_feet<y-8 && gap>=0 && gap<=1 &&
-        (modified[riding-X3_COOP_MENU_STATE_BYTES-31+(d-0xd18)/64]&3)==(1u<<other),
+        (modified[contact_menu_offset(modified,riding)-31+(d-0xd18)/64]&3)==(1u<<other),
         "jumping off releases only the departing rider while the partner stays on the native moving support");
   }
   check(RtlLoadSnapshotFromMemory(snapshot,prepared),"P2-first authored support setup restores");
@@ -212,7 +212,7 @@ static void authored_support_checks(uint8_t *snapshot,size_t size,uint8_t *modif
   check(!memcmp(reference,g_ram+d,sizeof(reference)) && zero_gap>=0 && zero_gap<=1,
         "P2 alone lands, starts and rides the actual support with native movement");
   size_t observed=RtlSaveSnapshotToMemory(modified,capacity);
-  check((modified[observed-X3_COOP_MENU_STATE_BYTES-31+(d-0xd18)/64]&3)==(1u<<zero),
+  check((modified[contact_menu_offset(modified,observed)-31+(d-0xd18)/64]&3)==(1u<<zero),
         "authored P2-only ride retains no false X rider");
   output=getenv("X3_COOP_PLATFORM_P2_OUTPUT");
   if(output && *output)check(RtlSaveSnapshot(output),"P2-only support visual handoff saves");
@@ -243,7 +243,7 @@ static void native_separate_authored_support_checks(const char *normal,const cha
     check(RtlLoadSnapshotFromMemory(base,n),"paired separated supports restore their original world");unsigned tick=g_ram[0x9cc];
     for(unsigned f=0;f<45;++f){frame(0);for(unsigned seat=0;seat<2;++seat)if(support_position(seat,5)!=position[seat][f][0] || support_position(seat,8)!=position[seat][f][1])check(false,"separate moving supports retain each original rider position on every native frame");}
     check((uint8_t)(g_ram[0x9cc]-tick)==45,"separate support rooms advance the shared world once");size_t end=RtlSaveSnapshotToMemory(work,capacity);
-    for(unsigned seat=0;seat<2;++seat){/*07:E649 stores an allocated shared child slot in3E. With two real supports, slot addresses differ; validate its complete target and parent instead. */unsigned child=view_read(slot[seat]+0x3e);check(child>=0x1800 && child+32<=0x1e00 && g_ram[child] && g_ram[child+10]==0x1e && view_read(child+0x1b)==slot[seat] && !memcmp(child_record[seat],g_ram+child,32),"each separated support retains its original native child behavior and actual parent identity");record[seat][0x3e]=g_ram[slot[seat]+0x3e];record[seat][0x3f]=g_ram[slot[seat]+0x3f];check(!memcmp(record[seat],g_ram+slot[seat],64),"each separated support matches one original native simulation after resolving its allocated child pointer");check((work[end-X3_COOP_MENU_STATE_BYTES-31+(slot[seat]-0xd18)/64]&3)==(1u<<seat),"two authored supports retain independent actual rider histories");}
+    for(unsigned seat=0;seat<2;++seat){/*07:E649 stores an allocated shared child slot in3E. With two real supports, slot addresses differ; validate its complete target and parent instead. */unsigned child=view_read(slot[seat]+0x3e);check(child>=0x1800 && child+32<=0x1e00 && g_ram[child] && g_ram[child+10]==0x1e && view_read(child+0x1b)==slot[seat] && !memcmp(child_record[seat],g_ram+child,32),"each separated support retains its original native child behavior and actual parent identity");record[seat][0x3e]=g_ram[slot[seat]+0x3e];record[seat][0x3f]=g_ram[slot[seat]+0x3f];check(!memcmp(record[seat],g_ram+slot[seat],64),"each separated support matches one original native simulation after resolving its allocated child pointer");check((work[contact_menu_offset(work,end)-31+(slot[seat]-0xd18)/64]&3)==(1u<<seat),"two authored supports retain independent actual rider histories");}
     fprintf(stderr,"separate authored supports roster%u slots%04x/%04x riderY%u/%u platformY%u/%u\n",roster,slot[0],slot[1],support_position(0,8),support_position(1,8),view_read(slot[0]+8),view_read(slot[1]+8));
     size_t active=RtlSaveSnapshotToMemory(base,capacity);unsigned input=SNES_PAD_LEFT|SNES_PAD_B|(SNES_PAD_RIGHT<<12);
     for(unsigned f=0;f<24;++f)frame(input);size_t result=RtlSaveSnapshotToMemory(work,capacity);
@@ -296,7 +296,7 @@ static void native_jungle_rider_lifecycle(unsigned x,const unsigned slot[2],uint
     check(RtlLoadSnapshotFromMemory(live,admitted),"either fatal rider restores the same real hostile and native supports");X3CoopState low=*X3CoopRuntimeState();low.players[victim].body[0x27]=1;low.players[victim].body[0x88]=low.players[victim].body[0x8a]=0;
     memcpy(base,live,admitted);check(X3CoopEncode(&low,base+contact_context_offset(base,admitted),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,admitted),"fatal rider prerequisite supplies only low HP and expired protection");door_install_player(&low);view_word(foe+5,support_position(victim,5));view_word(foe+0x22,support_position(victim,5));view_word(foe+8,support_position(victim,8));view_word(foe+0x24,support_position(victim,8));size_t n=RtlSaveSnapshotToMemory(base,capacity);unsigned frames=0,own=victim==x?0:1,other=own^1,hp=contact_hp(victim^1);
     for(;frames<60 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE;++frames)frame(0);
-    size_t done=RtlSaveSnapshotToMemory(work,capacity),at=done-X3_COOP_MENU_STATE_BYTES-31;fprintf(stderr,"native jungle FATAL roster%u seat%u frames%u bits%02x/%02x life%u/%u sourceHP%u/%u\n",x,victim,frames,work[at+(slot[0]-0xd18)/64],work[at+(slot[1]-0xd18)/64],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,g_ram[slot[0]+0x27],g_ram[slot[1]+0x27]);
+    size_t done=RtlSaveSnapshotToMemory(work,capacity),at=contact_menu_offset(work,done)-31;fprintf(stderr,"native jungle FATAL roster%u seat%u frames%u bits%02x/%02x life%u/%u sourceHP%u/%u\n",x,victim,frames,work[at+(slot[0]-0xd18)/64],work[at+(slot[1]-0xd18)/64],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,g_ram[slot[0]+0x27],g_ram[slot[1]+0x27]);
     check(frames<60 && X3CoopRuntimeState()->players[victim].life==X3_COOP_FALLEN && X3CoopRuntimeState()->players[victim^1].life==X3_COOP_ALIVE && !(work[at+(slot[own]-0xd18)/64]&(1u<<victim)) && (work[at+(slot[other]-0xd18)/64]&3)==(1u<<(victim^1)) && contact_hp(victim^1)==hp,"actual fatal contact clears only the dead support rider and preserves the living rider's earned contact");
     uint8_t *future=malloc(done);check(future!=NULL,"actual fatal rider future allocates");memcpy(future,work,done);check(RtlLoadSnapshotFromMemory(base,n),"actual pre-fatal rider and hostile contact restore");for(unsigned j=0;j<frames;++j)frame(0);same(future,done,work,RtlSaveSnapshotToMemory(work,capacity),"authored fatal contact and rider ownership replay the complete machine");free(future);
     if(getenv("X3_COOP_JUNGLE_CORPSE_VISUAL"))native_jungle_survivor_visual(base,n,victim,x,foe,work,capacity);
@@ -332,7 +332,7 @@ static void native_destructible_support_checks(const char *fixture,uint8_t *base
   for(unsigned f=0;f<120;++f){frame((uint32_t)((f%12<4?SNES_PAD_Y:0)|(f==0?SNES_PAD_RIGHT:0))<<(paired?x*12:0));health[f]=g_ram[slot[1]]?g_ram[slot[1]+0x27]&127:0;if(!health[f] && !killed)killed=f+1;}
   fprintf(stderr,"native jungle WEAPON paired%u roster%u firstLethal%u trace",paired,x,killed);for(unsigned f=0;f<120;++f)fprintf(stderr,"%02x",health[f]);fprintf(stderr,"\n");
 
-  size_t done=RtlSaveSnapshotToMemory(work,capacity);riders_at=done-X3_COOP_MENU_STATE_BYTES-31;fprintf(stderr,"native jungle DESTROYED killed%u active%u histories%02x/%02x life%u/%u\n",killed,g_ram[slot[1]],work[riders_at+(slot[0]-0xd18)/64],work[riders_at+(slot[1]-0xd18)/64],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
+  size_t done=RtlSaveSnapshotToMemory(work,capacity);riders_at=contact_menu_offset(work,done)-31;fprintf(stderr,"native jungle DESTROYED killed%u active%u histories%02x/%02x life%u/%u\n",killed,g_ram[slot[1]],work[riders_at+(slot[0]-0xd18)/64],work[riders_at+(slot[1]-0xd18)/64],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
   check(killed && !g_ram[slot[1]],"real native Fire destroys the actual low-health solid jungle enemy");
   if(paired)check(!work[riders_at+(slot[1]-0xd18)/64] && (work[riders_at+(slot[0]-0xd18)/64]&3)==(1u<<x) && g_ram[slot[0]] && g_ram[slot[0]+0x27]==18 && (g_ram[slot[0]+0x2c]&1) && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual support destruction releases only its obsolete rider history and retains the separate living support and rider");
   uint8_t *future=malloc(done);check(future!=NULL,"actual support destruction future allocates");memcpy(future,work,done);check(RtlLoadSnapshotFromMemory(base,n),"actual support restores before the real lethal shot");X3CoopRuntimeEnable(paired);

@@ -101,7 +101,7 @@ static void native_dirty_team_retry(bool capture,uint8_t *base,uint8_t *work,siz
       if(ready)break;
     }
     const X3CoopState *s=X3CoopRuntimeState();size_t done=RtlSaveSnapshotToMemory(work,capacity);unsigned bound=0,owned=0,shots[2]={retry_live_shots(0),retry_live_shots(1)};
-    for(unsigned i=0;i<31;++i)bound|=work[done-X3_COOP_MENU_STATE_BYTES-31+i]&15;size_t owners=combat_owners(work,done);for(unsigned i=0;i<40;++i)owned+=work[owners+i]!=0;
+    for(unsigned i=0;i<31;++i)bound|=work[contact_menu_offset(work,done)-31+i]&15;size_t owners=combat_owners(work,done);for(unsigned i=0;i<40;++i)owned+=work[owners+i]!=0;
     fprintf(stderr,"native DIRTY TEAM RETRY capture%u run%u roster%u victim%u fired%u ready%u wipe%u stage%u/%u CPP%u/%u lives%u/%u shots%u/%u bound%u effects%u hurt%u/%u protect%u/%u charge%u/%u\n",capture,run,setup.players[0].character,victim,fired,elapsed,wipe,stage,g_ram[0x1fae],cpp,g_ram[0x1fb5],lives,g_ram[0x1fb4],shots[0],shots[1],bound,owned,campaign_body(0)[0x30],campaign_body(1)[0x30],campaign_body(0)[0x88],campaign_body(1)[0x88],campaign_body(0)[0x58],campaign_body(1)[0x58]);
     check(RtlSaveSnapshot("native-dirty-team-retry-outcome.sav"),"the actual dirty-context native retry retains its complete result");
     check(elapsed<6000 && wipe && g_ram[0x1fae]==stage && g_ram[0x1fb5]==cpp && g_ram[0x1fb2]==story && g_ram[0x1fd8]==hunters,"dirty native retry restores its actual checkpoint and retained campaign once");

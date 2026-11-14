@@ -85,6 +85,16 @@ int main(int argc,char **argv) {
       check(RtlLoadSnapshot(fixture),"native two-actor fixture loads");
       check(X3CoopRuntimeEnabled(),"loading an enrolled state before boot enables its actor schedule");
       check(X3CoopRuntimeState()->initialized,"fixture contains enrolled actors");
+      const char *unified_output=getenv("X3_COOP_UNIFIED_OUTPUT");
+      if(unified_output && *unified_output){
+        const char *native_output=getenv("X3_COOP_NATIVE_OUTPUT");
+        check(native_output && *native_output && !g_ram[X3_COOP_BODY+0xb6],"matched runtime exports start with the native X world body");
+        X3CoopViewsConfigure(false);
+        check(RtlSaveSnapshot(unified_output),"matched runtime exports the actual Unified configuration");
+        X3CoopRuntimeEnable(false);X3CoopRuntimeReset();
+        check(RtlSaveSnapshot(native_output),"matched runtime exports disabled native play without enrolled contexts");
+        check(RtlLoadSnapshot(fixture),"matched runtime export leaves the normal checks on their original fixture");
+      }
       size=RtlSaveSnapshotToMemory(saved,cap);
       const char *low_p2=getenv("X3_COOP_LOW_P2_OUTPUT");
       if(low_p2 && *low_p2){

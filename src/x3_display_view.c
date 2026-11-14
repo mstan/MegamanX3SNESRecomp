@@ -14,6 +14,8 @@
 #include "snes/cart.h"
 #include <string.h>
 #include <limits.h>
+#include <stdlib.h>
+#include <stdio.h>
 extern Snes *g_snes;
 extern uint8_t g_ram[0x20000];
 enum { WORLD_PIECES=112, EXTRA_PIECES=256, RESOURCE_PHASES=32 };
@@ -317,6 +319,90 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   unsigned priority=tile&0x2000?(layer==2 && (p->bgmode&8)?15:high[layer]):low[layer];
   return (uint16_t)((priority<<12)|(layer<<8)|index);
 }
+/* Resolve native tilemap/ROM indirection once per eight-pixel fragment. The
+ * live PPU registers still select each scanline, and resource/palette seams
+ * remain per pixel. Large tiles and mosaic retain the general native path. */
+static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
+                            unsigned width,uint16_t *pixels,int *colors){
+  if(PPU_bigTiles(p,layer) || (p->mosaic&(1u<<layer))){
+    for(unsigned i=0;i<width;++i){colors[i]=-1;pixels[i]=background(p,layer,(int)i-(int)left,y,&colors[i]);}
+    return;
+  }
+  static const unsigned low[]={8,7,1},high[]={12,11,3};
+  unsigned mode=frame.ram[0x1e99],bpp=layer==2?2:4;
+  bool stream=layer==0 || (layer==1 && (mode==2 || mode==4 || mode==14 || mode==16));
+  bool half_x=layer==1 && (mode==2 || mode==14);
+  bool half_y=layer==1 && (mode==2 || mode==16);
+  int origin_x=0,origin_y=0;
+  if(stream){
+    int nx=word(frame.ram+0x1e5d),ny=word(frame.ram+0x1e60);
+    if(!layer){
+      origin_x=X3Display_ExpandStageScroll((uint16_t)nx,p->hScroll[0])+frame.dx;
+      origin_y=X3Display_ExpandStageScroll((uint16_t)ny,p->vScroll[0])+frame.dy;
+    }else{
+      int sx=word(frame.ram+0x1e9d),sy=word(frame.ram+0x1ea0);
+      origin_x=sx+(((p->hScroll[1]-sx+256)&511)-256)+(half_x?((nx+frame.dx)>>1)-(nx>>1):frame.dx);
+      origin_y=sy+(((p->vScroll[1]-sy+128)&255)-128)+(half_y?((ny+frame.dy)>>1)-(ny>>1):frame.dy);
+    }
+  }
+  unsigned current_palette=frame.ram[0x1f1a];
+  if((frame.stage==4 && (frame.ram[0x1fc9]&64)) ||
+     (frame.stage==6 && (frame.ram[0x1fc3]&64)))current_palette+=5;
+  for(unsigned i=0;i<width;){
+    int x=(int)i-(int)left,px=(x+p->hScroll[layer])&1023,py=(y+p->vScroll[layer])&1023;
+    unsigned tile=0,span;bool valid=true;
+    if(stream){
+      px=origin_x+x;py=origin_y+y;
+      if(x<0 && px<0)px=((px%32)+32)%32;
+      valid=stage_tile(layer,px,py,&tile);
+    }else{
+      unsigned sc=p->bgXsc[layer],tx=(unsigned)px>>3,ty=(unsigned)py>>3;
+      unsigned a=(sc&0xfc)*256+(tx&31)+(ty&31)*32;
+      if((sc&1) && (tx&32))a+=1024;
+      if((sc&2) && (ty&32))a+=(sc&1)?2048:1024;
+      tile=p->vram[a&32767];
+    }
+    span=8-((unsigned)px&7);if(span>width-i)span=width-i;
+    /* The finite-origin margin wrap ends at the native field boundary. */
+    if(x<0 && span>(unsigned)-x)span=(unsigned)-x;
+    if(layer==2 && x<256 && x+(int)span>256)span=256-x;
+    if(layer==2 && (x<0 || x>=256) &&
+       !(p->screenEnabled[1]==4 && !(p->screenEnabled[0]&4)))valid=false;
+    if(!valid){for(unsigned j=0;j<span;++j){pixels[i+j]=0;colors[i+j]=-1;}i+=span;continue;}
+    unsigned cy=(unsigned)py&7;if(tile&0x8000)cy=7-cy;
+    unsigned a=(PPU_bgTileAdr(p,layer)+(tile&1023)*bpp*4)&32767;
+    uint16_t live[2]={p->vram[(a+cy)&32767],bpp==4?p->vram[(a+8+cy)&32767]:0};
+    unsigned priority=tile&0x2000?(layer==2 && (p->bgmode&8)?15:high[layer]):low[layer];
+    unsigned prefix=(priority<<12)|(layer<<8),palette=((tile>>10)&7)<<bpp;
+    int asset_y=stream?(half_y?py*2-112:py):-1;
+    unsigned last_phase=UINT_MAX;const uint8_t *bits=NULL;
+    for(unsigned j=0;j<span;++j){
+      int asset_x=stream?(half_x?(px+(int)j)*2-128:px+(int)j):-1;
+      bool asset=asset_x>=0 && asset_x<8192 && asset_y>=0 && asset_y<8192;
+      if(asset){
+        unsigned phase=resource_phase(0,asset_x,asset_y);
+        if(phase!=last_phase){
+          last_phase=phase;prepare_chr(phase);bits=NULL;
+          if(phase<16 && chr_valid[phase][a/16] &&
+             (phase!=frame.ram[0x1f19] || frame.ram[0x50]))bits=chr[phase]+a*2+cy*2;
+        }
+      }else{bits=NULL;last_phase=UINT_MAX;}
+      unsigned cx=((unsigned)px+j)&7,shift=(tile&0x4000)?cx:7-cx,pixel;
+      if(bits)pixel=((bits[0]>>shift)&1)|(((bits[1]>>shift)&1)<<1)|
+          (((bits[16]>>shift)&1)<<2)|(((bits[17]>>shift)&1)<<3);
+      else{
+        pixel=((live[0]>>shift)&1)|(((live[0]>>(8+shift))&1)<<1);
+        if(bpp==4)pixel|=(((live[1]>>shift)&1)<<2)|(((live[1]>>(8+shift))&1)<<3);
+      }
+      colors[i+j]=-1;pixels[i+j]=pixel?(uint16_t)(prefix|palette|pixel):0;
+      if(pixel && asset){
+        unsigned phase=resource_phase(1,asset_x,asset_y);const Palette *pal=prepare_palette(phase);
+        if(pal && pal->valid[palette|pixel] && phase!=current_palette)colors[i+j]=pal->colors[palette|pixel];
+      }
+    }
+    i+=span;
+  }
+}
 static void world_objects(const Ppu *p,int left,int right){
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
   unsigned used=0;
@@ -474,9 +560,25 @@ static void draw_view_line(const Ppu *p,int line,uint32_t *out,unsigned budget,u
   for(unsigned i=0;i<width;++i){objects[i]=0x500;colors[i]=0;order[i]=UINT64_MAX;}
   PpuComposeExtraObjects(frame.objects,frame.count,line-1,-(int)left,width,
       PPU_objPriority(p)?(p->oamaddl&254)>>1:0,objects,colors,order);
+  static int tile_rows=-1;
+  if(tile_rows<0){const char *value=getenv("SNESRECOMP_X3_COOP_TILE_ROWS");tile_rows=value && value[0]=='0'?0:value && value[0]=='v'?2:1;}
+  uint16_t backgrounds[3][kPpuBufWidth];int background_colors[3][kPpuBufWidth];
+  if(tile_rows)for(unsigned layer=0;layer<3;++layer)
+    background_line(p,layer,line,left,width,backgrounds[layer],background_colors[layer]);
   for(unsigned i=0;i<width;++i){
     int x=(int)i-(int)left,bg_colors[3]={-1,-1,-1};uint16_t layers[4];
-    for(unsigned layer=0;layer<3;++layer)layers[layer]=background(p,layer,x,line,&bg_colors[layer]);
+    for(unsigned layer=0;layer<3;++layer){
+      if(tile_rows){
+        layers[layer]=backgrounds[layer][i];bg_colors[layer]=background_colors[layer][i];
+        if(tile_rows==2){
+          int original_color=-1;uint16_t original=background(p,layer,x,line,&original_color);
+          if(original!=layers[layer] || original_color!=bg_colors[layer]){
+            fprintf(stderr,"X3 tile row mismatch stage%u seat%u layer%u xy%d,%d pixel%04x/%04x color%d/%d\n",frame.stage,active_frame==&independent_frames[1],layer,x,line,original,layers[layer],original_color,bg_colors[layer]);abort();
+          }
+        }
+      }
+      else layers[layer]=background(p,layer,x,line,&bg_colors[layer]);
+    }
     layers[3]=objects[i];
     uint16_t screen[2]={0x500,0x500};
     for(unsigned s=0;s<2;++s)for(unsigned layer=0;layer<4;++layer){

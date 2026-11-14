@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:131/180;49 open/partial. Accepted areas:4/15
+**Accepted touch points:133/180;47 open/partial. Accepted areas:4/15
 (team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -67,7 +67,7 @@ the end of this document; older checkpoint counts are historical.
 | Visuals/audio |0/14|V01-V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
-| Runtime/portability |1/6|Q02-Q06|
+| Runtime/portability |3/6|Q04-Q06|
 | Owner/package/delivery |0/4|Z01-Z04|
 
 ## Current evidence and next gate
@@ -5317,3 +5317,48 @@ Current GUI SHA256e41b6bd6ebaaee35adcb5ed46f69b69466b5d84432f5a8b32e8a6b2bc4fef5
 matched baseline SHA256b751c7ddc1f60068167ce59eac53aecbbc99708eefe2cb14d564e2e531388b77.
 `native-stock-disabled-v4-current` and `native-stock-disabled-v4-baseline` are
 child0. Actual131/180 accepted,49open,4/15areas. Q02-Q06 remain open.
+
+### Built Unified runtime - Q02
+
+Q02 is accepted on GUIe41b6bd6. Matched native/Unified states retain the same
+stage1 world, native X body and initial pose; the existing runner selects actual
+Unified mode, then disables/resets co-op for the native comparison. Normal mod
+selections agree with each state. After120warmup frames,8 simultaneous native
+jump/fire cycles and120tail frames yield616 measured samples each. Native mean
+3.392/p954.340ms; Unified mean4.431/p955.554/max6.331ms with no samples over16.7ms.
+Unified starts its first frame in.120s and peaks at285.9MiB working set; both
+actors finish alive, full-health and unlocked. Native clock advances equally.
+The measured path uses SDL dummy/software and muted emulated audio; this does
+not qualify a desktop GPU or separated views. Raw native host timing, process
+logs, snapshots and results remain in `runtime-qualification/matched-unified-v1`;
+`native-unified-runtime-measure` is child0. Actual132/180 accepted,48open,
+4/15areas. Q03-Q06 remain open.
+
+### Built separated views and tile-row rendering - Q03
+
+Q03 is accepted. Private backgrounds now resolve tilemap/ROM indirection once
+per8pixel fragment, retaining per-pixel resource/palette seams and the original
+large-tile/mosaic path. No simulation or snapshot representation changes.
+Same-binary reference/candidate stage2 split mean16.136->9.153ms,
+p9518.733->10.978ms and raster10.809->3.902ms. Selected P1 mean10.241->6.663ms,
+p9512.521->8.033ms; shared output is neutral. Both actors remain living,
+full-health and unlocked, with one simulation in all presentations.
+
+Final default GUI SHA256f462ba1da5cca7634e629dca585ca10227c818fa11fb65213e9a995e80888bfd
+passes split p9510.869ms and selected P1 p957.584ms. All18 actual presented
+images, WRAM and complete guest futures match the reference. Only the documented
+host DSP output ring is excluded. A separate diagnostic compares every background
+pixel and palette color with the original implementation across the complete
+moving stage1/stage2 three-view workloads and native fixture checks. These also
+pass342/448px adaptive panes, selected/split equality, world/CPU immutability,
+restore and complete view-mode futures. All4standard tests pass.
+
+The native menu's X3U1 append exposed25 remaining test-only attachment offsets;
+these now use the existing wire locator. Actual unknown-bit rejection and
+unchanged-machine checks pass again. The fixture exporter uses the existing
+camera configuration and runtime reset APIs. State SHA256
+cb1155910d682f3c6227b1812e397ca5aad9df126f158944d6c182e961077d95.
+`native-tile-rows-{reference,candidate,verify,fixture-qualified,standard,default}`
+are child0; raw results/logs/frames/snapshots remain in `runtime-qualification`.
+Scope is local Windows SDL dummy/software, with no desktop GPU or NET-enabled
+budget claim. Actual133/180 accepted,47open,4/15areas. Q04-Q06 remain open.
