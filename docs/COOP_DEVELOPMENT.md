@@ -4924,16 +4924,52 @@ native defeat-script recipient. The earlier eight-facing-update probe hit only
 after release and is not occupied-rescue evidence.
 
 The strict full-return regression still fails on unchanged production564ccec:
-phase4/10/sub10 remains unfinished at6000 updates.1FAE12 is this reward/demo's
-index, not a fortress arrival. Native1FC6 isFF rather than finalizedDC; both
+phase4/10/sub10 remains unfinished at6000 updates. Native00:A49D and
+00:9DE2..9E23 identify stage12/checkpoint7 as the two-Maverick Doppler
+intermission entered at00:A58E, not a weapon demo or fortress arrival. Native1FC6 isFF rather than finalizedDC; both
 actors/lives survive and old bindings clear. Constructor/demo-ownership
 experiments did not resolve it and were removed. Exact evidence is in the
 existing private qualification record under occupied_parent_rescue_current.
-Next compare the equivalent original native reward continuation before further
-production changes. Acceptance remains124/180,56open; no new point is claimed.
+An isolated selected-original-X continuation reaches the same wait on1F36 at
+00:9ECA. A wholly original entry/reward reference remains useful; S06/S13 stay
+open. Four legal free-X/Zero-captive cases with two prior acquired weapons
+complete the actual occupied hit, child release, new Gravity reward and native
+stage arrival, with whole futures twice exact. This does not qualify the
+separate two-weapon story. Acceptance remains124/180,56open; E08 stays open.
 
 The restored production GUI and four standard tests pass
 (native-occupied-restored-gates child0). The new strict counterexample exits1
 at the full-return assertion on stateSHA256765c4f6f721c962285c5b9a04f94763e06d87d50b287a66f703620fdcbe1b632.
 The next comparison should reuse the existing native NPC-return observer to
 establish occupancy on the winning call, alongside the pre-frame observation.
+
+
+## Native low-roof recovery and dash exits - P09
+
+P09 is accepted. Both characters and both physical roster assignments pass
+actual stage2 ice passages: X's32px opening has floor1040/ceiling1008 and
+Zero's48px opening has floor688/ceiling640. A grounded Dash is earned with
+native direction/button input before a position-only approach. Neither the
+posture, velocity, clearance result nor exit flag is supplied. The original
+collision shape stays below its authored roof throughout recovery; both
+characters then earn a real Dash through the opening. X correctly falls when
+his floor ends. Zero's taller standing shape cannot be seeded inside X's32px
+pocket; that earlier overlapping setup was rejected.
+
+All four cases match the original's complete body, auxiliaries, projectiles,
+palette, movement and private camera/current limits on every one of112updates.
+The whole paired future repeats exactly. Recovery lasts16updates; X earns17
+Dash steps and exits at60, Zero12 and54. The original reference explicitly
+uses native simulation margins; release widescreen settings are unchanged.
+State-test SHA256 is
+0ad47f704c019347ca9676f2ac842c31ffca83fddf1be5e767384e9d522a7642.
+The four standard tests pass; production and the validated GUI are unchanged.
+Acceptance is125/180,55open,4/15areas; E08 and broader scene criteria remain open.
+
+The occupied-rescue return diagnosis now distinguishes native story progress
+from co-op reconstruction. GUI input finishes the native Doppler dialogue and
+reward, but an existing stage12 pending entry can survive into free stage1,
+retaining an empty Zero context. The normal new-stage constructor must adopt
+that legitimate destination before ordinary enrollment. The6000-update cutoff
+alone did not establish a native dialogue deadlock. A genuine original
+comparison still requires explicitly disabling the restored co-op schedule.

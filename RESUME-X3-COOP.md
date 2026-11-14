@@ -2,7 +2,11 @@
 
 ## Current continuation - 2026-11-13
 
-The active goal continues. Current acceptance is **124/180;56 open;4/15 areas (T,R,M,N)**.
+Work resumed with the owner's authorization. Current acceptance is
+**125/180;55 open;4/15 areas (T,R,M,N)**. P09 is now accepted. The prior local
+capacity block cleared enough for all preserved requests to finish; their exact
+terminal receipts were collected. The full180 objective and solo/local-only
+constraints remain unchanged. No release is ready.
 Campaign G01-G11 and G13-G16 pass; G12 remains open. Earlier110/118/119/120-point
 checkpoints below are historical. Read the latest sections of
 `docs/COOP_DEVELOPMENT.md` and the existing private
@@ -58,36 +62,77 @@ SNESRECOMP_WS_SPAWN=0 to match co-op's native simulation margins. Post-beam
 control places only the free body on actual open floor; health/hurt and all
 capture state remain earned.
 
-Next decision: E08 now has an actual occupied class59 parent hit: native X's
-acquired Ray shot/source1C defeats the parent at fired15 while class22/kind0
-still carries Zero, after one real facing update. The carrier retires4 updates
-later and releases the right victim/child owner; the parent legitimately retains
-its one defeat-script recipient. The complete reward/return check still fails:
-phase4/10/sub10 waits through6000 updates, reward1FC6 isFF rather than finalizedDC,
-both actors remain living/lives2, and old bindings are0.1FAE12 here is a native
-reward/demo index, not fortress traversal. This is not accepted E08 or arrival.
+E08 remains open. The actual stage3/NPC59 encounter is Gravity Beetle;
+native-toxic-* fixtures/selectors are legacy aliases. Four legal free-X,
+Zero-captive/prior-owner/roster cases pass the exact occupied winning return,
+native source1C hit15, real child retirement4/tag0 before stage reconstruction,
+one Gravity reward and actual next-stage arrival2673 plus64 updates. Complete
+futures replay twice. StateSHA256 is
+2a9f593075bff78752669da135d2da2f2ad803a63f44b26a6fbb252d82f0c36c;
+receipts native-rescue-third-first and native-rescue-third-rest both child0.
+Acid and Ray are acquired-inventory prerequisites; no scene completion flag is set.
 
-The actual rendered stage3/NPC59 encounter is Gravity Beetle; native-toxic-*
-fixtures/selectors are legacy aliases. Keep exact stage/class/evidence identities
-and reconcile the other historical names against native data/art before relying
-on their labels. Relabeling earns no new points. The current private record's
-occupied_parent_rescue_current section holds exact hashes/receipts and the failed
-experiments. Temporary constructor/demo-ownership changes did not fix the stall
-and were removed. Next obtain a matched original native reward reference before
-further production edits. The strict optional X3_COOP_OCCUPIED_RESCUE regression
-is retained; failure is deliberate evidence of the unresolved continuation.
-Current regression SHA256 is765c4f6f721c962285c5b9a04f94763e06d87d50b287a66f703620fdcbe1b632;
-native-occupied-rescue-counterexample exits1 at the full-return assertion.
-Restored production GUI/four standard tests pass in native-occupied-restored-gates;
-GUI SHA256 is396824f95dab8b97852ccca2c0c9320279367df319b9e04c1e6de16082aae792.
-All build/test jobs are terminal. Reuse hunter_result_probe for exact occupancy
-at the winning native NPC return before the matched original continuation.
+The two-weapon continuation enters the separate native Doppler story:
+00:A49D counts acquired weapons;00:9DE2..9E23 enters00:A58E at count2 when
+1FB0.40 is clear. A58E supplies stage12/checkpoint7. The earlier6000-update
+runs ended in that story, rather than establishing a native deadlock. The GUI
+continuation below identifies a real stale pending-stage reconstruction defect.
+Keep S06/S13 open; temporary reward-ownership experiments remain removed.
+
+Free Zero's native shot classes0/2/3 reflect against the occupied parent's
+native damage row0D;13:F482 recognizes Ray0B/14/1C. Do not give Zero special
+weapons. Captured X's normal emitter cancels natively on the captured muzzle
+pose. The actual charged pod now launches independently; its late hit and the
+next measured positioning decision are recorded below. No impossibility or
+occupied rescue is claimed from failed setups.
+
+P09 passes all four roster/physical-seat cases on stateSHA256
+0ad47f704c019347ca9676f2ac842c31ffca83fddf1be5e767384e9d522a7642.
+Receipts native-roof-exit-qualified and native-roof-exit-ctest are child0.
+Every112-update original/paired/replayed future matches the complete body,
+personal pools, palette and private camera/bounds. X uses the authored32px
+opening2768/1040/1008; Zero uses the actual48px passage5360/688/640. Both earn
+Dash by physical input on the original floor, recover safely below the roof
+for16updates and earn real Dash exits (X17Dash steps/exit60; Zero12/exit54).
+X then correctly enters native falling state8 off the floor. The previous
+predicate wrongly required Dash after that fall; no runtime change was needed.
+All four standard tests pass; the previous GUI remains valid/unchanged.
+
+E08 charged-pod readiness is now genuinely earned on state34bfed57:
+native-ready-pod-first child1 observes a real autonomous class14 pod after60
+paused-AI updates. Actual capture follows, but source1C kills the parent only
+at43, after the real captive has already released. This is a valid late hit,
+not occupied rescue or impossibility. Next use the measured pod/contact
+geometry to position the actual pre-cast closer, retaining all native startup,
+energy, capture and winning-return checks. Do not retune fake charge states.
+
+The Doppler continuation is also narrower than the earlier timeout suggested.
+Actual GUI B input clears the final dialogue and its120-update timer, then the
+native reward/arrival completes. In the retained paired snapshot, however,
+co-op remains SCENE_STAGE_ENTRY for stage12 while native stage1 is fully free:
+Zero's retained body is empty/HP0, and the two-player scheduler never rebinds.
+The normal constructor guard still requires scene.stage==current stage, so it
+cannot adopt the legitimate new stage. Next fix only that proven fresh native
+constructor handoff and require positive HP plus actual control on both seats
+in the complete rescue return, with enough time for the authored intermission.
+
+GUI diagnostic scope: RuntimeLoad restores an enrolled co-op schedule even
+when the process env selects0. The input job's 'original' label therefore does
+not prove a wholly original reference. Use the existing native reward helper,
+which explicitly disables co-op after actual release, for that comparison.
+The first GUI harness passed its canonical seed directly to --resume-state;
+the host consumed that task-owned fixture. The failed source is reproducible
+with retained b8ccbc69, and paired765/native snapshots remain. All later GUI
+continuations copy disposable owned-resume inputs and verify canonical hashes.
+See doppler-input-work/continuation-results.json: native return succeeded in
+both cases, but the strict paired control assertion correctly failed. No scene
+or E08 point is accepted from these diagnostics. All jobs are terminal.
 
 D06 still needs an actual authored lethal crush; class37/26 protect contact.
 P06 is falling/collapsing-support activation; P12 is pinch/crush. G12 needs real
 fortress traversal/exits beyond accepted admissions and boss/ending flows.
 
-Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P09,P12,P13;
+Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P12,P13;
 E05,E06,E08,E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
 Q01-Q06;Z01-Z04. No release has been delivered. Computer Use or desktop/browser
 UI automation requires the owner's explicit approval; current automation uses
