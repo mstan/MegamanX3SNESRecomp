@@ -2,8 +2,8 @@
 
 ## Current continuation - 2026-11-13
 
-**127/180 accepted;53 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
-after P09. Campaign G01-G11 and G13-G16 pass; G12 remains open. The full180 objective
+**124/180 accepted;56 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
+after P09. Campaign12/16: G04,G07,G08 and G12 are open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
 latest `docs/COOP_DEVELOPMENT.md` entries supersede their next-action directions.
@@ -67,11 +67,27 @@ unchanged; all4 standard tests pass. Frozen state SHA256 is
 5c4d3bee51ea718de4d77e77b7f5a97bedb319ee17e32377ecf65b221219c6b6.
 Receipts native-bit-ring-reuse-first/rest/ctest are child0.
 
-Next reconcile the legacy boss fixture names against actual native art/rewards
-without adding acceptance for relabeling, then advance the next unresolved
-mechanic using existing checks. A six-fixture muted native screenshot job is
-running; it copies each resume input and verifies the canonical hash. No owner
-UI automation or playtest has been started.
+Native identity reconciliation is complete (native-identity-check child0),
+with canonical seed hashes preserved and actual boss art inspected. Legacy
+fixture selectors remain for reproducibility, but actual mapping is:
+stage3/59/toxic=Gravity Beetle;4/57/rhino=Toxic Seahorse;
+5/58/catfish=Volt Catfish;7/55/tiger=Tunnel Rhino;
+8/56/beetle=Neon Tiger;1/53/hornet=Blast Hornet.
+
+G03 can use the existing actual Seahorse arena/projectiles, native stage hazard
+and clear evidence under old rhino. G04 is reopened for actual Rhino stage
+hazards; its real boss drill/wall-rush/clear evidence is under old tiger. G07
+is reopened for actual Neon wall interactions; its projectile/field/clear
+evidence is under old beetle. G08 is reopened for actual Gravity projectiles;
+its capture/arena/clear evidence is under old toxic. These are unverified gaps,
+not newly observed runtime failures. No relabeling earns a point. The honest
+count is124/180 after reopening those3.
+
+The existing native projectile helper now has a Gravity59/class22-kind2 branch; its
+corrected-kind state build is running. Freeze/hash after the terminal build and run the
+actual native source/contact/whole-return check before further tooling.
+Native13:F8A9/F8E4 callF949 to allocate22/kind2. An initial assumed24 probe
+found no requested source and is retained child1, not a production finding.
 
 D06 still needs an actual authored lethal crush. F10 physical controller
 reconnect, G12 fortress routes/exits, presentation/runtime checks and owner QA
@@ -79,7 +95,7 @@ remain. Prior D13/T06,S12,T07,D08,D12,E07/E09 and P09 evidence is preserved in
 the existing development/private records; do not repeat unchanged suites.
 
 Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P12,P13;
-E05,E06,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
+E05,E06,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G04,G07,G08,G12;V01-V14;
 Q01-Q06;Z01-Z04.
 
 Use repository tools and headless game/TCP interfaces. Computer Use requires

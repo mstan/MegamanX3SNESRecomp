@@ -5070,3 +5070,40 @@ Production and GUI are unchanged. Frozen state-test SHA256 is
 native-bit-ring-reuse-first/rest/ctest receipts are child0 and all four standard
 tests pass. Acceptance is127/180,53open,4/15areas. Other enemy/scene criteria
 remain open independently.
+
+
+## Correct native boss identities and reopen unsupported named coverage
+
+Six canonical native arena snapshots were restored through the current GUI in
+an isolated muted headless host. Actual rendered boss art and native class/stage
+agree on the following correction; each canonical snapshot hash is unchanged.
+Legacy fixture/selector names remain stable so exact prior jobs are reproducible.
+
+| Actual boss | Native stage/class | Legacy fixture/selector |
+| --- | --- | --- |
+| Gravity Beetle |3/59|toxic|
+| Toxic Seahorse |4/57|rhino|
+| Volt Catfish |5/58|catfish|
+| Tunnel Rhino |7/55|tiger|
+| Neon Tiger |8/56|beetle|
+| Blast Hornet |1/53|hornet|
+
+All those actual encounters were exercised, but old names overstated some
+specific campaign coverage. G03 uses the actual Seahorse normal/low-health
+projectiles, native stage4 hazard, independent actor references and full clear
+futures previously filed under rhino. G04 is reopened for actual Rhino stage
+hazards; its actual boss drills, both-wall rush and full clear evidence remain
+under tiger. G07 is reopened for actual Neon wall interactions; its actual
+claw/projectile/field and full clear evidence remain under beetle. G08 is
+reopened for actual Gravity projectile mechanics; its qualified capture, parent
+cleanup and complete clear futures remain under toxic. These are evidence gaps,
+not newly demonstrated runtime failures. No relabeling earns acceptance, and
+no valid numerical source/contact or full-future result is discarded.
+
+Current acceptance is124/180,56open,4/15areas; campaign12/16 with G04/G07/G08/G12
+open. E08/E10 remain accepted from their actual native capture/lifetime checks.
+Native identity receipt is child0; the actual images and canonical hashes are
+retained in the existing private QA directory. The next concrete evaluation
+extends the existing native projectile check to actual Gravity class59 with
+its native hostile22/kind2 orb (13:F8A9/F8E4 callF949). An initial assumed24
+probe failed to find that source and is retained as an unqualified setup.
