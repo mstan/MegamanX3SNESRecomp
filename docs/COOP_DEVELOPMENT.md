@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:128/180;52 open/partial. Accepted areas:4/15
+**Accepted touch points:129/180;51 open/partial. Accepted areas:4/15
 (team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -60,7 +60,7 @@ the end of this document; older checkpoint counts are historical.
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |9/14|E05,E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
-| Doors/scripts |6/14|S04-S07,S09-S10,S13-S14|
+| Doors/scripts |7/14|S05-S07,S09-S10,S13-S14|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
 | Visuals/audio |0/14|V01-V14|
@@ -5243,3 +5243,23 @@ The bounded God43/kind0 crush setup is rejected: original X runs8native
 updates with0actual04:C05B calls and retains16HP. A permissible native branch
 in the object code does not prove that this particular geometry reaches it.
 D06 remains open; no paired crush or impossible-mechanism claim is made.
+
+
+### Native private-view door movement and camera commitment ? S04
+
+S04 is accepted on the same98a853e2 state binary. The current native-door run
+passes4actual roster/entrant cases: one admitted item update matches original
+byte for byte, the entering camera is adopted before world ownership changes,
+and the original forced walk continues through the following introduction.
+Both living participants retain health and native feet offsets; both controllers
+resume independently. Every complete admitted-to-cleanup future repeats exactly,
+including actual pending Start requests. `native-s04-door-qualified` is child0.
+
+The8new Buffalo/Crawfish closed-arena exports independently confirm both cached
+private cameras and native current limits committed at release. The qualified
+Sigma vertical/horizontal entry likewise retains1792/2560 and identical native
+locks for both views. Actual owner-fatal vertical continuations retain the
+survivor's native ground/camera path. Split and selected presentation share
+the already qualified fixed independent simulation. Rendering seams, moving
+visual review and all remaining scene criteria retain their open status.
+Actual129/180 accepted,51open,4/15areas. No production change.
