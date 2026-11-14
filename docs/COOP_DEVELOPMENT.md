@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:142/180;38 open/partial. Accepted areas:5/15
+**Accepted touch points:143/180;37 open/partial. Accepted areas:5/15
 (team wipe, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -59,7 +59,7 @@ the end of this document; older checkpoint counts are historical.
 | Fallen persistence |9/10|F10 physical controller reconnect|
 | Separated spawning |12/14|A09,A13|
 | Supports/hazards |13/16|P06,P12,P13|
-| Enemy interactions |10/14|E06,E12-E14|
+| Enemy interactions |11/14|E06,E12-E13|
 | Combat ownership |10/12|C06,C11|
 | Doors/scripts |8/14|S06-S07,S09-S10,S13-S14|
 | Campaign branches |15/16|G12|
@@ -5552,3 +5552,34 @@ the native SEP instruction. An initial prepared camera lag also culled the
 enemy before any switch; v4 supplies correct starting cameras. Those failed
 setups are retained and do not establish production defects. Total142/180,
 38open,5/15areas. E06 and E12-E14 remain; the owner review is untouched.
+
+## E14 marked native minion through survivor handoff
+
+E14 is accepted. Existing original-body/source comparisons and survivor/child
+cleanup evidence for the authored boss hazards are supplemented by actual
+Hornet marked homing flights through either participant's death. Both roster
+orders earn the native marker and its same-parent kind2 flight, including the
+original steering comparison. Only player positions, low victim HP and survivor
+protection prepare the fatal contact; the live parent's body contact earns the
+death. No mark, child parent, target binding or death result is supplied.
+
+Each240-field future retains the living8HP parent and fallen actor while the
+survivor moves33px. The homing child executes53 native updates when the free
+actor dies,52 when the marked actor dies, keeping its actual parent and earned
+marked target throughout. It then retires natively. The observer runs after the
+actual target-selection instruction and verifies the projected native character,
+including the retired target. Every field advances the world once, restores the
+canonical survivor and updates the child at most once. All four cases repeat
+complete machine futures exactly; all4standard tests pass. No production change.
+
+State-test SHA256:
+318fad172d9f7cb7903dc15934a51b61ad4e45eb3cc5e41d0899747e4d06075c.
+Receipt native-marked-minion-survivor is child0, both case exits0. Evidence:
+minion-survivor-work/{outcomes.json,marked-roster0.log,marked-roster1.log};
+standard checks: readiness-work/standard-v6.log (four passed). The separate
+readiness experiment is not accepted: its original pending-constructor body
+checks passed, but the stronger setup lost Zero's live projectile before contact.
+Its failed optional setup/source is retained outside the test suite under
+readiness-work/unqualified-readiness-test.inc. Stop this calibration; E13 remains
+open and no runtime defect is asserted. Total143/180,37open,5/15areas.
+Keep the live owner review and frozen navigation/crush setups untouched.

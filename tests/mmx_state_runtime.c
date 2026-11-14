@@ -45,6 +45,7 @@ static void native_one_shot_revisit(uint8_t *work,uint8_t *expected,size_t capac
 #include "x3_coop_shared_camera_test.inc"
 #include "x3_coop_hazard_test.inc"
 #include "x3_coop_team_test.inc"
+#include "x3_coop_minion_test.inc"
 #include "x3_coop_campaign_test.inc"
 #include "x3_coop_learner_test.inc"
 #include "x3_coop_intro_test.inc"
