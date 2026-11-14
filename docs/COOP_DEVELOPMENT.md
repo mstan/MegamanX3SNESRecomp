@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:137/180;43 open/partial. Accepted areas:5/15
+**Accepted touch points:138/180;42 open/partial. Accepted areas:5/15
 (team wipe, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -57,7 +57,7 @@ the end of this document; older checkpoint counts are historical.
 | Individual death |15/16|D06 authored lethal crush|
 | Team wipe |10/10|Accepted|
 | Fallen persistence |9/10|F10 physical controller reconnect|
-| Separated spawning |8/14|A02,A09-A13|
+| Separated spawning |9/14|A02,A09,A10,A12,A13|
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |9/14|E05,E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
@@ -5446,3 +5446,21 @@ The measured native-activation-handover-region receipt is child0; all4standard
 tests pass. Exact observations and full-future comparisons remain in
 `build-coop/qa-state/activation-handover-work/p1-handover-region.log`.
 Total137/180,43open,5/15areas. A11 streaming persistence is selected next.
+
+## A11 earned-item persistence through independent streaming
+
+A11 is accepted for the original stage1 heart and stage5 subtank with both
+rosters. Existing cartridge eligibility and timed-award checks earn each item
+before the streaming probe. Position/pose, camera entry/bounds and contact
+protection bypass travel; no acquisition, HP-capacity or tank-result flags are
+supplied. Each actual world leaves and returns with both players leading, twice:
+32 native visits retain the collected item absence, earned campaign flags,
+shared reserves and personal HP/capacity. All4 entire-machine futures repeat
+exactly. This qualifies streaming persistence; travel, native camera locks,
+retry, armor and presentation/audio are separate remaining checks.
+
+State-test SHA256:ab2680e7a0bc0827489185cb5b140c5c3ffab643d5388de8bcfb459c0b5932b9.
+Measured native-permanent-streaming is child0; all4standard tests pass. The four
+actually earned current-build completed fixtures, native observations and replay
+checks remain in `build-coop/qa-state/permanent-streaming-work`. No production
+change. Total138/180,42open,5/15areas. A12 native retry is selected next.

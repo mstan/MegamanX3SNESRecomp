@@ -141,6 +141,7 @@ static void native_persistent_pickup_checks(uint8_t *original,size_t size,uint8_
   for(unsigned i=0;i<elapsed;++i)frame(0);
   size_t repeated=RtlSaveSnapshotToMemory(work,capacity);
   same(expected,complete,work,repeated,"persistent award and personal maximum replay to the identical full machine");
+  if(getenv("X3_COOP_PERSISTENT_STREAMING"))native_permanent_streaming(kind,px,py,variant,work,expected,capacity);
   for(unsigned mode=0;mode<4;++mode){
     check(RtlLoadSnapshotFromMemory(start,pending),"pending persistent recipient lifecycle approach restores");
     if(mode>=2){

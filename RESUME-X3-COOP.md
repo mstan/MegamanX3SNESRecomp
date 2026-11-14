@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**137/180 accepted;43 open;5/15 areas (T,R,M,N,Q).** Q01-Q06 and A05 are accepted after S05. E10 and E08 are accepted
+**138/180 accepted;42 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A05 and A11 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -172,6 +172,21 @@ native-activation-handover-region is child0; all4standard tests pass. Evidence:
 activation-handover-work/p1-handover-region.log and standard-region.log.
 Current total137/180,43open,5/15areas. A11 permanent-item streaming revisit is
 the next selected criterion; no result yet. Keep the owner review untouched.
+
+A11 is now accepted. Both actual roster orders earn the original stage1 heart
+and stage5 subtank through native eligibility/award logic before32 total
+away/return visits with either player leading. Position/pose, camera entry/bounds
+and contact protection bypass travel; no collection, capacity or tank-result
+flags are supplied. Native streaming cannot recreate either collected item,
+regrant capacity/reserves, change personal HP or alter earned campaign flags.
+All4 entire-machine streaming futures repeat exactly. This does not certify
+travel, native camera locks, retry, armor or presentation/audio. The four actual
+earned current-build fixtures and logs remain in permanent-streaming-work.
+State-test SHA256:
+ab2680e7a0bc0827489185cb5b140c5c3ffab643d5388de8bcfb459c0b5932b9.
+native-permanent-streaming is child0; all4standard tests pass. No production
+change. Current total138/180,42open,5/15areas. A12's existing native team retry
+path is selected for inspection next; no new A12 result. Preserve owner review.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage

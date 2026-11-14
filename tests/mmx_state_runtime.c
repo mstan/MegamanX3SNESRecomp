@@ -23,6 +23,7 @@ static void native_dirty_team_retry(bool capture,uint8_t *base,uint8_t *work,siz
 static void campaign_position_only(X3CoopPlayer *p,unsigned x,unsigned y);
 static const uint8_t *campaign_body(unsigned seat);
 static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned seat,unsigned index,unsigned mode,uint8_t *work,uint8_t *after,size_t capacity);
+static void native_permanent_streaming(unsigned kind,unsigned px,unsigned py,unsigned variant,uint8_t *work,uint8_t *expected,size_t capacity);
 #include "x3_coop_contact_test.inc"
 #include "x3_coop_target_test.inc"
 #include "x3_coop_support_test.inc"
@@ -54,6 +55,7 @@ static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned se
 #include "x3_coop_vehicle_test.inc"
 #include "x3_coop_terrain_test.inc"
 #include "x3_coop_persistence_test.inc"
+#include "x3_coop_streaming_test.inc"
 int main(int argc,char **argv) {
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
@@ -327,6 +329,14 @@ int main(int argc,char **argv) {
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_ROUTE_REVERSED_STATE");check(reversed && *reversed,"movement activation supplies both actual rosters");native_activation_route_checks(fixture,reversed,saved,cap);}
     fixture=getenv("X3_COOP_HANDOVER_STATE");
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_HANDOVER_REVERSED_STATE");check(reversed && *reversed,"P1 takeover supplies both actual P2-first route worlds");native_activation_handover(fixture,reversed,saved,after,damaged,cap);}
+    if(getenv("X3_COOP_PERSISTENT_STREAMING")){
+      const char *heart=getenv("X3_COOP_STREAMING_HEART_STATE"),*tank=getenv("X3_COOP_STREAMING_TANK_STATE");
+      check(heart && tank,"permanent streaming supplies the two actual native item stages");
+      for(unsigned item=0;item<2;++item){
+        check(RtlLoadSnapshot(item?tank:heart) && g_ram[0x1fae]==(item?5:1),"permanent streaming loads the authored unclaimed item stage");size=RtlSaveSnapshotToMemory(saved,cap);
+        for(unsigned roster=0;roster<2;++roster)native_persistent_pickup_checks(saved,size,after,damaged,cap,item?5:11,item?2944:5856,item?1912:1096,item?0x20:1,roster);
+      }
+    }
     fixture=getenv("X3_COOP_ROUTE_PLATFORM_STATE");if(fixture && *fixture)native_activation_platform_route(fixture,saved,cap);
     fixture=getenv("X3_COOP_ACTIVATION_STATE");
     if(fixture && *fixture){
