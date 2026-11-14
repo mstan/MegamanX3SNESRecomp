@@ -48,6 +48,16 @@ static void native_campaign_survivor_checks(uint8_t *original,size_t size,uint8_
         "a real survivor native buster defeats Buffalo while native AI targets the survivor and the partner remains fallen");
     unsigned transition=0;
     for(;transition<6000;++transition){
+      const char *password=getenv("X3_COOP_PASSWORD_OUTPUT");
+      if(password && *password && g_ram[0x1fae]==2 && g_ram[0xd1]==4 && g_ram[0xd2]==10 &&
+          (g_ram[0x1fc8]&64)){
+        const X3CoopState *s=X3CoopRuntimeState();
+        check(s->players[campaign_survivor].character==X3_COOP_X &&
+            s->players[campaign_survivor].life==X3_COOP_ALIVE && s->players[campaign_victim].life==X3_COOP_FALLEN,
+            "earned native password setup retains its actual X survivor and fallen partner");
+        check(RtlSaveSnapshot(password),"actual native boss reward/password screen exports without a file picker");
+        campaign_probing=false;return;
+      }
       frame(transition%120<6?(uint32_t)SNES_PAD_B<<(campaign_survivor*12):0);
       if(g_ram[0xd1]==4 && g_ram[0xd2]==4 && g_ram[0x1fae]!=2 &&
           X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && g_ram[0x9d9]==2 && g_ram[0x9da]<=0x16 &&

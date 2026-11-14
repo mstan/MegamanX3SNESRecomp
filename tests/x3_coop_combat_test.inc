@@ -4,9 +4,37 @@
 typedef struct CombatCues {uint8_t count,ids[32],pan[32];} CombatCues;
 static CombatCues combat_cues,combat_reference_cues[2][420];
 static uint16_t combat_reference_camera[2][420][6];
-static bool combat_audio_enabled;
+static bool combat_audio_enabled,combat_visual_enabled;
+typedef struct CombatPicture {uint8_t chr[8192],palette[64];} CombatPicture;
+static CombatPicture combat_pictures[2][420];
 static unsigned combat_hit_cues;
-static void combat_audio_install(void){combat_audio_enabled=getenv("X3_COOP_COMBAT_AUDIO")!=NULL;}
+static void combat_audio_install(void){combat_audio_enabled=getenv("X3_COOP_COMBAT_AUDIO")!=NULL;combat_visual_enabled=getenv("X3_COOP_COMBAT_VISUAL")!=NULL;}
+static const uint8_t *combat_rom(unsigned address,unsigned count){
+  size_t at=((address>>16)&127)*32768+(address&32767),size=g_snes->cart->romImageSize;
+  check((address&65535)>=32768 && at<=size && count<=size-at,"visual reference reads only the validated native cartridge");return g_snes->cart->rom+at;
+}
+static void combat_picture_capture(unsigned seat,unsigned f){
+  CombatPicture *p=&combat_pictures[seat][f];memcpy(p->chr,g_ppu->vram+0x6000,sizeof(p->chr));memcpy(p->palette,g_ppu->cgram+128,sizeof(p->palette));
+}
+static void combat_picture_match(unsigned seat,unsigned f){
+  const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();const uint8_t *b=visible->players.players[seat].body,*atlas=visible->body_chr[seat];
+  const CombatPicture *native=&combat_pictures[seat][f];
+  const uint8_t *p=combat_rom(0x8d8000+b[0x16]*3,3);unsigned at=p[0]|p[1]<<8|p[2]<<16;
+  p=combat_rom(at+(b[0x17]&127)*3,3);at=p[0]|p[1]<<8|p[2]<<16;p=combat_rom(at,1);unsigned pieces=*p;
+  check(pieces && pieces<=64,"actual concurrent pose uses an original nonempty native sprite layout");p=combat_rom(at,1+pieces*4);
+  for(unsigned i=0;i<pieces;++i){const uint8_t *piece=p+1+i*4;unsigned size=piece[0]&32?2:1,tile=piece[3];
+    for(unsigned y=0;y<size;++y)for(unsigned x=0;x<size;++x){unsigned index=(((tile>>4)+y)&15)*16+((tile+x)&15),offset=index*32;
+      if(memcmp(atlas+offset,native->chr+offset,32)){fprintf(stderr,"native BODY CHR mismatch seat%u f%u group%u pose%u tile%u\n",seat,f,b[0x16],b[0x17]&127,index);check(0,"every displayed native body tile matches actual original VRAM during concurrent movement and attacks");}}
+  }
+  const uint8_t *colors=visible->players.players[seat].palette;
+  for(unsigned i=0;i<32;++i)if(((colors[i*2]|colors[i*2+1]<<8)&32767)!=((native->palette[i*2]|native->palette[i*2+1]<<8)&32767)){
+    fprintf(stderr,"native BODY PALETTE mismatch seat%u f%u color%u original%04x paired%04x\n",seat,f,i,native->palette[i*2]|native->palette[i*2+1]<<8,colors[i*2]|colors[i*2+1]<<8);
+    check(0,"displayed native character colors match original CGRAM on each actual concurrent field");
+  }
+  const PpuExtraObject *body=X3CoopRenderPlayer(seat,0,0);bool opaque=false;
+  if(body)for(unsigned i=0;i<128*128;++i)opaque|=body->pixels[i]!=0;
+  check(opaque,"the original-size native body raster remains visible during concurrent movement and attacks");
+}
 static void combat_frame(unsigned input){
   unsigned before=g_ram[0x9d3];frame(input);memset(&combat_cues,0,sizeof(combat_cues));combat_hit_cues=0;
   if(!combat_audio_enabled)return;
@@ -19,19 +47,24 @@ static void combat_audio_match(unsigned f){
   check(a->count+b->count==combat_cues.count,"simultaneous native attacks queue exactly their two original per-field sound request counts");
   for(unsigned seat=0;seat<2;++seat){const CombatCues *c=seat?b:a;for(unsigned i=0;i<c->count;++i){unsigned match=0;while(match<combat_cues.count && (used[match] || c->ids[i]!=combat_cues.ids[match] || c->pan[i]!=combat_cues.pan[match]))++match;check(match<combat_cues.count,"native concurrent cue IDs and spatial payloads retain both original actor cadences");used[match]=true;}}
 }
-typedef struct CombatSample {uint8_t command,charge[2],busy[2],controls[12],pose[4],palette[64],aux[X3_COOP_AUX_BYTES],shots[X3_COOP_SHOT_BYTES],hit[3];} CombatSample;
+typedef struct CombatSample {uint8_t command,charge[2],busy[2],controls[12],pose[6],palette[64],aux[X3_COOP_AUX_BYTES],shots[X3_COOP_SHOT_BYTES],hit[3];} CombatSample;
 
-static unsigned combat_buttons(unsigned mode,unsigned seat,unsigned f){
+static unsigned combat_attack_buttons(unsigned mode,unsigned seat,unsigned f){
   if(mode==4)return f<216 || f%4==0?SNES_PAD_Y:0;
   if(!mode)return f%4==0?SNES_PAD_Y:0;
   if(mode==1)return f<(seat?216:180)?SNES_PAD_Y:0;
   return seat==(mode==2?0:1)?(f<180?SNES_PAD_Y:0):(f%4==0?SNES_PAD_Y:0);
 }
+static unsigned combat_buttons(unsigned mode,unsigned seat,unsigned f){
+  unsigned keys=combat_attack_buttons(mode,seat,f);
+  if(combat_visual_enabled){if(f<48)keys|=((f<24)^(mode==4?1:seat))?SNES_PAD_RIGHT:SNES_PAD_LEFT;if(f>=48 && f<72)keys|=SNES_PAD_B;}
+  return keys;
+}
 static void combat_read(CombatSample *out,unsigned seat,bool original){
   memset(out,0,sizeof(*out));
   const X3CoopState *s=X3CoopRuntimeState();const X3CoopPlayer *p=&s->players[seat];bool live=original || s->current==seat;
   const uint8_t *body=live?g_ram+X3_COOP_BODY:p->body;out->command=live?g_ram[0x1f1e]:p->shot_command;
-  out->pose[0]=body[2];out->pose[1]=body[3];/*04:BCAF consumes the native DMA-request bit; the private atlas consumes the same pose without that shared-VRAM write. */out->pose[2]=body[0x17]&127;out->pose[3]=body[0x59];out->busy[0]=body[0x8f];out->busy[1]=body[0xb7];const unsigned control_offsets[12]={0xac,0x59,0x6e,0x3b,0x33,0x7d,0xaa,0x8e,0x36,0x37,0x38,0x39};for(unsigned i=0;i<12;++i)out->controls[i]=body[control_offsets[i]];memcpy(out->charge,body+0x57,2);memcpy(out->palette,live?g_ram+X3_COOP_PALETTE:p->palette,64);
+  out->pose[0]=body[2];out->pose[1]=body[3];/*04:BCAF consumes the native DMA-request bit; the private atlas consumes the same pose without that shared-VRAM write. */out->pose[2]=body[0x17]&127;out->pose[3]=body[0x59];out->pose[4]=body[0x16];out->pose[5]=body[0x11];out->busy[0]=body[0x8f];out->busy[1]=body[0xb7];const unsigned control_offsets[12]={0xac,0x59,0x6e,0x3b,0x33,0x7d,0xaa,0x8e,0x36,0x37,0x38,0x39};for(unsigned i=0;i<12;++i)out->controls[i]=body[control_offsets[i]];memcpy(out->charge,body+0x57,2);memcpy(out->palette,live?g_ram+X3_COOP_PALETTE:p->palette,64);
   memcpy(out->aux,live?g_ram+X3_COOP_AUX:p->auxiliaries,X3_COOP_AUX_BYTES);memcpy(out->shots,live?g_ram+X3_COOP_SHOTS:p->shots,X3_COOP_SHOT_BYTES);
 }
 static void combat_probe(CombatSample *out,unsigned seat,bool original,uint8_t *scratch,size_t capacity){
@@ -135,10 +168,10 @@ static void native_concurrent_combat_checks(const char *normal,const char *rever
   for(unsigned roster=0;roster<(getenv("X3_COOP_COMBAT_PREPARE_GUI")?1:2);++roster){
     check(RtlLoadSnapshot(earned_saber?normal:roster?reversed:normal) && g_ram[0x1fae]==(earned_saber?11:1),"native concurrent combat loads its actual stage roster");
     if(earned_saber)check((g_ram[0x1fb2]&0xc0)==0xc0 && !X3CoopRuntimeStockZero(),"saber combat consumes the actually earned native award with full-campaign Zero");
-    size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);if(earned_saber && roster){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}setup.current=setup.anchor=0;
+    size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);if(earned_saber && roster){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}setup.current=setup.anchor=(uint8_t)(combat_visual_enabled?(setup.players[0].character==X3_COOP_X?0:1):0);
     for(unsigned seat=0;seat<2;++seat){X3CoopPlayer *p=&setup.players[seat];uint8_t *b=p->body;unsigned x=earned_saber?3200:384,y=(earned_saber?1968:1200)-(p->character==X3_COOP_ZERO?25:17);
       b[5]=b[0x22]=(uint8_t)x;b[6]=b[0x23]=(uint8_t)(x>>8);b[8]=b[0x24]=(uint8_t)y;b[9]=b[0x25]=(uint8_t)(y>>8);b[2]=b[3]=b[4]=b[7]=0;memset(b+0x1a,0,6);b[0x33]=b[0x57]=b[0x58]=b[0x88]=b[0x8a]=0;memset(b+0x38,0,4);memset(p->auxiliaries,0,sizeof(p->auxiliaries));memset(p->shots,0,sizeof(p->shots));p->shot_command=0;p->previous_actions=0;}
-    memcpy(work,base,n);check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"combat position, neutral weapons and empty owned pools restore");door_install_player(&setup);X3CoopViewsConfigure(false);
+    memcpy(work,base,n);check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"combat position, neutral weapons and empty owned pools restore");door_install_player(&setup);X3CoopViewsConfigure(combat_visual_enabled);if(combat_visual_enabled)X3CoopViewsReset();
     memset(g_ram+0xd18,0,0x3c0);memset(g_ram+0x1318,0,0x500);
     for(unsigned col=0;col<255;++col){unsigned first=view_read(0xf800+2*col),end=view_read(0xf802+2*col);if(first<0xfa02 || end>0xfffc || end<first || (end-first)%5)continue;for(unsigned at=first;at<end;at+=5)g_ram[at]=1;}
     view_word(0x1e5d,earned_saber?3072:256);view_word(0x1e7a,earned_saber?3072:256);const unsigned vertical[]={0x1e60,0x1e7c,0x1e6a,0x1e6c,0x1e78,0x1e7e};for(unsigned i=0;i<6;++i)view_word(vertical[i],earned_saber?1792:1024);
@@ -156,12 +189,15 @@ static void native_concurrent_combat_checks(const char *normal,const char *rever
     for(unsigned mode=getenv("X3_COOP_COMBAT_COMBO_ONLY")?4:0;mode<((getenv("X3_COOP_COMBAT_RETIREMENT_ONLY") || getenv("X3_COOP_COMBAT_POOL_ONLY"))?0:getenv("X3_COOP_COMBAT_COMBO_ONLY")?5:4);++mode){
       unsigned frames=mode==4?420:240;
       uint32_t native_spc[2]={0,0},spc_start=0;unsigned peaks[2]={0,0},maxcharge[2]={0,0},seat_saber_hits[2]={0,0},saber_hits=0,saber_first=FRAMES,saber_last=0;uint64_t actions[2]={0,0},kinds[2]={0,0};
-      for(unsigned seat=0;seat<2;++seat){check(RtlLoadSnapshotFromMemory(base,n),"original native firing/charge reference restores");X3CoopState solo=*X3CoopRuntimeState();solo.current=(uint8_t)seat;memcpy(work,base,n);check(X3CoopEncode(&solo,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"original native reference selects its actual snapshot actor");door_install_player(&solo);X3CoopRuntimeEnable(false);spc_start=g_snes->apu->cycles;
-        for(unsigned f=0;f<frames;++f){combat_frame(combat_buttons(mode,seat,f));if(combat_audio_enabled){combat_reference_cues[seat][f]=combat_cues;combat_reference_camera[seat][f][0]=(uint16_t)view_read(0x1e5d);combat_reference_camera[seat][f][1]=(uint16_t)view_read(0x1e60);for(unsigned k=0;k<4;++k)combat_reference_camera[seat][f][k+2]=(uint16_t)view_read(0x1e66+k*2);}CombatSample *sample=&trace[seat*FRAMES+f];combat_read(sample,seat,true);if(mode==4 && f>=216 && (earned_saber || solo.players[seat].character==X3_COOP_ZERO)){combat_probe(sample,seat,true,probe,capacity);if(sample->pose[0]==0x5c && (sample->hit[0]&127)<127){++saber_hits;++seat_saber_hits[seat];if(f<saber_first)saber_first=f;saber_last=f;}}if(sample->pose[0]<128)actions[seat]|=UINT64_C(1)<<(sample->pose[0]/2);for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)if(sample->shots[j] && sample->shots[j+10]<64)kinds[seat]|=UINT64_C(1)<<sample->shots[j+10];unsigned count=0;for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)count+=sample->shots[j]!=0;if(count>peaks[seat])peaks[seat]=count;if(sample->charge[1]>maxcharge[seat])maxcharge[seat]=sample->charge[1];}native_spc[seat]=g_snes->apu->cycles-spc_start;}
+      for(unsigned seat=0;seat<2;++seat){check(RtlLoadSnapshotFromMemory(base,n),"original native firing/charge reference restores");X3CoopState solo=*X3CoopRuntimeState();solo.current=(uint8_t)seat;memcpy(work,base,n);check(X3CoopEncode(&solo,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"original native reference selects its actual snapshot actor");door_install_player(&solo);X3CoopRuntimeEnable(false);
+        /* Install inherited native character art before the original DMA stream. */
+        if(combat_visual_enabled){X3CoopViewState view=*X3CoopViewsState();vehicle_install_view(&view,seat);memcpy(g_ppu->vram+0x6000,X3CoopPresentationVisible()->body_chr[seat],8192);memcpy(g_ppu->cgram+128,solo.players[seat].palette,64);++g_ppu->vramWriteCount;}spc_start=g_snes->apu->cycles;
+        for(unsigned f=0;f<frames;++f){combat_frame(combat_buttons(mode,seat,f));if(combat_visual_enabled)combat_picture_capture(seat,f);if(combat_audio_enabled){combat_reference_cues[seat][f]=combat_cues;combat_reference_camera[seat][f][0]=(uint16_t)view_read(0x1e5d);combat_reference_camera[seat][f][1]=(uint16_t)view_read(0x1e60);for(unsigned k=0;k<4;++k)combat_reference_camera[seat][f][k+2]=(uint16_t)view_read(0x1e66+k*2);}CombatSample *sample=&trace[seat*FRAMES+f];combat_read(sample,seat,true);if(mode==4 && f>=216 && (earned_saber || solo.players[seat].character==X3_COOP_ZERO)){combat_probe(sample,seat,true,probe,capacity);if(sample->pose[0]==0x5c && (sample->hit[0]&127)<127){++saber_hits;++seat_saber_hits[seat];if(f<saber_first)saber_first=f;saber_last=f;}}if(sample->pose[0]<128)actions[seat]|=UINT64_C(1)<<(sample->pose[0]/2);for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)if(sample->shots[j] && sample->shots[j+10]<64)kinds[seat]|=UINT64_C(1)<<sample->shots[j+10];unsigned count=0;for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)count+=sample->shots[j]!=0;if(count>peaks[seat])peaks[seat]=count;if(sample->charge[1]>maxcharge[seat])maxcharge[seat]=sample->charge[1];}native_spc[seat]=g_snes->apu->cycles-spc_start;}
       check(RtlLoadSnapshotFromMemory(base,n),"concurrent combat restores the matched original prerequisites");unsigned tick=g_ram[0x9cc];spc_start=g_snes->apu->cycles;
-      for(unsigned f=0;f<frames;++f){combat_frame(combat_buttons(mode,0,f)|(combat_buttons(mode,1,f)<<12));if(combat_audio_enabled)combat_audio_match(f);for(unsigned seat=0;seat<2;++seat){CombatSample actual;combat_read(&actual,seat,false);if(mode==4 && f>=216 && (earned_saber || X3CoopRuntimeState()->players[seat].character==X3_COOP_ZERO))combat_probe(&actual,seat,false,probe,capacity);CombatSample *expected=&trace[seat*FRAMES+f];if(memcmp(expected,&actual,sizeof(actual))){unsigned at=0;while(at<sizeof(actual) && ((uint8_t *)expected)[at]==((uint8_t *)&actual)[at])++at;fprintf(stderr,"combat mismatch roster%u mode%u seat%u frame%u byte%u original%02x paired%02x charge%u/%u command%02x/%02x\n",roster,mode,seat,f,at,((uint8_t *)expected)[at],((uint8_t *)&actual)[at],expected->charge[1],actual.charge[1],expected->command,actual.command);fprintf(stderr,"native control fields AC/59/6E/3B/33/7D/AA/8E/36/37/38/39 original");for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",expected->controls[k]);fprintf(stderr," paired");for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",actual.controls[k]);fprintf(stderr,"\n");if(combat_audio_enabled){fprintf(stderr,"native AUDIO SETUP f%u seat%u camera original%u/%u paired%u/%u bounds original%u/%u/%u/%u paired%u/%u/%u/%u shot0 original",f,seat,combat_reference_camera[seat][f][0],combat_reference_camera[seat][f][1],view_read(0x1e5d),view_read(0x1e60),combat_reference_camera[seat][f][2],combat_reference_camera[seat][f][3],combat_reference_camera[seat][f][4],combat_reference_camera[seat][f][5],view_read(0x1e66),view_read(0x1e68),view_read(0x1e6a),view_read(0x1e6c));for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",expected->shots[k]);fprintf(stderr," paired");for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",actual.shots[k]);fprintf(stderr,"\n");}check(false,"concurrent native command, charge, palette and all owned pools equal the original actor on every frame");}}}
+      for(unsigned f=0;f<frames;++f){combat_frame(combat_buttons(mode,0,f)|(combat_buttons(mode,1,f)<<12));if(combat_audio_enabled)combat_audio_match(f);if(combat_visual_enabled && (f==24 || f==60))for(unsigned seat=0;seat<2;++seat)check(f==24?support_position(seat,5)!=(setup.players[seat].body[5]|setup.players[seat].body[6]<<8):support_position(seat,8)+8<(setup.players[seat].body[8]|setup.players[seat].body[9]<<8),f==24?"both native characters actually move independently during the visual comparison":"both native characters actually jump while charging or firing");for(unsigned seat=0;seat<2;++seat){if(combat_visual_enabled)combat_picture_match(seat,f);CombatSample actual;combat_read(&actual,seat,false);if(mode==4 && f>=216 && (earned_saber || X3CoopRuntimeState()->players[seat].character==X3_COOP_ZERO))combat_probe(&actual,seat,false,probe,capacity);CombatSample *expected=&trace[seat*FRAMES+f];if(memcmp(expected,&actual,sizeof(actual))){unsigned at=0;while(at<sizeof(actual) && ((uint8_t *)expected)[at]==((uint8_t *)&actual)[at])++at;fprintf(stderr,"combat mismatch roster%u mode%u seat%u frame%u byte%u original%02x paired%02x charge%u/%u command%02x/%02x\n",roster,mode,seat,f,at,((uint8_t *)expected)[at],((uint8_t *)&actual)[at],expected->charge[1],actual.charge[1],expected->command,actual.command);fprintf(stderr,"native control fields AC/59/6E/3B/33/7D/AA/8E/36/37/38/39 original");for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",expected->controls[k]);fprintf(stderr," paired");for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",actual.controls[k]);fprintf(stderr,"\n");if(combat_audio_enabled){fprintf(stderr,"native AUDIO SETUP f%u seat%u camera original%u/%u paired%u/%u bounds original%u/%u/%u/%u paired%u/%u/%u/%u shot0 original",f,seat,combat_reference_camera[seat][f][0],combat_reference_camera[seat][f][1],view_read(0x1e5d),view_read(0x1e60),combat_reference_camera[seat][f][2],combat_reference_camera[seat][f][3],combat_reference_camera[seat][f][4],combat_reference_camera[seat][f][5],view_read(0x1e66),view_read(0x1e68),view_read(0x1e6a),view_read(0x1e6c));for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",expected->shots[k]);fprintf(stderr," paired");for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",actual.shots[k]);fprintf(stderr,"\n");}check(false,"concurrent native command, charge, palette and all owned pools equal the original actor on every frame");}}}
       check((uint8_t)(g_ram[0x9cc]-tick)==(uint8_t)frames,"concurrent combat advances one native world tick per frame");
       if(combat_audio_enabled){unsigned cues[2]={0,0};for(unsigned seat=0;seat<2;++seat)for(unsigned f=0;f<frames;++f)cues[seat]+=combat_reference_cues[seat][f].count;fprintf(stderr,"native AUDIO CADENCE roster%u mode%u frames%u cues%u/%u SPCoriginal%u/%u paired%u\n",roster,mode,frames,cues[0],cues[1],native_spc[0],native_spc[1],g_snes->apu->cycles-spc_start);check(cues[0] && cues[1],"both native actors actually produce their original timed sound requests");uint32_t paired_spc=g_snes->apu->cycles-spc_start,low=native_spc[0]<native_spc[1]?native_spc[0]:native_spc[1],high=native_spc[0]>native_spc[1]?native_spc[0]:native_spc[1];check(paired_spc+32>=low && paired_spc<=high+32,"shared native audio advances one original SPC timeline within one output-sample clock quantum");}
+      if(combat_visual_enabled)fprintf(stderr,"native BODY VISUAL roster%u mode%u frames%u original CHR/CGRAM match for both moving actors\n",roster,mode,frames);
       if(!mode)check(peaks[0]>=2 && peaks[1]>=2,"rapid simultaneous firing actually pressures both original native shot limits");else if(mode==1)check(maxcharge[0]>=4 && maxcharge[1]>=4,"staggered releases actually exercise both original native charge progressions");
       fprintf(stderr,"native concurrent combat roster%u mode%u frames%u originalShotPeaks%u/%u originalChargeMax%u/%u\n",roster,mode,frames,peaks[0],peaks[1],maxcharge[0],maxcharge[1]);
       if(mode==4){fprintf(stderr,"native saber damage roster%u activeFrames%u first%u last%u\n",roster,saber_hits,saber_first,saber_last);check(saber_hits>0,"actual native saber swing includes successful damage windows matching the original beside X attacks");}

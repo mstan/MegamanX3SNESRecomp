@@ -46,8 +46,8 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:143/180;37 open/partial. Accepted areas:5/15
-(team wipe, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
+**Accepted touch points:147/180;33 open/partial. Accepted areas:6/15
+(team wipe, fallen persistence, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
 the end of this document; older checkpoint counts are historical.
@@ -56,15 +56,15 @@ the end of this document; older checkpoint counts are historical.
 | --- | --- | --- |
 | Individual death |15/16|D06 authored lethal crush|
 | Team wipe |10/10|Accepted|
-| Fallen persistence |9/10|F10 physical controller reconnect|
+| Fallen persistence |10/10|Accepted|
 | Separated spawning |12/14|A09,A13|
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |11/14|E06,E12-E13|
-| Combat ownership |10/12|C06,C11|
-| Doors/scripts |8/14|S06-S07,S09-S10,S13-S14|
+| Combat ownership |11/12|C06|
+| Doors/scripts |9/14|S06-S07,S09-S10,S14|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |0/14|V01-V14|
+| Visuals/audio |1/14|V02-V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
@@ -5617,3 +5617,25 @@ still pass. Each counterfactual restores the unchanged paired field before its
 one actual update. All three audio phases and all four standard tests pass.
 State-test SHA256: d406045ac42a3193a4b747ca8a3e0c4b542285b3cb325d5bd546ee95413e8d85.
 Music/mix listening and moving presentation remain separate under V13/V14.
+
+## Native body graphics and simultaneous shared progression qualification
+
+V01 compares both displayed bodies with actual original-cartridge VRAM and
+CGRAM on every field of eight 240-field movement/jump/firing cases and two
+420-field charge/combo/saber cases, covering both roster assignments. Used
+8/16px sprite tiles, native layout groups, facing, poses and all 32 personal
+colors agree; both original-size body rasters remain visible. Native attack
+commands, owned pools, hit windows and complete restored futures also agree.
+The combo reference uses coincident camera regions so its original child
+retirement boundary is comparable; the other cases include opposed movement.
+A separate opposed-motion combo lifetime difference remains under A09.
+
+S13 adds simultaneous two-port confirmation at actual native game-over and
+password screens. Both roster assignments take one Continue, reset lives from
+zero to two, retain prior campaign progress and resume physical movement.
+A newly earned Buffalo reward/password state with P2 X surviving returns once
+to stage1, preserves the fallen partner and resumes X movement. These checks
+complement the previously qualified simultaneous permanent acquisitions and
+same-update boss reward cases. Prior progress supplied to the Continue setup
+is a retention prerequisite, not a newly earned acquisition. Four standard
+tests pass; no production code changes were needed.
