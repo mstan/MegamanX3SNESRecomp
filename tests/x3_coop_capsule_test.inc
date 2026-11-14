@@ -39,7 +39,9 @@ static unsigned capsule_approach(uint8_t *original,size_t size,uint8_t *work,siz
         RtlLoadSnapshotFromMemory(work,size),"remote native X capsule route restores");
   door_install_player(&setup);X3CoopViewsConfigure(true);X3CoopRuntimeFrame();
   X3CoopViewState views={0};views.independent=views.initialized=1;views.stage=g_ram[0x1fae];
-  views.valid=views.camera_valid=3;
+  /* This test teleports the view. Let the normal native camera boundary
+   * establish its entry frontier even when the input fixture was settled. */
+  views.valid=3;views.camera_valid=0;
   for(unsigned s=0;s<2;++s){
     views.camera[s][0]=(uint16_t)(s==x?px-128:view_read(0x1e5d));
     views.camera[s][1]=(uint16_t)(s==x?(py&~255):view_read(0x1e60));
@@ -301,7 +303,8 @@ static void native_capsule_checks(uint8_t *original,size_t size,uint8_t *work,ui
   check(RtlLoadSnapshotFromMemory(award,award_size),"pending native capsule award restores");capsule_wait_award(slot,x,true);
   size_t repeated=RtlSaveSnapshotToMemory(work,capacity);
   same(expected,complete,work,repeated,"capsule award, recorded control and participant arrival replay to the identical full machine");
-  capsule_retirement_checks(opening,open_size,award,award_size,slot,x,initial_flags,awarded_flags,expected,capacity);
+  if(getenv("X3_COOP_ONE_SHOT_REVISIT"))native_one_shot_revisit(work,expected,capacity);
+  else capsule_retirement_checks(opening,open_size,award,award_size,slot,x,initial_flags,awarded_flags,expected,capacity);
   free(opening);free(award);
   check(RtlLoadSnapshotFromMemory(original,size),"native capsule probes restore starting machine");
   (void)expected;

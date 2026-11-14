@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**139/180 accepted;41 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A05, A11 and A12 are accepted after S05. E10 and E08 are accepted
+**140/180 accepted;40 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A05 and A10-A12 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -204,6 +204,25 @@ native-reward-retry-v2 is child0; all4standard tests pass. Earned, visited and
 retried snapshots plus both logs remain in reward-retry-work. Current total
 139/180,41open,5/15areas. Native one-shot event revisit A10 is selected for
 inspection next; no result yet. Keep owner review untouched and G12 frozen.
+
+A10 is now accepted. Actual body/arm armor and chip capsules in stages5/8/1
+(masks04/02/10) complete their original single-X and matched co-op openings,
+awards and recorded demonstrations in both rosters. Chip armor/normal-chip
+prerequisites are supplied; its result high10 is earned. Across48 actual
+away/entry/contact visits with either view owner, consumed class4D capsules
+remain absent (all counts0), flags/resources stay unchanged and dialogue,
+demonstration and scene ownership never restart. Six full-machine futures repeat.
+Manual position/pose, camera entry/bounds and contact protection bypass travel.
+Capsule test teleports now let the normal camera boundary establish cold entry
+instead of retaining a settled fixture's old directional frontier. No production
+change. Initial chip attempt omitted native prerequisites and remains invalid.
+State-test SHA256:
+9ee966e677bbf409b4999ce9880e34dafab4fc886f0cbb92c2e442fa5f130441.
+native-one-shot-revisit-v3 is child0; all4standard tests pass. Exact logs and
+six current earned fixtures remain in one-shot-revisit-work/stage*-v3*.
+Total140/180,40open,5/15areas. A02's native left-route helper is prepared in
+tests/x3_coop_left_test.inc, but not yet included, built or run. Use the actually
+earned stage5-v3-p1/p2-complete fixtures for that check. Preserve owner review.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage

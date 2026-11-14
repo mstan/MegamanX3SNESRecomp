@@ -60,3 +60,26 @@ static void native_reward_retry_prepare(const char *normal,const char *reversed,
     fprintf(stderr,"native reward retry preparation roster%u stage5arrival%u heart%02x maximum%u\n",roster,frames,g_ram[0x1fd4],X3CoopRuntimeState()->players[x].maximum_health);
   }
 }
+static void native_one_shot_revisit(uint8_t *work,uint8_t *expected,size_t capacity){
+  uint8_t *seed=malloc(capacity),*future=malloc(capacity);check(seed && future,"one-shot native event replay buffers allocate");
+  unsigned px=capsule_x(),py=capsule_y(),flags=capsule_flags(),mask=capsule_mask();unsigned owned_mask=mask&0xf0?mask<<8:mask;
+  check((flags&owned_mask)==owned_mask && !X3CoopRuntimeSceneActive(),"one-shot revisit starts after the actual native upgrade, recorded demonstration and scene release");
+  size_t n=RtlSaveSnapshotToMemory(seed,capacity),future_size=0;unsigned x=X3CoopRuntimeState()->players[0].character==X3_COOP_X?0:1;
+  unsigned hp[2]={contact_hp(0),contact_hp(1)},maximum[2]={X3CoopRuntimeState()->players[0].maximum_health,X3CoopRuntimeState()->players[1].maximum_health};
+  for(unsigned replay=0;replay<2;++replay){
+    check(RtlLoadSnapshotFromMemory(seed,n),"one-shot revisit restores the same earned capsule scene");
+    for(unsigned leader=0;leader<2;++leader)for(unsigned visiting=0;visiting<2;++visiting){
+      streaming_position(visiting?px-16:px-528,py-16,leader,work,capacity);
+      bool contains=X3CoopViewsContains(g_ram,X3CoopRuntimeState(),px,py,0,256,0,224,0,false);check(contains==(bool)visiting,"one-shot event frontier leaves and re-enters through each actual view owner");
+      unsigned capsules=0;for(unsigned slot=0xd18;slot<0x10d8;slot+=64)if(g_ram[slot] && g_ram[slot+10]==0x4d && view_read(slot+5)==px && view_read(slot+8)==py){
+        ++capsules;check(g_ram[slot+2]==8 && g_ram[slot+3]>=16,"a retained native capsule can only remain in its completed one-shot state");
+      }
+      check(capsules<=1 && !g_ram[0x1f4f] && !g_ram[0x1f45] && !g_ram[0x1f63] && capsule_flags()==flags,"alternating frontiers cannot duplicate the capsule, restart dialogue or replay its native upgrade");
+      if(visiting)check(abs((int)support_position(x,5)-(int)px)<32 && abs((int)support_position(x,8)-(int)py)<32,"native X actually revisits the capsule opening rectangle after earning its upgrade");
+      for(unsigned seat=0;seat<2;++seat)check(X3CoopRuntimeState()->players[seat].life==X3_COOP_ALIVE && contact_hp(seat)==hp[seat] && X3CoopRuntimeState()->players[seat].maximum_health==maximum[seat],"one-shot revisits preserve both living native characters and personal resources");
+      fprintf(stderr,"native one-shot revisit stage%u roster%u replay%u leader%u visiting%u count%u flags%04x mask%02x X%u,%u native%u/%u/%u\n",g_ram[0x1fae],X3CoopRuntimeState()->players[0].character,replay,leader,visiting,capsules,capsule_flags(),mask,support_position(x,5),support_position(x,8),g_ram[0x1f4f],g_ram[0x1f45],g_ram[0x1f63]);
+    }
+    size_t actual=RtlSaveSnapshotToMemory(expected,capacity);if(!replay){memcpy(future,expected,actual);future_size=actual;}else same(future,future_size,expected,actual,"native one-shot event ownership and frontier revisits repeat the entire machine");
+  }
+  check(RtlLoadSnapshotFromMemory(seed,n),"one-shot probes restore the genuinely completed capsule");free(seed);free(future);
+}

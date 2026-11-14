@@ -24,6 +24,7 @@ static void campaign_position_only(X3CoopPlayer *p,unsigned x,unsigned y);
 static const uint8_t *campaign_body(unsigned seat);
 static void native_weapon_hurt_lifetime(const uint8_t *cut,size_t cn,unsigned seat,unsigned index,unsigned mode,uint8_t *work,uint8_t *after,size_t capacity);
 static void native_permanent_streaming(unsigned kind,unsigned px,unsigned py,unsigned variant,uint8_t *work,uint8_t *expected,size_t capacity);
+static void native_one_shot_revisit(uint8_t *work,uint8_t *expected,size_t capacity);
 #include "x3_coop_contact_test.inc"
 #include "x3_coop_target_test.inc"
 #include "x3_coop_support_test.inc"

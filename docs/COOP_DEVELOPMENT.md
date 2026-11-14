@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:139/180;41 open/partial. Accepted areas:5/15
+**Accepted touch points:140/180;40 open/partial. Accepted areas:5/15
 (team wipe, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -57,7 +57,7 @@ the end of this document; older checkpoint counts are historical.
 | Individual death |15/16|D06 authored lethal crush|
 | Team wipe |10/10|Accepted|
 | Fallen persistence |9/10|F10 physical controller reconnect|
-| Separated spawning |10/14|A02,A09,A10,A13|
+| Separated spawning |11/14|A02,A09,A13|
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |9/14|E05,E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
@@ -5486,3 +5486,24 @@ State-test SHA256:758d492cb6fd8940addf988da7688bd92c938a68acaaa6e980bcdbf32f1c3b
 Measured native-reward-retry-v2 is child0; all4standard tests pass. Actual earned,
 visited and retried snapshots and logs remain in
 `build-coop/qa-state/reward-retry-work`. Total139/180,41open,5/15areas.
+
+## A10 native one-shot events across view ownership and frontiers
+
+A10 is accepted for native class4D capsule events: stage5 body armor04, stage8
+arm armor02 and stage1 chip10, both rosters. Original single-X and co-op opening,
+award and recorded demonstrations agree. Existing chip armor/normal-chip
+prerequisites are supplied; the target high10 result is earned by the cartridge.
+Across48 actual away/entry/contact visits with either view owner, consumed NPCs
+remain absent (all counts0), flags/personal resources stay unchanged and no
+dialogue, demonstration or scene ownership restarts. Six entire-machine futures
+repeat exactly. Travel is bypassed with positions/poses, camera entry/bounds and
+contact protection. No production change.
+
+Capsule test teleports now let the native camera boundary establish entry even
+for a settled input fixture. The first chip experiment omitted native armor
+prerequisites and took the original refusal branch; it remains unqualified.
+State-test SHA256:9ee966e677bbf409b4999ce9880e34dafab4fc886f0cbb92c2e442fa5f130441.
+Measured native-one-shot-revisit-v3 is child0; all4standard tests pass. Actual
+awards, raw observations and full-future comparisons remain in
+`build-coop/qa-state/one-shot-revisit-work/stage*-v3*`.
+Total140/180,40open,5/15areas. Native P2 left admission A02 is prepared next.
