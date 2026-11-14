@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:147/180;33 open/partial. Accepted areas:6/15
+**Accepted touch points:148/180;32 open/partial. Accepted areas:6/15
 (team wipe, fallen persistence, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -59,7 +59,7 @@ the end of this document; older checkpoint counts are historical.
 | Fallen persistence |10/10|Accepted|
 | Separated spawning |12/14|A09,A13|
 | Supports/hazards |13/16|P06,P12,P13|
-| Enemy interactions |11/14|E06,E12-E13|
+| Enemy interactions |12/14|E06,E12|
 | Combat ownership |11/12|C06|
 | Doors/scripts |9/14|S06-S07,S09-S10,S14|
 | Campaign branches |15/16|G12|
@@ -5639,3 +5639,20 @@ complement the previously qualified simultaneous permanent acquisitions and
 same-update boss reward cases. Prior progress supplied to the Continue setup
 is a retention prerequisite, not a newly earned acquisition. Four standard
 tests pass; no production code changes were needed.
+
+## Native offscreen construction and contact readiness
+
+E13 now covers both actual stage1 roster assignments. The original allocator
+admits an unconstructed class08/01 enemy while only the NPC scheduler is
+frozen. Both actors earn real native projectiles after their personal view
+regions exist. Body and projectile contacts against the pending constructor
+match the original per-actor refusals, preserving the complete enemy, bodies
+and owned pools. Projectiles use the actual pending enemy's collision geometry.
+
+For the separate positive body-contact check, the still-unconsumed projectiles
+are positioned away before releasing the original scheduler. Native
+construction then reaches phase2, HP9 and flags81, and P2 takes actual damage
+from16 to14 without either actor dying. Both complete futures replay exactly.
+This separates readiness from an immediate projectile kill. Earlier shots
+fired before a teleport had left their native view and were an invalid setup.
+Four standard tests pass; no production code changes were needed.
