@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:149/180;31 open/partial. Accepted areas:7/15
+**Accepted touch points:150/180;30 open/partial. Accepted areas:7/15
 (team wipe, fallen persistence, combat ownership, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -61,7 +61,7 @@ the end of this document; older checkpoint counts are historical.
 | Supports/hazards |12/16|P06,P12,P13,P15|
 | Enemy interactions |13/14|E06|
 | Combat ownership |12/12|Accepted|
-| Doors/scripts |9/14|S06-S07,S09-S10,S14|
+| Doors/scripts |10/14|S06-S07,S09-S10|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
 | Visuals/audio |1/14|V02-V14|
@@ -5683,3 +5683,18 @@ currently omits the playable vehicle from its per-room resource resolver.
 A direct shared-PPU reference from that setup has the same missing graphics
 and is unsuitable as its visual baseline. The rendering correction and
 current-build presentation qualification remain in progress.
+
+
+### Native refight return after the original anchor dies (S14)
+
+Both roster orders and either physical finisher complete the actual Lab3
+refight after the original anchor takes native pit damage and falls. Each
+living partner earns the native hit, one refight-clear bit and the original
+return, then moves for24 fields in the hub. The partner stays fallen; lives,
+campaign flags and the earned clear remain unchanged. Every complete future
+repeats exactly. This supplements the existing native boss-exit, stage-entry,
+door and transport survivor coverage. State test SHA256:
+`fd72c3cac9ad3d62a7568d0fb456862dd53893be994d0c54a9ce77d4100f8232`.
+The return check waits for actual controllable native bodies, rather than
+accepting the constructor's temporary zero coordinates as hub arrival.
+The four standard tests pass (1.43s). No production change was needed.

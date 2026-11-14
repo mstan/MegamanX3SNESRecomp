@@ -1419,6 +1419,22 @@ static void native_refight_entry(const char *fixture,uint8_t *base,uint8_t *work
 static void native_refight_clear(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
   check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==12 && g_ram[0x1faf]==2,"refight clear loads an actually admitted native Lab3 arena");
   unsigned shooter=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):1;check(shooter<2,"refight finisher is a physical seat");
+  bool sole=getenv("X3_COOP_REFIGHT_SOLE_SURVIVOR")!=NULL;
+  if(sole){
+    size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+    check(setup.players[0].life==X3_COOP_ALIVE && setup.players[1].life==X3_COOP_ALIVE,"survivor refight begins with the actually admitted living pair");
+    unsigned victim=shooter^1,lives=g_ram[0x1fb4],mask=g_ram[0x1fda];setup.current=setup.anchor=(uint8_t)victim;
+    campaign_position_only(&setup.players[victim],support_position(victim,5),8704);setup.players[victim].body[0x88]=setup.players[victim].body[0x8a]=0;
+    setup.players[shooter].body[0x27]=setup.players[shooter].maximum_health;setup.players[shooter].body[0x88]=setup.players[shooter].body[0x8a]=255;
+    check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),
+        "refight survivor preparation supplies only position, protection and the initially dying anchor");door_install_player(&setup);
+    shared_pit_victim=victim;shared_pit_damage=0;check(interp_bridge_add_pre_opcode_hook(0x00e30a,shared_pit_probe),"refight survivor observes actual original pit damage");
+    unsigned fall=0;for(;fall<16 && X3CoopRuntimeState()->players[victim].life==X3_COOP_ALIVE;++fall)frame(0);
+    check(shared_pit_damage && X3CoopRuntimeState()->players[victim].life==X3_COOP_FALLEN &&
+        X3CoopRuntimeState()->players[shooter].life==X3_COOP_ALIVE && !X3CoopRuntimeState()->wipe &&
+        g_ram[0x1fb4]==lives && g_ram[0x1fda]==mask,"actual pit death retires the original anchor before the living partner earns any refight clear");
+    fprintf(stderr,"native REFIGHT SURVIVOR SETUP shooter%u char%u victim%u fatal%u calls%u lives%u mask%02x\n",shooter,setup.players[shooter].character,victim,fall,shared_pit_damage,lives,mask);
+  }
   uint8_t *seed=malloc(capacity),*future=malloc(capacity);check(seed && future,"actual refight future buffers allocate");size_t n=RtlSaveSnapshotToMemory(seed,capacity);unsigned first_hit=0,first_outro=0,first_return=0;
   for(unsigned run=0;run<2;++run){check(RtlLoadSnapshotFromMemory(seed,n),"actual refight arena restores before its winning attack");unsigned boss=0,mask=g_ram[0x1fda],lives=g_ram[0x1fb4],flags=g_ram[0x1fd8];
     for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+1]==2 && g_ram[d+10]>=0x52 && g_ram[d+10]<=0x59 && (g_ram[d+0x27]&127)==32)boss=d;
@@ -1427,9 +1443,14 @@ static void native_refight_clear(const char *fixture,uint8_t *base,uint8_t *work
     unsigned earned=g_ram[0x1fda],bit=earned^mask;fprintf(stderr,"native REFIGHT REAL CLEAR run%u class%02x hit%u outro%u mask%02x/%02x actors%u,%u/%u,%u life%u/%u\n",run,kind,hit,outro,mask,earned,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
     if(outro==3600)check(RtlSaveSnapshot("native-refight-outro-unqualified.sav"),"unfinished real refight clear retains its machine");
     check(outro<3600 && bit && !(bit&(bit-1)) && (earned&mask)==mask && g_ram[0x1fae]==12 && g_ram[0x1faf]==2 && g_ram[0x1fb4]==lives && g_ram[0x1fd8]==flags,"real native defeat records exactly one refight clear and preserves the campaign");
-    check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"the actual refight defeat retains both living actors");
+    check(X3CoopRuntimeState()->players[shooter].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[shooter^1].life==(sole?X3_COOP_FALLEN:X3_COOP_ALIVE),"the actual refight defeat retains its living finisher and original partner lifecycle");
     unsigned returned=0;bool hub=false;
-    for(;returned<1800;++returned){hub=support_position(0,5)<1500 && support_position(1,5)<1500 && !X3CoopRuntimeSceneActive() && !g_ram[0x1f22] && !g_ram[0x1f24] && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e];if(hub)break;
+    for(;returned<1800;++returned){hub=support_position(shooter,5)<1500 && (sole || support_position(shooter^1,5)<1500) && !X3CoopRuntimeSceneActive() && !g_ram[0x1f22] && !g_ram[0x1f24] && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e];if(hub){
+        hub=X3CoopRuntimeReady() && g_ram[0xd1]==4 && g_ram[0xd2]==4 && !g_ram[0x1f4f];
+        for(unsigned seat=0;seat<2;++seat)if(!sole || seat==shooter){const uint8_t *body=campaign_body(seat);
+          hub&=body[1]==2 && body[2]<0x1c && (body[0x27]&127) && body[0xb6]==X3CoopRuntimeState()->players[seat].character*2 && !(body[0xa3]&128);
+        }
+      }if(hub)break;
       if(!returned){unsigned pad=0;for(unsigned d=0x1518;d<0x1818;d+=48)if(g_ram[d] && g_ram[d+10]==0x0c)pad=d;
         fprintf(stderr,"native REFIGHT RETURN SOURCE slot%04x class%02x kind%u XY%u/%u\n",pad,pad?g_ram[pad+10]:0,pad?g_ram[pad+11]:0,pad?view_read(pad+5):0,pad?view_read(pad+8):0);
         if(pad){size_t live_n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState route=*X3CoopRuntimeState();X3CoopCapture(&route,g_ram);campaign_position_only(&route.players[shooter],view_read(pad+5),view_read(pad+8)+(route.players[shooter].character==X3_COOP_X?7:-1));route.players[shooter].body[0x88]=0;check(X3CoopEncode(&route,base+contact_context_offset(base,live_n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,live_n),"return approach changes only actual actor position and native contact eligibility, never a clear or warp result");door_install_player(&route);}
@@ -1437,8 +1458,11 @@ static void native_refight_clear(const char *fixture,uint8_t *base,uint8_t *work
     }
     fprintf(stderr,"native REFIGHT REAL RETURN run%u frames%u hub%u mask%02x actors%u,%u/%u,%u life%u/%u\n",run,returned,hub,g_ram[0x1fda],support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
     if(!hub)check(RtlSaveSnapshot("native-refight-return-unqualified.sav"),"unfinished actual refight return retains its machine");
-    check(hub && g_ram[0x1fda]==earned && g_ram[0x1fb4]==lives && g_ram[0x1fd8]==flags && g_ram[0x1fae]==12 && g_ram[0x1faf]==2 && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual native return contact restores the living pair to the hub with exactly its earned clear");
-    for(unsigned i=0;i<2;++i)check(campaign_body(i)[0xb6]==(X3CoopRuntimeState()->players[i].character==X3_COOP_ZERO?2:0) && !campaign_body(i)[0x7c],"actual refight return retains native character identity and permits charging");
+    check(hub && g_ram[0x1fda]==earned && g_ram[0x1fb4]==lives && g_ram[0x1fd8]==flags && g_ram[0x1fae]==12 && g_ram[0x1faf]==2 && X3CoopRuntimeState()->players[shooter].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[shooter^1].life==(sole?X3_COOP_FALLEN:X3_COOP_ALIVE),"actual native return contact restores the living team to the hub with exactly its earned clear");
+    for(unsigned i=0;i<2;++i)if(!sole || i==shooter)check(campaign_body(i)[0xb6]==(X3CoopRuntimeState()->players[i].character==X3_COOP_ZERO?2:0) && !campaign_body(i)[0x7c],"actual refight return retains native character identity and permits charging");
+    if(sole){unsigned before=support_position(shooter,5);for(unsigned f=0;f<24;++f)frame((uint32_t)SNES_PAD_RIGHT<<(shooter*12));
+      check(support_position(shooter,5)>before && X3CoopRuntimeState()->players[shooter^1].life==X3_COOP_FALLEN && g_ram[0x1fda]==earned && g_ram[0x1fb4]==lives,
+          "the actual returned survivor resumes physical hub movement without revival, repeated clear or team retry");}
     size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){first_hit=hit;first_outro=outro;first_return=returned;memcpy(future,work,done);}else{check(hit==first_hit && outro==first_outro && returned==first_return,"real refight hit, clear and return repeat on the same updates");same(future,done,work,done,"actual refight hit, native clear and real return replay the entire paired future exactly");}
   }free(seed);free(future);if(getenv("X3_COOP_REFIGHT_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_REFIGHT_RESULT")),"actually earned refight clear and hub return export without a picker");
 }
