@@ -9,6 +9,8 @@ typedef struct X3CoopMenuInfo {
   uint8_t owner,modal,cursor[2],selection[2],healing[2];
 } X3CoopMenuInfo;
 bool X3CoopMenuRead(X3CoopMenuInfo *out);
+/* The original pause entry still displays the frozen gameplay field. */
+bool X3CoopMenuGameplayFade(void);
 /* Presentation-only native reference for pixel qualification. */
 void X3CoopMenuNativeReference(bool enabled);
 bool X3CoopMenuNativePicture(unsigned seat,struct Ppu *out);

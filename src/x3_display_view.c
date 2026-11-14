@@ -477,7 +477,7 @@ static bool begin_view(Ppu *p,unsigned seat,bool shared){
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
   if(!p || !p->renderBuffer || seat>1 || !X3CoopRuntimeReady() || (!shared && !X3CoopViewsIndependent()) ||
      !visible->players.initialized || visible->players.wipe || !g_snes || !g_snes->cart ||
-     g_ram[0xd1]!=4 || g_ram[0xd2]!=4 || X3CoopNativePauseActive(g_ram) || (p->bgmode&7)!=1)return false;
+     g_ram[0xd1]!=4 || g_ram[0xd2]!=4 || (X3CoopNativePauseActive(g_ram) && !X3CoopMenuGameplayFade()) || (p->bgmode&7)!=1)return false;
   active_frame=&independent_frames[seat];
   frame.rom=g_snes->cart->rom;frame.size=g_snes->cart->romImageSize;
   memcpy(frame.ram,g_ram,sizeof(frame.ram));

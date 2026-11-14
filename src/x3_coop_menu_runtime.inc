@@ -6,12 +6,14 @@ typedef struct PairedMenu {
   uint16_t held[2],edge[2];
   uint8_t phase,owner,modal,op,seat,commit,valid,handled_valid;
   uint8_t cursor[2],selection[2],direction[2],repeat[2],heal[2][4],todo[2];
+  uint8_t gameplay_fade;
   Registers entry;
   uint8_t ui[64];
 } PairedMenu;
 static PairedMenu menu;
 #include "x3_coop_native_menu.inc"
 static bool menu_pending(void){return menu.phase!=0;}
+bool X3CoopMenuGameplayFade(void){return enabled && menu.phase==1 && menu.gameplay_fade;}
 void X3CoopRuntimeInputFrame(uint32_t serial){
   if(!enabled || (menu.valid && menu.frame==serial))return;
 #if SNESRECOMP_TRACE
@@ -65,15 +67,26 @@ static void menu_boundary(CpuState *cpu,uint32_t pc){
             (menu.edge[seat]&0x1000)){owner=seat;break;}
       }
       if(owner==2){interp_bridge_pre_opcode_redirect(0x00a36f);return;}
-      native_menus_reset();menu.phase=1;menu.owner=(uint8_t)owner;
+      native_menus_reset();menu.phase=1;menu.owner=(uint8_t)owner;menu.gameplay_fade=1;
       /* Co-op participation owns Zero's availability; a native character
        * exchange must not replace the other stored actor during pause. */
       g_ram[0x1f5d]&=(uint8_t)~0x20;
-      X3CoopProject(&state,g_ram,owner);g_ram[X3_COOP_BODY+0x3b]|=0x10;
+      /* DD59 still draws the gameplay actors before the original fade. Keep
+       * its canonical body/CHR together; only route the requesting Start. */
+      putword(g_ram+0xa10,menu.held[owner]);putword(g_ram+0xa12,menu.edge[owner]);
       return;
     }
     case 0x00a36f:
-      if(menu.phase==1 && !X3CoopNativePauseActive(g_ram)){menu.phase=0;X3CoopProject(&state,g_ram,state.anchor);}
+      if(menu.phase==1 && !X3CoopNativePauseActive(g_ram)){menu.phase=menu.gameplay_fade=0;X3CoopProject(&state,g_ram,state.anchor);}
+      return;
+    case 0x00c5ef:
+      if(menu.phase==1){
+        /* The cartridge has finished fading gameplay to black. Its first
+         * menu initializer now owns the requester's body and palette backup. */
+        menu.gameplay_fade=0;X3CoopProject(&state,g_ram,menu.owner);
+        memcpy(g_ram+X3_COOP_PALETTE,state.players[menu.owner].palette,64);
+        g_ram[0xa1]=1;
+      }
       return;
     case 0x00cc5b:
       if(menu.phase==1){
@@ -214,7 +227,7 @@ static void menu_encode(uint8_t out[MENU_BYTES]){
     *p++=menu.direction[seat];*p++=menu.repeat[seat];memcpy(p,menu.heal[seat],4);p+=4;*p++=menu.todo[seat];}
   putword(p,menu.entry.a);p+=2;putword(p,menu.entry.x);p+=2;putword(p,menu.entry.y);p+=2;
   putword(p,menu.entry.s);p+=2;putword(p,menu.entry.d);p+=2;*p++=menu.entry.db;*p++=menu.entry.p;
-  memcpy(p,menu.ui,sizeof(menu.ui));
+  memcpy(p,menu.ui,sizeof(menu.ui));p+=sizeof(menu.ui);*p++=menu.gameplay_fade;
 }
 static bool menu_decode(PairedMenu *out,const uint8_t bytes[MENU_BYTES],const X3CoopState *players){
   bool legacy=!memcmp(bytes,"X3M1",4);
@@ -229,8 +242,10 @@ static bool menu_decode(PairedMenu *out,const uint8_t bytes[MENU_BYTES],const X3
   v.entry.a=(uint16_t)word(p);p+=2;v.entry.x=(uint16_t)word(p);p+=2;v.entry.y=(uint16_t)word(p);p+=2;
   v.entry.s=(uint16_t)word(p);p+=2;v.entry.d=(uint16_t)word(p);p+=2;v.entry.db=*p++;v.entry.p=*p++;
   memcpy(v.ui,p,sizeof(v.ui));p+=sizeof(v.ui);
+  v.gameplay_fade=*p++;
   for(;p<bytes+MENU_BYTES;++p)if(*p)return false;
   if(v.phase>3 || v.owner>1 || v.modal>2 || (v.op && v.op!=4 && v.op!=5 && v.op!=6) || v.seat>1 || v.commit>1 || v.valid>1 || v.handled_valid>1)return false;
+  if(v.gameplay_fade>1 || (v.gameplay_fade && v.phase!=1))return false;
   if(v.op>=4 && (v.entry.s<0x100 || v.entry.s>0x1fa))return false;
   if((v.op && v.phase!=2) || (v.commit && v.phase!=3) || (v.modal && v.phase!=2) ||
       (!v.op && v.seat) || (v.handled_valid && !v.valid))return false;
@@ -246,7 +261,7 @@ static bool menu_decode(PairedMenu *out,const uint8_t bytes[MENU_BYTES],const X3
   if(v.heal[0][1] && v.heal[1][1] && v.heal[0][2]==v.heal[1][2])return false;
   if(v.phase){
     if(!players->initialized || players->wipe || players->players[v.owner].life!=X3_COOP_ALIVE)return false;
-    unsigned seat=v.commit?(players->players[0].character==X3_COOP_X?0:1):v.op?v.seat:v.owner;
+    unsigned seat=v.gameplay_fade?players->anchor:v.commit?(players->players[0].character==X3_COOP_X?0:1):v.op?v.seat:v.owner;
     if(players->current!=seat || (players->players[seat].life!=X3_COOP_ALIVE && v.op!=5 && v.op!=6))return false;
     if(v.op && (v.entry.d!=0x1ed8 || (v.entry.p&0x30)!=0x30))return false;
   }else if(v.op || v.commit || v.modal)return false;

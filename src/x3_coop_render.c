@@ -5,6 +5,7 @@
 #include "x3_coop_runtime.h"
 #include "x3_coop_present.h"
 #include "x3_coop_hud.h"
+#include "x3_coop_menu.h"
 #include "snes/ppu.h"
 #include "snes/snes.h"
 #include "snes/cart.h"
@@ -73,7 +74,7 @@ void X3CoopRender(void) {
   const X3CoopPresentedFrame *frame=X3CoopPresentationVisible();
   const X3CoopState *s=&frame->players;
   palette_borrowed=false;
-  if(X3CoopNativePauseActive(g_ram))return; /* Native pause owns its portrait palette and objects. */
+  if(X3CoopNativePauseActive(g_ram) && !X3CoopMenuGameplayFade())return;
   if(X3CoopRuntimeReady() && s->initialized) {
     /* NMI can land inside a borrowed actor pass. Draw with the anchor's
      * personal ramps, then restore the exact emulated CGRAM after rendering.

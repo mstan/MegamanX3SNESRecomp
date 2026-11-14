@@ -263,6 +263,11 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_flags_checks(saved,size,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_MENU_FADE_STATE");
+    if(fixture && *fixture){
+      check(RtlLoadSnapshot(fixture),"pause fade native gameplay fixture loads");
+      size=RtlSaveSnapshotToMemory(saved,cap);native_menu_fade_checks(saved,size,cap);
+    }
     fixture=getenv("X3_COOP_MENU_STATE");
     if(fixture && *fixture){
       check(RtlLoadSnapshot(fixture),"native pause-menu fixture loads");

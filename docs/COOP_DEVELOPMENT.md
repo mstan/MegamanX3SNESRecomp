@@ -1062,6 +1062,19 @@ shows each character's original screen, and selected-player output shows that
 player. A fallen character retains a native screen with no active controls.
 The cartridge's title and game-start flow remain unchanged.
 
+Pause admission keeps the canonical gameplay body and its sprite graphics
+together until the original fade reaches black. Only the requester's Start
+input is routed during that fade; original00:C5EF then installs that character
+before the menu saves its palette and builds its screen. The frozen gameplay
+actors, HUD and private views remain visible throughout the fade. Its explicit
+state occupies reserved byte124 in X3M2 and is validated before restore.
+The fade regression compares all eight visible fields for both requesters and
+roster orders in native256, shared342, split512 and selected342 output. Every
+middle-of-fade snapshot restores immediately and replays through native menu
+initialization exactly; malformed fade state is refused transactionally.
+The existing original-screen, equipment, healing, resume, scene-transition and
+tilemap-address-wrap checks also pass with this boundary.
+
 There is one paused world: enemies, hostile shots, items and both gameplay
 poses/palettes stay frozen. Only native menu logic and graphics run twice.
 The private screen includes the native UI fields, sprite descriptors, window

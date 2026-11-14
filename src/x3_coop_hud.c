@@ -1,6 +1,7 @@
 #include "x3_coop_hud.h"
 #include "x3_coop_present.h"
 #include "x3_coop_runtime.h"
+#include "x3_coop_menu.h"
 #include "snes/snes.h"
 #include "snes/cart.h"
 #include <string.h>
@@ -141,7 +142,7 @@ static uint32_t previous_pitch;
 static bool overlay_borrowed;
 void X3CoopHudNativeBegin(Ppu *p){
   if(!p || !g_snes || !g_snes->cart || !X3CoopRuntimeReady() || layout==X3_COOP_HUD_NATIVE_REFERENCE ||
-     X3CoopNativePauseActive(g_ram) || p->oam[0]!=0x5008 || p->oam[1]!=0x3486 || (p->highOam[0]&1))return;
+     (X3CoopNativePauseActive(g_ram) && !X3CoopMenuGameplayFade()) || p->oam[0]!=0x5008 || p->oam[1]!=0x3486 || (p->highOam[0]&1))return;
   const X3CoopPresentedFrame *frame=X3CoopPresentationVisible();
   if(!frame->players.initialized)return;
   /* Filter original HUD pixels after native OBJ evaluation. OAM, hardware

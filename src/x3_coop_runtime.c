@@ -2317,7 +2317,7 @@ void X3CoopRuntimeFrame(void) {
   if(!interp_bridge_add_pre_opcode_hook(0x13c164,capsule_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x13c250,capsule_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x13c5bd,capsule_boundary))enabled=false;
-  static const uint32_t menu_pcs[]={0x00a2fa,0x00a36f,0x00c6d6,0x00c5db,0x00dd59,0x00cc5b,
+  static const uint32_t menu_pcs[]={0x00a2fa,0x00a36f,0x00c5ef,0x00c6d6,0x00c5db,0x00dd59,0x00cc5b,
       0x008162,0x00c77f,0x00c79b,0x00c8a6,0x00c8b2,0x00c6f8,
       0x00ceac,0x00cb64,0x00cb67};
   for(unsigned i=0;i<sizeof(menu_pcs)/sizeof(*menu_pcs);++i)

@@ -1,5 +1,67 @@
 /* Original pause entry/render/restore is a prerequisite for paired controls. */
 #include "../src/x3_coop_menu.h"
+static bool menu_fade_entered;
+static void menu_fade_enter_probe(CpuState *cpu,uint32_t pc){
+  (void)cpu;(void)pc;menu_fade_entered=true;
+}
+static void native_menu_fade_checks(uint8_t *original,size_t size,size_t capacity){
+  enum { FIELDS=32,PICTURE=512*224*4 };
+  uint8_t *reference=malloc((size_t)FIELDS*PICTURE),*image=malloc(PICTURE),*cut=malloc(capacity);
+  uint8_t *mid=malloc(capacity),*future=malloc(capacity),*replayed=malloc(capacity);
+  check(reference && image && cut && mid && future && replayed,"pause fade allocates bounded native field references");
+  check(interp_bridge_add_pre_opcode_hook(0x00c5ef,menu_fade_enter_probe),"pause fade observes original menu initialization after black");
+  for(unsigned roster=0;roster<2;++roster)for(unsigned mode=0;mode<4;++mode){
+    if(roster){const char *path=getenv("X3_COOP_MENU_FADE_REVERSED_STATE");
+      check(path && RtlLoadSnapshot(path),"pause fade loads the actually constructed reversed roster");}
+    else check(RtlLoadSnapshotFromMemory(original,size),"pause fade restores its native gameplay");
+    X3CoopViewsConfigure(true);
+    X3Display_SetLocalSplit(mode==2);X3Display_SetPresentationSeat(mode==3?1:-1);
+    bool wide=g_config.widescreen;g_config.widescreen=false;
+    size_t n=RtlSaveSnapshotToMemory(cut,capacity);unsigned counts[2]={0};
+    unsigned width=mode==2?512:mode==1 || mode==3?342:256;
+    for(unsigned owner=0;owner<2;++owner){
+      check(RtlLoadSnapshotFromMemory(cut,n),"either requester starts at the same complete gameplay field");
+      menu_fade_entered=false;
+      size_t mn=0;unsigned remaining=0;
+      for(unsigned field=0;field<FIELDS && !menu_fade_entered;++field){
+        frame(field?0:(uint32_t)SNES_PAD_START<<(owner*12));
+        if(mn)++remaining;
+        if(menu_fade_entered)break;
+        check(X3CoopRuntimeEnabled(),"original pause fade retains co-op scheduling");
+        if(!X3CoopNativePauseActive(g_ram) || !(g_ppu->inidisp&15))continue;
+        X3Display_SetCoopPanelWidth(mode==1 || mode==3?342:256);g_rtl_game_info->draw_ppu_frame();
+        if(!X3Display_DrawCoopFrame(image,width*4,g_ppu->renderBuffer,width,224,0))
+          for(unsigned y=0;y<224;++y)memcpy(image+y*256u*4u,g_ppu->renderBuffer+(size_t)y*g_ppu->renderPitch,256*4);
+        unsigned picture=counts[owner]++;
+        uint8_t *expected=reference+(size_t)picture*PICTURE;
+        if(!owner)memcpy(expected,image,width*224u*4u);
+        else if(memcmp(expected,image,width*224u*4u)){
+          fprintf(stderr,"pause fade mismatch roster%u mode%u field%u image%u brightness%u character%u anchor%u\n",roster,mode,field,picture,g_ppu->inidisp&15,g_ram[X3_COOP_BODY+0xb6],X3CoopRuntimeState()->anchor);
+          check(0,"either request preserves identical native gameplay sprites throughout the original fade");
+        }
+        if(field==3){
+          mn=RtlSaveSnapshotToMemory(mid,capacity);
+          check(RtlLoadSnapshotFromMemory(mid,mn),"actual gameplay fade restores before the original native menu initializer");
+          same(mid,mn,replayed,RtlSaveSnapshotToMemory(replayed,capacity),"pause gameplay fade restores the complete machine immediately");
+          memcpy(replayed,mid,mn);replayed[contact_menu_offset(mid,mn)+124]=2;
+          check(!RtlLoadSnapshotFromMemory(replayed,mn),"malformed gameplay-fade state is refused transactionally");
+          same(mid,mn,replayed,RtlSaveSnapshotToMemory(replayed,capacity),"refused gameplay fade preserves the complete machine");
+        }
+      }
+      check(menu_fade_entered && counts[owner]>4,"actual Start traverses visible gameplay fade before native menu initialization");
+      size_t fn=RtlSaveSnapshotToMemory(future,capacity);
+      check(mn && remaining && RtlLoadSnapshotFromMemory(mid,mn),"pause replay restores its actual middle-of-fade field");
+      menu_fade_entered=false;for(unsigned i=0;i<remaining;++i)frame(0);
+      same(future,fn,replayed,RtlSaveSnapshotToMemory(replayed,capacity),"gameplay fade through original menu initialization replays the entire machine exactly");
+    }
+    check(counts[0]==counts[1],"both requesters retain original gameplay fade cadence");
+    fprintf(stderr,"native pause FADE roster%u mode%u width%u visible fields%u identical for both requesters, full replay exact\n",roster,mode,width,counts[0]);
+    g_config.widescreen=wide;
+  }
+  X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);X3Display_SetCoopPanelWidth(256);
+  free(reference);free(image);free(cut);free(mid);free(future);free(replayed);
+  check(RtlLoadSnapshotFromMemory(original,size),"pause fade restores its gameplay prerequisite");
+}
 static void native_menu_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity){
   check(RtlLoadSnapshotFromMemory(original,size),"pause rendering starts from actual two-actor gameplay");
   X3Display_SetLocalSplit(true);X3Display_SetPresentationSeat(-1);
