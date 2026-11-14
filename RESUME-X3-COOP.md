@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**133/180 accepted;47 open;4/15 areas (T,R,M,N).** Q01-Q03 are accepted after S05. E10 and E08 are accepted
+**134/180 accepted;46 open;4/15 areas (T,R,M,N).** Q01-Q04 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -48,7 +48,7 @@ results remain pending; do not infer acceptance from the setup verification.
 Never interrupt an active owner playtest or query its TCP while the owner tests.
 
 The menu correction adds no acceptance point. The later Q01 native-solo check
-below and subsequent Q02/Q03 bring the actual total to133/180,47open,4/15 areas.
+below and subsequent Q02-Q04 bring the actual total to134/180,46open,4/15 areas.
 Physical controller and owner presentation checks still require observations.
 Continue a decision-ready remaining criterion while those observations are
 pending. Keep the G12 navigation calibration frozen, and do not retain the
@@ -99,8 +99,22 @@ wire locator; actual unknown-bit rejection/unchanged-machine checks pass.
 Evidence: runtime-qualification/separated-rows-*-v1-results.json and
 initial-rows-verify-v1-results.json; native-tile-rows-* receipts all child0.
 Scope is local Windows SDL dummy/software; Q05's NET-enabled budget remains
-open. Keep the live owner review on its existing build untouched. Next resolve
-actual pool/effect pressure under Q04, rather than restarting accepted timing.
+open. Keep the live owner review on its existing build untouched. Local commit
+32d7138 integrates the renderer and test corrections;00a9152 records Q01.
+
+Q04 is accepted on the same frozen GUI, with no further production change.
+Three real216frame charge/combo waves in stage2 separated regions reach each
+native personal buster limit of3, a13/40 shared-effect peak and Zero's actual5C
+saber. Both actors retain16/28HP, naturally recover and then dismount/jump and
+move18px left. All36 complete guest cuts match across shared, selected and split;
+only the documented host audio ring is excluded. Each mode has1045 timing
+samples; split mean9.516/p9511.088ms, selected p958.424ms, shared p956.185ms.
+Peak working sets428.1-432.3MiB remain bounded. Raw timing includes intermediate
+snapshot I/O and its isolated stalls. Actual full allocator recovery stays A13.
+native-separated-pressure-q04-v2 is child0; evidence is in
+runtime-qualification/separated-pressure-rows-default-v2 and its comparison JSON.
+Q05/Q06 remain open; next evaluate the actual NET-enabled build's delayed-input
+runtime budget. Do not repeat accepted local timing without a relevant change.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage

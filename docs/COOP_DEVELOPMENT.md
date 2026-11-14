@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:133/180;47 open/partial. Accepted areas:4/15
+**Accepted touch points:134/180;46 open/partial. Accepted areas:4/15
 (team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -67,7 +67,7 @@ the end of this document; older checkpoint counts are historical.
 | Visuals/audio |0/14|V01-V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
-| Runtime/portability |3/6|Q04-Q06|
+| Runtime/portability |4/6|Q05-Q06|
 | Owner/package/delivery |0/4|Z01-Z04|
 
 ## Current evidence and next gate
@@ -5362,3 +5362,19 @@ cb1155910d682f3c6227b1812e397ca5aad9df126f158944d6c182e961077d95.
 are child0; raw results/logs/frames/snapshots remain in `runtime-qualification`.
 Scope is local Windows SDL dummy/software, with no desktop GPU or NET-enabled
 budget claim. Actual133/180 accepted,47open,4/15areas. Q04-Q06 remain open.
+
+### Separated regions and real combat pressure - Q04
+
+Q04 is accepted on the same GUI/source32d7138, with no production change.
+Three216frame native charges followed by actual follow-up inputs reach3live
+shots in each personal native limit, a13/40 shared-effect peak, and Zero's5C
+saber. All effects and projectiles are produced by real supported controls.
+Both actors retain16/28HP, recover, dismount/jump and move18px left. All36
+complete guest cuts match across shared/selected/split; only the documented host
+output ring is excluded. Each view has1045 measured samples. Split mean9.516/
+p9511.088ms; selected p958.424ms; shared p956.185ms. Peak working sets428.1-432.3MiB
+remain bounded. Raw timings retain intermediate snapshot I/O and isolated stalls.
+Full allocator recovery stays open under A13. `native-separated-pressure-q04-v2`
+is child0; its real states, timing and comparison are retained in
+`runtime-qualification/separated-pressure-rows-default-v2` and the accompanying
+comparison JSON. Actual134/180 accepted,46open,4/15areas. Q05/Q06 remain open.
