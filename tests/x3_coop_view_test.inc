@@ -81,6 +81,49 @@ static void native_activation_route_checks(const char *fixture,const char *rever
     const char *out=getenv("X3_COOP_ROUTE_OUTPUT");if(out){char path[1024];snprintf(path,sizeof(path),"%s-roster%u.sav",out,roster);check(RtlSaveSnapshot(path),"actual movement route retains its native world");}
   }
 }
+static void native_activation_handover(const char *fixture,const char *reversed,uint8_t *base,uint8_t *work,uint8_t *expected,size_t capacity){
+  for(unsigned roster=0;roster<2;++roster){
+    check(RtlLoadSnapshot(roster?reversed:fixture) && g_ram[0x1fae]==1 && X3CoopViewsIndependent(),"P1 handover loads the actual completed P2-only native movement route");
+    check(support_position(0,5)<450 && support_position(1,5)>1100 && X3CoopViewsState()->camera[1][0]>=1024,"handover starts after P2 has visited both authored enemy regions while P1 remained behind");
+    /* Use the supported living withdrawal/return to give P1 the leading turn.
+     * Keep the native world, eligibility flags and consumed-content history. */
+    check(X3CoopRuntimeWithdraw(1),"the living P2 explorer can withdraw after its actual native route");
+    for(unsigned f=0;f<30;++f)frame(0);
+    check(X3CoopRuntimeRejoin(1),"the living explorer returns safely beside the waiting P1 through normal rejoin policy");
+    size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();
+    for(unsigned seat=0;seat<2;++seat)setup.players[seat].body[0x88]=255;
+    check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"handover supplies only bounded personal damage protection without resetting visited native content");door_install_player(&setup);
+    for(unsigned f=0;f<30;++f)frame(0);
+    n=RtlSaveSnapshotToMemory(base,capacity);size_t expected_size=0;
+    for(unsigned replay=0;replay<2;++replay){
+      check(RtlLoadSnapshotFromMemory(base,n),"P1 takeover restores its current-build native world");
+      unsigned resting_x=support_position(1,5),updates=0,holds=0,frames=0;bool enemy[2]={false,false};
+      for(unsigned f=0;f<480;++f){
+        unsigned clock=g_ram[0x9cc];
+        frame(SNES_PAD_RIGHT|(f%32<12?SNES_PAD_B:0)|(f%64<32?SNES_PAD_A:0));
+        unsigned elapsed=(uint8_t)(g_ram[0x9cc]-clock);
+        if(elapsed>1)check(0,"P1 takeover cannot run the native shared-world clock twice in one frame");
+        updates+=elapsed;holds+=!elapsed;
+        ++frames;
+        unsigned count[2]={0,0};
+        for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==8 && g_ram[d+11]==1){
+          unsigned x=view_read(d+5);for(unsigned k=0;k<2;++k)if(x==(k?976:736)){
+            ++count[k];if(g_ram[d+1]==2 && (g_ram[d+0x27]&127))enemy[k]=true;
+          }
+        }
+        if(count[0]>1 || count[1]>1)check(0,"P1 revisiting the P2-first regions never duplicates either authored enemy");
+        /* Finish after both authored regions, before the later pit traversal. */
+        if(enemy[0] && enemy[1] && support_position(0,5)>1100)break;
+      }
+      fprintf(stderr,"native P1 takeover observation roster%u replay%u P1%u,%u P2%u,%u resting%u camera%u/%u enemies%u/%u frames%u worldupdates%u holds%u life%u/%u HP%u/%u phase%u/%u\n",roster,replay,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),resting_x,X3CoopViewsState()->camera[0][0],X3CoopViewsState()->camera[1][0],enemy[0],enemy[1],frames,updates,holds,X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life,contact_hp(0),contact_hp(1),g_ram[0xd1],g_ram[0xd2]);
+      check(enemy[0] && enemy[1] && support_position(0,5)>1100 && support_position(1,5)==resting_x && updates+holds==frames,"P1 native controls revisit both P2-first enemy regions with a stationary partner and no duplicate world or enemy updates");
+      for(unsigned seat=0;seat<2;++seat)check(X3CoopRuntimeState()->players[seat].life==X3_COOP_ALIVE && (campaign_body(seat)[0x27]&127),"P1 handover retains both living native actors");
+      size_t actual_size=RtlSaveSnapshotToMemory(work,capacity);
+      if(!replay){memcpy(expected,work,actual_size);expected_size=actual_size;}
+      else same(expected,expected_size,work,actual_size,"P1 takeover after P2-first visits repeats the entire current-build machine");
+    }
+  }
+}
 static void native_activation_platform_route(const char *fixture,uint8_t *work,size_t capacity){
   for(unsigned roster=0;roster<2;++roster){
     check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==5,"native platform admission uses the actual stage5 terrain and events");size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState setup=*X3CoopRuntimeState();if(roster){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}setup.current=setup.anchor=0;

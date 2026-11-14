@@ -325,6 +325,8 @@ int main(int argc,char **argv) {
     }
     fixture=getenv("X3_COOP_ROUTE_STATE");
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_ROUTE_REVERSED_STATE");check(reversed && *reversed,"movement activation supplies both actual rosters");native_activation_route_checks(fixture,reversed,saved,cap);}
+    fixture=getenv("X3_COOP_HANDOVER_STATE");
+    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_HANDOVER_REVERSED_STATE");check(reversed && *reversed,"P1 takeover supplies both actual P2-first route worlds");native_activation_handover(fixture,reversed,saved,after,damaged,cap);}
     fixture=getenv("X3_COOP_ROUTE_PLATFORM_STATE");if(fixture && *fixture)native_activation_platform_route(fixture,saved,cap);
     fixture=getenv("X3_COOP_ACTIVATION_STATE");
     if(fixture && *fixture){

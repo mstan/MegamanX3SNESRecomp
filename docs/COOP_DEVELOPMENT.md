@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:136/180;44 open/partial. Accepted areas:5/15
+**Accepted touch points:137/180;43 open/partial. Accepted areas:5/15
 (team wipe, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -57,7 +57,7 @@ the end of this document; older checkpoint counts are historical.
 | Individual death |15/16|D06 authored lethal crush|
 | Team wipe |10/10|Accepted|
 | Fallen persistence |9/10|F10 physical controller reconnect|
-| Separated spawning |7/14|A02,A05,A09-A13|
+| Separated spawning |8/14|A02,A09-A13|
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |9/14|E05,E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
@@ -5427,3 +5427,22 @@ receipts are child0; all phases and exact identities remain in
 The total is136/180 with44open and5/15areas accepted. Keep the existing owner
 review untouched. The prepared A05 takeover check remains unaccepted until its
 actual run passes; G12 navigation calibration remains frozen.
+
+## A05 native P1 takeover after P2-first exploration
+
+A05 is accepted. Both actual stage1 P2-only routes first admit the authored
+class08/01 enemies at736/976 while P1 stays behind. The living explorer uses
+public withdrawal/rejoin beside P1 without resetting native objects, eligibility
+or view history. Only bounded personal damage protection is supplied. Actual
+P1 Right/jump/dash inputs reach1103 as X in414 native updates and1102 as Zero
+in331. Each world advances exactly once per frame; enemies never duplicate,
+P2 remains stationary and both actors retain full16/28HP. The entire current-build
+machine repeats exactly twice per roster. This ends after both enemy regions,
+before the later pit; an arbitrary480frame overrun that killed Zero there remains
+failed evidence and does not qualify that later traversal. No production change.
+
+State-test SHA256:b4a1f960a423f606622e7a6a7447b2a34d6a5df61922aedf1427742a3d605eb2.
+The measured native-activation-handover-region receipt is child0; all4standard
+tests pass. Exact observations and full-future comparisons remain in
+`build-coop/qa-state/activation-handover-work/p1-handover-region.log`.
+Total137/180,43open,5/15areas. A11 streaming persistence is selected next.

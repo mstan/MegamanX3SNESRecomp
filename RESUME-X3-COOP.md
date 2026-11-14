@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**136/180 accepted;44 open;5/15 areas (T,R,M,N,Q).** Q01-Q06 are accepted after S05. E10 and E08 are accepted
+**137/180 accepted;43 open;5/15 areas (T,R,M,N,Q).** Q01-Q06 and A05 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -156,6 +156,22 @@ The initial postprocessor's special slot12 filename mistake is corrected without
 repeating the passing independent GUI run. Optional SDK pytest was not claimed.
 Current total136/180,44open,5/15areas. A05 P1 takeover is prepared/running but
 unaccepted. Keep the existing owner review and frozen G12 calibration untouched.
+
+A05 is now accepted. Both actual P2-first stage1 route worlds retain their native
+objects, eligibility and history. P2 uses public living withdrawal/return beside
+the waiting P1, then P1 actually traverses the two authored class08/01 enemy
+regions at736/976. X reaches1103 in414 updates; Zero reaches1102 in331. Each
+world advances exactly once per frame, both enemies stay single instances, the
+partner remains stationary, and both actors retain full16/28HP. Each complete
+current-build machine future repeats exactly twice. The endpoint is after both
+regions and before the later pit; this does not certify that later traversal.
+An arbitrary480frame overrun killed Zero at that pit and remains failed evidence.
+No production change. Optional real-ROM test binary SHA256:
+b4a1f960a423f606622e7a6a7447b2a34d6a5df61922aedf1427742a3d605eb2.
+native-activation-handover-region is child0; all4standard tests pass. Evidence:
+activation-handover-work/p1-handover-region.log and standard-region.log.
+Current total137/180,43open,5/15areas. A11 permanent-item streaming revisit is
+the next selected criterion; no result yet. Keep the owner review untouched.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage
