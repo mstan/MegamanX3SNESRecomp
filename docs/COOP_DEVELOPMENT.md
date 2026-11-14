@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:126/180;54 open/partial. Accepted areas:4/15
+**Accepted touch points:127/180;53 open/partial. Accepted areas:4/15
 (team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -61,7 +61,7 @@ the end of this document; older checkpoint counts are historical.
 | Enemy interactions |9/14|E05,E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
 | Doors/scripts |5/14|S04-S07,S09-S11,S13-S14|
-| Campaign branches |14/16|G04,G12|
+| Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
 | Visuals/audio |0/14|V01-V14|
 | Rollback/state |10/10|Accepted|
@@ -5168,3 +5168,27 @@ All four standard tests pass; current production GUI is unchanged from the
 combined Gravity qualification. Acceptance is126/180,54open,4/15areas;
 campaign14/16 with actual Rhino stage hazards(G04) and full fortress traversal
 (G12) still open. The corrected names add no acceptance independently.
+
+
+## Actual Tunnel Rhino stage hazard - G04
+
+G04 is accepted for actual stage7/class55, alongside its retained native boss
+drill, both-wall rush and clear evidence under legacytiger. A real checkpoint0
+stage load constructs the level and roster. Original entered-column allocation
+prepares authored3C:E889/flagFA02, NPC35/kind1 at640/1840; prior traversal and
+cold activation are explicitly bypassed rather than claimed as passed.
+
+All four character/physical-seat cases compare the approached nonleading actor
+with its original native reference on every one of96updates: complete body,
+personal pools, palette and actual source match. Real native damage at update1
+is X16->12/Zero28->24; source motion reaches639/1922/state2/10 with96worldticks.
+Both actors remain alive, and the complete paired future repeats exactly. No
+attack/contact/movement or success result is supplied. This stage-hazard check
+does not qualify lethal crush, falling-support behavior or the skipped route.
+
+Frozen state SHA256 is
+62a4a3029d94c61f72425aff6d9aaf576a9a5415a17e2e248be7a6ac80e39a64.
+Four standard tests pass; production and the previously validated GUI are
+unchanged. Acceptance is127/180,53open,4/15areas; campaign15/16 with G12 actual
+fortress traversal/sublevels/alternate exits open. All named Maverick identity
+corrections now have corresponding actual mechanics coverage.

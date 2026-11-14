@@ -2,8 +2,8 @@
 
 ## Current continuation - 2026-11-13
 
-**126/180 accepted;54 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
-after P09. Campaign14/16: G04 and G12 are open. The full180 objective
+**127/180 accepted;53 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
+after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
 latest `docs/COOP_DEVELOPMENT.md` entries supersede their next-action directions.
@@ -113,15 +113,26 @@ projectile/field/clear evidence under legacybeetle remains valid. StateSHA256
 0d559877d32700b9eaa33f220908ef224463646d5154e013cf9247888268172c;
 native-neon-wall-first/rest/ctest are child0. All jobs are terminal/collected.
 
-Next G04 actual stage7 Tunnel Rhino hazards. Its canonical native-tiger arena
-contains the actual F800 event columns. A bounded extraction found actor records
-3C:E889/FA02 andE891/FA07: NPC35 kind1 at640/1840 and896/1840;
-NPC3F kinds0..6 at1664..2160/1048..1640; NPC34 at1912/1864(kind0)
-and3464/888(kind1); NPC33 kinds0..2 in the later tunnel. These are content
-candidates only, not mechanics acceptance. Inspect actual native behavior/art
-and reuse the original column allocator and native stage-hazard comparison.
-Do not use the old stage4/class0B hazard as actual Rhino evidence. G12 actual
-fortress traversal/exits and the remaining criteria remain independently open.
+G04 is accepted with actual stage7 Rhino hazards, retaining the actual boss55
+native drill/wall-rush/clear proof under legacytiger. Native checkpoint0 level
+construction and original event-column allocation prepare actual NPC35/kind1,
+3C:E889/FA02 at640/1840; prior traversal/cold activation is explicitly bypassed.
+All4 character/physical-seat references match the complete body/pools/palette
+and real source on each of96updates. Native damage1 is X16->12/Zero28->24;
+source moves to639/1922/state2/10, worldticks96, both living. The whole paired
+future repeats exactly. No attack/contact/movement/success result is supplied.
+This does not accept P06/D06/A02 or fortress traversal. StateSHA256
+62a4a3029d94c61f72425aff6d9aaf576a9a5415a17e2e248be7a6ac80e39a64;
+native-rhino-actual-stage-start/hazard-first/hazard-rest/hazard-ctest are child0.
+Current production GUI remains591c5fe3; all jobs terminal/collected.
+
+Next: G12 actual fortress traversal/sublevels/alternate exits. Reuse existing
+native route/camera streaming and earned branch fixtures; the accepted Sigma
+shaft native-route example advances positions32px with12 real updates, then
+uses the real door. Existing end-room teleports/column preparation only prove
+admissions, not the skipped fortress path. Derive route coverage from the real
+native stage/column/layout data and preserve all earned hunter/Vile branches.
+Do not create a general navigation framework or repeat accepted boss mechanics.
 
 D06 still needs an actual authored lethal crush. F10 physical controller
 reconnect, G12 fortress routes/exits, presentation/runtime checks and owner QA
@@ -129,7 +140,7 @@ remain. Prior D13/T06,S12,T07,D08,D12,E07/E09 and P09 evidence is preserved in
 the existing development/private records; do not repeat unchanged suites.
 
 Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P12,P13;
-E05,E06,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G04,G12;V01-V14;
+E05,E06,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
 Q01-Q06;Z01-Z04.
 
 Use repository tools and headless game/TCP interfaces. Computer Use requires
