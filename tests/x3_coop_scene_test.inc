@@ -54,10 +54,18 @@ static uint32_t scene_menu_pad(unsigned frame_index){
   return getenv("X3_COOP_TRANSITION_MENU") && (frame_index<2 || frame_index==32 || frame_index==33)?
       SNES_PAD_START|((uint32_t)SNES_PAD_START<<12):0;
 }
+static bool simultaneous_door_observing;
+static unsigned simultaneous_door_slot,simultaneous_door_hits;
+static void simultaneous_door_probe(CpuState *cpu,uint32_t pc){
+  if(simultaneous_door_observing && (pc&0x7fffff)==0x01e0f1 && cpu->D==simultaneous_door_slot)++simultaneous_door_hits;
+}
 static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8_t *expected,size_t capacity,unsigned character){
   unsigned slot=door_approach(original,size,work,capacity,character);
-  const X3CoopState setup=*X3CoopRuntimeState();unsigned remote=setup.anchor^1;
+  bool simultaneous=getenv("X3_COOP_SIMULTANEOUS_SCENE")!=NULL;
+  if(simultaneous){size_t cut=RtlSaveSnapshotToMemory(work,capacity);X3CoopState scene_near=*X3CoopRuntimeState();X3CoopCapture(&scene_near,g_ram);unsigned first=scene_near.anchor,other=first^1;scene_near.players[first].body[5]=0xf8;scene_near.players[first].body[6]=9;scene_near.players[first].body[8]=0x97;scene_near.players[first].body[9]=5;check(X3CoopEncode(&scene_near,work+contact_context_offset(work,cut),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,cut),"simultaneous scene preparation changes only the second living actor's approach position");door_install_player(&scene_near);X3CoopViewState views=*X3CoopViewsState();memcpy(views.camera[first],views.camera[other],sizeof(views.camera[first]));memcpy(views.current[first],views.current[other],sizeof(views.current[first]));memcpy(views.limits[first],views.limits[other],sizeof(views.limits[first]));X3CoopViewsSetState(&views);vehicle_install_view(&views,first);}
+  const X3CoopState setup=*X3CoopRuntimeState();unsigned remote=simultaneous?setup.anchor:setup.anchor^1;
   size_t prepared=RtlSaveSnapshotToMemory(work,capacity);
+  if(simultaneous){simultaneous_door_observing=false;for(unsigned seat=0;seat<2;++seat){check(RtlLoadSnapshotFromMemory(work,prepared),"each native eligibility reference restores before either actor touches");X3CoopRuntimeEnable(false);memcpy(g_ram+X3_COOP_BODY,setup.players[seat].body,X3_COOP_BODY_BYTES);g_ram[0x1fff]=setup.players[seat].native_flags;view_word(0x1e5d,2416);view_word(0x1e60,1280);pickup_native_items(0x00daa0);check(g_ram[slot+1]==4 && g_ram[0x1f28],"each simultaneously touching native character independently qualifies for this authored scene");}check(RtlLoadSnapshotFromMemory(work,prepared),"simultaneous native scene restores its two eligible actual actors");}
   /* Native single-body control: use the same touching character and local
    * camera. The distant other body is absent from this reference update. */
   X3CoopRuntimeEnable(false);memcpy(g_ram+X3_COOP_BODY,setup.players[remote].body,X3_COOP_BODY_BYTES);
@@ -69,6 +77,7 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   check(RtlLoadSnapshotFromMemory(work,prepared),"paired gate starts from the matched native approach");
   check(interp_bridge_add_pre_opcode_hook(0x01e0f1,pickup_continuation_probe),"native gate scene continuation probe registers");
   pickup_probe_slot=slot;pickup_probe_pc=0x01e0f1;pickup_probe_seat=remote;pickup_probe_seen=false;
+  if(simultaneous){check(interp_bridge_add_pre_opcode_hook(0x01e0f1,simultaneous_door_probe),"the actual original door-success instruction counts simultaneous native admissions");simultaneous_door_slot=slot;simultaneous_door_hits=0;simultaneous_door_observing=true;}
   pickup_native_items(0x00daa0);
   if(g_ram[slot+1]!=4)fprintf(stderr,"gate remote%u char%u: state=%u freeze=%u anchor=%u current=%u\n",
       remote,setup.players[remote].character,g_ram[slot+1],g_ram[0x1f28],
@@ -76,6 +85,7 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   check(g_ram[slot+1]==4 && g_ram[0x1f28],"remote actor admits the single authored native gate");
   check(pickup_probe_seen,"actual admitted native gate retains a restorable scene and world borrow");
   check(!memcmp(native_item,g_ram+slot,sizeof(native_item)),"paired admission matches one original gate update");
+  if(simultaneous)check(simultaneous_door_hits==1,"two genuinely eligible simultaneous scene contacts earn exactly one native successful admission");
   check(X3CoopRuntimeState()->anchor==remote,"native gate adopts the actual entering actor");
   check(view_read(0x1e5d)==2416 && view_read(0x1e60)==1280,
         "gate camera adopts the entering region before changing world ownership");
@@ -138,6 +148,7 @@ static void native_door_checks(uint8_t *original,size_t size,uint8_t *work,uint8
   for(unsigned i=0;i<elapsed;++i)frame(scene_menu_pad(i));
   size_t replay=RtlSaveSnapshotToMemory(expected,capacity);
   same(finished,finished_size,expected,replay,"native gate forced-walk and cleanup deterministic replay");
+  if(simultaneous){fprintf(stderr,"native SIMULTANEOUS DOOR roster%u winner%u hits%u frames%u camera%u,%u actors%u,%u/%u,%u\n",setup.players[0].character,remote,simultaneous_door_hits,elapsed,view_read(0x1e5d),view_read(0x1e60),support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8));check(simultaneous_door_hits==1,"the entire native forced sequence, cleanup and restored future never repeat the simultaneous admission");simultaneous_door_observing=false;}
   free(finished);
   unsigned before0=support_position(0,5),before1=support_position(1,5);
   for(unsigned i=0;i<15;++i)frame(SNES_PAD_RIGHT);

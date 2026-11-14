@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**129/180 accepted;51 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
+**130/180 accepted;50 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -159,6 +159,15 @@ vertical/horizontal arena retain both native private-camera commitments.
 Receipt native-s04-door-qualified is child0; current4standard tests pass.
 Visual seams and moving clips remain V12/V14 work. All owned jobs terminal.
 
+S05 is accepted on6a419c27: both actual bodies independently qualify for
+the authored gate from the same pre-contact state, then simultaneous contact
+earns exactly one native01:E0F1 success. All4roster/physical-winner cases
+complete770native updates through forced movement, intro and cleanup with
+both alive/health retained and independent controls restored. Whole-machine
+replay matches and never repeats admission. Native item bytes match original;
+no admission/result is supplied. native-s05-door-qualified and ctest are child0,
+all4standard tests pass. Production GUI remains591c5fe3. Actual130/180,50open.
+
 Next: evaluate another decision-ready remaining criterion using existing
 qualified paths. Do not resume the fortress navigation/calibration loop merely
 because G12 remains open. Prepared native owner QA can cover outstanding
@@ -181,7 +190,7 @@ remain. Prior D13/T06,S12,T07,D08,D12,E07/E09 and P09 evidence is preserved in
 the existing development/private records; do not repeat unchanged suites.
 
 Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P12,P13;
-E05,E06,E12-E14;C06,C11;S05-S07,S09-S10,S13-S14;G12;V01-V14;
+E05,E06,E12-E14;C06,C11;S06-S07,S09-S10,S13-S14;G12;V01-V14;
 Q01-Q06;Z01-Z04.
 
 Use repository tools and headless game/TCP interfaces. Computer Use requires

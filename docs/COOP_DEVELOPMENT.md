@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:129/180;51 open/partial. Accepted areas:4/15
+**Accepted touch points:130/180;50 open/partial. Accepted areas:4/15
 (team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -60,7 +60,7 @@ the end of this document; older checkpoint counts are historical.
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |9/14|E05,E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
-| Doors/scripts |7/14|S05-S07,S09-S10,S13-S14|
+| Doors/scripts |8/14|S06-S07,S09-S10,S13-S14|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
 | Visuals/audio |0/14|V01-V14|
@@ -5263,3 +5263,21 @@ survivor's native ground/camera path. Split and selected presentation share
 the already qualified fixed independent simulation. Rendering seams, moving
 visual review and all remaining scene criteria retain their open status.
 Actual129/180 accepted,51open,4/15areas. No production change.
+
+
+### Simultaneous native scene contact - S05
+
+S05 is accepted. Four actual stage1 class11 gate cases cover both rosters
+and either physical winner. Each living character independently earns original
+native admission from the exact same pre-contact snapshot with co-op disabled.
+When both touch together, the paired48-byte item matches one original update
+and the actual01:E0F1 successful-admission instruction executes exactly once.
+It never repeats through770native forced-walk/intro/cleanup updates or replay.
+Both actors retain health/native floor and regain independent controls; the
+complete machine repeats exactly. Only approach position/view is prepared;
+no admission, lock, progress or outcome is supplied. Earlier route is bypassed.
+
+Frozen stateSHA2566a419c27a7fdc79defc6ad35352e15af69bdaf5c63e14c1fc668abbe70aea5d2.
+`native-s05-door-qualified` and `native-s05-door-ctest` are child0; all4standard
+tests pass. Production GUI remains591c5fe3. Actual130/180 accepted,50open,
+4/15areas. Remaining scene, visual and owner criteria stay open.
