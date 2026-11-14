@@ -4973,3 +4973,36 @@ retaining an empty Zero context. The normal new-stage constructor must adopt
 that legitimate destination before ordinary enrollment. The6000-update cutoff
 alone did not establish a native dialogue deadlock. A genuine original
 comparison still requires explicitly disabling the restored co-op schedule.
+
+
+## Rebind participants after the native Doppler intermission
+
+The native two-Maverick story completes normally. The previous6000-update
+rescue check ended before its genuine original return at7833. Its later co-op
+arrival exposed a different defect: stage12's pending entry survived the next
+fresh stage1 constructor, so the scheduler kept an empty Zero context parked.
+The pending entry now follows a fresh, supported native gameplay constructor
+from the original D98E caller, then retains the existing free-body enrollment
+gate. Scripted reconstruction and temporary reward bodies cannot enroll a
+second actor. No new hook, state field or native result write is needed.
+
+All four roster/prior-owner cases now finish their actual occupied parent hit,
+child release, one reward, native story and real next-stage arrival at7865 or
+7985. Both actors have positive health, visible native art and real opposite
+24-update controls; lives are unchanged and old parent ownership clears. Each
+whole future repeats exactly twice. The explicit original continuation disables
+co-op after actual release and completes at7833, also with exact replay. The
+GUI reproducer now restores both living actors and independent controls from
+the previously parked stage12 state. Existing twelve stage/lifecycle cases,
+pending save/load, malformed-state transaction checks and all four standard
+tests pass. State SHA256 is
+da2f3c9360bd6e158031b00053247c012be30d42b5c77600e17db646d3a44a5d;
+GUI SHA256 is
+1ffa1710e1a35e0c1424689b429d04c3b8ad87a07e74cb10117fdb5bd5482550.
+
+Acceptance remains125/180. This resolves the concrete intermission handoff;
+E08's remaining legal occupied-rescue coverage and broader scene/reward checks
+remain open. The charged-pod setup earns a native autonomous projectile, but
+the measured96px cast hits after release and the32px cast misses; neither is
+accepted as rescue. Continue from actual projectile motion rather than supplied
+hit, capture or scene-completion state.

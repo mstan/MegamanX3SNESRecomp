@@ -1981,6 +1981,13 @@ static void boundary(CpuState *cpu,uint32_t pc) {
     stage_begin();
   }
   if(stage_pending()){
+    /* A native intermission can replace its temporary stage before the
+     * next playable stage. Follow only a fresh body from the original
+     * gameplay caller; keep retained participants parked through all story
+     * and reward bodies until that actual arrival finishes. */
+    if(pc==0x048008 && word(g_ram+cpu->S+4)==0xd98e && !g_ram[X3_COOP_BODY+1] &&
+       g_ram[0xd1]==4 && g_ram[0x1fae]<=14)
+      scene.stage=g_ram[0x1fae];
     /* Let the original arrival/scripted constructor finish before rebinding.
      * Only the normal gameplay caller is an enrollment boundary. */
     if(pc!=0x048008 || word(g_ram+cpu->S+4)!=0xd98e || scene.stage!=g_ram[0x1fae] || g_ram[0x1f22] ||

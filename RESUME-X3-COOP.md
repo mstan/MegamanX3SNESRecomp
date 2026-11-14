@@ -106,15 +106,31 @@ not occupied rescue or impossibility. Next use the measured pod/contact
 geometry to position the actual pre-cast closer, retaining all native startup,
 energy, capture and winning-return checks. Do not retune fake charge states.
 
-The Doppler continuation is also narrower than the earlier timeout suggested.
-Actual GUI B input clears the final dialogue and its120-update timer, then the
-native reward/arrival completes. In the retained paired snapshot, however,
-co-op remains SCENE_STAGE_ENTRY for stage12 while native stage1 is fully free:
-Zero's retained body is empty/HP0, and the two-player scheduler never rebinds.
-The normal constructor guard still requires scene.stage==current stage, so it
-cannot adopt the legitimate new stage. Next fix only that proven fresh native
-constructor handoff and require positive HP plus actual control on both seats
-in the complete rescue return, with enough time for the authored intermission.
+The Doppler handoff is now fixed and qualified. StateSHA256
+da2f3c9360bd6e158031b00053247c012be30d42b5c77600e17db646d3a44a5d
+and GUI1ffa1710e1a35e0c1424689b429d04c3b8ad87a07e74cb10117fdb5bd5482550
+pass actual native story/reward/new-stage reconstruction. A pending entry now
+follows only the fresh supported native normal-caller constructor, then the
+existing enrollment gate. All4roster/prior-owner occupied free-X cases finish
+at7865/7985 with real child cleanup/reward/HP16/28, visible opposite24tick
+controls, no debit and full futures twice. Explicit disabled-co-op original
+finishes7833: the old6000 cutoff was too short. GUIpairedfixed suffix1664 and
+actual two-player controls pass. Existing12stage/lifecycle/pending-save/negative
+transaction cases and4standard tests pass. This does not accept broad S06/S13
+or E08 yet. All jobs are terminal; preserve the frozen da2f3c93 for regression.
+
+The charged32px cast also fails occupied rescue: no hit through48. The actual
+96px pod at capture was6692/352 versus boss6786/423; its first hit43 was late.
+Do not try another blind position constant. The next coherent setup should
+wait for a real native emitted Ray to approach the still-paused parent, then
+let the unchanged charge/contact earn capture ahead of the winning hit. Retain
+strict source/occupancy/energy/constructor and whole-return checks. Alternatively
+resolve native applicability from complete mechanics, never from a bad setup.
+A mid-reward pending save in native non-gameplay modes also needs a focused
+current-build roundtrip: stage variable15 during weapon presentation is not an
+active stage, while the retained pending scene still names12. The current
+preflight equality assumes gameplay. Preserve strict malformed-stage rejection
+in gameplay if that legitimate non-gameplay roundtrip needs correction.
 
 GUI diagnostic scope: RuntimeLoad restores an enrolled co-op schedule even
 when the process env selects0. The input job's 'original' label therefore does
