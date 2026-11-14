@@ -124,7 +124,7 @@ static void native_activation_handover(const char *fixture,const char *reversed,
     }
   }
 }
-static void native_activation_platform_route(const char *fixture,uint8_t *work,size_t capacity){
+static void native_activation_platform_route(const char *fixture,uint8_t *work,size_t capacity,const char *output){
   for(unsigned roster=0;roster<2;++roster){
     check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==5,"native platform admission uses the actual stage5 terrain and events");size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState setup=*X3CoopRuntimeState();if(roster){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}setup.current=setup.anchor=0;
     uint8_t *b=setup.players[1].body;unsigned x=1050,y=1435-(setup.players[1].character==X3_COOP_ZERO?8:0);b[5]=b[0x22]=(uint8_t)x;b[6]=b[0x23]=(uint8_t)(x>>8);b[8]=b[0x24]=(uint8_t)y;b[9]=b[0x25]=(uint8_t)(y>>8);b[2]=b[3]=b[4]=b[7]=0;memset(b+0x1a,0,6);for(unsigned seat=0;seat<2;++seat)setup.players[seat].body[0x88]=255;
@@ -135,6 +135,7 @@ static void native_activation_platform_route(const char *fixture,uint8_t *work,s
     }
     check(first>1 && moved && g_ram[0xfa84] && support_position(1,5)>1200 && support_position(0,5)==still_x && (uint8_t)(g_ram[0x9cc]-clock)==160 && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"P2 actual movement admits and advances the authored moving support without visiting or moving P1's region twice");
     fprintf(stderr,"platform admission complete roster%u first%u P1%u,%u P2%u,%u native160ticks\n",roster,first,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8));
+    if(output){char path[1024];snprintf(path,sizeof(path),"%s-roster%u.sav",output,roster);check(RtlSaveSnapshot(path),"actual visited moving-support world retains its earned campaign");}
   }
 }
 static void native_view_checks(uint8_t *original,size_t original_size,uint8_t *work,uint8_t *expected,size_t capacity) {

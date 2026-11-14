@@ -337,7 +337,21 @@ int main(int argc,char **argv) {
         for(unsigned roster=0;roster<2;++roster)native_persistent_pickup_checks(saved,size,after,damaged,cap,item?5:11,item?2944:5856,item?1912:1096,item?0x20:1,roster);
       }
     }
-    fixture=getenv("X3_COOP_ROUTE_PLATFORM_STATE");if(fixture && *fixture)native_activation_platform_route(fixture,saved,cap);
+    if(getenv("X3_COOP_RETRY_STREAMING")){
+      const char *heart=getenv("X3_COOP_RETRY_HEART_STATE"),*reversed=getenv("X3_COOP_RETRY_HEART_REVERSED_STATE"),*acquired=getenv("X3_COOP_ACQUISITION_OUTPUT"),*platform=getenv("X3_COOP_PLATFORM_ROUTE_OUTPUT"),*retry=getenv("X3_COOP_RETRY_STREAMING_OUTPUT");
+      check(heart && reversed && acquired && platform && retry,"reward retry supplies actual earned heart fixtures and owned output paths");
+      char path[1024],normal[1024],other[1024];
+      if(!getenv("X3_COOP_RETRY_STREAMING_REUSE")){
+        native_reward_retry_prepare(heart,reversed,saved,after,damaged,cap);
+        snprintf(path,sizeof(path),"%s-p1-subtank-complete.sav",acquired);native_activation_platform_route(path,saved,cap,platform);
+      }
+      snprintf(normal,sizeof(normal),"%s-roster0.sav",platform);snprintf(other,sizeof(other),"%s-roster1.sav",platform);
+      native_team_retry_checks(normal,other,saved,after,damaged,cap);
+      snprintf(path,sizeof(path),"%s-roster1.sav",retry);native_activation_platform_route(path,saved,cap,NULL);
+      check(RtlLoadSnapshot(path),"streaming negative probe restores the actual reward-preserving retry");
+      native_permanent_streaming(5,2944,1912,0x20,saved,after,cap);
+    }
+    fixture=getenv("X3_COOP_ROUTE_PLATFORM_STATE");if(fixture && *fixture)native_activation_platform_route(fixture,saved,cap,NULL);
     fixture=getenv("X3_COOP_ACTIVATION_STATE");
     if(fixture && *fixture){
       const char *reversed=getenv("X3_COOP_ACTIVATION_REVERSED_STATE");check(reversed && *reversed,"activation/display qualification supplies both actual rosters");

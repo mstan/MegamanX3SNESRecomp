@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:138/180;42 open/partial. Accepted areas:5/15
+**Accepted touch points:139/180;41 open/partial. Accepted areas:5/15
 (team wipe, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -57,7 +57,7 @@ the end of this document; older checkpoint counts are historical.
 | Individual death |15/16|D06 authored lethal crush|
 | Team wipe |10/10|Accepted|
 | Fallen persistence |9/10|F10 physical controller reconnect|
-| Separated spawning |9/14|A02,A09,A10,A12,A13|
+| Separated spawning |10/14|A02,A09,A10,A13|
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |9/14|E05,E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
@@ -5464,3 +5464,25 @@ Measured native-permanent-streaming is child0; all4standard tests pass. The four
 actually earned current-build completed fixtures, native observations and replay
 checks remain in `build-coop/qa-state/permanent-streaming-work`. No production
 change. Total138/180,42open,5/15areas. A12 native retry is selected next.
+
+## A12 native retry eligibility and earned rewards
+
+A12 is accepted. Actually earned heart fixtures cross the native stage5
+constructor with X capacity18, then earn the original subtank and visit the
+authored moving support through P2 controls. Contact protection used for the
+approach is cleared before real spike damage. Both rosters lose both actors at
+22, retry at599 and spend one shared life2->1. Each character returns with full
+own18/28HP, while earned campaign flags and tank reserves remain unchanged.
+The old support object and its FA84 admission clear; actual P2 controls then
+readmit and advance it at13/11 updates. Native wipe/debit/retry futures repeat
+the entire machine exactly in both rosters. Subsequent away/reentry visits still
+cannot regrant the tank or capacity and repeat their complete future.
+
+The initial protected setup earned/visited its inputs but produced no deaths;
+it remains unqualified. The passing job reuses those exact hashed owned inputs.
+No production change. The existing retry test now checks each supplied native
+maximum instead of assuming unupgraded X capacity16.
+State-test SHA256:758d492cb6fd8940addf988da7688bd92c938a68acaaa6e980bcdbf32f1c3be8.
+Measured native-reward-retry-v2 is child0; all4standard tests pass. Actual earned,
+visited and retried snapshots and logs remain in
+`build-coop/qa-state/reward-retry-work`. Total139/180,41open,5/15areas.

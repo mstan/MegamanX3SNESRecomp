@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**138/180 accepted;42 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A05 and A11 are accepted after S05. E10 and E08 are accepted
+**139/180 accepted;41 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A05, A11 and A12 are accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -187,6 +187,23 @@ ab2680e7a0bc0827489185cb5b140c5c3ffab643d5388de8bcfb459c0b5932b9.
 native-permanent-streaming is child0; all4standard tests pass. No production
 change. Current total138/180,42open,5/15areas. A12's existing native team retry
 path is selected for inspection next; no new A12 result. Preserve owner review.
+
+A12 is now accepted. Current earned heart fixtures cross the actual stage5
+constructor with X capacity18, then earn the native subtank and actually visit
+the authored moving support. Approach protection is cleared before both native
+stage5 spike deaths at22; either roster retries at599, lives2->1, full own
+HP18/28, unchanged earned flags and shared reserves. The old support object and
+FA84 eligibility clear; actual P2 controls re-admit/move it at13/11 updates.
+Each native wipe/retry repeats the entire machine. Later cold region visits
+still cannot regrant the tank or capacity and repeat their full future.
+Initial retained-protection setup had no deaths and remains unqualified; the
+passing job reuses its actual hashed earned/visited inputs. No production change.
+State-test SHA256:
+758d492cb6fd8940addf988da7688bd92c938a68acaaa6e980bcdbf32f1c3be8.
+native-reward-retry-v2 is child0; all4standard tests pass. Earned, visited and
+retried snapshots plus both logs remain in reward-retry-work. Current total
+139/180,41open,5/15areas. Native one-shot event revisit A10 is selected for
+inspection next; no result yet. Keep owner review untouched and G12 frozen.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage

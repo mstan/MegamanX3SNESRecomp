@@ -44,3 +44,19 @@ static void native_permanent_streaming(unsigned kind,unsigned px,unsigned py,uns
   }
   check(RtlLoadSnapshotFromMemory(seed,n),"streaming probes restore the actual completed native acquisition");free(seed);free(future);
 }
+static void native_reward_retry_prepare(const char *normal,const char *reversed,uint8_t *base,uint8_t *work,uint8_t *expected,size_t capacity){
+  for(unsigned roster=0;roster<2;++roster){
+    check(RtlLoadSnapshot(roster?reversed:normal) && g_ram[0x1fae]==1 && (g_ram[0x1fd4]&1),"retry preparation loads the actually earned current-build heart");
+    unsigned x=X3CoopRuntimeState()->players[0].character==X3_COOP_X?0:1;
+    check(X3CoopRuntimeState()->players[x].maximum_health==18,"earned heart supplies native X's real increased capacity");
+    X3CoopViewsConfigure(false);stage_request();bool pending=false;unsigned frames=0;
+    for(;frames<1800;++frames){
+      frame(0);pending|=X3CoopRuntimeSceneActive();
+      if(pending && X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && g_ram[0x1fae]==5 && g_ram[0xd1]==4 && g_ram[0xd2]==4 && !g_ram[0x1f22] && !g_ram[0x1f24] && !g_ram[0x1f4f])break;
+    }
+    check(frames<1800 && (g_ram[0x1fd4]&1) && X3CoopRuntimeState()->players[x].maximum_health==18,"actual native stage constructor retains the earned heart without supplying any reward flag");
+    size_t n=RtlSaveSnapshotToMemory(base,capacity);
+    native_persistent_pickup_checks(base,n,work,expected,capacity,5,2944,1912,0x20,false);
+    fprintf(stderr,"native reward retry preparation roster%u stage5arrival%u heart%02x maximum%u\n",roster,frames,g_ram[0x1fd4],X3CoopRuntimeState()->players[x].maximum_health);
+  }
+}

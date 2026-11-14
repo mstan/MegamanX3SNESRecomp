@@ -7,11 +7,14 @@ static void team_hazard_body(uint8_t *b,unsigned x,unsigned y){
 }
 static void native_team_retry_checks(const char *normal,const char *reversed,uint8_t *base,uint8_t *work,uint8_t *expected,size_t capacity){
   check(interp_bridge_add_pre_opcode_hook(0x00e30a,shared_pit_probe),"team retry observes original last-survivor pit damage");
-  for(unsigned roster=0;roster<2;++roster)for(unsigned order=getenv("X3_COOP_TEAM_EXTRA_ONLY")?3:0;order<6;++order){
+  bool streaming=getenv("X3_COOP_RETRY_STREAMING")!=NULL;
+  for(unsigned roster=0;roster<2;++roster)for(unsigned order=getenv("X3_COOP_TEAM_EXTRA_ONLY")?3:0;order<(streaming?1:6);++order){
     bool stock=order==3,absent=order==4,pit=order==5;
     check(RtlLoadSnapshot(roster?reversed:normal) && g_ram[0x1fae]==5 &&
         !X3CoopRuntimeLearner() && !X3CoopRuntimeStockZero(),"team retry starts in the actual default stage5 roster");
     X3CoopState setup=*X3CoopRuntimeState();unsigned x=setup.players[0].character==X3_COOP_X?0:1;
+    uint8_t permanent[3]={g_ram[0x1fd1],g_ram[0x1fd3],g_ram[0x1fd4]},reserves[4];memcpy(reserves,g_ram+0x1fb7,4);
+    if(streaming)check((permanent[0]&0x20) && (permanent[2]&1) && setup.players[x].maximum_health==18 && g_ram[0xfa84],"retry starts with actual earned heart/subtank and a natively visited moving support");
     unsigned first=(order==2 || stock || pit)?x^1:x,lives=g_ram[0x1fb4];
     check(setup.players[0].character==roster && lives>0 &&
         setup.players[0].life==X3_COOP_ALIVE && setup.players[1].life==X3_COOP_ALIVE,
@@ -33,6 +36,7 @@ static void native_team_retry_checks(const char *normal,const char *reversed,uin
     for(unsigned seat=0;seat<2;++seat){
       bool hazard=!order || seat==first;unsigned y=setup.players[seat].character==X3_COOP_ZERO?(hazard?1392:1367):(hazard?1400:1375);
       team_hazard_body(setup.players[seat].body,hazard?1680:1568,y);
+      if(streaming)setup.players[seat].body[0x88]=0; /* End the approach assistance before real fatal contact. */
     }
     shared_prepare(base,n,work,&setup);view_word(0x1e5d,1456);view_word(0x1e7a,1456);
     for(unsigned i=0;i<sizeof(vertical)/sizeof(*vertical);++i)view_word(vertical[i],1280);
@@ -72,10 +76,15 @@ static void native_team_retry_checks(const char *normal,const char *reversed,uin
         "native retry retains contact-earned stock Zero loss and refuses his rejoin");
     for(unsigned seat=0;seat<2;++seat){const X3CoopPlayer *p=&s->players[seat];
       check(p->character==(seat^roster) && p->body[0xb6]==(p->character==X3_COOP_ZERO?2:0) &&
-          (p->body[0x27]&127)==p->maximum_health && p->maximum_health==(p->character==X3_COOP_ZERO?28:16),
+          (p->body[0x27]&127)==p->maximum_health && p->maximum_health==setup.players[seat].maximum_health,
           "native retry reconstructs each requested character with its own full resources");
     }
     size_t complete=RtlSaveSnapshotToMemory(expected,capacity);
+    if(streaming){
+      check(g_ram[0x1fd1]==permanent[0] && g_ram[0x1fd3]==permanent[1] && g_ram[0x1fd4]==permanent[2] && !memcmp(reserves,g_ram+0x1fb7,4),"native retry retains both actually earned permanent rewards and shared reserves");
+      check(!g_ram[0xfa84] && !view_has_enemy(1224,1464),"native retry resets the previously visited support's admission and old live object");
+      const char *output=getenv("X3_COOP_RETRY_STREAMING_OUTPUT");check(output!=NULL,"retry retains its actual reward/eligibility result");char path[1024];snprintf(path,sizeof(path),"%s-roster%u.sav",output,roster);check(RtlSaveSnapshot(path),"actual reward-preserving native retry saves");
+    }
     check(cut_size && RtlLoadSnapshotFromMemory(base,cut_size),"last real frame before the team wipe restores");
     for(unsigned i=cut_frame;i<=elapsed;++i)frame(0);
     n=RtlSaveSnapshotToMemory(work,capacity);
