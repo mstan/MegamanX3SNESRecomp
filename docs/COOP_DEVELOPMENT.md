@@ -4911,3 +4911,29 @@ Acceptance is124/180,56 open,4/15 areas; campaign remains15/16. E08 remains
 open: the existing Toxic Seahorse buster check demonstrates actual reflection
 during a carry and a later defeat after release. That later clear does not
 establish rescue by defeating the parent while its victim is still held.
+
+
+### Occupied class59 rescue counterexample ? E08 remains open
+
+The actual stage3/NPC59 encounter is Gravity Beetle; native-toxic-* fixtures
+and selectors retain their legacy names. A native acquired weapon5 Ray cast
+(source1C) now defeats the parent while class22/kind0 still carries its victim:
+one real facing update, hit15, actual child retirement4 updates later. Victim
+release and child-owner cleanup succeed; the parent retains its legitimate
+native defeat-script recipient. The earlier eight-facing-update probe hit only
+after release and is not occupied-rescue evidence.
+
+The strict full-return regression still fails on unchanged production564ccec:
+phase4/10/sub10 remains unfinished at6000 updates.1FAE12 is this reward/demo's
+index, not a fortress arrival. Native1FC6 isFF rather than finalizedDC; both
+actors/lives survive and old bindings clear. Constructor/demo-ownership
+experiments did not resolve it and were removed. Exact evidence is in the
+existing private qualification record under occupied_parent_rescue_current.
+Next compare the equivalent original native reward continuation before further
+production changes. Acceptance remains124/180,56open; no new point is claimed.
+
+The restored production GUI and four standard tests pass
+(native-occupied-restored-gates child0). The new strict counterexample exits1
+at the full-return assertion on stateSHA256765c4f6f721c962285c5b9a04f94763e06d87d50b287a66f703620fdcbe1b632.
+The next comparison should reuse the existing native NPC-return observer to
+establish occupancy on the winning call, alongside the pre-frame observation.

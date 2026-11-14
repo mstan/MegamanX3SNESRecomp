@@ -58,19 +58,34 @@ SNESRECOMP_WS_SPAWN=0 to match co-op's native simulation margins. Post-beam
 control places only the free body on actual open floor; health/hurt and all
 capture state remain earned.
 
-Next decision: E08 still needs actual occupied Toxic parent-rescue qualification
-or an evidence-backed native applicability decision. Its current buster path
-reflects during the carry and defeats the boss after release; that is not proof
-of occupied rescue. Reuse native_toxic_capture_checks/native_destroy_captor and
-the existing native-toxic-entry-arena.sav; inspect the native guard/weapon
-contract before choosing a real legal attack. D06 still needs an actual authored lethal crush. P06 is
-falling/collapsing-support activation; P12 is pinch/crush. Do not confuse those definitions. A late lift-edge setup was
-rejected because the real charged cast had already reached its upper endpoint
-before the test moved the rider; the unqualified extension was removed. Reuse
-actual source/caller and original-game references before qualifying a new
-support transition. D06 still requires a genuine authored lethal crush;
-class37/26 explicitly protect their contact. G12 still requires actual fortress
-traversal/exits beyond the accepted admissions and boss/ending flows.
+Next decision: E08 now has an actual occupied class59 parent hit: native X's
+acquired Ray shot/source1C defeats the parent at fired15 while class22/kind0
+still carries Zero, after one real facing update. The carrier retires4 updates
+later and releases the right victim/child owner; the parent legitimately retains
+its one defeat-script recipient. The complete reward/return check still fails:
+phase4/10/sub10 waits through6000 updates, reward1FC6 isFF rather than finalizedDC,
+both actors remain living/lives2, and old bindings are0.1FAE12 here is a native
+reward/demo index, not fortress traversal. This is not accepted E08 or arrival.
+
+The actual rendered stage3/NPC59 encounter is Gravity Beetle; native-toxic-*
+fixtures/selectors are legacy aliases. Keep exact stage/class/evidence identities
+and reconcile the other historical names against native data/art before relying
+on their labels. Relabeling earns no new points. The current private record's
+occupied_parent_rescue_current section holds exact hashes/receipts and the failed
+experiments. Temporary constructor/demo-ownership changes did not fix the stall
+and were removed. Next obtain a matched original native reward reference before
+further production edits. The strict optional X3_COOP_OCCUPIED_RESCUE regression
+is retained; failure is deliberate evidence of the unresolved continuation.
+Current regression SHA256 is765c4f6f721c962285c5b9a04f94763e06d87d50b287a66f703620fdcbe1b632;
+native-occupied-rescue-counterexample exits1 at the full-return assertion.
+Restored production GUI/four standard tests pass in native-occupied-restored-gates;
+GUI SHA256 is396824f95dab8b97852ccca2c0c9320279367df319b9e04c1e6de16082aae792.
+All build/test jobs are terminal. Reuse hunter_result_probe for exact occupancy
+at the winning native NPC return before the matched original continuation.
+
+D06 still needs an actual authored lethal crush; class37/26 protect contact.
+P06 is falling/collapsing-support activation; P12 is pinch/crush. G12 needs real
+fortress traversal/exits beyond accepted admissions and boss/ending flows.
 
 Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P09,P12,P13;
 E05,E06,E08,E10,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
