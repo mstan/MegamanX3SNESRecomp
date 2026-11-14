@@ -390,14 +390,21 @@ static void native_crawfish_prepare(const char *fixture,const char *output,uint8
     CpuState caller=g_cpu;for(unsigned column=2592;column<2912;column+=32){view_word(0,column);view_word(2,1248);view_word(4,288);g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P&=(uint8_t)~0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);check(interp_bridge_run(&g_cpu,0x00ded3) && g_cpu.S==caller.S,"native entered columns prepare the authored pre-room door without setting hunter admission or outcomes");}uint64_t master=g_cpu.master_cycles;uint32_t cycles=g_cpu.cycles;g_cpu=caller;g_cpu.master_cycles=master;g_cpu.cycles=cycles;for(unsigned f=0;f<3;++f)frame(0);
   }
   if(getenv("X3_COOP_CRAWFISH_BOSS") || hunter){
-    bool original=getenv("X3_COOP_CRAWFISH_ORIGINAL")!=NULL;if(original){size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState solo=*X3CoopRuntimeState();X3CoopCapture(&solo,g_ram);unsigned x=solo.players[0].character==X3_COOP_X?0:1;solo.current=solo.anchor=(uint8_t)x;check(X3CoopEncode(&solo,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"original door reference selects native X and his complete context");door_install_player(&solo);X3CoopViewState native_views=*X3CoopViewsState();X3CoopViewsConfigure(false);vehicle_install_view(&native_views,x);X3CoopRuntimeEnable(false);}else X3CoopViewsConfigure(true);
+    bool entry_qa=getenv("X3_COOP_S11_ENTRY")!=NULL;unsigned entry_leader=entry_qa && getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):1;
+    bool original=getenv("X3_COOP_CRAWFISH_ORIGINAL")!=NULL;
+    if(entry_qa){check(!original && entry_leader<2,"paired boss admission uses an explicit real physical entrant");size_t cut=RtlSaveSnapshotToMemory(base,capacity);X3CoopState roles=*X3CoopRuntimeState();X3CoopCapture(&roles,g_ram);unsigned first=getenv("X3_COOP_HUNTER_REVERSED")?X3_COOP_ZERO:X3_COOP_X;if(roles.players[0].character!=first){X3CoopPlayer swap=roles.players[0];roles.players[0]=roles.players[1];roles.players[1]=swap;}roles.current=roles.anchor=(uint8_t)(entry_leader^1);for(unsigned seat=0;seat<2;++seat)roles.players[seat].body[0x88]=255;check(X3CoopEncode(&roles,base+contact_context_offset(base,cut),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,cut),"boss-entry coverage selects only roster, prior owner and personal contact protection");door_install_player(&roles);}
+    if(original){size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState solo=*X3CoopRuntimeState();X3CoopCapture(&solo,g_ram);unsigned x=solo.players[0].character==X3_COOP_X?0:1;solo.current=solo.anchor=(uint8_t)x;check(X3CoopEncode(&solo,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"original door reference selects native X and his complete context");door_install_player(&solo);X3CoopViewState native_views=*X3CoopViewsState();X3CoopViewsConfigure(false);vehicle_install_view(&native_views,x);X3CoopRuntimeEnable(false);}else X3CoopViewsConfigure(true);
     crawfish_retire_observe=true;check(interp_bridge_add_pre_opcode_hook(0x02d928,crawfish_retire_trace) && interp_bridge_add_pre_opcode_hook(0x02db3f,crawfish_retire_trace),"native Crawfish retirement observation registers");
-    uint32_t right=(uint32_t)(hunter && !getenv("X3_COOP_NATIVE_HUNTER_FORWARD")?SNES_PAD_LEFT:SNES_PAD_RIGHT)<<(original?0:12);for(unsigned f=0;f<80;++f)frame(right);for(unsigned f=0;f<120;++f)frame(0);for(unsigned f=0;f<24;++f)frame(right);
+    size_t entry_size=0,entry_future_size=0;uint8_t *entry_future=NULL;unsigned entry_lives=g_ram[0x1fb4],entry_flags=g_ram[0x1fd8];if(entry_qa){entry_size=RtlSaveSnapshotToMemory(base,capacity);entry_future=malloc(capacity);check(entry_future!=NULL,"actual boss-admission full-future replay allocates");}
+    for(unsigned entry_run=0;entry_run<(entry_qa?2:1);++entry_run){if(entry_qa)check(RtlLoadSnapshotFromMemory(base,entry_size),"actual native pre-door entry restores before both full futures");crawfish_retire_observe=true;
+    uint32_t right=(uint32_t)(hunter && !getenv("X3_COOP_NATIVE_HUNTER_FORWARD")?SNES_PAD_LEFT:SNES_PAD_RIGHT)<<(original?0:entry_leader*12);for(unsigned f=0;f<80;++f)frame(right);for(unsigned f=0;f<120;++f)frame(0);for(unsigned f=0;f<24;++f)frame(right);
     unsigned frames=0,boss=0;for(;frames<3600;++frames){frame(hunter && frames%120<6?SNES_PAD_B|((uint32_t)SNES_PAD_B<<12):0);boss=0;for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==boss_class && g_ram[d+1]==2 && (g_ram[d+0x27]&127)==32)boss=d;
       if(boss && (original || (X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive())) && !g_ram[0x1f22] && !g_ram[0x1f24] && (original?!g_ram[X3_COOP_BODY+0x6e]:!campaign_body(0)[0x6e] && !campaign_body(1)[0x6e]))break;}
     crawfish_retire_observe=false;fprintf(stderr,"native BOSS ARENA stage%u class%02x original%u frames%u boss%04x HP%u state%u/%u/%u actors%u,%u/%u,%u phase%u/%u locks%u/%u life%u/%u\n",stage,boss_class,original,frames,boss,g_ram[boss+0x27]&127,g_ram[boss+1],g_ram[boss+2],g_ram[boss+3],support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),g_ram[0xd1],g_ram[0xd2],g_ram[0x1f22],g_ram[0x1f24],X3CoopRuntimeState()->players[0].life,X3CoopRuntimeState()->players[1].life);
     if(frames==3600){char failure[1024];snprintf(failure,sizeof(failure),"%s.unqualified.sav",output);check(RtlSaveSnapshot(failure),"actual incomplete native door/intro preserves its machine");}
     check(frames<3600 && boss && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"the established real input route earns the live native32HP Crawfish and requested control release");
+    if(entry_qa){unsigned left=view_read(0x1e5d);check(contact_hp(0) && contact_hp(1) && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e] && support_position(0,5)>=left+6 && support_position(0,5)<=left+250 && support_position(1,5)>=left+6 && support_position(1,5)<=left+250 && g_ram[0x1fae]==stage && g_ram[0x1fb4]==entry_lives && g_ram[0x1fd8]==entry_flags,"the actually closed native boss arena admits both living actors and releases both controls without a missing participant or campaign/life cost");fprintf(stderr,"native S11 ENTRY run%u stage%u roster%u entrant%u class%02x frames%u lives%u/%u flags%02x/%02x\n",entry_run,stage,X3CoopRuntimeState()->players[0].character,entry_leader,boss_class,frames,entry_lives,g_ram[0x1fb4],entry_flags,g_ram[0x1fd8]);size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!entry_run){entry_future_size=done;memcpy(entry_future,work,done);}else same(entry_future,entry_future_size,work,done,"actual native door, boss intro, arena closure and two-actor release replay the complete machine exactly");}
+    }free(entry_future);
   }
   check(RtlSaveSnapshot(output),"actual stage6 fixture exports through the test interface without a native picker");
 }
@@ -1587,7 +1594,162 @@ static void native_vile_lab2_entry(const char *fixture,uint8_t *base,uint8_t *wo
     if(f==entry_budget || !inside)check(RtlSaveSnapshot(sigma?"native-sigma-entry-unqualified.sav":factory?"native-vile-factory-entry-unqualified.sav":"native-vile-lab2-entry-unqualified.sav"),"incomplete actual Vile door/introduction preserves its current machine");check(f<entry_budget && boss && inside && (!sigma || gate) && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && g_ram[0x1fd8]==hunter_flags && g_ram[0x1faf]==progress && g_ram[0x1fb4]==lives,"actual Vile door, descent and armor introduction admit both living actors without supplied admission, phase, hit or clear");size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){entry_frame=f;memcpy(future,work,done);}else{check(f==entry_frame,"the actual Vile door and introduction finish on the same native update");same(future,done,work,done,"real Vile doors, descent, introduction and both actors replay the complete world exactly");}
   }free(future);if(getenv("X3_COOP_VILE_ENTRY_RESULT"))check(RtlSaveSnapshot(getenv("X3_COOP_VILE_ENTRY_RESULT")),"actually earned Vile armor arena exports without a picker");
 }
+static void native_fortress_route_position_reference(const char *fixture,uint8_t *work,size_t capacity){
+  for(unsigned mode=0;mode<3;++mode){
+    X3CoopRuntimeEnable(true);check(RtlLoadSnapshot(fixture),"native fortress diagnostic restores the identical prepared route step");
+    X3CoopViewState views=*X3CoopViewsState();unsigned native_anchor=X3CoopRuntimeState()->anchor;
+    fprintf(stderr,"native FORTRESS STEP VIEWS mode%u nativeAnchor%u view0=%u,%u current0=%u/%u/%u/%u view1=%u,%u current1=%u/%u/%u/%u\n",mode,native_anchor,views.camera[0][0],views.camera[0][1],views.current[0][0],views.current[0][1],views.current[0][2],views.current[0][3],views.camera[1][0],views.camera[1][1],views.current[1][0],views.current[1][1],views.current[1][2],views.current[1][3]);
+    if(mode<2){size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState solo=*X3CoopRuntimeState();X3CoopCapture(&solo,g_ram);solo.current=solo.anchor=(uint8_t)mode;check(X3CoopEncode(&solo,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"original fortress diagnostic selects only its actual native character");door_install_player(&solo);X3CoopViewsConfigure(false);vehicle_install_view(&views,getenv("X3_COOP_FORTRESS_NATIVE_OWNER_VIEW")?native_anchor:mode);X3CoopRuntimeEnable(false);}
+    unsigned before_x=mode<2?view_read(X3_COOP_BODY+5):support_position(0,5),before_y=mode<2?view_read(X3_COOP_BODY+8):support_position(0,8);
+    for(unsigned tick=0;tick<12;++tick)frame(0);
+    fprintf(stderr,"native FORTRESS STEP REFERENCE mode%u before%u,%u canonical%u,%u paired%u,%u/%u,%u action%u/%u camera%u,%u bounds%u/%u/%u/%u\n",mode,before_x,before_y,view_read(X3_COOP_BODY+5),view_read(X3_COOP_BODY+8),support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),g_ram[X3_COOP_BODY+2],g_ram[X3_COOP_BODY+3],view_read(0x1e5d),view_read(0x1e60),view_read(0x1e66),view_read(0x1e68),view_read(0x1e6a),view_read(0x1e6c));
+    check(RtlSaveSnapshot(mode==0?"native-fortress-step-original-X.sav":mode==1?"native-fortress-step-original-Zero.sav":"native-fortress-step-paired.sav"),"native route diagnostic retains each actual future without claiming traversal acceptance");
+  }
+}
+static unsigned native_fortress_route_points(const unsigned points[][2],unsigned count,uint8_t *base,uint8_t *work,size_t capacity){
+  unsigned anchor=X3CoopRuntimeState()->anchor,px=support_position(anchor,5),floor=support_position(anchor,8)+(X3CoopRuntimeState()->players[anchor].character==X3_COOP_X?17:25),steps=0;
+    for(unsigned point=0;point<count;++point){
+      while(px!=points[point][0] || floor!=points[point][1]){
+        unsigned waiting=0;while(X3CoopRuntimeSceneActive() && waiting++<3600)frame(waiting%120<6?SNES_PAD_B|((uint32_t)SNES_PAD_B<<12):0);
+        if(X3CoopRuntimeSceneActive() || campaign_body(0)[0x6e] || campaign_body(1)[0x6e]){check(RtlSaveSnapshot("native-fortress-route-active-controller.sav"),"a still-owned native controller retains its real machine before any position assistance");fprintf(stderr,"native FORTRESS ROUTE BUSY point%u step%u target%u/%u scene%u stage%u locks%u/%u actions%u/%u A3%02x/%02x XY%u,%u/%u,%u\n",point,steps,px,floor,X3CoopRuntimeSceneActive(),g_ram[0x1fae],campaign_body(0)[0x6e],campaign_body(1)[0x6e],campaign_body(0)[2],campaign_body(1)[2],campaign_body(0)[0xa3],campaign_body(1)[0xa3],support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8));}
+        check(!X3CoopRuntimeSceneActive() && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e],"position assistance never replaces an active native scene or captured controller");
+        int dx=(int)points[point][0]-(int)px,dy=(int)points[point][1]-(int)floor;px+=(dx>16?16:dx< -16?-16:dx);floor+=(dy>16?16:dy< -16?-16:dy);
+        size_t cut=RtlSaveSnapshotToMemory(work,capacity);X3CoopState route=*X3CoopRuntimeState();X3CoopCapture(&route,g_ram);
+        for(unsigned seat=0;seat<2;++seat){check(route.players[seat].life==X3_COOP_ALIVE && contact_hp(seat),"the real fortress corridor retains both living actors");campaign_position_only(&route.players[seat],px,floor-(route.players[seat].character==X3_COOP_X?17:25));memset(route.players[seat].body+0x1a,0,4);route.players[seat].body[0x88]=255;}
+        check(X3CoopEncode(&route,work+contact_context_offset(work,cut),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,cut),"fortress assistance changes only personal positions, velocities and protection");door_install_player(&route);
+        size_t prepared=RtlSaveSnapshotToMemory(base,capacity);unsigned clock=g_ram[0x9cc];for(unsigned tick=0;tick<4;++tick)frame(0);++steps;
+        bool route_near=true;for(unsigned seat=0;seat<2;++seat)route_near&=abs((int)support_position(seat,5)-(int)px)<=24 && abs((int)support_position(seat,8)-(int)floor+(X3CoopRuntimeState()->players[seat].character==X3_COOP_X?17:25))<=48;
+        if(!route_near){FILE *out=fopen("native-fortress-route-step-prepared.sav","wb");check(out && fwrite(base,1,prepared,out)==prepared && !fclose(out),"first diverging route step retains its exact prepared native machine");check(RtlSaveSnapshot("native-fortress-route-step-after.sav"),"first diverging route step retains its actual result");fprintf(stderr,"native FORTRESS ROUTE POSITION point%u step%u target%u/%u actual%u,%u/%u,%u camera%u,%u\n",point,steps,px,floor,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),view_read(0x1e5d),view_read(0x1e60));check(false,"a native corridor step must preserve actual positions close to its intended open route");}
+        if(!contact_hp(0) || !contact_hp(1) || X3CoopRuntimeState()->wipe)check(RtlSaveSnapshot("native-fortress-route-first-door-unqualified.sav"),"failed native corridor preserves its complete machine");
+        check(contact_hp(0) && contact_hp(1) && !X3CoopRuntimeState()->wipe && (uint8_t)(g_ram[0x9cc]-clock)<=4,"native corridor updates retain both actors without advancing the shared world twice");
+      }
+      fprintf(stderr,"native FORTRESS ROUTE point%u steps%u target%u/%u actors%u,%u/%u,%u camera%u,%u scene%u flags%02x\n",point,steps,px,floor,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),view_read(0x1e5d),view_read(0x1e60),X3CoopRuntimeSceneActive(),g_ram[0x1fd8]);
+    }
+  return steps;
+}
+static void native_fortress_route_first_door(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==10 && !g_ram[0x1fb5] && !X3CoopRuntimeSceneActive(),"fortress traversal starts at the actual native first-stage checkpoint0");
+  unsigned leader=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):1;check(leader<2,"fortress route leader is a real seat");
+  size_t n=RtlSaveSnapshotToMemory(work,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+  if(getenv("X3_COOP_HUNTER_REVERSED")){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
+  setup.current=setup.anchor=(uint8_t)(leader^1);
+  check(X3CoopEncode(&setup,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"fortress route selects only its real roster and prior owner");door_install_player(&setup);X3CoopViewsConfigure(true);
+  uint8_t *start=malloc(capacity),*future=malloc(capacity);check(start && future,"native fortress route replay buffers allocate");n=RtlSaveSnapshotToMemory(start,capacity);
+  /* The live terrain selects this corridor; authored platforms and presses
+   * also occupy it. Short position/velocity/protection assists bypass jump
+   * timing and hazard difficulty. Native camera, columns, scripts and doors
+   * still run. This does not qualify supports, crushes or normal jump timing. */
+  static const unsigned points[][2]={{760,2240},{760,2208},{936,2208},{936,2112},{888,2112},{888,1952},{1816,1952},{1816,1920},{2440,1920},{2440,912},{2168,912},{2168,672},{2264,672},{2264,640},{2360,640},{2360,624},{2488,624},{2488,592},{2496,592}};
+  size_t future_size=0;unsigned expected_flags=g_ram[0x1fd8],lives=g_ram[0x1fb4],first_enter=0;
+  for(unsigned run=0;run<2;++run){
+    check(RtlLoadSnapshotFromMemory(start,n),"native fortress corridor restores its complete checkpoint0 start");unsigned steps=native_fortress_route_points(points,sizeof(points)/sizeof(*points),base,work,capacity);
+    unsigned door=0;for(unsigned d=0x1518;d<0x1818;d+=48)if(g_ram[d] && g_ram[d+10]==7 && view_read(d+12)==0xfad9)door=d;
+    if(!door)check(RtlSaveSnapshot("native-fortress-route-first-door-unqualified.sav"),"missing streamed native door preserves its complete machine");
+    check(door && view_read(door+5)==2552,"actual continuous camera/column traversal streams the original first door without a supplied visit or allocation");
+    check(RtlSaveSnapshot("native-fortress-first-door-approach.sav"),"the actual streamed first-door approach retains a reusable current-build cut");
+    bool observed=false;unsigned enter=0;for(;enter<3600;++enter){unsigned keys=SNES_PAD_RIGHT;if(enter%120<6 && (g_ram[0x1f3f]&128))keys|=SNES_PAD_A;frame((uint32_t)keys<<(leader*12));if(X3CoopRuntimeSceneActive()){size_t cut=RtlSaveSnapshotToMemory(work,capacity),sc=door_scene_chunk(work,cut);unsigned slot=work[sc+4]|(unsigned)work[sc+5]<<8;check(slot==door && work[sc+6]==leader,"the actually approached first fortress door retains its real triggering character");observed=true;}if(observed && !X3CoopRuntimeSceneActive() && support_position(0,5)>2584 && support_position(1,5)>2584 && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e])break;}
+    fprintf(stderr,"native FORTRESS FIRST DOOR run%u steps%u enter%u observed%u actors%u,%u/%u,%u camera%u,%u flags%02x lives%u/%u\n",run,steps,enter,observed,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),view_read(0x1e5d),view_read(0x1e60),g_ram[0x1fd8],lives,g_ram[0x1fb4]);
+    if(enter==3600)check(RtlSaveSnapshot("native-fortress-route-first-door-unqualified.sav"),"unfinished actual first-door passage preserves its machine");
+    check(enter<3600 && g_ram[0x1fae]==10 && g_ram[0x1fd8]==expected_flags && g_ram[0x1fb4]==lives && contact_hp(0) && contact_hp(1) && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual first fortress corridor and native door passage retain both living actors and earned outcomes");
+    size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){first_enter=enter;future_size=done;memcpy(future,work,done);}else{check(enter==first_enter,"native first-door passage repeats on its actual update");same(future,future_size,work,done,"actual continuous fortress corridor, streamed first door and two-actor passage replay the whole machine exactly");}
+  }
+  if(getenv("X3_COOP_FORTRESS_ROUTE_OUTPUT"))check(RtlSaveSnapshot(getenv("X3_COOP_FORTRESS_ROUTE_OUTPUT")),"actual earned fortress corridor exit exports without a picker");
+  free(future);free(start);
+}
+/* These are authored stage10 door/corridor checks, using the same bounded
+ * positional assistance as the prefix. They do not qualify ordinary jumps,
+ * platform activation, damage, gold-armor acquisition or boss attack mechanics. */
+static unsigned native_fortress_route_gate(unsigned flag,unsigned x,unsigned beyond,unsigned leader,uint8_t *work,size_t capacity){
+  unsigned door=0;for(unsigned d=0x1518;d<0x1818;d+=48)if(g_ram[d] && g_ram[d+10]==7 && view_read(d+12)==flag)door=d;
+  if(!door)check(RtlSaveSnapshot("native-fortress-remainder-unqualified.sav"),"missing naturally streamed fortress door retains its actual machine");
+  check(door && view_read(door+5)==x,"the traversed native columns allocate the actual authored fortress door");
+  bool observed=false;unsigned enter=0;
+  for(;enter<3600;++enter){
+    unsigned keys=SNES_PAD_RIGHT;if(enter%120<6 && (g_ram[0x1f3f]&128))keys|=SNES_PAD_A;frame((uint32_t)keys<<(leader*12));
+    if(X3CoopRuntimeSceneActive()){size_t cut=RtlSaveSnapshotToMemory(work,capacity),sc=door_scene_chunk(work,cut);check((work[sc+4]|(unsigned)work[sc+5]<<8)==door && work[sc+6]==leader,"the actual fortress gate retains its real initiating physical seat");observed=true;}
+    if(observed && !X3CoopRuntimeSceneActive() && support_position(0,5)>beyond && support_position(1,5)>beyond && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e])break;
+  }
+  fprintf(stderr,"native FORTRESS ROUTE GATE flag%04x leader%u enter%u observed%u actors%u,%u/%u,%u CPP%u\n",flag,leader,enter,observed,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),g_ram[0x1fb5]);
+  if(enter==3600)check(RtlSaveSnapshot("native-fortress-remainder-unqualified.sav"),"unfinished actual fortress passage retains its complete machine");
+  check(enter<3600 && contact_hp(0) && contact_hp(1) && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"the actual native passage admits both living players and releases both controllers");return enter;
+}
+static void native_fortress_route_miniboss(unsigned shooter,uint8_t *work,size_t capacity){
+  unsigned boss=0;for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+1]==2 && g_ram[d+10]==0x51 && !g_ram[d+11] && (g_ram[d+0x27]&127)==32)boss=d;
+  check(boss!=0,"the actually traversed first fortress room retains its authored fresh32HP miniboss");
+  hunter_result_source=boss;hunter_result_capture_source=0;hunter_result_hit=false;hunter_result_observing=true;
+  bool emitted=false;unsigned f=0,initial_hp=g_ram[boss+0x27]&127;
+  for(;f<3600 && !hunter_result_hit;++f){
+    if(!(f%120))weapon_protect(shooter,255,work,capacity);
+    unsigned keys=f%8==0?SNES_PAD_Y:0;bool right=view_read(boss+5)>support_position(shooter,5);if(right!=((campaign_body(shooter)[0x11]&64)!=0))keys|=right?SNES_PAD_RIGHT:SNES_PAD_LEFT;
+    frame((uint32_t)keys<<(shooter*12));const uint8_t *shots=X3CoopRuntimeState()->current==shooter?g_ram+X3_COOP_SHOTS:X3CoopRuntimeState()->players[shooter].shots;for(unsigned off=0;off<X3_COOP_SHOT_BYTES;off+=64)emitted|=shots[off]!=0;
+  }
+  hunter_result_observing=false;fprintf(stderr,"native FORTRESS MINIBOSS shooter%u char%u frames%u emitted%u actualHit%u HP%u->%u state%u/%u XY%u,%u actor%u,%u\n",shooter,X3CoopRuntimeState()->players[shooter].character,f,emitted,hunter_result_hit,initial_hp,g_ram[boss+0x27]&127,g_ram[boss+1],g_ram[boss+2],view_read(boss+5),view_read(boss+8),support_position(shooter,5),support_position(shooter,8));
+  if(!hunter_result_hit)check(RtlSaveSnapshot("native-fortress-miniboss-unqualified.sav"),"an unqualified actual miniboss attack retains its complete machine");check(emitted && hunter_result_hit,"actual native player projectiles earn the authored miniboss defeat without supplying damage, health or an outcome");
+  unsigned retired=0;for(;retired<1800 && g_ram[boss];++retired)frame(retired%120<6 && (g_ram[0x1f3f]&128)?(uint32_t)SNES_PAD_A<<(shooter*12):0);
+  unsigned settled=0,free_ticks=0;for(;settled<3600 && free_ticks<64;++settled){frame(settled%120<6 && (g_ram[0x1f3f]&128)?(uint32_t)SNES_PAD_A<<(shooter*12):0);bool free=!X3CoopRuntimeSceneActive() && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e] && !(campaign_body(0)[0xa3]&128) && !(campaign_body(1)[0xa3]&128);free_ticks=free?free_ticks+1:0;}
+  fprintf(stderr,"native FORTRESS MINIBOSS RETIRE frames%u settle%u stable%u stage%u locks%u/%u A3%02x/%02x\n",retired,settled,free_ticks,g_ram[0x1fae],campaign_body(0)[0x6e],campaign_body(1)[0x6e],campaign_body(0)[0xa3],campaign_body(1)[0xa3]);
+  if(retired==1800 || free_ticks<64 || g_ram[0x1fae]!=10)check(RtlSaveSnapshot("native-fortress-miniboss-unqualified.sav"),"unfinished native miniboss epilogue retains its complete machine");
+  check(retired<1800 && free_ticks==64 && g_ram[0x1fae]==10,"the actually defeated native miniboss retires and completes its original epilogue before the second door");
+  /* The original epilogue walks its owner ahead. An independent partner's
+   * camera must follow real walking before a later position assist can use
+   * the owner's more advanced location as a shared starting point. */
+  unsigned catchup=0;for(;catchup<1200 && abs((int)support_position(0,5)-(int)support_position(1,5))>24;++catchup){unsigned trailing=support_position(0,5)<support_position(1,5)?0:1;frame((uint32_t)SNES_PAD_RIGHT<<(trailing*12));}
+  fprintf(stderr,"native FORTRESS MINIBOSS REAL FOLLOW frames%u actors%u,%u/%u,%u locks%u/%u\n",catchup,support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),campaign_body(0)[0x6e],campaign_body(1)[0x6e]);
+  if(catchup==1200)check(RtlSaveSnapshot("native-fortress-miniboss-follow-unqualified.sav"),"a real post-epilogue walking failure retains its machine");check(catchup<1200 && !X3CoopRuntimeSceneActive() && contact_hp(0) && contact_hp(1),"the actual trailing actor walks and advances its private camera without supplied camera bounds or a transport");
+}
+static void native_fortress_route_remainder(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==10 && !X3CoopRuntimeSceneActive() && support_position(0,5)>2584 && support_position(1,5)>2584,"the fortress remainder starts at the actually completed first-door route");
+  unsigned leader=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):1;check(leader<2,"the remaining fortress route uses an actual physical leader");
+  unsigned flags=g_ram[0x1fd8],lives=g_ram[0x1fb4];bool upper=(flags&14)==14;
+  static const unsigned second[][2]={{3008,704}};
+  static const unsigned shaft[][2]={{3104,704},{3464,704},{3464,576},{3448,576},{3448,384},{3928,384},{3928,688},{3976,688},{3976,1152},{3736,1152},{3736,1344},{3912,1344}};
+  static const unsigned optional[][2]={{3912,1680},{3736,1680},{3736,1696},{3664,1696},{3736,1696},{3736,1680},{3912,1680},{3912,1344}};
+  const unsigned branch[][2]={{4056,1344},{4056,1360},{5000,1360},{5000,1680},{4984,1680},{4984,1872},{5312,1872},{5312,upper?1728:1984}};
+  const unsigned arena[][2]={{5568,upper?1728:1984}};
+  uint8_t *start=malloc(capacity),*future=malloc(capacity);check(start && future,"actual fortress remainder replay buffers allocate");size_t n=RtlSaveSnapshotToMemory(start,capacity),future_size=0;unsigned gates[3]={0};
+  check(interp_bridge_add_pre_opcode_hook(0x00dccf,hunter_result_probe) && interp_bridge_add_pre_opcode_hook(0x00dcf3,hunter_result_probe),"the original NPC projectile returns observe the actual first fortress miniboss defeat");
+  for(unsigned run=0;run<2;++run){
+    check(RtlLoadSnapshotFromMemory(start,n),"the full fortress remainder restores its real first-door start");
+    native_fortress_route_miniboss(leader,work,capacity);
+    unsigned steps=native_fortress_route_points(second,sizeof(second)/sizeof(*second),base,work,capacity),times[3];times[0]=native_fortress_route_gate(0xfae8,3064,3096,leader,work,capacity);
+    steps+=native_fortress_route_points(shaft,sizeof(shaft)/sizeof(*shaft),base,work,capacity);
+    steps+=native_fortress_route_points(optional,sizeof(optional)/sizeof(*optional),base,work,capacity);
+    steps+=native_fortress_route_points(branch,sizeof(branch)/sizeof(*branch),base,work,capacity);times[1]=native_fortress_route_gate(upper?0xfc0f:0xfc19,5368,5400,leader,work,capacity);
+    steps+=native_fortress_route_points(arena,sizeof(arena)/sizeof(*arena),base,work,capacity);times[2]=native_fortress_route_gate(upper?0xfc64:0xfc6e,5624,upper?5640:5656,leader,work,capacity);
+    unsigned boss=0;for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+1]==2 && g_ram[d+10]==(upper?0x5a:0x5d) && !g_ram[d+11] && (g_ram[d+0x27]&127)==32)boss=d;
+    fprintf(stderr,"native FORTRESS REMAINDER run%u upper%u steps%u boss%04x flags%02x/%02x lives%u/%u\n",run,upper,steps,boss,flags,g_ram[0x1fd8],lives,g_ram[0x1fb4]);
+    check(boss && g_ram[0x1fae]==10 && g_ram[0x1fd8]==flags && g_ram[0x1fb4]==lives,"the complete native fortress corridor, optional dead end and earned branch retain both players and reach the original fresh parent");
+    size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){future_size=done;memcpy(future,work,done);memcpy(gates,times,sizeof(gates));}else{check(!memcmp(gates,times,sizeof(gates)),"all three actual fortress door releases repeat on their native updates");same(future,future_size,work,done,"the entire authored fortress remainder and native admissions replay the complete machine exactly");}
+  }
+  if(getenv("X3_COOP_FORTRESS_ROUTE_OUTPUT"))check(RtlSaveSnapshot(getenv("X3_COOP_FORTRESS_ROUTE_OUTPUT")),"the actually traversed fortress boss entry exports without a picker");free(future);free(start);
+}
+static unsigned god_crush_source,god_crush_seat,god_crush_hits;
+static bool god_crush_observing;
+static void native_god_crush_probe(CpuState *cpu,uint32_t pc){
+  if(!god_crush_observing || (pc&0x7fffff)!=0x04c05b || cpu->D!=god_crush_source)return;
+  check(g_ram[cpu->D] && g_ram[cpu->D+10]==0x43 && !g_ram[cpu->D+11] && !(g_ram[cpu->D+0x2c]&128) && (g_ram[X3_COOP_BODY+0x2b]&4) && g_ram[X3_COOP_BODY+0x26]==127,"actual authored God solid selects its grounded underside127-damage branch without a supplied crush result");
+  check(X3CoopRuntimeState()->current==god_crush_seat,"the real native crush addresses only its trapped physical participant");++god_crush_hits;
+}
+static void native_god_crush(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==10 && !X3CoopRuntimeSceneActive(),"native crush candidate consumes the actual completed lower fortress entry");
+  unsigned victim=getenv("X3_COOP_HUNTER_VICTIM")?(unsigned)atoi(getenv("X3_COOP_HUNTER_VICTIM")):0;check(victim<2,"the actual crush victim is a physical seat");size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);if(getenv("X3_COOP_HUNTER_REVERSED")){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}setup.current=setup.anchor=(uint8_t)(victim^1);
+  for(unsigned seat=0;seat<2;++seat){campaign_position_only(&setup.players[seat],5664,1984-(setup.players[seat].character==X3_COOP_X?17:25));memset(setup.players[seat].body+0x1a,0,4);setup.players[seat].body[0x88]=255;}
+  check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"crush preparation supplies only roster, safe actual-floor coordinates, velocities and ordinary contact protection");door_install_player(&setup);for(unsigned f=0;f<8;++f)frame(0);check(campaign_body(victim)[0x2b]&4,"the actual victim earns native ground contact before the crush approach");frame((uint32_t)SNES_PAD_RIGHT<<(victim*12));for(unsigned f=0;f<8 && campaign_body(victim)[2]!=0x14;++f)frame((uint32_t)(SNES_PAD_RIGHT|SNES_PAD_A)<<(victim*12));check(campaign_body(victim)[2]==0x14 && (campaign_body(victim)[0x2b]&4),"the actual floor controller earns its native low Dash pose without supplied action or ground flags");
+  unsigned source=0;for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+1]==2 && g_ram[d+10]==0x43 && !g_ram[d+11])source=d;check(source && g_ram[source+0x2c]==0x50,"the actual authored God component retains its own unprotected solid contract");
+  n=RtlSaveSnapshotToMemory(base,capacity);setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);campaign_position_only(&setup.players[victim],view_read(source+5)+20,1984-(setup.players[victim].character==X3_COOP_X?17:25));check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"position-only approach retains the actually earned Dash and contact protection beneath the authored solid");door_install_player(&setup);n=RtlSaveSnapshotToMemory(base,capacity);
+  check(interp_bridge_add_pre_opcode_hook(0x04c05b,native_god_crush_probe),"the exact original127-damage crush call is observed");uint8_t *future=malloc(capacity);check(future!=NULL,"actual native crush full-future replay allocates");size_t future_size=0;unsigned original_death=0;
+  for(unsigned mode=0;mode<3;++mode){check(RtlLoadSnapshotFromMemory(base,n),"the identical actual crush approach restores before original and paired continuations");if(!mode){X3CoopState solo=*X3CoopRuntimeState();solo.current=solo.anchor=(uint8_t)victim;size_t cut=RtlSaveSnapshotToMemory(work,capacity);check(X3CoopEncode(&solo,work+contact_context_offset(work,cut),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,cut),"the original reference selects only the actual native character");door_install_player(&solo);X3CoopViewsConfigure(false);X3CoopRuntimeEnable(false);}
+    god_crush_source=source;god_crush_seat=victim;god_crush_hits=0;god_crush_observing=true;unsigned f=0;for(;f<8 && (mode?contact_hp(victim):g_ram[X3_COOP_BODY+0x27]&127);++f)frame((uint32_t)(SNES_PAD_RIGHT|SNES_PAD_A)<<(mode?victim*12:0));god_crush_observing=false;
+    unsigned hp=mode?contact_hp(victim):g_ram[X3_COOP_BODY+0x27]&127;fprintf(stderr,"native GOD CRUSH mode%u victim%u char%u frames%u branchHits%u HP%u source%04x XY%u,%u rect%04x flags%02x actor%u,%u action%u ground%02x\n",mode,victim,setup.players[victim].character,f,god_crush_hits,hp,source,view_read(source+5),view_read(source+8),view_read(source+0x20),g_ram[source+0x2c],mode?support_position(victim,5):view_read(X3_COOP_BODY+5),mode?support_position(victim,8):view_read(X3_COOP_BODY+8),mode?campaign_body(victim)[2]:g_ram[X3_COOP_BODY+2],mode?campaign_body(victim)[0x2b]:g_ram[X3_COOP_BODY+0x2b]);
+    if(!god_crush_hits || hp)check(RtlSaveSnapshot("native-god-crush-unqualified.sav"),"the bounded native crush candidate retains its actual result");check(god_crush_hits && !hp,"the original authored underside branch earns actual fatal crush damage");if(!mode){original_death=f;continue;}
+    check(f==original_death && X3CoopRuntimeState()->players[victim].life==X3_COOP_FALLEN && X3CoopRuntimeState()->players[victim^1].life==X3_COOP_ALIVE,"the native paired crush kills only the actual trapped participant on the original update");unsigned before=support_position(victim^1,5),clock=g_ram[0x9cc],lives=g_ram[0x1fb4];for(unsigned tick=0;tick<24;++tick)frame((uint32_t)SNES_PAD_RIGHT<<((victim^1)*12));check(support_position(victim^1,5)>before && (uint8_t)(g_ram[0x9cc]-clock)==24 && g_ram[0x1fb4]==lives && !X3CoopRuntimeState()->wipe && X3CoopRuntimeState()->players[victim].life==X3_COOP_FALLEN,"the free partner keeps real control and exactly one live world after the actual crush without a team retry or revival");size_t done=RtlSaveSnapshotToMemory(work,capacity);if(mode==1){future_size=done;memcpy(future,work,done);}else same(future,future_size,work,done,"the actual authored crush and free survivor replay the whole native future exactly");
+  }free(future);
+}
 static void native_buffalo_capture_checks(const char *fixture,uint8_t *base,uint8_t *work,size_t capacity){
+ if(getenv("X3_COOP_GOD_CRUSH")){native_god_crush(fixture,base,work,capacity);return;}
+ if(getenv("X3_COOP_FORTRESS_ROUTE_REMAINDER")){native_fortress_route_remainder(fixture,base,work,capacity);return;}
+ if(getenv("X3_COOP_FORTRESS_ROUTE_POSITION_REFERENCE")){native_fortress_route_position_reference(fixture,work,capacity);return;}
+ if(getenv("X3_COOP_FORTRESS_ROUTE_FIRST_DOOR")){native_fortress_route_first_door(fixture,base,work,capacity);return;}
   if(getenv("X3_COOP_NATIVE_BOSS_LAST_HIT")){native_maverick_simultaneous(fixture,base,work,capacity);return;}
   if(getenv("X3_COOP_SIGMA_NEW_GAME")){native_sigma_new_game(fixture,base,work,capacity);return;}
   if(getenv("X3_COOP_SIGMA_CREDITS")){native_sigma_credits(fixture,base,work,capacity);return;}

@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**127/180 accepted;53 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
+**128/180 accepted;52 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -126,6 +126,39 @@ This does not accept P06/D06/A02 or fortress traversal. StateSHA256
 native-rhino-actual-stage-start/hazard-first/hazard-rest/hazard-ctest are child0.
 Current production GUI remains591c5fe3; all jobs terminal/collected.
 
+G12 partial evidence is frozen while the next bounded decision is evaluated.
+All8 lower05/upper3F, roster and physical-leader checkpoint0 first-door cases
+pass complete-machine replay twice on0c6f4e81; native release1394 explains the
+old1200 timeout. Refactored prefix43252c46 exports the identical whole future.
+The first remainder case earns a full32HP authored51 defeat825, retirement122,
+postscript settlement1658, actual trailing-player Right235 and the second
+FAE8 door288; both players arrive3099/3104 alive/unlocked. It then fails a
+later assisted shaft step3720/384. That corridor, optional dead end, later
+doors and other fortress stages are NOT qualified. No production fix or G12
+acceptance follows from these partial results. Stop expanding/tuning this
+route harness until a concrete required gameplay decision justifies it.
+
+S11 is now accepted after actual Crawfish54/Buffalo52 entry coverage for both
+rosters and either physical entrant, each complete native intro future twice.
+All8cases retain fresh32HP parents, both actors inside/alive/unlocked, lives2
+and campaign flags. Native releases434/452; stateSHA25698a853e2cb5d117930cbb5883752cfed2bd4ff7e39effe986fbf37ff99136b82.
+All4standard tests pass. This combines the existing qualified main-boss,
+hunter/fortress, Vile, Mosquitus, refight, Doppler and Sigma admission families
+and the new8first-fortress intro cases. Broader scene criteria remain open.
+
+The bounded D06 God43/kind0 setup is rejected: original X earns actual grounded
+Dash14 and position-only approach, but8native updates give0actualC05B branches
+and retain16HP. D06 remains open; stop calibrating that pose without a newly
+demonstrated trigger. No production change. All owned jobs are terminal.
+
+Next: evaluate another decision-ready remaining criterion using existing
+qualified paths. Do not resume the fortress navigation/calibration loop merely
+because G12 remains open. Prepared native owner QA can cover outstanding
+physical/controller and presentation judgments while independent checks proceed.
+
+Historical G12 continuation plan (prepared content geometry is private q;
+this is no longer the immediate critical path):
+
 Next: G12 actual fortress traversal/sublevels/alternate exits. Reuse existing
 native route/camera streaming and earned branch fixtures; the accepted Sigma
 shaft native-route example advances positions32px with12 real updates, then
@@ -140,7 +173,7 @@ remain. Prior D13/T06,S12,T07,D08,D12,E07/E09 and P09 evidence is preserved in
 the existing development/private records; do not repeat unchanged suites.
 
 Remaining IDs: D06;F10;A02,A05,A09-A13;P06,P12,P13;
-E05,E06,E12-E14;C06,C11;S04-S07,S09-S11,S13-S14;G12;V01-V14;
+E05,E06,E12-E14;C06,C11;S04-S07,S09-S10,S13-S14;G12;V01-V14;
 Q01-Q06;Z01-Z04.
 
 Use repository tools and headless game/TCP interfaces. Computer Use requires

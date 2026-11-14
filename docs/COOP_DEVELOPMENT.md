@@ -45,7 +45,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:127/180;53 open/partial. Accepted areas:4/15
+**Accepted touch points:128/180;52 open/partial. Accepted areas:4/15
 (team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -60,7 +60,7 @@ the end of this document; older checkpoint counts are historical.
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |9/14|E05,E06,E12-E14|
 | Combat ownership |10/12|C06,C11|
-| Doors/scripts |5/14|S04-S07,S09-S11,S13-S14|
+| Doors/scripts |6/14|S04-S07,S09-S10,S13-S14|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
 | Visuals/audio |0/14|V01-V14|
@@ -5192,3 +5192,54 @@ Four standard tests pass; production and the previously validated GUI are
 unchanged. Acceptance is127/180,53open,4/15areas; campaign15/16 with G12 actual
 fortress traversal/sublevels/alternate exits open. All named Maverick identity
 corrections now have corresponding actual mechanics coverage.
+
+
+### Partial fortress route evidence ? G12 remains open
+
+The actual stage10 checkpoint0 prefix and first streamed door pass both earned
+branches, both rosters and either physical leader. Each entire native future
+repeats twice; the dialogue/door release takes1394 updates. Short position and
+protection assists bypass jump/support/crush difficulty while native camera,
+columns, door and physical dialogue confirmations execute. No production
+correction was needed. The refactored helper reproduces the same exported
+whole future byte for byte.
+
+One later case earns the authored51 parent's full32HP defeat through native
+Zero shots, its retirement/postscript, actual trailing-player walking and
+the second FAE8 door with both actors alive/unlocked. The later shaft assist
+remains unqualified. The remainder, optional route, later doors and other
+fortress stage corridors are still open; this partial evidence adds no
+acceptance point. Keep G12 open and avoid further route-harness expansion
+until a concrete gameplay decision requires it. Actual127/180 remains.
+
+
+### Boss intros and arena admission ? S11
+
+S11 is accepted. Actual Crawfish54 and Buffalo52 checkpoint2 door/intro
+sequences now cover both rosters and either physical entrant. All8cases earn
+a fresh32HP main, place both living actors inside the closed native arena,
+release both controls and retain lives2 and campaign flags. Each complete
+pre-door-to-control-release future repeats byte for byte. Release takes434
+updates for Crawfish and452 for Buffalo after the initial approach inputs.
+Native checkpoint selection and contact protection are prerequisites; earlier
+ordinary stage traversal is bypassed, and no admission, boss state or outcome
+is supplied. The old failed Crawfish preparation selected the wrong checkpoint
+timing; the corrected recipe had previously only been qualified for original X.
+
+The remaining main-Maverick entries, actual hunter/fortress branches, Vile
+introductions, Mosquitus/full-stock participation,32refight admissions, Doppler
+intro and Sigma vertical/horizontal closure retain their qualified references.
+The8new first-fortress intro futures also retain a fresh51/32HP parent, both
+actors alive/unlocked and no freeze. Actual owner-fatal Sigma intros retain
+the survivor and never wait for the fallen entrant. These checks qualify
+admission/intro/control release; remaining routes, broader scene contracts,
+presentation and owner observations remain open.
+
+StateSHA25698a853e2cb5d117930cbb5883752cfed2bd4ff7e39effe986fbf37ff99136b82.
+`native-s11-roles` and `native-s11-standard-ctest` are child0; all4standard tests
+pass. Production is unchanged. Actual128/180 accepted,52open,4/15areas.
+
+The bounded God43/kind0 crush setup is rejected: original X runs8native
+updates with0actual04:C05B calls and retains16HP. A permissible native branch
+in the object code does not prove that this particular geometry reaches it.
+D06 remains open; no paired crush or impossible-mechanism claim is made.
