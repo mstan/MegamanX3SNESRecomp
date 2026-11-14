@@ -31,9 +31,10 @@ HUDs. Private views show their actor's native health, X's applicable weapon
 energy/icon and personal charge indicator. Diagnostic environment overrides
 remain available. Holding Select withdraws a living actor; release and hold
 again to return beside the partner when clear native ground is available.
-Either living actor can open the paired pause with Start. Both navigate their
-own panel; Fire selects equipment or uses a shared subtank, and Start resumes
-when healing finishes. Learner mode has focused native protection and return
+Either living actor can open the original cartridge pause screen with Start.
+Shared output shows the requester; split output shows each character's original
+screen. Original navigation, weapons, equipment and shared subtank use remain;
+Start resumes when healing finishes. Learner mode has focused native protection and return
 checks. Adaptive co-op presentation and network startup have pilot evidence;
 full campaign, remaining lifecycle and presentation qualification remain open;
 accepted online checks are listed below.
@@ -45,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:130/180;50 open/partial. Accepted areas:4/15
+**Accepted touch points:131/180;49 open/partial. Accepted areas:4/15
 (team wipe, snapshot/rewind/rollback, menus/resources and netplay).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -66,7 +67,7 @@ the end of this document; older checkpoint counts are historical.
 | Visuals/audio |0/14|V01-V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
-| Runtime/portability |0/6|Q01-Q06|
+| Runtime/portability |1/6|Q02-Q06|
 | Owner/package/delivery |0/4|Z01-Z04|
 
 ## Current evidence and next gate
@@ -5295,3 +5296,24 @@ Frozen stateSHA2566a419c27a7fdc79defc6ad35352e15af69bdaf5c63e14c1fc668abbe70aea5
 `native-s05-door-qualified` and `native-s05-door-ctest` are child0; all4standard
 tests pass. Production GUI remains591c5fe3. Actual130/180 accepted,50open,
 4/15areas. Remaining scene, visual and owner criteria stay open.
+
+### Disabled co-op native solo regression - Q01
+
+Q01 is accepted. Fresh ordinary disabled-mod cold boots match unchanged
+game11fd733 rebuilt on the same engine614694ab/UIcf6315ad. Native title/intro
+progression reaches unlocked solo control without loading a co-op fixture.
+All6 complete WRAM and image cuts match exactly: initial control, walking,
+jumping, charged fire, original Start pause and resumed movement. P2 input
+cannot move the solo character or open its menu. Original pause stops the
+world, and saved co-op enrollment/private-menu ownership remain inactive.
+Both builds replay complete guest futures from their own paused snapshots.
+Only the engine's documented host DSP output ring samples/write/read are
+excluded; guest DSP/SPC, CPU, PPU and game state remain compared. The initial
+read-cursor-only comparison failed identically in the unchanged build because
+the rest of that host ring also follows asynchronous playback. No production
+change was needed.
+
+Current GUI SHA256e41b6bd6ebaaee35adcb5ed46f69b69466b5d84432f5a8b32e8a6b2bc4fef591;
+matched baseline SHA256b751c7ddc1f60068167ce59eac53aecbbc99708eefe2cb14d564e2e531388b77.
+`native-stock-disabled-v4-current` and `native-stock-disabled-v4-baseline` are
+child0. Actual131/180 accepted,49open,4/15areas. Q02-Q06 remain open.

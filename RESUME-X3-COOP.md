@@ -2,7 +2,7 @@
 
 ## Current continuation - 2026-11-13
 
-**130/180 accepted;50 open;4/15 areas (T,R,M,N).** E10 and E08 are accepted
+**131/180 accepted;49 open;4/15 areas (T,R,M,N).** Q01 is accepted after S05. E10 and E08 are accepted
 after P09. Campaign15/16: G12 remains open. The full180 objective
 and solo/local-only constraints remain. No release is ready or delivered.
 Historical checkpoints below retain their original counts; this section and the
@@ -47,7 +47,8 @@ actual running/review state before touching any process. The physical and visual
 results remain pending; do not infer acceptance from the setup verification.
 Never interrupt an active owner playtest or query its TCP while the owner tests.
 
-This correction adds no acceptance point:130/180,50open,4/15 areas remain.
+The menu correction adds no acceptance point. The later Q01 native-solo check
+below brings the actual total to131/180,49open,4/15 areas.
 Physical controller and owner presentation checks still require observations.
 Continue a decision-ready remaining criterion while those observations are
 pending. Keep the G12 navigation calibration frozen, and do not retain the
@@ -57,6 +58,18 @@ Keep delivery unchanged while acceptance remains open. After the entire
 applicable objective is resolved and validated, automatically deliver the verified
 X3 ZIP through the established completion steps below. Remote push and central
 sync remain outside this local continuation.
+
+Q01 is accepted on GUI e41b6bd6 and unchanged game11fd733 rebuilt on the same
+engine614694ab/UIcf6315ad. Fresh disabled-co-op cold boots use normal mod
+settings, no initialized co-op state or prototype override. All6 complete WRAM
+and image cuts match exactly: native control arrival, walking, jumping, charged
+fire, original Start pause, and resumed movement. P2 cannot control solo or open
+its menu, the paused world stops, co-op enrollment/menu ownership stays inactive,
+and both builds replay their complete guest futures. Only the documented host
+DSP output ring is excluded from replay comparison; guest DSP state remains.
+Receipts native-stock-disabled-v4-current and baseline are child0. Evidence is
+in build-coop/qa-state/runtime-qualification/stock-disabled-v4. Q02-Q06 remain
+open; do not call an independent simulation's shared presentation Unified.
 
 Current local commits include0e77fc8 (P09) and375a459 (native story handoff).
 The pending save-preflight correction and its actual menu roundtrip coverage
