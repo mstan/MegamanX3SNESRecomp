@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:162/180;18 open/partial. Accepted areas:8/15
+**Accepted touch points:163/180;17 open/partial. Accepted areas:8/15
 (team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -64,7 +64,7 @@ the end of this document; older checkpoint counts are historical.
 | Doors/scripts |14/14|Accepted|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |6/14|V02-V07,V12,V14|
+| Visuals/audio |7/14|V02,V04-V07,V12,V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
@@ -5875,3 +5875,25 @@ S06/S07 are accepted from those existing qualified results, including the
 corrected two-weapon Doppler handoff and pending-stage round trip. No new
 production change or owner handoff is needed. Mechanical script completion
 does not accept V12/V14 scene presentation or G12 fortress route traversal.
+
+### Hidden native OAM across private views ? V03
+
+Both real native-input rosters run32 further world fields each. Every field
+retains at least59 actually hidden OAM entries in the cartridge's8/16-pixel
+object mode. Those entries receive a real nonempty native tile at highest
+object priority, both X-sign encodings and varying X positions; their original
+fully hidden Y coordinates remain unchanged. Native Shared, both selected
+views, Split,342-pixel fields and896-pixel Split output remain pixel-identical
+to the unmodified field in all1024 comparisons. OAM is restored before each
+next real world update; both participants remain alive.
+
+Two native-renderer positive controls put that same marker tile onscreen and
+observe changed pixels, preventing empty/invisible test art from passing the
+negative check. Each real field advances the shared world once. This qualifies
+V03's hidden-entry wrap/flash behavior; broader temporal scene review remains
+V14. No production change is required.
+
+Final test SHA256255ddf6a4b70fbfe32334268629647e3aab4cf2d83686b5ba634134e70cd7d0d,
+hidden-oam-front-server-receipt.json child0 and all four standard tests pass
+in1.28s. The exact native-input fixtures, raw observations and source identity
+remain in the existing qualification record.

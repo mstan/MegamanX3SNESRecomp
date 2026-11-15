@@ -307,6 +307,8 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_stock_checks(saved,size,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_HIDDEN_OAM_STATE");
+    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_HIDDEN_OAM_REVERSED_STATE");check(reversed && *reversed,"hidden OAM supplies both actual native rosters");native_hidden_oam_checks(fixture,reversed,saved,damaged);}
     fixture=getenv("X3_COOP_HUD_SURVIVOR_VIEW");
     if(fixture && *fixture)native_hud_survivor_view(fixture);
     fixture=getenv("X3_COOP_HUD_LIFECYCLE_STATE");

@@ -201,3 +201,56 @@ static void independent_display_checks(uint8_t *original,size_t size,uint8_t *le
   X3Display_SetCoopPanelWidth(256);
   check(RtlLoadSnapshotFromMemory(original,size),"split display probes restore their starting machine");(void)capacity;
 }
+
+/* Native unused OAM has Y>=224 in the game's8/16px object mode. Give those
+ * real hidden slots bright valid tiles and both X-sign encodings; they must
+ * remain absent from native, selected, split and wider output. Restore OAM
+ * before the next genuine input/world field. */
+static void hidden_oam_picture(uint8_t *pixels,unsigned seat,unsigned panel,bool split){
+  X3Display_SetPresentationSeat(seat<2?(int)seat:-1);X3Display_SetLocalSplit(split);X3Display_SetCoopPanelWidth(panel);
+  g_rtl_game_info->draw_ppu_frame();unsigned width=panel*(split?2:1);
+  if(split || panel>256)check(X3Display_DrawCoopFrame(pixels,width*4,NULL,width,224,1),"hidden-OAM probe presents the actual complete co-op field");
+  else{check(g_ppu->renderPitch==256*4,"hidden-OAM native/selected field is256pixels");memcpy(pixels,g_ppu->renderBuffer,256u*224u*4u);}
+}
+static void native_hidden_oam_checks(const char *normal,const char *reversed,uint8_t *reference,uint8_t *changed){
+  bool wide=g_config.widescreen;g_config.widescreen=false;
+  static const unsigned seats[]={2,0,1,2,2,0,1,2},panels[]={256,256,256,256,342,342,342,448};
+  unsigned fields=0,draws=0,minimum=128;
+  for(unsigned roster=0;roster<2;++roster){
+    check(RtlLoadSnapshot(roster?reversed:normal),"hidden-OAM probe loads its actual native-input two-region roster");X3CoopViewsConfigure(true);X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);X3Display_SetCoopPanelWidth(256);
+    for(unsigned f=0;f<32;++f){
+      unsigned tick=g_ram[0x9cc];frame(0);check((uint8_t)(g_ram[0x9cc]-tick)==1,"hidden-OAM qualification advances exactly one actual world field");++fields;
+      check(PPU_objSize(g_ppu)==0,"actual X3 OAM uses the qualified8/16pixel object sizes");
+      uint16_t oam[256];uint8_t high[32];memcpy(oam,g_ppu->oam,sizeof(oam));memcpy(high,g_ppu->highOam,sizeof(high));
+      unsigned hidden=0;for(unsigned i=23;i<128;++i)hidden+=(oam[2*i]>>8)>=224 && (oam[2*i]>>8)<=240;
+      if(hidden<minimum)minimum=hidden;check(hidden>=32,"the actual submitted native packet contains many genuine hidden entries");
+      /* Select a real nonempty native character tile; a wrap would be visible. */
+      unsigned tile=0;for(unsigned i=23;i<128;++i)if((oam[2*i]>>8)<224){tile=oam[2*i+1];break;}
+      check(tile!=0,"hidden-OAM negative control uses an actual visible native sprite tile");
+      tile=(tile&~0x3000u)|0x3000u; /* Same visible highest-priority marker in positive/hidden cases. */
+      for(unsigned mode=0;mode<8;++mode){bool split=mode==3 || mode==7;unsigned width=panels[mode]*(split?2:1);
+        hidden_oam_picture(reference,seats[mode],panels[mode],split);
+        if(!mode && !f){unsigned slot=23;while(slot<128 && ((oam[2*slot]>>8)<224 || (oam[2*slot]>>8)>240))++slot;
+          check(slot<128 && !X3Display_RenderedPrivateFrame(),"the hidden tile positive control uses the actual native OAM renderer");
+          g_ppu->oam[2*slot]=0x7060;g_ppu->oam[2*slot+1]=(uint16_t)((tile&~0x3000u)|0x3000);unsigned shift=(slot&3)*2;
+          g_ppu->highOam[slot>>2]=(uint8_t)((g_ppu->highOam[slot>>2]&~(3u<<shift))|(2u<<shift));
+          hidden_oam_picture(changed,2,256,false);check(memcmp(reference,changed,256u*224u*4u)!=0,"the same real tile actually becomes visible when its native Y is moved onscreen");
+          memcpy(g_ppu->oam,oam,sizeof(oam));memcpy(g_ppu->highOam,high,sizeof(high));hidden_oam_picture(reference,seats[mode],panels[mode],split);
+        }
+        for(unsigned sign=0;sign<2;++sign){
+          for(unsigned i=23;i<128;++i)if((oam[2*i]>>8)>=224 && (oam[2*i]>>8)<=240){
+            g_ppu->oam[2*i]=(uint16_t)((oam[2*i]&0xff00)|((i*47+13)&255));g_ppu->oam[2*i+1]=(uint16_t)tile;
+            unsigned shift=(i&3)*2;g_ppu->highOam[i>>2]=(uint8_t)((g_ppu->highOam[i>>2]&~(3u<<shift))|((2u|sign)<<shift));
+          }
+          hidden_oam_picture(changed,seats[mode],panels[mode],split);
+          same(reference,(size_t)width*224*4,changed,(size_t)width*224*4,"bright real hidden OAM never wraps or flashes into either view or its margin");++draws;
+          memcpy(g_ppu->oam,oam,sizeof(oam));memcpy(g_ppu->highOam,high,sizeof(high));
+        }
+      }
+      X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);X3Display_SetCoopPanelWidth(256);
+      check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual hidden-OAM fields preserve both participants");
+    }
+  }
+  fprintf(stderr,"native HIDDEN OAM fields%u comparisons%u minimumHidden%u positiveControls2 native256 selected256/342 Shared256/342 Split512/896 bothXsigns exactPixels\n",fields,draws,minimum);
+  X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);X3Display_SetCoopPanelWidth(256);g_config.widescreen=wide;
+}
