@@ -6,15 +6,108 @@ static CombatCues combat_cues,combat_reference_cues[2][420];
 static uint16_t combat_reference_camera[2][420][6];
 static bool combat_audio_enabled,combat_visual_enabled;
 typedef struct CombatPicture {uint8_t chr[8192],palette[64];} CombatPicture;
-static CombatPicture combat_pictures[2][420];
+enum {COMBAT_VISUAL_FRAMES=1200};
+static CombatPicture combat_pictures[2][COMBAT_VISUAL_FRAMES];
 static unsigned combat_hit_cues;
 static void combat_audio_install(void){combat_audio_enabled=getenv("X3_COOP_COMBAT_AUDIO")!=NULL;combat_visual_enabled=getenv("X3_COOP_COMBAT_VISUAL")!=NULL;}
 static const uint8_t *combat_rom(unsigned address,unsigned count){
   size_t at=((address>>16)&127)*32768+(address&32767),size=g_snes->cart->romImageSize;
   check((address&65535)>=32768 && at<=size && count<=size-at,"visual reference reads only the validated native cartridge");return g_snes->cart->rom+at;
 }
+/* Inherit only the current native character's body cells. Replacing the
+ * entire8KiB bank also erases common projectile art the real character swap
+ * retains (for example the buster tile at6EF0). Later poses use native DMA. */
+static void combat_seed_body(unsigned seat,const uint8_t *body){
+  const uint8_t *p=combat_rom(0x8d8000+body[0x16]*3,3);unsigned at=p[0]|p[1]<<8|p[2]<<16;
+  p=combat_rom(at+(body[0x17]&127)*3,3);at=p[0]|p[1]<<8|p[2]<<16;unsigned count=*combat_rom(at,1);
+  check(count && count<=64,"original visual reference inherits a real native body layout");p=combat_rom(at+1,count*4);
+  const uint8_t *atlas=X3CoopPresentationVisible()->body_chr[seat];
+  for(unsigned piece=0;piece<count;++piece){const uint8_t *cell=p+piece*4;unsigned side=cell[0]&32?2:1,tile=cell[3];
+    for(unsigned y=0;y<side;++y)for(unsigned x=0;x<side;++x){unsigned index=(((tile>>4)+y)&15)*16+((tile+x)&15);memcpy(g_ppu->vram+0x6000+index*16,atlas+index*32,32);}
+  }
+}
+/* Compare the actual source pixels consumed by owned FX with each original
+ * actor's native VRAM/CGRAM, while both actors upload and animate together. */
+typedef struct CombatEffectPicture {uint16_t vram[32768],colors[128];} CombatEffectPicture;
+static CombatEffectPicture *combat_effect_pictures[2];
+static unsigned combat_effect_tiles[2],combat_effect_ink[2];
+static void combat_effect_capture(unsigned seat,unsigned f){
+  if(!getenv("X3_COOP_COMBAT_EFFECT_VISUAL"))return;
+  if(!combat_effect_pictures[seat]){combat_effect_pictures[seat]=malloc(COMBAT_VISUAL_FRAMES*sizeof(CombatEffectPicture));check(combat_effect_pictures[seat]!=NULL,"native effect source buffers allocate within their bounded native trace");}
+  check(seat<2 && f<COMBAT_VISUAL_FRAMES,"native visual reference stays within its field bound");
+  CombatEffectPicture *out=&combat_effect_pictures[seat][f];memcpy(out->vram,g_ppu->vram,sizeof(out->vram));memcpy(out->colors,g_ppu->cgram+128,sizeof(out->colors));
+  const char *output=getenv("X3_COOP_EFFECT_OUTPUT");if(output && *output && f==1){char path[1024];snprintf(path,sizeof(path),"%s-original-seat%u-f1.ppm",output,seat);WritePpm(path,g_ppu->renderBuffer,g_ppu->renderPitch,256,224,0,false);}
+}
+static void cx4_picture(uint8_t *pixels,unsigned seat,unsigned panel,bool split);
+static bool combat_effect_raster_proved;
+/* Counterfactual presentation control only: untag one published particle,
+ * recompose, then restore its creator and the complete canonical state. */
+static bool combat_effect_raster_probe(const X3CoopWorldDraw *draw,unsigned seat,unsigned f){
+  enum {PANEL=800};size_t capacity=RtlRollbackSnapshotBound(),bytes=PANEL*224u*4u;
+  uint8_t *before=malloc(capacity),*after=malloc(capacity),*image=malloc(bytes),*other=malloc(bytes),*control=malloc(bytes*2);
+  check(before && after && image && other && control,"charged-particle pixel control allocates bounded buffers");
+  size_t n=RtlNetplaySnapshotToMemory(before,capacity);int old_seat=X3Display_PresentationSeat();bool old_split=X3Display_LocalSplit();
+  unsigned old_extra=g_ppu->extraLeftRight,old_left=g_ppu->extraLeftCur,old_right=g_ppu->extraRightCur;
+  g_ppu->extraLeftRight=g_ppu->extraLeftCur=g_ppu->extraRightCur=0;
+  cx4_picture(image,seat,PANEL,false);X3CoopWorldDraw *temporary=(X3CoopWorldDraw *)draw;uint8_t owner=temporary->owner;
+  temporary->owner=0;cx4_picture(control,seat,PANEL,false);temporary->owner=owner;
+  unsigned differences=0;for(unsigned i=0;i<PANEL*224;++i)differences+=memcmp(image+i*4,control+i*4,3)!=0;
+  const char *out=getenv("X3_COOP_EFFECT_OUTPUT");if(differences && out && *out){char path[1024];snprintf(path,sizeof(path),"%s-owned-f%u.ppm",out,f);WritePpm(path,image,PANEL*4,PANEL,224,0,false);snprintf(path,sizeof(path),"%s-shared-source-control-f%u.ppm",out,f);WritePpm(path,control,PANEL*4,PANEL,224,0,false);}
+  cx4_picture(control,seat,PANEL,false);check(!memcmp(image,control,bytes),"restoring the creator restores every charged-particle view pixel");
+  if(differences){
+    cx4_picture(other,seat^1,PANEL,false);cx4_picture(control,2,PANEL,true);
+    for(unsigned y=0;y<224;++y){check(!memcmp(control+(y*PANEL*2+seat*PANEL)*4,image+y*PANEL*4,PANEL*4),"charged-particle Split half matches its actual owning selected view");check(!memcmp(control+(y*PANEL*2+(seat^1)*PANEL)*4,other+y*PANEL*4,PANEL*4),"the partner's charged-particle Split half matches its own actual selected view");}
+    cx4_picture(control,2,256,false);check(X3Display_RenderedPrivateFrame(),"native-width Shared actually uses the independent creator payloads");
+    fprintf(stderr,"native EFFECT RASTER seat%u f%u actor%04x visibleChangedPixels%u bothViews/Split/Shared exact\n",seat,f,draw->address,differences);
+  }
+  X3Display_SetPresentationSeat(old_seat);X3Display_SetLocalSplit(old_split);X3Display_SetCoopPanelWidth(256);
+  g_ppu->extraLeftRight=old_extra;g_ppu->extraLeftCur=old_left;g_ppu->extraRightCur=old_right;
+  size_t a=RtlNetplaySnapshotToMemory(after,capacity);same(before,RtlNetplaySnapshotHashedBytes(n),after,RtlNetplaySnapshotHashedBytes(a),"all charged-particle presentation controls leave the entire canonical simulation unchanged");
+  free(before);free(after);free(image);free(other);free(control);return differences!=0;
+}
+static void combat_effect_match(unsigned seat,unsigned f){
+  if(!getenv("X3_COOP_COMBAT_EFFECT_VISUAL"))return;
+  const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();const CombatEffectPicture *native=&combat_effect_pictures[seat][f];
+  for(unsigned d=0;d<visible->count;++d){const X3CoopWorldDraw *draw=&visible->actors[d];const uint8_t *b=draw->body;
+    if(draw->owner!=seat+1 || draw->address==X3_COOP_BODY)continue;
+    const uint8_t *rom=combat_rom(0x8d8000+b[0x16]*3,3);unsigned at=rom[0]|rom[1]<<8|rom[2]<<16;
+    rom=combat_rom(at+(b[0x17]&127)*3,3);at=rom[0]|rom[1]<<8|rom[2]<<16;unsigned count=*combat_rom(at,1);
+    check(count<=64,"actual owned effect uses a bounded original sprite layout");rom=combat_rom(at+1,count*4);
+    for(unsigned piece=0;piece<count;++piece){const uint8_t *cell=rom+piece*4;unsigned side=cell[0]&32?2:1,attributes=(cell[0]&0xdf)|(b[0x11]&63),tile=(cell[3]+b[0x18])&255;
+      unsigned base=(attributes&1?PPU_objTileAdr2(g_ppu):PPU_objTileAdr1(g_ppu))+tile*16;
+      for(unsigned ty=0;ty<side;++ty)for(unsigned tx=0;tx<side;++tx){unsigned adr=(base+ty*256+tx*16)&32767;
+        const uint8_t *owned=X3CoopPresentationObjectTile(draw,adr,g_snes->cart->rom,g_snes->cart->romImageSize);
+        const uint8_t *actual_tile=owned?owned:(const uint8_t *)(g_ppu->vram+adr);
+        bool tile_equal=true;for(unsigned w=0;w<16;++w){unsigned actual_word=owned?(owned[w*2]|owned[w*2+1]<<8):g_ppu->vram[adr+w];tile_equal&=native->vram[adr+w]==actual_word;}
+        if(!tile_equal){
+          fprintf(stderr,"native FX TILE original/shared/resolved: ");for(unsigned source=0;source<3;++source){const uint8_t *bytes=source==0?(const uint8_t *)(native->vram+adr):source==1?(const uint8_t *)(g_ppu->vram+adr):actual_tile;fprintf(stderr," [%u]",source);if(bytes)for(unsigned byte=0;byte<32;++byte)fprintf(stderr,"%02x",bytes[byte]);}fputc('\n',stderr);
+          const char *output=getenv("X3_COOP_EFFECT_OUTPUT");if(output && *output){char path[1024];snprintf(path,sizeof(path),"%s-paired-f%u.ppm",output,f);WritePpm(path,g_ppu->renderBuffer,g_ppu->renderPitch,256,224,0,false);snprintf(path,sizeof(path),"%s-paired-f%u.sav",output,f);check(RtlSaveSnapshot(path),"actual native effect mismatch preserves its unchanged field");}
+          fprintf(stderr,"native FX CHR seat%u f%u actor%04x class%02x group%02x pose%02x tile%04x\n",seat,f,draw->address,b[10],b[0x16],b[0x17]&127,adr);check(0,"every displayed owned effect tile retains its original creator's native graphics during concurrent uploads");}
+        if(!combat_effect_raster_proved && getenv("X3_COOP_COMBAT_COMBO_ONLY") && owned && memcmp(native->vram+adr,g_ppu->vram+adr,32))combat_effect_raster_proved=combat_effect_raster_probe(draw,seat,f);
+        ++combat_effect_tiles[seat];
+        for(unsigned y=0;y<8;++y)for(unsigned x=0;x<8;++x){unsigned lo=native->vram[adr+y],hi=native->vram[adr+8+y],shift=7-x;
+          unsigned ink=((lo>>shift)&1)|(((lo>>(8+shift))&1)<<1)|(((hi>>shift)&1)<<2)|(((hi>>(8+shift))&1)<<3);if(!ink)continue;
+          unsigned index=((attributes>>1)&7)*16+ink;const uint8_t *own=visible->players.players[seat].palette;
+          unsigned actual=index<32?(own[index*2]|own[index*2+1]<<8):g_ppu->cgram[128+index];
+          if((actual&32767)!=(native->colors[index]&32767)){fprintf(stderr,"native FX COLOR seat%u f%u actor%04x class%02x group%02x index%u original%04x paired%04x\n",seat,f,draw->address,b[10],b[0x16],index,native->colors[index],actual);check(0,"every opaque owned effect pixel retains its original creator's native colors during concurrent uploads");}
+          ++combat_effect_ink[seat];
+        }
+      }
+    }
+  }
+}
+static void combat_visual_finish(void){
+  if(getenv("X3_COOP_COMBAT_EFFECT_VISUAL")){
+    check(combat_effect_tiles[0] && combat_effect_tiles[1] && combat_effect_ink[0] && combat_effect_ink[1],"both creators actually display nonempty native owned effect art");
+    fprintf(stderr,"native EFFECT VISUAL tiles%u/%u opaquePixels%u/%u alloriginalCHR/CGRAMexact\n",combat_effect_tiles[0],combat_effect_tiles[1],combat_effect_ink[0],combat_effect_ink[1]);
+    if(getenv("X3_COOP_COMBAT_COMBO_ONLY"))check(combat_effect_raster_proved,"native creator payloads change real visible particle pixels, not only unused tiles");
+    combat_effect_raster_proved=false;
+    for(unsigned seat=0;seat<2;++seat){free(combat_effect_pictures[seat]);combat_effect_pictures[seat]=NULL;combat_effect_tiles[seat]=combat_effect_ink[seat]=0;}
+  }
+}
 static void combat_picture_capture(unsigned seat,unsigned f){
-  CombatPicture *p=&combat_pictures[seat][f];memcpy(p->chr,g_ppu->vram+0x6000,sizeof(p->chr));memcpy(p->palette,g_ppu->cgram+128,sizeof(p->palette));
+  combat_effect_capture(seat,f);CombatPicture *p=&combat_pictures[seat][f];memcpy(p->chr,g_ppu->vram+0x6000,sizeof(p->chr));memcpy(p->palette,g_ppu->cgram+128,sizeof(p->palette));
+  if(f==0 && getenv("X3_COOP_WEAPON_STATE") && getenv("X3_COOP_EFFECT_OUTPUT")){char name[100];snprintf(name,sizeof(name),"weapon-original-seat%u-f0.sav",seat);check(RtlSaveSnapshot(name),"original weapon graphics preserves its real initial native field");}
 }
 static void combat_picture_match(unsigned seat,unsigned f){
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();const uint8_t *b=visible->players.players[seat].body,*atlas=visible->body_chr[seat];
@@ -24,7 +117,7 @@ static void combat_picture_match(unsigned seat,unsigned f){
   check(pieces && pieces<=64,"actual concurrent pose uses an original nonempty native sprite layout");p=combat_rom(at,1+pieces*4);
   for(unsigned i=0;i<pieces;++i){const uint8_t *piece=p+1+i*4;unsigned size=piece[0]&32?2:1,tile=piece[3];
     for(unsigned y=0;y<size;++y)for(unsigned x=0;x<size;++x){unsigned index=(((tile>>4)+y)&15)*16+((tile+x)&15),offset=index*32;
-      if(memcmp(atlas+offset,native->chr+offset,32)){fprintf(stderr,"native BODY CHR mismatch seat%u f%u group%u pose%u tile%u\n",seat,f,b[0x16],b[0x17]&127,index);check(0,"every displayed native body tile matches actual original VRAM during concurrent movement and attacks");}}
+      if(memcmp(atlas+offset,native->chr+offset,32)){fprintf(stderr,"native BODY CHR mismatch seat%u f%u group%u pose%u tile%u\n",seat,f,b[0x16],b[0x17]&127,index);if(getenv("X3_COOP_EFFECT_OUTPUT"))check(RtlSaveSnapshot("weapon-actual-graphics-unqualified.sav"),"mismatched body graphics retains its unchanged native field");check(0,"every displayed native body tile matches actual original VRAM during concurrent movement and attacks");}}
   }
   const uint8_t *colors=visible->players.players[seat].palette;
   for(unsigned i=0;i<32;++i)if(((colors[i*2]|colors[i*2+1]<<8)&32767)!=((native->palette[i*2]|native->palette[i*2+1]<<8)&32767)){
@@ -32,8 +125,14 @@ static void combat_picture_match(unsigned seat,unsigned f){
     check(0,"displayed native character colors match original CGRAM on each actual concurrent field");
   }
   const PpuExtraObject *body=X3CoopRenderPlayer(seat,0,0);bool opaque=false;
+  /* The protected weapon fixture retains native damage blinking. A hidden
+   * published body still needs nonempty, unchanged character art: expose only
+   * its host visibility tag for this raster control, then restore it. */
+  if(!b[14]){uint8_t *show=(uint8_t *)b;show[14]=1;body=X3CoopRenderPlayer(seat,0,0);show[14]=0;}
   if(body)for(unsigned i=0;i<128*128;++i)opaque|=body->pixels[i]!=0;
   check(opaque,"the original-size native body raster remains visible during concurrent movement and attacks");
+  combat_effect_match(seat,f);
+  const char *out=getenv("X3_COOP_EFFECT_OUTPUT");if(out && *out && getenv("X3_COOP_COMBAT_COMBO_ONLY") && f==243 && seat==0){char path[1024];snprintf(path,sizeof(path),"%s-live-roster%u-f243.sav",out,visible->players.players[0].character);check(RtlSaveSnapshot(path),"actual live charged particles save for their affected fade regression");}
 }
 static void combat_frame(unsigned input){
   unsigned before=g_ram[0x9d3];frame(input);memset(&combat_cues,0,sizeof(combat_cues));combat_hit_cues=0;
@@ -225,7 +324,7 @@ static void native_concurrent_combat_checks(const char *normal,const char *rever
       uint32_t native_spc[2]={0,0},spc_start=0;unsigned peaks[2]={0,0},maxcharge[2]={0,0},seat_saber_hits[2]={0,0},saber_hits=0,saber_first=FRAMES,saber_last=0;uint64_t actions[2]={0,0},kinds[2]={0,0};
       for(unsigned seat=0;seat<2;++seat){check(RtlLoadSnapshotFromMemory(base,n),"original native firing/charge reference restores");X3CoopState solo=*X3CoopRuntimeState();solo.current=(uint8_t)seat;memcpy(work,base,n);check(X3CoopEncode(&solo,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"original native reference selects its actual snapshot actor");door_install_player(&solo);X3CoopRuntimeEnable(false);
         /* Install inherited native character art before the original DMA stream. */
-        if(combat_visual_enabled){X3CoopViewState view=*X3CoopViewsState();vehicle_install_view(&view,seat);memcpy(g_ppu->vram+0x6000,X3CoopPresentationVisible()->body_chr[seat],8192);memcpy(g_ppu->cgram+128,solo.players[seat].palette,64);++g_ppu->vramWriteCount;}spc_start=g_snes->apu->cycles;
+        if(combat_visual_enabled){X3CoopViewState view=*X3CoopViewsState();vehicle_install_view(&view,seat);combat_seed_body(seat,solo.players[seat].body);memcpy(g_ppu->cgram+128,solo.players[seat].palette,64);++g_ppu->vramWriteCount;}spc_start=g_snes->apu->cycles;
         for(unsigned f=0;f<frames;++f){combat_frame(combat_buttons(mode,seat,f));if(combat_visual_enabled)combat_picture_capture(seat,f);if(combat_audio_enabled){combat_reference_cues[seat][f]=combat_cues;combat_reference_camera[seat][f][0]=(uint16_t)view_read(0x1e5d);combat_reference_camera[seat][f][1]=(uint16_t)view_read(0x1e60);for(unsigned k=0;k<4;++k)combat_reference_camera[seat][f][k+2]=(uint16_t)view_read(0x1e66+k*2);}CombatSample *sample=&trace[seat*FRAMES+f];combat_read(sample,seat,true);if(mode==4 && f>=216 && (earned_saber || solo.players[seat].character==X3_COOP_ZERO)){combat_probe(sample,seat,true,probe,capacity);if(sample->pose[0]==0x5c && (sample->hit[0]&127)<127){++saber_hits;++seat_saber_hits[seat];if(f<saber_first)saber_first=f;saber_last=f;}}if(sample->pose[0]<128)actions[seat]|=UINT64_C(1)<<(sample->pose[0]/2);for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)if(sample->shots[j] && sample->shots[j+10]<64)kinds[seat]|=UINT64_C(1)<<sample->shots[j+10];unsigned count=0;for(unsigned j=0;j<X3_COOP_SHOT_BYTES;j+=64)count+=sample->shots[j]!=0;if(count>peaks[seat])peaks[seat]=count;if(sample->charge[1]>maxcharge[seat])maxcharge[seat]=sample->charge[1];}native_spc[seat]=g_snes->apu->cycles-spc_start;}
       check(RtlLoadSnapshotFromMemory(base,n),"concurrent combat restores the matched original prerequisites");unsigned tick=g_ram[0x9cc];spc_start=g_snes->apu->cycles;
       for(unsigned f=0;f<frames;++f){size_t prior_size=0;if(getenv("X3_COOP_COMBAT_SHARED_HISTORY_REFERENCE"))prior_size=RtlSaveSnapshotToMemory(work,capacity);combat_frame(combat_buttons(mode,0,f)|(combat_buttons(mode,1,f)<<12));if(combat_audio_enabled)combat_audio_match(f);if(combat_visual_enabled && (f==24 || f==60))for(unsigned seat=0;seat<2;++seat)check(f==24?support_position(seat,5)!=(setup.players[seat].body[5]|setup.players[seat].body[6]<<8):support_position(seat,8)+8<(setup.players[seat].body[8]|setup.players[seat].body[9]<<8),f==24?"both native characters actually move independently during the visual comparison":"both native characters actually jump while charging or firing");for(unsigned seat=0;seat<2;++seat){if(combat_visual_enabled)combat_picture_match(seat,f);CombatSample actual;combat_read(&actual,seat,false);if(mode==4 && f>=216 && (earned_saber || X3CoopRuntimeState()->players[seat].character==X3_COOP_ZERO))combat_probe(&actual,seat,false,probe,capacity);CombatSample *expected=&trace[seat*FRAMES+f];if(memcmp(expected,&actual,sizeof(actual)) && !combat_shared_history_match(expected,&actual,seat,mode,f,work,prior_size,future,probe,capacity)){unsigned at=0;while(at<sizeof(actual) && ((uint8_t *)expected)[at]==((uint8_t *)&actual)[at])++at;fprintf(stderr,"combat mismatch roster%u mode%u seat%u frame%u byte%u original%02x paired%02x charge%u/%u command%02x/%02x\n",roster,mode,seat,f,at,((uint8_t *)expected)[at],((uint8_t *)&actual)[at],expected->charge[1],actual.charge[1],expected->command,actual.command);fprintf(stderr,"native control fields AC/59/6E/3B/33/7D/AA/8E/36/37/38/39 original");for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",expected->controls[k]);fprintf(stderr," paired");for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",actual.controls[k]);fprintf(stderr,"\n");if(combat_audio_enabled){fprintf(stderr,"native AUDIO SETUP f%u seat%u camera original%u/%u paired%u/%u bounds original%u/%u/%u/%u paired%u/%u/%u/%u shot0 original",f,seat,combat_reference_camera[seat][f][0],combat_reference_camera[seat][f][1],view_read(0x1e5d),view_read(0x1e60),combat_reference_camera[seat][f][2],combat_reference_camera[seat][f][3],combat_reference_camera[seat][f][4],combat_reference_camera[seat][f][5],view_read(0x1e66),view_read(0x1e68),view_read(0x1e6a),view_read(0x1e6c));for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",expected->shots[k]);fprintf(stderr," paired");for(unsigned k=0;k<12;++k)fprintf(stderr," %02x",actual.shots[k]);fprintf(stderr,"\n");}check(false,"concurrent native command, charge, palette and all owned pools equal the original actor on every frame");}}}
@@ -242,5 +341,6 @@ static void native_concurrent_combat_checks(const char *normal,const char *rever
     if(getenv("X3_COOP_COMBAT_RETIREMENT_ONLY"))combat_retirement(base,n,work,future,capacity);
     if(getenv("X3_COOP_COMBAT_POOL_ONLY"))combat_effect_pressure(base,work,future,capacity);
   }
+  combat_visual_finish();
   free(probe);free(trace);
 }

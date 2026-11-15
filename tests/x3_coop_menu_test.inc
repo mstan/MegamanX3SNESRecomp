@@ -17,10 +17,21 @@ static void native_menu_fade_checks(uint8_t *original,size_t size,size_t capacit
     X3CoopViewsConfigure(true);
     X3Display_SetLocalSplit(mode==2);X3Display_SetPresentationSeat(mode==3?1:-1);
     bool wide=g_config.widescreen;g_config.widescreen=false;
-    size_t n=RtlSaveSnapshotToMemory(cut,capacity);unsigned counts[2]={0};
+    size_t n=RtlSaveSnapshotToMemory(cut,capacity);unsigned counts[2]={0},refused=0;bool referenced=false;
     unsigned width=mode==2?512:mode==1 || mode==3?342:256;
     for(unsigned owner=0;owner<2;++owner){
       check(RtlLoadSnapshotFromMemory(cut,n),"either requester starts at the same complete gameplay field");
+      /* A live Zero chain can retain the native7E pause lock. Verify that
+       * refusal against the original character, rather than forcing a menu
+       * result or silently claiming this requester traversed a fade. */
+      if(getenv("X3_COOP_MENU_FADE_ELIGIBLE_ONLY") && (X3CoopRuntimeState()->players[owner].body[0x7e]&1)){
+        X3CoopState solo=*X3CoopRuntimeState();check(X3CoopProject(&solo,g_ram,owner),"locked pause reference installs its actual original character");X3CoopRuntimeEnable(false);
+        menu_fade_entered=false;frame(SNES_PAD_START);for(unsigned f=1;f<FIELDS;++f)frame(0);
+        check(!menu_fade_entered && !X3CoopNativePauseActive(g_ram),"original native attack lock refuses this actual Start request");
+        check(RtlLoadSnapshotFromMemory(cut,n),"locked paired pause restores the identical actual attack field");
+        menu_fade_entered=false;frame((uint32_t)SNES_PAD_START<<(owner*12));for(unsigned f=1;f<FIELDS;++f)frame(0);
+        check(!menu_fade_entered && !X3CoopNativePauseActive(g_ram),"paired attack lock retains the same original Start refusal");++refused;continue;
+      }
       menu_fade_entered=false;
       size_t mn=0;unsigned remaining=0;
       for(unsigned field=0;field<FIELDS && !menu_fade_entered;++field){
@@ -34,7 +45,7 @@ static void native_menu_fade_checks(uint8_t *original,size_t size,size_t capacit
           for(unsigned y=0;y<224;++y)memcpy(image+y*256u*4u,g_ppu->renderBuffer+(size_t)y*g_ppu->renderPitch,256*4);
         unsigned picture=counts[owner]++;
         uint8_t *expected=reference+(size_t)picture*PICTURE;
-        if(!owner)memcpy(expected,image,width*224u*4u);
+        if(!referenced)memcpy(expected,image,width*224u*4u);
         else if(memcmp(expected,image,width*224u*4u)){
           fprintf(stderr,"pause fade mismatch roster%u mode%u field%u image%u brightness%u character%u anchor%u\n",roster,mode,field,picture,g_ppu->inidisp&15,g_ram[X3_COOP_BODY+0xb6],X3CoopRuntimeState()->anchor);
           check(0,"either request preserves identical native gameplay sprites throughout the original fade");
@@ -49,13 +60,15 @@ static void native_menu_fade_checks(uint8_t *original,size_t size,size_t capacit
         }
       }
       check(menu_fade_entered && counts[owner]>4,"actual Start traverses visible gameplay fade before native menu initialization");
+      referenced=true;
       size_t fn=RtlSaveSnapshotToMemory(future,capacity);
       check(mn && remaining && RtlLoadSnapshotFromMemory(mid,mn),"pause replay restores its actual middle-of-fade field");
       menu_fade_entered=false;for(unsigned i=0;i<remaining;++i)frame(0);
       same(future,fn,replayed,RtlSaveSnapshotToMemory(replayed,capacity),"gameplay fade through original menu initialization replays the entire machine exactly");
     }
-    check(counts[0]==counts[1],"both requesters retain original gameplay fade cadence");
-    fprintf(stderr,"native pause FADE roster%u mode%u width%u visible fields%u identical for both requesters, full replay exact\n",roster,mode,width,counts[0]);
+    if(!refused)check(counts[0]==counts[1],"both requesters retain original gameplay fade cadence");
+    else check(refused==1 && (counts[0]>4 || counts[1]>4),"live charged pause verifies one original refusal and one complete eligible fade");
+    fprintf(stderr,"native pause FADE roster%u mode%u width%u visible fields%u/%u nativeRefusals%u full replay exact\n",roster,mode,width,counts[0],counts[1],refused);
     g_config.widescreen=wide;
   }
   X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);X3Display_SetCoopPanelWidth(256);

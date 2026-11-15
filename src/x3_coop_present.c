@@ -66,6 +66,19 @@ void X3CoopPresentationSubmit(const X3CoopState *p,const uint8_t *ram,unsigned a
 void X3CoopPresentationComplete(void){completed=queued;}
 void X3CoopPresentationUpload(void){visible=completed;}
 const X3CoopPresentedFrame *X3CoopPresentationVisible(void){return &visible;}
+const uint8_t *X3CoopPresentationObjectTile(const X3CoopWorldDraw *draw,unsigned address,const uint8_t *rom,size_t size){
+  if(!draw || !draw->owner || draw->owner>2 || draw->body[10]!=0x34 || draw->body[0x16]!=0x9e || (address&15))return NULL;
+  unsigned character=visible.players.players[draw->owner-1].character,base=0,target=0;
+  /* Actual native charged-shot DMA payloads. X and Zero's second shot share
+   * 6460..647F even while an earlier creator's particles remain alive. */
+  if(address>=0x6460 && address<0x6480){target=0x6460;base=character==X3_COOP_X?0x3c8b60:0x32e920;}
+  else if((address>=0x6360 && address<0x6380) || (address>=0x63e0 && address<0x6400)){
+    /* The first payload can occupy either native slot; the particle's tile
+     * offset follows its parent. Original tables05:DCA1 /05:DE0C. */
+    target=address>=0x63e0?0x63e0:0x6360;base=character==X3_COOP_X?0x3c8b20:0x32e8a0;
+  }
+  return base?source(rom,size,base+(address-target)*2,32):NULL;
+}
 static size_t frame_size(void){return X3CoopEncodedSize()+12+1+X3_COOP_WORLD_DRAWS*35+sizeof(body_chr)+18+64;}
 size_t X3CoopPresentationEncodedSize(void){return sizeof(body_chr)+frame_size()*3;}
 static void encode_frame(const X3CoopPresentedFrame *frame,uint8_t *bytes){

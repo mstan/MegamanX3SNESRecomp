@@ -5960,3 +5960,30 @@ original menu-fade reviews, this accepts V14. The frozen GUI is
 `b169447dc393c38bbf7e5de26d4a116771275ccf594e60f5505ea6e229e4d381`.
 Broader door/transport scene fidelity remains under V12; these accepted moving
 checks do not require another routine handoff.
+
+### Creator-specific charged projectile graphics
+
+X and Zero's charged-shot descendants can outlive a later upload into the same
+native OBJ tile slots. The compositor now reads each descendant's original
+cartridge payload by its creator, retaining the native layouts and colors.
+Both native placements of the first payload and the second payload are covered.
+Narrow Shared uses the same composition while these descendants are present.
+This adds no mutable graphics cache or simulation/snapshot state.
+
+Eight ordinary combat cases and both420-field opposed charge/combo/saber cases
+match each original actor's effect tiles, opaque colors, body art, owned pools
+and complete replay. A presentation control changes five actual visible pixels
+when one descendant deliberately borrows the wrong shared source; restoring its
+creator restores the complete picture. Selected800px views equal their1600px
+Split halves, native-width Shared uses the creator payloads, and the complete
+canonical simulation remains unchanged. The focused state binary is
+`394741bf4c8b3534180995c74f7149d5f69c837278b1a27bc175d1dc616b6d74`.
+
+The affected HUD/survivor pictures, all four Ride Armors in both rosters and
+ordinary native pause fades pass. Live charged descendants also pass eligible
+pause fades in both rosters and all four presentations. Zero's attack-locked
+Start refusal matches the original character; it is not counted as a fade.
+All four earned Cx4 scenes retain exact native pictures and whole-state view
+invariance on `3875323f9944a6b6cc447671ad919eb0ebb5f8301fc4d6716e7600909fcc74c7`.
+The GUI build and four standard tests pass (1.68s). V02 remains open for the
+remaining acquired-weapon graphics qualification.

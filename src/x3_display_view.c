@@ -480,7 +480,11 @@ static void world_objects(const Ppu *p,int left,int right){
       for(unsigned dy=0;dy<side;++dy)for(unsigned dx=0;dx<side;++dx){
         unsigned tx=attributes&64?side-1-dx:dx,ty=attributes&128?side-1-dy:dy;
         unsigned adr=(base+(ty/8)*256+(tx/8)*16)&32767;
-        unsigned pixel=private_resource?resource_pixel(&resource,adr,tx&7,ty&7):tile_pixel(p->vram,adr,tx&7,ty&7,4);
+        unsigned pixel;const uint8_t *owned_tile=X3CoopPresentationObjectTile(draw,adr,frame.rom,frame.size);
+        if(private_resource)pixel=resource_pixel(&resource,adr,tx&7,ty&7);
+        else if(owned_tile){const uint8_t *bits=owned_tile+(ty&7)*2;unsigned shift=7-(tx&7);
+          pixel=((bits[0]>>shift)&1)|(((bits[1]>>shift)&1)<<1)|(((bits[16]>>shift)&1)<<2)|(((bits[17]>>shift)&1)<<3);
+        }else pixel=tile_pixel(p->vram,adr,tx&7,ty&7,4);
         if(pixel)pixels[dy*16+dx]=(uint16_t)(0x8000|colors[128+((attributes>>1)&7)*16+pixel]);
       }
       frame.objects[frame.count++]=(PpuExtraObject){.x=x,.y=y,.width=(uint16_t)side,.height=(uint16_t)side,.stride=16,
@@ -564,10 +568,15 @@ bool X3Display_BeginIndependentFrame(Ppu *p){
   rendered_private=false;
   int seat=X3Display_PresentationSeat();
   if(seat>=0 && X3CoopViewsIndependent())return begin_view(p,(unsigned)seat,false);
+  const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
+  /* Narrow Shared also needs private composition when surviving particles
+   * refer to a creator-specific payload in the shared native tile slot. */
+  if(g_snes && g_snes->cart)for(unsigned i=0;i<visible->count;++i)
+    if(X3CoopPresentationObjectTile(&visible->actors[i],0x6460,g_snes->cart->rom,g_snes->cart->romImageSize))
+      return begin_view(p,0,true);
   if(X3CoopViewsIndependent()){
     /* Narrow Shared needs the same per-room armor art as wider/split views;
      * native OAM alone can still point at the other region's shared tiles. */
-    const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
     for(unsigned i=0;i<visible->count;++i)if(visible->actors[i].address==0xcc8 && !visible->actors[i].body[10])
       return begin_view(p,0,true);
   }

@@ -24,6 +24,9 @@ void X3CoopPresentationSubmit(const X3CoopState *players,const uint8_t *ram,unsi
 void X3CoopPresentationComplete(void);
 void X3CoopPresentationUpload(void);
 const X3CoopPresentedFrame *X3CoopPresentationVisible(void);
+/* Creator-specific cartridge payload for native charged descendants. NULL
+ * keeps the shared native tile. Address is a16-bit VRAM word address. */
+const uint8_t *X3CoopPresentationObjectTile(const X3CoopWorldDraw *draw,unsigned address,const uint8_t *rom,size_t size);
 size_t X3CoopPresentationEncodedSize(void);
 void X3CoopPresentationSave(SaveLoadInfo *io);
 bool X3CoopPresentationLoad(SaveLoadInfo *io);
