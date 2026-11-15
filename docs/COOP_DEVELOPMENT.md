@@ -46,8 +46,8 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:172/180;8 open/partial. Accepted areas:8/15
-(team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
+**Accepted touch points:173/180;7 open/partial. Accepted areas:9/15
+(team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, visuals/audio, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
 the end of this document; older checkpoint counts are historical.
@@ -64,7 +64,7 @@ the end of this document; older checkpoint counts are historical.
 | Doors/scripts |14/14|Accepted|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |13/14|V12|
+| Visuals/audio |14/14|Accepted|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
@@ -6258,3 +6258,37 @@ Ignored evidence: native-weather-lifecycle-*-receipt.json,
 native-weather-wide-fixed-receipt.json, cx4-visual-work/weather-lifecycle-*-after.log
 and native-weather-wide-runtime/{before,fixed}.png. Progress172/180 accepted,
 8open,8/15 areas complete. No delivery archive has changed.
+
+
+## V12 earned door-pan and scene pictures accepted - 2026-11-15
+
+The actual earned first-fortress corridor supplies a streamed class07 gate at
+2552 with recordFAD9 and a fully populated native graphics cache. Both rosters
+and either triggering player cross it with native Right input and the existing
+native A dialogue confirmations. No door phase, scene progress, resource index,
+visit flag or completion is supplied. The original scene owns the256px camera
+pan from2304 to2560 and returns both living players to free controls.
+
+Four moving pan cuts and four post-scene cuts per case match the original PPU:
+all32 comparisons are0pixels outside the already approved co-op badges. Health,
+energy, actors, doors and every world pixel stay strict. Each selected view and
+the corresponding Split pane agree exactly; composition changes no canonical
+state or guest clock. The first moving cut in each case reproduces its entire
+32-field machine future. Saved original/private/Split images were inspected.
+This uses the earned route and does not resume frozen later navigation or
+uninitialized teleport-door graphics sources.
+
+Frozen tests2104c078d98bd0517b5328c7b92e0ac9729c7e87439f8a40cc90b39f95637529
+pass all4 native scene phases and all4 standard tests. No production change was
+needed. The native scene's existing1394-update dialogue duration and3600-update
+bound are retained. Earlier test-only omissions of A/that bound and the approved
+badge exception were corrected; they were not runtime findings. Combined with
+the accepted native transport/scene choreography and original menu/live-effect
+fade proofs, this accepts V12 and completes visuals/audio14/14. Progress is
+173/180 accepted,7open and9/15 areas complete. The remaining IDs are
+D06,A13,P06,P12,E06,G12,Z04; delivery is still pending.
+
+Ignored evidence: native-earned-door-badge-server-receipt.json,
+native-earned-door-standard-receipt.json, cx4-visual-work/earned-door-badge-*-after.log
+and earned-door-pan-post.png. Existing GUI95a5d395 remains the qualified runtime;
+this addition changes tests only and needs no repeated owner review.

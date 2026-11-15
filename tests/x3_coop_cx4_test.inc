@@ -231,6 +231,44 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
   free(outside_oracle);free(outside_reference);free(split);g_config.widescreen=wide;
 }
 
+/* Start from the earned corridor's actual streamed gate. This reuses the
+ * qualified route; it neither repeats the frozen later navigation nor
+ * supplies a door phase, room/cache index or completion flag. */
+static void native_door_presentation_checks(const char *fixture,uint8_t *base,uint8_t *left,uint8_t *right,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==10 && !X3CoopRuntimeSceneActive(),"door picture starts at the actual earned first fortress gate approach");
+  unsigned leader=getenv("X3_COOP_DOOR_VISUAL_LEADER")?(unsigned)atoi(getenv("X3_COOP_DOOR_VISUAL_LEADER")):1;check(leader<2,"door picture names a real leader");
+  size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+  if(getenv("X3_COOP_DOOR_VISUAL_REVERSED")){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
+  setup.current=setup.anchor=(uint8_t)(leader^1);for(unsigned seat=0;seat<2;++seat)setup.players[seat].body[0x88]=255;
+  check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"door picture selects only roster, prior owner and personal protection");door_install_player(&setup);X3CoopViewsConfigure(true);
+  unsigned door=0;for(unsigned d=0x1518;d<0x1818;d+=48)if(g_ram[d] && g_ram[d+10]==7 && view_read(d+12)==0xfad9)door=d;
+  check(door && view_read(door+5)==2552 && contact_hp(0) && contact_hp(1),"actual corridor already contains its streamed native gate and living pair");
+  unsigned start_x=view_read(0x1e5d),pan_cuts=0,post_cuts=0,exit_field=0;bool entered=false,exited=false;uint8_t *split=malloc(512u*224u*4u);check(split!=NULL,"door split picture allocates");
+  for(unsigned f=0;f<3600;++f){unsigned keys=exited?0:SNES_PAD_RIGHT;
+    if(!exited && f%120<6 && (g_ram[0x1f3f]&128))keys|=SNES_PAD_A;
+    frame((uint32_t)keys<<(leader*12));
+    bool active=X3CoopRuntimeSceneActive();entered|=active;
+    if(entered && !active && !exited && support_position(0,5)>2584 && support_position(1,5)>2584){exited=true;exit_field=f;}
+    bool pan=active && pan_cuts<4 && view_read(0x1e5d)>=start_x+(pan_cuts+1)*64;
+    unsigned age=f-exit_field;bool post=exited && (age==0 || age==8 || age==31 || age==63);
+    if(!pan && !post)continue;
+    check(contact_hp(0) && contact_hp(1) && !X3CoopRuntimeState()->wipe,"actual native door pan retains both living participants");
+    n=RtlSaveSnapshotToMemory(base,capacity);char tag[64];snprintf(tag,sizeof(tag),"door-%s%u",pan?"pan":"post",pan?pan_cuts:post_cuts);
+    if(pan && !pan_cuts){for(unsigned i=0;i<32;++i)frame(0);size_t expected=RtlSaveSnapshotToMemory(left,capacity);check(RtlLoadSnapshotFromMemory(base,n),"actual native door pan restores before replay");for(unsigned i=0;i<32;++i)frame(0);size_t actual=RtlSaveSnapshotToMemory(right,capacity);same(left,expected,right,actual,"the actual native camera pan repeats its entire machine future");check(RtlLoadSnapshotFromMemory(base,n),"door picture restores the actual sampled pan field");}
+    native_display_checks(tag,base,n,left,right,capacity);
+    size_t canonical=RtlNetplaySnapshotToMemory(base,capacity);uint64_t clock=g_cpu.master_cycles;
+    cx4_picture(left,0,256,false);cx4_picture(right,1,256,false);cx4_picture(split,2,256,true);
+    for(unsigned y=0;y<224;++y)check(!memcmp(split+y*512*4,left+y*256*4,256*4) && !memcmp(split+(y*512+256)*4,right+y*256*4,256*4),"actual door pan Split output exactly matches each selected original-owner view");
+    const char *out=getenv("X3_COOP_DISPLAY_OUTPUT");if(out && *out){char path[1024];snprintf(path,sizeof(path),"%s-%s-split.ppm",out,tag);WritePpm(path,split,512*4,512,224,0,false);}
+    size_t untouched=RtlNetplaySnapshotToMemory(right,capacity);same(base,RtlNetplaySnapshotHashedBytes(canonical),right,RtlNetplaySnapshotHashedBytes(untouched),"door view composition leaves the complete canonical state unchanged");check(clock==g_cpu.master_cycles,"door view composition advances no guest time");
+    X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
+    if(pan)++pan_cuts;else ++post_cuts;if(post_cuts==4)break;
+  }
+  fprintf(stderr,"native DOOR PICTURE leader%u panCuts%u postCuts%u camera%u->%u actors%u,%u/%u,%u\n",leader,pan_cuts,post_cuts,start_x,view_read(0x1e5d),support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8));
+  if(!exited || pan_cuts!=4 || post_cuts!=4)check(RtlSaveSnapshot("native-door-picture-unqualified.sav"),"unfinished actual door picture retains its complete machine");
+  check(entered && exited && pan_cuts==4 && post_cuts==4 && !X3CoopRuntimeSceneActive() && !campaign_body(0)[0x6e] && !campaign_body(1)[0x6e],"actual native door opening, complete camera pan, closure and free two-player views all qualify");free(split);
+}
+
 /* Reuse the earned Hornet mark/flight, original PPU oracle and pure view
  * composition. No attachment, native priority or retirement result is set. */
 static void native_attachment_presentation_checks(const char *fixture,uint8_t *cut,uint8_t *left,uint8_t *right,size_t capacity){

@@ -311,6 +311,8 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_stock_checks(saved,size,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_DOOR_VISUAL_STATE");
+    if(fixture && *fixture){native_door_presentation_checks(fixture,saved,damaged,after,cap);free(saved);free(damaged);free(after);return 0;}
     fixture=getenv("X3_COOP_CX4_VISUAL_STATE");
     if(fixture && *fixture)native_cx4_presentation_checks(fixture,saved,damaged,after,cap);
     fixture=getenv("X3_COOP_ATTACHMENT_VISUAL_STATE");

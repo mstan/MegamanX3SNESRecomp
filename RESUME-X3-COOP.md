@@ -2,8 +2,8 @@
 
 ## Current continuation - 2026-11-15
 
-**172/180 accepted;8 open;8/15 areas complete.** Remaining criteria:
-D06; A13; P06,P12; E06; G12; V12; Z04.
+**173/180 accepted;7 open;9/15 areas complete.** Remaining criteria:
+D06; A13; P06,P12; E06; G12; Z04.
 Native creator graphics, attachment/armor ordering, entry/reversal/lock
 frontiers and independent streamed room pictures are now qualified. The latest
 source identities and individual evidence are at the end of
@@ -53,9 +53,21 @@ Tests9ab188ec/GUI95a5d395 pass6weather phases and4standard tests; actualGUI
 unqualified original-art reference; it is excluded from full OBJ claims, while
 the separate settled sources retain their full native references. The immediate
 post-teleport onset source was unsettled, not evidence of a product defect.
-Next V12: reuse the qualified earned first-fortress-door prefix states for actual
-scene/door-pan pictures. Do not restart frozen fortress navigation or the invalid
-teleport-door/native-cache calibration. Other accepted owner reviews stay closed.
+V12 is now accepted with actual earned first-door pictures. Both rosters/either
+triggering actor: four moving pan and four post-scene cuts each, all32 original
+PPU/private comparisons0pixels outside approved co-op badges. Both selected and
+Split match, pure rendering changes no canonical state/time, and each32-field
+whole-machine pan future repeats. Existing native A dialogue inputs and3600field
+bound are used; no phase/cache/progression writes. Tests2104c078 pass4native
+cases and4standard tests; actual saved pictures inspected. No production change
+or repeated owner review. Visuals/audio14/14 is complete.
+Continue with the7remaining IDs, preserving the frozen God43 crush and later
+fortress navigation calibration limits. The previous first-door visual failure
+was test input/duration and badge-oracle setup, not a runtime defect. A bounded
+read-only follow-up found nativeclass39 falling-child construction at13:C49C
+inside the capsule/demo path and its own3C:B296; no gameplay acceptance follows
+from that code fact. Prefer a genuine authored pressure/drop source if it can
+resolve A13/P06 without restarting frozen setups or building another harness.
 
 The full180 objective and solo/local-only constraints remain. No release is
 ready or delivered. Complete the remaining authored gameplay, weather/scene
