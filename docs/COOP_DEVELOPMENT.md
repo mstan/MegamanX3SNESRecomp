@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:156/180;24 open/partial. Accepted areas:7/15
+**Accepted touch points:157/180;23 open/partial. Accepted areas:7/15
 (team wipe, fallen persistence, combat ownership, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -64,7 +64,7 @@ the end of this document; older checkpoint counts are historical.
 | Doors/scripts |12/14|S06-S07|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |2/14|V02-V12,V14|
+| Visuals/audio |3/14|V02-V10,V12,V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
@@ -5775,3 +5775,15 @@ The route and initial view are prepared from the original region records;
 no lift motion, rider, future camera or result flags are supplied. Three real
 fields publish its initial native OAM before the camera comparison. This is a
 rising lift and therefore does not qualify P06's falling-support criterion.
+
+
+### Native, wider and ultrawide view adaptation (V11)
+
+V11 is accepted from the actual Fit fields at960x720/1280x720/1680x720
+(native256, wider342, ultrawide448), exact center pixels and real left/right
+margin detail, the896-pixel two-view composition, correct wider HUD anchors,
+current native actor/resource checks and the completed window-resize gameplay
+review. Selected, Shared, Split and wider presentations retain the same
+simulation. The native/adaptive and final learner adaptive receipts remain
+passing and are reused. Fresh final-package defaults remain a separate Z01
+gate; this does not accept other scene, weather or temporal visual criteria.
