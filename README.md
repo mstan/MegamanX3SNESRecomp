@@ -27,14 +27,20 @@ gameplay have been verified through the debug surface. The native coverage
 manifest emits 5,964 exact variants; unsupported control-flow boundaries fall
 back to the interpreter.
 
-16:9 widescreen is implemented as a default-disabled built-in Mod. It includes
-anchored HUD elements, exact BG1/BG2 gutter tiles from X3's retained level
-maps, and widened enemy activation/visibility/draw windows. Enable it from the
-launcher's **Mods** page; see
-[`docs/WIDESCREEN.md`](docs/WIDESCREEN.md) for addresses and validation.
+Widescreen is enabled by default with **Fit to screen**. The gameplay field
+adapts when the window changes shape, with anchored HUD elements and native
+level content in the margins. The launcher's **Mods** page keeps an explicit
+saved choice when updating. See [`docs/WIDESCREEN.md`](docs/WIDESCREEN.md) for
+the renderer and validation details.
 
-Still open: broad stage-by-stage gameplay/oracle coverage and audio
-verification.
+**X / Zero Co-op** is an optional Mod. Choose Player 1's character, Independent
+or Unified cameras, and the local view in **Mods**; assign each player's
+keyboard or controller in **Controls**. Health and attacks belong to each
+character, while lives and subtanks are shared. Start opens the requesting
+character's original cartridge screen; Split shows both native screens.
+
+Campaign, presentation and package qualification continues before the next
+release.
 
 This project was stood up from the MegamanXRecomp host layer; every Mega Man
 X 1 specific finding (the fiber task scheduler, the BG2 widescreen shadow, the
