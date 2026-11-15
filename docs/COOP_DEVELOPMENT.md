@@ -46,8 +46,8 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:160/180;20 open/partial. Accepted areas:7/15
-(team wipe, fallen persistence, combat, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
+**Accepted touch points:162/180;18 open/partial. Accepted areas:8/15
+(team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
 the end of this document; older checkpoint counts are historical.
@@ -61,7 +61,7 @@ the end of this document; older checkpoint counts are historical.
 | Supports/hazards |14/16|P06,P12|
 | Enemy interactions |13/14|E06|
 | Combat ownership |12/12|Accepted|
-| Doors/scripts |12/14|S06-S07|
+| Doors/scripts |14/14|Accepted|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
 | Visuals/audio |6/14|V02-V07,V12,V14|
@@ -5845,3 +5845,33 @@ Cx4, streaming and occlusion remain under their separate visual criteria.
 Final test SHA2564673225efbe543db99956e3f8e9d848fb41e7c127bd507f3828e1e3fe0af54cf,
 live-hud-energy-server-receipt.json child0 (live meters and both native survivor
 worlds), and all four standard tests pass in1.37s. No production code changed.
+
+### Native script recipients and owner retirement ? S06/S07
+
+The remaining script criteria are reconciled against the completed native
+families rather than another replay of accepted scenes. S06 concerns the real
+trigger/required character and its dialogue, forced control and camera ownership.
+S07 concerns safe continuation or transfer when that owner is unavailable.
+
+| Native family | Qualified behavior |
+| --- | --- |
+| Ordinary and vertical doors | Native camera/walk commitments, actual owner pit deaths, clear terrain for the survivor, physical control return and full-wipe retry references. |
+| Vile/refight transports and stage arrivals | Both transport roots, actual owner fatalities, retained fallen actors, native destinations/cleanup and real resumed control; S10/S14 preserve the distinct return contracts. |
+| Capsule opening, award and recorded demonstrations | All nine native upgrade families, required X context in both rosters, conflicting live input, six explicit lifecycle retirement cuts, earned flags and real released control. |
+| Intro captor, helper and temporary constructors | All capture/rescue roles, unavailable participants, actual helper fatality, original required-character reconstruction and surviving combat/control; temporary native X never revives a fallen participant. |
+| Mosquitus native helper/cinematic | Actual finisher/recipient matrices, correct Zero award versus X outcome, original dialogue/exit, unavailable X retention, full-campaign versus stock consequence and complete futures. |
+| Boss rewards and Doppler intermission | Actual winning producer retained through shared dialogue, two-weapon native story/new-stage continuation, both resumed controls and valid mid-reward state round trips. |
+| Final Sigma/helper/ending | Native recorded-control recipient, actual owner-death and same-update winning/fatal cases, surviving next phase or original retry priority, both ending branches and complete futures. |
+
+The concrete owner-death evidence includes the ordinary/vertical/refight/Vile
+matrices under D13/T06 and the winning-producer cleanup cases under S12.
+Capsule and unavailable-story retirement use their explicitly identified
+lifecycle prerequisites; they do not claim authored hazards. Normal public
+withdrawal is refused during shared scripts until native release. Completed
+scene futures retain one progression result, actor identity, health/lifecycle,
+dialogue input ownership, original native locks and actual subsequent movement.
+
+S06/S07 are accepted from those existing qualified results, including the
+corrected two-weapon Doppler handoff and pending-stage round trip. No new
+production change or owner handoff is needed. Mechanical script completion
+does not accept V12/V14 scene presentation or G12 fortress route traversal.
