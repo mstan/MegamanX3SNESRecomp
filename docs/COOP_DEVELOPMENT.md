@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:152/180;28 open/partial. Accepted areas:7/15
+**Accepted touch points:154/180;26 open/partial. Accepted areas:7/15
 (team wipe, fallen persistence, combat ownership, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -64,11 +64,11 @@ the end of this document; older checkpoint counts are historical.
 | Doors/scripts |11/14|S06-S07,S09|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |1/14|V02-V14|
+| Visuals/audio |2/14|V02-V12,V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
-| Owner/package/delivery |0/4|Z01-Z04|
+| Owner/package/delivery |1/4|Z01-Z02,Z04|
 
 ## Current evidence and next gate
 
@@ -5728,3 +5728,15 @@ real native destination and resumed movement, retained character/lifecycle and
 progress, and source/lock cleanup, with complete futures twice. This reuses
 qualified family evidence without repeating accepted routes. Temporal display
 and demonstration checks remain separate under V12/V14 and S09.
+
+
+### Audible combat and prepared gameplay qualification (V13, Z03)
+
+Normal-window gameplay with normal audio passes the focused music, charge and
+simultaneous-attack listening check onGUI
+`55f6a24d67722cdaaea65d8f3f67870b0aec8e68d674069559abeacae5283c62`.
+Together with C11's matched native request IDs/pan, single-SPC timing and exact
+futures, this accepts V13. Prepared gameplay review is complete and its
+material findings have been resolved against native behavior, accepting Z03.
+Fresh-package defaults, final archive validation and the remaining temporal
+visual checks retain their own open criteria.
