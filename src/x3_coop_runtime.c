@@ -911,6 +911,26 @@ static bool scene_rom(unsigned a,unsigned n,unsigned *value){
   if((a&65535)<32768 || at>g_snes->cart->romImageSize || n>g_snes->cart->romImageSize-at)return false;
   *value=0;for(unsigned i=0;i<n;++i)*value|=(unsigned)g_snes->cart->rom[at+i]<<(i*8);return true;
 }
+/* Original03:C392 exposes a carry-only camera-rectangle predicate. Retain
+ * the shared snow controller when either living camera satisfies its exact
+ * authored enter/remain/lifetime test; execute its native script only once. */
+static void weather_camera_boundary(CpuState *cpu,uint32_t pc){
+  (void)pc;
+  unsigned d=cpu->D,index=cpu->X;
+  if(!X3CoopRuntimeReady() || state.wipe || !X3CoopViewsIndependent() || scene.phase ||
+     g_ram[0x1fae]!=2 || d<0x1d18 || d>=0x1e18 || (d-0x1d18)%16 ||
+     !g_ram[d] || g_ram[d+10]!=3 || (index!=0 && index!=8 && index!=16) || !cpu->_flag_C)return;
+  unsigned max_x,min_x,max_y,min_y;
+  if(!scene_rom(0x06df70+index,2,&max_x) || !scene_rom(0x06df72+index,2,&min_x) ||
+     !scene_rom(0x06df74+index,2,&max_y) || !scene_rom(0x06df76+index,2,&min_y))return;
+  for(unsigned seat=0;seat<2;++seat){
+    if(state.players[seat].life!=X3_COOP_ALIVE)continue;
+    X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,seat,false);
+    if(view.x>(int)min_x && view.x<(int)max_x && view.y>(int)min_y && view.y<(int)max_y){
+      cpu->_flag_C=0;cpu_mirrors_to_p(cpu);return;
+    }
+  }
+}
 void X3CoopRuntimeScenePresentation(X3CoopState *copy){
   if(!X3CoopRuntimeSceneActive())return;
   if(native_cinematic()){
@@ -2230,6 +2250,7 @@ bool X3CoopRuntimeLearner(void){return enabled && learner_enabled;}
 void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
   X3CoopViewsSetRom(g_snes->cart->rom,g_snes->cart->romImageSize);
+  if(!interp_bridge_add_pre_opcode_hook(0x03c3bd,weather_camera_boundary))enabled=false;
   static const uint32_t intro_pcs[]={0x03ac57,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03aed9};
   if(!interp_bridge_add_pre_opcode_hook(0x00e49e,modal_input_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x7e25ef,native_input_boundary) ||

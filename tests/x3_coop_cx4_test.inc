@@ -43,6 +43,8 @@ static void native_arena_edge_picture(unsigned panel,unsigned anchor,uint8_t *pr
  * Actor protection is only a prerequisite for observing the native animation. */
 static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint8_t *left,uint8_t *right,size_t capacity){
   bool environment=getenv("X3_COOP_ENVIRONMENT_VISUAL")!=NULL;
+  const char *separated=getenv("X3_COOP_ENVIRONMENT_OUTDOOR_SEPARATED");unsigned outside_seat=separated?(unsigned)atoi(separated):2;uint8_t *outside_reference=NULL;
+  Ppu *outside_oracle=NULL;uint16_t star_colors[64];unsigned star_count=0;
   check(RtlLoadSnapshot(fixture),"native presentation loads its complete existing actor state");
   if(environment && getenv("X3_COOP_ENVIRONMENT_OUTDOOR_ORIGINAL")){
     /* Produce the control with co-op disabled before the original loader.
@@ -81,14 +83,29 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
   check(X3CoopEncode(&setup,cut+contact_context_offset(cut,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(cut,n),"Cx4 scene supplies only participant damage protection");door_install_player(&setup);X3CoopViewsConfigure(true);
   if(environment && getenv("X3_COOP_ENVIRONMENT_OUTDOOR")){
     check(g_ram[0x1fae]==2,"outdoor environment source uses the actual Blizzard Buffalo stage");
+    if(separated){
+      check(outside_seat<2,"separated weather names the actor remaining in the native indoor entry");
+      n=RtlSaveSnapshotToMemory(cut,capacity);memcpy(right,cut,n);X3CoopState solo=*X3CoopRuntimeState();solo.current=solo.anchor=(uint8_t)outside_seat;
+      check(X3CoopEncode(&solo,cut+contact_context_offset(cut,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(cut,n),"indoor background control selects its actual original actor");door_install_player(&solo);
+      X3CoopViewState entry=*X3CoopViewsState();vehicle_install_view(&entry,outside_seat);X3CoopRuntimeEnable(false);X3CoopViewsConfigure(false);g_config.widescreen=false;X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
+      for(unsigned i=0;i<196;++i)frame(0);
+      const char *control=getenv("X3_COOP_ENVIRONMENT_STATE_OUTPUT");if(control && *control){char path[1024];snprintf(path,sizeof(path),"%s-indoor-control.sav",control);check(RtlSaveSnapshot(path),"native indoor control exports without a picker");}
+      check(view_read(0x1e5d)==entry.camera[outside_seat][0] && view_read(0x1e60)==entry.camera[outside_seat][1] && g_ppu->screenEnabled[0]==0x13 && !g_ppu->screenEnabled[1] && !g_ppu->cgadsub,"original indoor reference retains its actual camera, normal planes and disabled weather math");
+      outside_reference=malloc(256u*224u*4u);outside_oracle=malloc(sizeof(*outside_oracle));check(outside_reference && outside_oracle,"native indoor background reference allocates");*outside_oracle=*g_ppu;PpuClearOverlayBindings(outside_oracle);outside_oracle->screenEnabled[0]&=(uint8_t)~16;outside_oracle->screenEnabled[1]&=(uint8_t)~16;outside_oracle->renderBuffer=outside_reference;outside_oracle->renderPitch=256*4;
+      /* Native04:BC02 animates star color30 every four fields. Weather's
+       * native resource wait pauses that clock. Collect original phases,
+       * then compare the two backgrounds at the same actual palette phase. */
+      for(unsigned i=0;i<64;++i){star_colors[star_count++]=g_ppu->cgram[30];frame(0);}
+      check(RtlLoadSnapshotFromMemory(right,n),"separated weather restores the same initial world after its native indoor reference");
+    }
     n=RtlSaveSnapshotToMemory(cut,capacity);setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
-    for(unsigned seat=0;seat<2;++seat){unsigned x=4160+seat*24,foot=setup.players[seat].character==X3_COOP_ZERO?25:17;
+    for(unsigned seat=0;seat<2;++seat){if(seat==outside_seat)continue;unsigned x=separated?4160:4160+seat*24,foot=setup.players[seat].character==X3_COOP_ZERO?25:17;
       check(terrain_test_kind(x,896)==0x3b && terrain_test_kind(x-12,895)==0 && terrain_test_kind(x+12,895)==0,"actual outdoor source has full-foot native flat terrain");
       campaign_position_only(&setup.players[seat],x,896-foot);setup.players[seat].body[0x88]=255;
     }
     check(X3CoopEncode(&setup,cut+contact_context_offset(cut,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(cut,n),"outdoor source changes only positions and personal damage protection");door_install_player(&setup);
     X3CoopViewState views=*X3CoopViewsState();views.valid=views.camera_valid=3;
-    for(unsigned seat=0;seat<2;++seat){views.camera[seat][0]=3584;views.camera[seat][1]=768;
+    for(unsigned seat=0;seat<2;++seat){if(seat==outside_seat)continue;views.camera[seat][0]=3584;views.camera[seat][1]=768;
       views.limits[seat][0]=views.current[seat][0]=0;views.limits[seat][1]=views.current[seat][1]=8192;
       views.limits[seat][2]=views.current[seat][2]=768;views.limits[seat][3]=views.current[seat][3]=768;
     }
@@ -105,7 +122,7 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
   for(unsigned f=0;f<128;++f){frame(0);
     if(f!=3 && f!=31 && f!=63 && f!=95)continue;
     if(environment && getenv("X3_COOP_ENVIRONMENT_OUTDOOR"))
-      check(g_ppu->cgram[5]==0x421 && g_ppu->cgram[6]==0x421 && g_ppu->cgram[7]==0x421,"actual co-op snowfall keeps the original visible weather colors while its staged RAM palette animates");
+      check((outside_seat==0 || (g_ppu->cgram[5]==0x421 && g_ppu->cgram[6]==0x421 && g_ppu->cgram[7]==0x421)) && g_ppu->screenEnabled[0]==4 && g_ppu->screenEnabled[1]==0x13 && g_ppu->cgadsub==0x7f,"actual co-op snowfall stays active with the original native weather planes and math");
     if(environment){uint32_t palette=2166136261u,tiles=2166136261u;
       for(unsigned i=0;i<128;++i)palette=(palette^g_ppu->cgram[i])*16777619u;
       for(unsigned i=0;i<0x6000;++i)tiles=(tiles^g_ppu->vram[i])*16777619u;
@@ -113,7 +130,19 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
       fprintf(stderr,"native ENVIRONMENT LAYERS main/sub%02x/%02x BG3scroll%u/%u BG2scroll%u/%u\n",g_ppu->screenEnabled[0],g_ppu->screenEnabled[1],g_ppu->hScroll[2],g_ppu->vScroll[2],g_ppu->hScroll[1],g_ppu->vScroll[1]);
     }
     check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"both actual Cx4 views remain assigned to living participants");
-    n=RtlSaveSnapshotToMemory(cut,capacity);char tag[64];snprintf(tag,sizeof(tag),"cx4-field%u",f);native_display_checks(tag,cut,n,left,right,capacity);
+    n=RtlSaveSnapshotToMemory(cut,capacity);char tag[64];snprintf(tag,sizeof(tag),"cx4-field%u",f);
+    /* A shared native PPU can carry snow for the remote participant. The
+     * unaffected anchor instead has the actual original indoor control. */
+    if(!separated || outside_seat!=X3CoopRuntimeState()->anchor)native_display_checks(tag,cut,n,left,right,capacity);
+    if(outside_reference){
+      bool phase=false;for(unsigned i=0;i<star_count;++i)phase|=star_colors[i]==g_ppu->cgram[30];check(phase,"the shared world's current star color belongs to the original native animation");outside_oracle->cgram[30]=g_ppu->cgram[30];
+      for(int line=0;line<=224;++line)PpuDrawDetachedLine(outside_oracle,line);
+      uint8_t screens[2]={g_ppu->screenEnabled[0],g_ppu->screenEnabled[1]};g_ppu->screenEnabled[0]&=(uint8_t)~16;g_ppu->screenEnabled[1]&=(uint8_t)~16;cx4_picture(right,outside_seat,256,false);g_ppu->screenEnabled[0]=screens[0];g_ppu->screenEnabled[1]=screens[1];
+      unsigned different=0;for(unsigned y=0;y<224;++y)for(unsigned x=48;x<256;++x)different+=memcmp(outside_reference+(y*256+x)*4,right+(y*256+x)*4,3)!=0;
+      fprintf(stderr,"native WEATHER SCOPE outsideSeat%u backgroundDifferences%u camera%u,%u\n",outside_seat,different,X3CoopViewsState()->camera[outside_seat][0],X3CoopViewsState()->camera[outside_seat][1]);
+      const char *out=getenv("X3_COOP_DISPLAY_OUTPUT");if(out && *out){char path[1024];snprintf(path,sizeof(path),"%s-outside-native.ppm",out);WritePpm(path,outside_reference,256*4,256,224,0,false);snprintf(path,sizeof(path),"%s-outside-private.ppm",out);WritePpm(path,right,256*4,256,224,0,false);}
+      check(!different,"the actor remaining indoors retains its own original non-weather background");
+    }
     if(environment && getenv("X3_COOP_ENVIRONMENT_MATH_POSITIVE") && (g_ppu->cgadsub&63)){
       Ppu *oracle=malloc(sizeof(*oracle));check(oracle!=NULL,"native color-math positive control allocates");*oracle=*g_ppu;PpuClearOverlayBindings(oracle);
       oracle->renderBuffer=left;oracle->renderPitch=256*4;
@@ -151,7 +180,8 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
   check(cuts==4 && (environment || cx4_instructions_executed(g_snes->cart->cx4)>initial),"the actual encounter advances through all four native visual cuts");
   if(environment && getenv("X3_COOP_ENVIRONMENT_MATH_POSITIVE"))check(math_pixels>0,"actual original color math visibly changes world pixels rather than only leaving a register enabled");
   fprintf(stderr,"native CX4 PRESENTATION cuts%u originalPPU/private world+meters exact bothViews/split exact DSPbefore%llu after%llu noRenderUpdates\n",cuts,(unsigned long long)initial,(unsigned long long)cx4_instructions_executed(g_snes->cart->cx4));
-  free(split);g_config.widescreen=wide;
+  if(separated){n=RtlSaveSnapshotToMemory(cut,capacity);for(unsigned f=0;f<32;++f)frame(0);size_t expected=RtlSaveSnapshotToMemory(left,capacity);check(RtlLoadSnapshotFromMemory(cut,n),"separated native weather restores its complete running world");for(unsigned f=0;f<32;++f)frame(0);size_t actual=RtlSaveSnapshotToMemory(right,capacity);same(left,expected,right,actual,"separated native weather reproduces the entire machine future");}
+  free(outside_oracle);free(outside_reference);free(split);g_config.widescreen=wide;
 }
 
 /* Reuse the earned Hornet mark/flight, original PPU oracle and pure view

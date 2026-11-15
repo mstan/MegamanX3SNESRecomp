@@ -38,11 +38,15 @@ Native original/co-op VRAM match all64KiB; the three visible weather colors now
 remain0421 instead of publishing staged72CA/5585/7F9C. Both rosters/all8 native
 cuts,24 affected visual phases,3 native audio phases and4 standard tests pass
 on8e3b986d. Actual GUI394464b5 shows proper snowfall. No new criterion is counted.
-Next V07 decision is separated-view scope: obtain the native indoor background
-reference before changing weather lifetime or per-view presentation. Native
-camera rectangles are in DB06:DF70 (not bank03); shared weather controller is
-stage2 class03/03:C17B. Do not design a new state/serialization framework before
-an actual scoped-view failure selects the required change.
+The separated-view defect is now qualified: the original ROM camera predicate
+considers either living view; indoor planes/math remain normal, snow scrolls
+follow the correct camera, and another room's palette DMA preserves native snow
+colors. Both rosters/either outdoor actor pass all16 original indoor background
+cuts at a matching native star-animation phase and32-field full-machine replay.
+Frozen testsbd0e4fc6 andGUI89e1f3e8 pass24 affected visual phases and4 standard
+tests; an actual GUI resume confirms the separated pair. No new criterion is
+counted. Next qualify weather onset/retirement and adaptive wide margins, then
+finish V07 and the other remaining criteria without repeating owner reviews.
 
 The full180 objective and solo/local-only constraints remain. No release is
 ready or delivered. Complete the remaining authored gameplay, weather/scene

@@ -27,7 +27,7 @@ typedef struct IndependentFrame {
   uint8_t ram[0x20000];
   int x,y,dx,dy;
   unsigned stage,events,count;
-  bool closed_arena;
+  bool closed_arena,weather,weather_outside;
   ResourceEvent event[256];
   uint8_t phase[3][8192];
   PpuExtraObject objects[EXTRA_PIECES];
@@ -282,7 +282,7 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
     y-=(y-p->mosaicStartLine)%m;
   }
   bool canvas=object_canvas(layer);
-  int source_x=x+(canvas?frame.dx:0),source_y=y+(canvas?frame.dy:0);
+  int source_x=x+((canvas || (layer==2 && frame.weather))?frame.dx:0),source_y=y+((canvas || (layer==2 && frame.weather))?frame.dy:0);
   if(canvas && !canvas_contains(source_x,source_y))return 0;
   int px=(source_x+p->hScroll[layer])&1023,py=(source_y+p->vScroll[layer])&1023;
   unsigned sc=p->bgXsc[layer],tx=(unsigned)px/size,ty=(unsigned)py/size;
@@ -334,6 +334,10 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   }else pixel=tile_pixel(p->vram,a,(unsigned)cx&7,(unsigned)cy&7,bpp);
   if(!pixel)return 0;
   unsigned index=(((tile>>10)&7)<<bpp)|pixel;
+  /*03:C1B9 installs the visible snow ramp0421. Another living room may
+   * legitimately request a full palette DMA while03:C3BF edits its staged
+   * fade colors. That room's upload must not recolor this view's snow. */
+  if(layer==2 && frame.weather && index>=5 && index<=7)*color=0x421;
   /* The current native view owns script overrides and palette animation.
    * Authored room lists reconstruct only a different camera's colors. */
   if((frame.dx || frame.dy) && asset_x>=0 && asset_x<8192 && asset_y>=0 && asset_y<8192){
@@ -385,6 +389,7 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
     if(canvas){int nx=x+frame.dx,ny=y+frame.dy;
       px=(nx+p->hScroll[layer])&1023;py=(ny+p->vScroll[layer])&1023;valid=canvas_contains(nx,ny);
     }
+    else if(layer==2 && frame.weather){px=(x+frame.dx+p->hScroll[layer])&1023;py=(y+frame.dy+p->vScroll[layer])&1023;}
     if(stream){
       px=origin_x+x;py=origin_y+y;
       if(x<0 && px<0)px=((px%32)+32)%32;
@@ -433,6 +438,7 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
         if(bpp==4)pixel|=(((live[1]>>shift)&1)<<2)|(((live[1]>>(8+shift))&1)<<3);
       }
       colors[i+j]=-1;pixels[i+j]=pixel?(uint16_t)(prefix|palette|pixel):0;
+      if(layer==2 && frame.weather && pixel && (palette|pixel)>=5 && (palette|pixel)<=7)colors[i+j]=0x421;
       if(pixel && asset && (frame.dx || frame.dy)){
         unsigned phase=resource_phase(1,asset_x,asset_y);const Palette *pal=prepare_palette(phase);
         if(pal && pal->valid[palette|pixel] && phase!=current_palette)colors[i+j]=pal->colors[palette|pixel];
@@ -545,6 +551,21 @@ static bool begin_view(Ppu *p,unsigned seat,bool shared){
   frame.ram[0x1e5d]=(uint8_t)visible->camera[0];frame.ram[0x1e5e]=(uint8_t)(visible->camera[0]>>8);
   frame.ram[0x1e60]=(uint8_t)visible->camera[1];frame.ram[0x1e61]=(uint8_t)(visible->camera[1]>>8);
   frame.stage=frame.ram[0x1fae];frame.count=0;
+  frame.weather_outside=false;
+  unsigned main=p->screenEnabled[0]&7,sub=p->screenEnabled[1]&7;
+  frame.weather=frame.stage==2 && (p->bgXsc[2]&0xfc)==8 &&
+                ((main==4 && sub==3) || (main==3 && sub==4));
+  if(frame.weather){
+    /* Blizzard's original03:C392 lifetime rectangle, DB06:DF80. A native
+     * snow controller owns one world update; its BG3/math must not cover a
+     * second camera in an unaffected room. Its original cleanup restores
+     * main13/sub00 and disables color math. */
+    unsigned max_x,min_x,max_y,min_y;
+    if(rom_read(0x06df80,2,&max_x) && rom_read(0x06df82,2,&min_x) &&
+       rom_read(0x06df84,2,&max_y) && rom_read(0x06df86,2,&min_y))
+      frame.weather_outside=frame.x<=(int)min_x || frame.x>=(int)max_x ||
+                            frame.y<=(int)min_y || frame.y>=(int)max_y;
+  }
   const X3FixedArena *arena=X3FixedArenaFor(frame.ram);
   frame.closed_arena=arena && !arena->world_right && !frame.dx && !frame.dy && (p->bgXsc[0]&0xfc)==0x50 && (p->bgXsc[1]&0xfc)==0x58;
   if(frame.stage>14)return false;
@@ -614,8 +635,8 @@ static unsigned resolve_color(const Ppu *p,uint16_t pixel,int object,const int b
 }
 static uint32_t color(const Ppu *p,uint16_t main,uint16_t sub,bool inside,int object,const int backgrounds[3]){
   unsigned rgb=resolve_color(p,main,object,backgrounds),layer=(main>>8)&15;
-  bool clipped=condition(p->cgwsel>>6,inside);
-  bool math=!condition((p->cgwsel>>4)&3,inside) && ((p->cgadsub&63)&(1u<<layer));
+  bool clipped=!frame.weather_outside && condition(p->cgwsel>>6,inside);
+  bool math=!frame.weather_outside && !condition((p->cgwsel>>4)&3,inside) && ((p->cgadsub&63)&(1u<<layer));
   unsigned other=p->fixedColor;bool half=math && (p->cgadsub&64) && !clipped;
   if(math && (p->cgwsel&2)){if(sub&255)other=resolve_color(p,sub,object,backgrounds);else half=false;}
   uint32_t result=0;
@@ -661,7 +682,8 @@ static void draw_view_line(const Ppu *p,int line,uint32_t *out,unsigned budget,u
     uint16_t screen[2]={0x500,0x500};
     for(unsigned s=0;s<2;++s)for(unsigned layer=0;layer<4;++layer){
       unsigned bit=layer==3?16:1u<<layer,wl=layer==3?4:layer;
-      if((p->screenEnabled[s]&bit) && (!(p->screenWindowed[s]&bit) ||
+      unsigned enabled=frame.weather_outside?(s?0:(p->screenEnabled[0]|p->screenEnabled[1])&~4u):p->screenEnabled[s];
+      if((enabled&bit) && (!(p->screenWindowed[s]&bit) ||
           !window(p,wl,x,left)) && layers[layer]>screen[s])screen[s]=layers[layer];
     }
     out[i]=color(p,screen[0],screen[1],window(p,5,x,left),colors[i]?colors[i]:-1,bg_colors);

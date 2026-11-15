@@ -6188,3 +6188,32 @@ palette logging and completed raw-memory attribution are removed from the test
 source; their negative evidence is retained privately. This repair adds no
 acceptance point:171/180 accepted,9open. V07 still needs separated-view scope;
 V12 and the remaining authored gameplay/delivery criteria remain open.
+
+
+## Independent Blizzard weather scope - 2026-11-15
+
+Entering Blizzard's outdoor section could darken a second camera's indoor
+background. Entering with only the non-anchor actor instead left snowfall
+inactive. Original03:C392 now retains the single native weather script when
+either living camera satisfies its unchanged ROM enter/remain/lifetime bounds.
+The carry-only predicate is observable in both generated and interpreted calls.
+The renderer restores normal planes/math outside the native lifetime rectangle,
+projects snow scrolls into each camera, and retains the original0421 snow ramp
+when another room legitimately requests a full palette upload. No extra guest
+update, new simulation state or serializer extension is introduced.
+
+Both rosters and either outdoor actor pass four animated cuts each. The indoor
+background matches an actual original single-actor room, including its native
+star animation at a matching palette phase; all16 comparisons are0pixels.
+Native04:BC02's star cycle was observed directly: weather's original resource
+wait changes its phase, so equal elapsed fields alone are an invalid reference.
+Selected and Split pictures agree, presentation leaves canonical state unchanged,
+and each case repeats its32-field complete machine future byte for byte.
+
+Frozen tests bd0e4fc63dfd8c653bf5465bc07ed4a9c5816f011ea3904bd6240fd81752ffed
+and GUI89e1f3e810ba84045cf87ca56b9e4a2939d7f36582354d47a50674a7cde6ce7b
+pass all24 affected visual phases and all4 standard tests. Actual native GUI
+snapshot resume also shows the separated indoor/outdoor pair correctly.
+Evidence remains in ignored native-weather-scope-*-receipt.json and
+cx4-visual-work/weather-qualified-*-after.log. V07 remains open for weather
+onset/retirement and wide-margin qualification; formal progress remains171/180.
