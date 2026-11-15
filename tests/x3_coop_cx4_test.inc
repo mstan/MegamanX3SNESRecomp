@@ -46,12 +46,18 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
   check(RtlLoadSnapshot(fixture),"native presentation loads its complete existing actor state");
   if(environment && getenv("X3_COOP_ENVIRONMENT_ENTRY")){
     unsigned target=(unsigned)atoi(getenv("X3_COOP_ENVIRONMENT_ENTRY"));check(target==2 || target==4 || target==5 || target==6,"environment entry selects an authored stage");
+    if(getenv("X3_COOP_ENVIRONMENT_ALTERNATE")){
+      check(target==4 || target==6,"alternate environment selects the actual native stage variant");
+      /* Prior-stage progress is an explicit setup prerequisite. The original
+       * loader and BIT/BVC paths choose every palette, map and weather result. */
+      g_ram[target==4?0x1fc9:0x1fc3]|=64;
+    }
     stage_request();g_ram[0x1fae]=(uint8_t)target;unsigned elapsed=0;
     for(;elapsed<3600;++elapsed){frame(0);if(X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive() && g_ram[0xd1]==4 && g_ram[0xd2]==4 && g_ram[0x1fae]==target)break;}
     check(elapsed<3600,"the original loader reaches the actual environment's playable entry");for(unsigned f=0;f<120;++f)frame(0);
   }
   check(g_ram[0x1fae]==0 || g_ram[0x1fae]==12 || g_ram[0x1fae]==13 ||
-      (environment && (g_ram[0x1fae]==2 || g_ram[0x1fae]==4 || g_ram[0x1fae]==5 || g_ram[0x1fae]==6)),"presentation uses its actual native encounter or environment");X3CoopRuntimeFrame();
+      (environment && (g_ram[0x1fae]==2 || g_ram[0x1fae]==4 || g_ram[0x1fae]==5 || g_ram[0x1fae]==6 || g_ram[0x1fae]==10 || g_ram[0x1fae]==11)),"presentation uses its actual native encounter or environment");X3CoopRuntimeFrame();
   check(g_snes->cart->cx4 && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual Cx4 encounter retains both living native participants");
   size_t n=RtlSaveSnapshotToMemory(cut,capacity);X3CoopState setup=*X3CoopRuntimeState();for(unsigned seat=0;seat<2;++seat)setup.players[seat].body[0x88]=255;
   check(X3CoopEncode(&setup,cut+contact_context_offset(cut,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(cut,n),"Cx4 scene supplies only participant damage protection");door_install_player(&setup);X3CoopViewsConfigure(true);
@@ -59,7 +65,7 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
   if(entry_output && *entry_output)check(RtlSaveSnapshot(entry_output),"actual native environment entry exports without a picker");
   bool wide=g_config.widescreen;g_config.widescreen=false;X3Display_SetCoopPanelWidth(256);X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
   uint8_t *split=malloc(512u*224u*4u);check(split!=NULL,"Cx4 split comparison buffer allocates");
-  uint64_t initial=cx4_instructions_executed(g_snes->cart->cx4);unsigned cuts=0;
+  uint64_t initial=cx4_instructions_executed(g_snes->cart->cx4);unsigned cuts=0,math_pixels=0;
   for(unsigned f=0;f<128;++f){frame(0);
     if(f!=3 && f!=31 && f!=63 && f!=95)continue;
     if(environment){uint32_t palette=2166136261u,tiles=2166136261u;
@@ -70,6 +76,15 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
     }
     check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"both actual Cx4 views remain assigned to living participants");
     n=RtlSaveSnapshotToMemory(cut,capacity);char tag[64];snprintf(tag,sizeof(tag),"cx4-field%u",f);native_display_checks(tag,cut,n,left,right,capacity);
+    if(environment && getenv("X3_COOP_ENVIRONMENT_MATH_POSITIVE") && (g_ppu->cgadsub&63)){
+      Ppu *oracle=malloc(sizeof(*oracle));check(oracle!=NULL,"native color-math positive control allocates");*oracle=*g_ppu;PpuClearOverlayBindings(oracle);
+      oracle->renderBuffer=left;oracle->renderPitch=256*4;
+      for(int line=0;line<=224;++line)PpuDrawDetachedLine(oracle,line);
+      oracle->cgadsub=0;oracle->renderBuffer=right;
+      for(int line=0;line<=224;++line)PpuDrawDetachedLine(oracle,line);
+      unsigned changed=0;for(unsigned y=0;y<224;++y)for(unsigned x=48;x<216;++x)changed+=memcmp(left+(y*256+x)*4,right+(y*256+x)*4,3)!=0;
+      math_pixels+=changed;fprintf(stderr,"native ENVIRONMENT MATH VISIBLE stage%u field%u pixels%u\n",g_ram[0x1fae],f,changed);free(oracle);
+    }
     size_t raster=RtlNetplaySnapshotToMemory(cut,capacity);
     uint64_t clock=g_cpu.master_cycles,instructions=cx4_instructions_executed(g_snes->cart->cx4);unsigned runs=cx4_run_ring_count(g_snes->cart->cx4);
     cx4_picture(left,0,256,false);cx4_picture(right,1,256,false);cx4_picture(split,2,256,true);
@@ -96,6 +111,7 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
     X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);++cuts;
   }
   check(cuts==4 && (environment || cx4_instructions_executed(g_snes->cart->cx4)>initial),"the actual encounter advances through all four native visual cuts");
+  if(environment && getenv("X3_COOP_ENVIRONMENT_MATH_POSITIVE"))check(math_pixels>0,"actual original color math visibly changes world pixels rather than only leaving a register enabled");
   fprintf(stderr,"native CX4 PRESENTATION cuts%u originalPPU/private world+meters exact bothViews/split exact DSPbefore%llu after%llu noRenderUpdates\n",cuts,(unsigned long long)initial,(unsigned long long)cx4_instructions_executed(g_snes->cart->cx4));
   free(split);g_config.widescreen=wide;
 }

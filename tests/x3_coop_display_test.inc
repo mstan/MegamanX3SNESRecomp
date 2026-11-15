@@ -144,6 +144,14 @@ static void native_display_checks(const char *tag,uint8_t *original,size_t size,
   }
   check(nonblack>1000,"display comparison contains actual native stage content");
   if(differences && getenv("X3_COOP_ATTACHMENT_VISUAL_STATE"))check(RtlSaveSnapshot("attachment-priority-unqualified.sav"),"actual native attachment priority mismatch retains its completed OAM and presentation metadata");
+  if(differences && getenv("X3_COOP_ENVIRONMENT_VISUAL")){
+    check(RtlSaveSnapshot("native-environment-picture-unqualified.sav"),"actual environment mismatch retains its complete machine");
+    const X3CoopPresentedFrame *v=X3CoopPresentationVisible();
+    for(unsigned i=0;i<v->count;++i){const X3CoopWorldDraw *d=&v->actors[i];const uint8_t *b=d->body;
+      int x=(int)(b[5]|(unsigned)b[6]<<8)-v->camera[0],y=(int)(b[8]|(unsigned)b[9]<<8)-v->camera[1];
+      if(x>=left-64 && x<=right+64 && y>=top-64 && y<=bottom+64)fprintf(stderr,"native ENV PIXEL ACTOR address%04x owner%u class%02x group%02x pose%02x flags%02x tile%02x XY%d,%d\n",d->address,d->owner,b[10],b[22],b[23],b[17],b[24],x,y);
+    }
+  }
   check(!differences,"private primary view matches the native world, body and health HUD pixels");
   X3Display_SetPresentationSeat(-1);g_config.widescreen=wide;X3CoopHudSetLayout(hud);
   check(RtlLoadSnapshotFromMemory(original,size),"display probes restore their starting machine");

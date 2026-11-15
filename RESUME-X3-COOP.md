@@ -11,6 +11,14 @@ source identities and individual evidence are at the end of
 Original menus, controller ownership/reconnect, audio and moving presentation
 checks remain accepted. Preserve their completed evidence.
 
+Current-room palette animation and native script priority are now repaired and
+qualified. Both actual lighting arenas, animated normal/alternate entries and
+the Lab2 priority3/color-math scene match their original PPU references. The
+final22-phase visual regression and four standard tests pass. V07 still needs
+weather/view-local scope, and V12 still needs a valid complete-scene reference.
+The failed teleport-door source is frozen outside the suite; its native tile
+base was uninitialized, so do not patch the private art to reproduce it.
+
 The full180 objective and solo/local-only constraints remain. No release is
 ready or delivered. Complete the remaining authored gameplay, weather/scene
 and final packaging criteria; retain the frozen crush/fortress calibration

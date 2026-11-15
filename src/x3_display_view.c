@@ -206,7 +206,9 @@ static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],Obj
   if(!a || file!=key)return false;
   unsigned target,palette,offset;
   if(!rom_read(a+1,2,&target) || target>=32768 || !rom_read(a+3,2,&palette) || !rom_read(a+5,1,&offset))return false;
-  out->tile=(target>>4)&255;out->attributes=(target>>12)|(offset>>3)|0x20;
+  /* Native scripts may raise a live actor above the common constructor's
+   * priority2. Resource placement never owns that current sprite priority. */
+  out->tile=(target>>4)&255;out->attributes=(((target>>12)|(offset>>3))&15)|(b[0x11]&0x30);
   if(armor)out->attributes=(target>>12)|(b[0x11]&62);
   if(draw->address>=0xd18 && draw->address<0x10d8 && (b[10]==0x4d || b[10]==0x5c)){
     /* Capsule13:C075 and hologram05:C863 use A0/80, forty tiles before

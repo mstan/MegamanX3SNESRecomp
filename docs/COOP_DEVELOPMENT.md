@@ -6065,3 +6065,34 @@ The palette hashes change through these real fields; these entries do not have
 active BG3 weather or color math. V07 therefore remains open for that scope.
 Formal total remains169/180 accepted,11open. Evidence is retained under
 `build-coop/qa-state/cx4-visual-work` and the native-script-palette receipts.
+
+
+### Retaining native script priority during resource reconstruction
+
+The actual Lab2 class4A boss raises its sprite priority from2 to3. The private
+resource resolver retained the common constructor's2 when selecting its art,
+hiding70 native boss pixels behind scenery. Reconstructed art now preserves
+both current native priority bits. The actual script's palette and live CHR
+also remain eligible when their placement matches the loaded room. No guest
+state, collision, timing or serialization contract changes.
+
+State-test64ab243b5c776cab61d6e19b783b1f84ef505d03c24a053d7ecea6053b45f6f2
+passes22 combined visual phases. This includes all four Lab2 cuts with actual
+02/7F color math, four Sigma cuts, both earlier script-palette arenas, the
+marked attachment, four Cx4 encounters, three HUD/survivor pictures, eight Ride
+Armor variants and both ordinary/live-effect native pause fades. All Lab2 world,
+body and HUD pixels now match the original PPU. Selected and Split views agree;
+rendering preserves the entire canonical machine. The four standard tests pass.
+V04's new priority finding and its affected existing cases are qualified.
+
+An independent original-PPU control disabling color math changes37,632 central
+world pixels at every Lab2 cut, proving a visible contribution. The Sigma
+fixture's80/A0 registers produce no changed pixels under this control, so its
+exact-picture result is not presented as positive color-math coverage. Native
+stage4/6 alternate entries also pass eight exact animated cuts with their prior
+progress bit supplied explicitly as a prerequisite; the native loader chooses
+the actual resources. V07 still needs weather and view-local scope; V12 still
+needs qualified scene-transition pictures. Total remains169/180,11open.
+Evidence: native-script-priority-final receipts and
+`build-coop/qa-state/cx4-visual-work/script-priority-final-outcomes.json` with
+its22 individual logs and the original-PPU positive-control measurements.
