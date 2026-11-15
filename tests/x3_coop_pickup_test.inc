@@ -1,3 +1,4 @@
+static void (*pickup_frame_observer)(unsigned);
 /* Real stage1 health item; teleports/HP seed the approach, never the claim,
  * refill count, freeze, completion or retirement results. */
 static unsigned pickup_probe_slot;
@@ -282,7 +283,7 @@ static void native_weapon_pickup_checks(uint8_t *original,size_t size,uint8_t *w
   for(unsigned i=0;i<8;++i){frame(SNES_PAD_RIGHT|(SNES_PAD_RIGHT<<12));
     for(unsigned s=0;s<2;++s)parked=parked && support_position(s,5)==positions[s][0] && support_position(s,8)==positions[s][1];}
   check(parked,"weapon-energy freeze parks the noncollector while native refill continues");
-  for(unsigned i=0;i<40;++i)frame(0);
+  for(unsigned i=0;i<40;++i){frame(0);if(pickup_frame_observer)pickup_frame_observer(i);}
   bool released=true;for(unsigned a=0x1f25;a<=0x1f2b;++a)released=released && !g_ram[a];
   if(!released || g_ram[0x1f4f] || g_ram[0x1fbc]!=0xd0)fprintf(stderr,
       "weapon complete: energy=%02x freeze=%u/%u item=%u/%u/%u count=%u owner%u selections=%u/%u phase=%u/%u\n",
@@ -299,7 +300,7 @@ static void native_weapon_pickup_checks(uint8_t *original,size_t size,uint8_t *w
   size_t complete=RtlSaveSnapshotToMemory(expected,capacity);
   check(RtlLoadSnapshotFromMemory(work,pending),"pending remote weapon-energy refill restores");
   for(unsigned i=0;i<8;++i)frame(SNES_PAD_RIGHT|(SNES_PAD_RIGHT<<12));
-  for(unsigned i=0;i<40;++i)frame(0);
+  for(unsigned i=0;i<40;++i){frame(0);if(pickup_frame_observer)pickup_frame_observer(i);}
   size_t repeated=RtlSaveSnapshotToMemory(work,capacity);
   same(expected,complete,work,repeated,"remote weapon-energy refill replays to the identical complete machine");
   check(RtlLoadSnapshotFromMemory(original,size),"native weapon-energy probes restore their starting machine");

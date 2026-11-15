@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:157/180;23 open/partial. Accepted areas:7/15
+**Accepted touch points:160/180;20 open/partial. Accepted areas:7/15
 (team wipe, fallen persistence, combat, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -64,7 +64,7 @@ the end of this document; older checkpoint counts are historical.
 | Doors/scripts |12/14|S06-S07|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |3/14|V02-V10,V12,V14|
+| Visuals/audio |6/14|V02-V07,V12,V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
@@ -5812,3 +5812,36 @@ Final test SHA25609a02d2373a397fcb4cbc1ced4d666fe5a9a231a61aa18ab512b1a089ff2d0c
 shared-child-final-server-receipt.json child0, and all four standard tests pass
 in1.41s. C03/C09 are restored to accepted. A09 still needs its separate native
 frontier/reversal/lock qualification; this combat case does not decide it.
+
+### Live private and shared meters ? V08/V09/V10
+
+Both native rosters now exercise actual nonfatal contact, either actor's fatal
+contact, authored health refill20->28 and native weapon-energy refill8->16.
+The six presentations are compact and horizontal Shared at256/342 pixels,
+and Split at512/684 pixels. Every opaque pixel from the independently qualified
+native personal HUD rasters appears at its exact final output position on every
+observed field. Damage lowers only its recipient16->14 or28->26; the survivor
+retains its own health and the fallen participant displays an empty meter.
+Health and weapon-energy updates reach the owning submitted frame through their
+native freeze and cleanup. The existing energy eligibility, exact native gain,
+other-weapon isolation and complete-machine replay remain strict; displayed
+energy advances through six observed steps after the initial frozen fields.
+All layout changes leave native CPU time and guest RAM unchanged.
+
+This supplements the existing original-PPU meter/weapon/charge pixel comparisons,
+both native renderer backends, actual independent peer arrivals with private
+16/28HP meters, and original per-character pause screens with separate health
+and inventory. Those existing arrival/pause checks plus the new per-view death
+checks complete V10; no repeat owner review is required. Native/adaptive shared
+layout placement and survivor ownership complete V09, and dynamic health,
+charge and applicable weapon information complete V08.
+
+Two existing actually fallen native worlds additionally compare Shared and the
+owning split field at identical334/1024 and256/1024 cameras: all non-HUD pixels
+match exactly. An earlier mismatched teleport/camera setup is excluded from
+world presentation evidence. General scene transitions, temporal clips, weather,
+Cx4, streaming and occlusion remain under their separate visual criteria.
+
+Final test SHA2564673225efbe543db99956e3f8e9d848fb41e7c127bd507f3828e1e3fe0af54cf,
+live-hud-energy-server-receipt.json child0 (live meters and both native survivor
+worlds), and all four standard tests pass in1.37s. No production code changed.

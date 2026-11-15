@@ -307,6 +307,10 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_stock_checks(saved,size,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_HUD_SURVIVOR_VIEW");
+    if(fixture && *fixture)native_hud_survivor_view(fixture);
+    fixture=getenv("X3_COOP_HUD_LIFECYCLE_STATE");
+    if(fixture && *fixture){const char *reversed=getenv("X3_COOP_HUD_REVERSED_STATE");check(reversed && *reversed,"live HUD supplies both actual rosters");native_hud_lifecycle_checks(fixture,reversed,saved,damaged,after,cap);}
     fixture=getenv("X3_COOP_HUD_STATE");
     if(fixture && *fixture){
       check(RtlLoadSnapshot(fixture),"native HUD fixture loads");
