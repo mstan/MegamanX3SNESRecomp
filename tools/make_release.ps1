@@ -47,6 +47,22 @@ $exe = Join-Path $build $exeName
 $assets = Join-Path $build 'assets'
 $mods = Join-Path $build 'mods'
 
+# Use the engine checkout that produced this build, including isolated worktrees.
+$cache = Join-Path $build 'CMakeCache.txt'
+$engine = Join-Path $root 'snesrecomp'
+$engineSetting = Select-String -LiteralPath $cache -Pattern '^SNESRECOMP_ROOT:[^=]+=(.+)$'
+if ($engineSetting) {
+  $engine = $engineSetting.Matches[0].Groups[1].Value
+}
+$runtimeDllHelper = Join-Path $engine 'tools/release/RuntimeDllClosure.ps1'
+if (-not (Test-Path -LiteralPath $runtimeDllHelper -PathType Leaf)) {
+  throw "Runtime dependency checker missing from the configured engine: $runtimeDllHelper"
+}
+# Reject diagnostic builds before creating or replacing a stage.
+if (Select-String -LiteralPath $cache -Pattern '^SNESRECOMP_ENABLE_TRACE:[^=]+=ON$' -Quiet) {
+  throw 'Refusing to package a trace build (SNESRECOMP_ENABLE_TRACE=ON).'
+}
+
 if (-not (Test-Path -LiteralPath $exe)) {
   throw "Release executable missing: $exe"
 }
@@ -119,11 +135,6 @@ if (Test-Path -LiteralPath $stageMods) {
   Get-ChildItem -LiteralPath $stageMods -Recurse -File -Filter 'state.toml*' |
     ForEach-Object { Remove-Item -LiteralPath $_.FullName }
 }
-# Never publish an unattended diagnostic build.
-$cache = Join-Path $build 'CMakeCache.txt'
-if (Select-String -LiteralPath $cache -Pattern '^SNESRECOMP_ENABLE_TRACE:[^=]+=ON$' -Quiet) {
-  throw 'Refusing to package a trace build (SNESRECOMP_ENABLE_TRACE=ON).'
-}
 
 # Runtime DLLs are NOT enumerated by hand. A hardcoded list is a snapshot of
 # the import graph on the day it was written, and it silently omits anything a
@@ -138,7 +149,7 @@ if (Select-String -LiteralPath $cache -Pattern '^SNESRECOMP_ENABLE_TRACE:[^=]+=O
 # fails the release rather than shipping. Builds that link the MinGW runtime
 # statically (SNESRECOMP_STATIC_RUNTIME, the default) correctly ship no
 # libgcc/libstdc++/libwinpthread at all.
-. (Join-Path $root 'snesrecomp\tools\release\RuntimeDllClosure.ps1')
+. $runtimeDllHelper
 
 $sdlDll = "$SdlBackend.dll"
 $sdlSource = Join-Path $build $sdlDll
