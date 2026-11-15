@@ -20,6 +20,7 @@
 #include "x3_coop_view.h"
 #include "x3_coop_present.h"
 #include "x3_display.h"
+#include "x3_fixed_arena.h"
 #include "mmx_replay.h"
 
 #include <stdbool.h>
@@ -496,41 +497,13 @@ void X3ConfigureWsBgMargins(void) {
    * so it must stay within the room rather than echo beyond the side walls.
    * These presentation fields reset each frame; the escape shaft keeps its
    * normal streaming policy as soon as the original bounds unlock. */
-  static const struct {
-    uint8_t stage;
-    uint8_t checkpoint; /* 255 = any */
-    uint8_t bounds[10];
-    bool moving_top;
-    uint16_t world_left, world_right; /* BG1's unwrapped PPU map phase */
-  } fixed_arenas[] = {
-      {10,255,{0x00,0x16,0x00,0x06,0x00,0x06,0x00,0x16,0x00,0x16},false,0,0}, /* Press */
-      {10,255,{0x00,0x16,0x00,0x07,0x00,0x07,0x00,0x16,0x00,0x16},false,0,0}, /* Godkarmachine */
-      {12,255,{0x00,0x0a,0x00,0x04,0x00,0x04,0x00,0x0a,0x00,0x0a},false,0,0}, /* Doppler */
-      {13,255,{0x00,0x07,0x00,0x0a,0x00,0x0a,0x00,0x07,0x00,0x07},false,0,0}, /* Sigma */
-      /* Lab2's water room is512px wide and its ceiling scrolls during the
-       * introduction/fight. Preserve real room art in the gutters; reflect
-       * only beyond world4352..4864, whose PPU map phase is256..768. */
-      {11,2,{0x00,0x12,0x00,0x00,0x00,0x02,0x00,0x11,0x00,0x12},true,256,768},
-  };
-  int arena = -1;
-  for (size_t i = 0; i < sizeof(fixed_arenas)/sizeof(fixed_arenas[0]); ++i) {
-    if (g_ram[0x1fae] == fixed_arenas[i].stage &&
-        (fixed_arenas[i].checkpoint == 255 ||
-         g_ram[0x1fb5] == fixed_arenas[i].checkpoint) &&
-        !memcmp(g_ram+0x1e68,fixed_arenas[i].bounds,2) &&
-        !memcmp(g_ram+0x1e6c,fixed_arenas[i].bounds+4,6) &&
-        (fixed_arenas[i].moving_top ||
-         !memcmp(g_ram+0x1e6a,fixed_arenas[i].bounds+2,2))) {
-      arena = (int)i;
-      break;
-    }
-  }
-  if (g_ws_active && g_ppu && arena >= 0 &&
+  const X3FixedArena *arena=X3FixedArenaFor(g_ram);
+  if (g_ws_active && g_ppu && arena &&
       g_ram[0xd1] == 4 && (g_ppu->bgmode & 7) == 1 &&
       (g_ppu->bgXsc[0] & 0xfc) == 0x50 && (g_ppu->bgXsc[1] & 0xfc) == 0x58) {
-    if (fixed_arenas[arena].world_right > fixed_arenas[arena].world_left) {
-      int left = fixed_arenas[arena].world_left;
-      int right = fixed_arenas[arena].world_right;
+    if (arena->world_right > arena->world_left) {
+      int left = arena->world_left;
+      int right = arena->world_right;
       const int scroll = g_ppu->hScroll[0];
       /* An entirely in-room viewport already has genuine art everywhere. */
       if (scroll-(int)g_ppu->extraLeftCur >= left &&
@@ -548,7 +521,9 @@ void X3ConfigureWsBgMargins(void) {
       PpuSetWidescreenLayerWorldMirrorBand(g_ppu,0,0,224,
                                           (uint16_t)left,(uint16_t)right);
     } else {
-      PpuSetWidescreenLayerElasticSplitBandSlot(g_ppu,0,0,0,224,0,1,255,256);
+      /* The PPU consumes visible scanlines1..224; an exclusive224 bound
+       * leaves the bottom output row on the unrelated circular-map path. */
+      PpuSetWidescreenLayerElasticSplitBandSlot(g_ppu,0,0,0,225,0,1,255,256);
       PpuSetWidescreenLayerClamp(g_ppu,2);
     }
   }

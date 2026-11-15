@@ -5928,3 +5928,23 @@ opposed native charged combat and both requesters' original pause fades in
 both rosters/all four presentations. GUI build and four standard tests pass
 (1.58s). V04 retains its remaining ordering/attachment scope; the wider fixed
 arena background gap remains under V06. No simulation or state format changes.
+
+
+### Closed arena overflow and final visible scanline
+
+Private views of a locked one-screen fortress arena now extend the original
+outer wall columns into overflow margins and keep BG2 within that arena.
+The native lock definitions are shared with the solo renderer. This policy
+applies only to the actual locked camera; another private room retains its
+own source. The solo elastic edge policy now includes scanline224, fixing its
+previous bottom-row leak from the circular tilemap. Native center pixels,
+simulation and snapshot format remain unchanged.
+
+The four-source Cx4 presentation gate remains exact, including36 independent
+original-PPU BG1 edge comparisons at342/448/800px. The final own-camera guard
+passes another four-cut native/whole-state/fast-row gate on
+`5e52f2cc3a1291f9b4d2610e47b009e8d3fbcd878dde217b3fc338ae46ec9ae0`.
+GUI build and all four standard tests pass (1.15s). Two older Doppler setups
+have incomplete native PPU background uploads and are excluded as visual
+oracles; their corruption is not copied into the private renderer. Broader
+per-room streaming/parallax qualification remains open under V06.

@@ -2,6 +2,7 @@
  * and completed Cx4 draw submissions.
  * Rendering never selects a player or modifies guest memory. */
 #include "x3_display.h"
+#include "x3_fixed_arena.h"
 #include "x3_coop_runtime.h"
 #include "x3_coop_present.h"
 #include "x3_coop_render.h"
@@ -26,6 +27,7 @@ typedef struct IndependentFrame {
   uint8_t ram[0x20000];
   int x,y,dx,dy;
   unsigned stage,events,count;
+  bool closed_arena;
   ResourceEvent event[256];
   uint8_t phase[3][8192];
   PpuExtraObject objects[EXTRA_PIECES];
@@ -268,6 +270,9 @@ static bool object_canvas(unsigned layer){
 static bool canvas_contains(int x,int y){return x>=0 && x<256 && y>=1 && y<=224;}
 static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   static const unsigned low[]={8,7,1},high[]={12,11,3};
+  if(frame.closed_arena && layer<2){int native_x=x+frame.dx;
+    if(native_x<0 || native_x>=256){if(layer==1)return 0;x=(native_x<0?0:255)-frame.dx;}
+  }
   unsigned bpp=layer==2?2:4,size=PPU_bigTiles(p,layer)?16:8;
   if(p->mosaic&(1u<<layer)){
     int m=(p->mosaic>>4)+1;
@@ -431,6 +436,15 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
     }
     i+=span;
   }
+  /* Match the original arena's elastic edge columns without repeating the
+   * room, door, moving boss canvas or stale neighboring map into a gutter. */
+  if(frame.closed_arena && layer<2){
+    int lc=-1,rc=-1;uint16_t lp=0,rp=0;
+    if(!layer){lp=background(p,layer,-frame.dx,y,&lc);rp=background(p,layer,255-frame.dx,y,&rc);}
+    for(unsigned i=0;i<width;++i){int nx=(int)i-(int)left+frame.dx;
+      if(nx<0){pixels[i]=lp;colors[i]=lc;}else if(nx>=256){pixels[i]=rp;colors[i]=rc;}
+    }
+  }
 }
 static void world_objects(const Ppu *p,int left,int right){
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
@@ -523,6 +537,8 @@ static bool begin_view(Ppu *p,unsigned seat,bool shared){
   frame.ram[0x1e5d]=(uint8_t)visible->camera[0];frame.ram[0x1e5e]=(uint8_t)(visible->camera[0]>>8);
   frame.ram[0x1e60]=(uint8_t)visible->camera[1];frame.ram[0x1e61]=(uint8_t)(visible->camera[1]>>8);
   frame.stage=frame.ram[0x1fae];frame.count=0;
+  const X3FixedArena *arena=X3FixedArenaFor(frame.ram);
+  frame.closed_arena=arena && !arena->world_right && !frame.dx && !frame.dy && (p->bgXsc[0]&0xfc)==0x50 && (p->bgXsc[1]&0xfc)==0x58;
   if(frame.stage>14)return false;
   if(cache_stage!=frame.stage || cache_rom!=frame.rom){
     if(cache_rom!=frame.rom)memset(file_ready,0,sizeof(file_ready));
