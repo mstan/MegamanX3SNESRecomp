@@ -6044,3 +6044,24 @@ animated weather/math (V07) and the remaining scene transitions (V12) stay open.
 
 The burndown is169/180 accepted,11 open,8/15 areas complete. No release has been
 delivered; final packaging follows completion of the remaining criteria.
+
+
+### Current-room script palettes and native animated entries
+
+The private compositor incorrectly replaced live native CGRAM with the ordinary
+room recipe even at the canonical camera. The actual Seahorse and Crawfish
+arenas exposed35,358 and11,956 incorrect pixels. Both pixel and tile-row paths
+now use the live native colors at that camera, retaining authored palette
+reconstruction for other rooms. Existing original BIT/BVC alternate-palette
+semantics remain unchanged; no simulation or save format changes.
+
+Frozen testab254cdf9812d5868bf4872c356776297af8cfeefb508ffa71cbb268b0cc02d3
+passes both arenas' eight original-PPU picture cuts, four Cx4 encounters and
+three HUD/survivor pictures. Tile-row validation is exact. Four standard tests
+pass. The extended testd0ef7dce also compares four animation cuts at each actual
+native entry in stages2,4,5,6: all16 native/private fields match, selected and
+Split fields agree, and composition preserves the complete canonical state.
+The palette hashes change through these real fields; these entries do not have
+active BG3 weather or color math. V07 therefore remains open for that scope.
+Formal total remains169/180 accepted,11open. Evidence is retained under
+`build-coop/qa-state/cx4-visual-work` and the native-script-palette receipts.
