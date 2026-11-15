@@ -2,8 +2,8 @@
 
 ## Current continuation - 2026-11-15
 
-**170/180 accepted;10 open;8/15 areas complete.** Remaining criteria:
-D06; A13; P06,P12; E06; G12; V07,V12; Z01,Z04.
+**171/180 accepted;9 open;8/15 areas complete.** Remaining criteria:
+D06; A13; P06,P12; E06; G12; V07,V12; Z04.
 Native creator graphics, attachment/armor ordering, entry/reversal/lock
 frontiers and independent streamed room pictures are now qualified. The latest
 source identities and individual evidence are at the end of
@@ -19,16 +19,26 @@ weather/view-local scope, and V12 still needs a valid complete-scene reference.
 The failed teleport-door source is frozen outside the suite; its native tile
 base was uninitialized, so do not patch the private art to reproduce it.
 
-Z02 production package verification is accepted. TRACEoff/NETon build and all4
+Z01 and Z02 production package verification are accepted. TRACEoff/NETon build and all4
 standard tests pass; three fresh extractions and three current-build resumes
 run with package/Windows-only PATH, correct native co-op input isolation and
 actual342/684-pixel adaptive gameplay. Explicit saved widescreen-off remains
 256px; updates preserve each profile's settings/input/mods/snapshots exactly.
 Tool-only9234735 fixes the release helper's configured-engine path. Internal
-0.2.0-coop-qa ZIP remains outside delivery. Z01 still needs packaged-launcher
-exposure disposition, with its native defaults/gameplay/input portion verified.
+0.2.0-coop-qa ZIP remains outside delivery. The production launcher provider API verifies actual exposed readable controls,
+all seven option/choice callbacks and independent commit/reload persistence,
+including widescreen off/on, without UI automation. Provider receipt child0
+on958cdd7d; actual defaults/gameplay/input evidence above is retained.
 See ignored native-package-qa/results.json and six process receipts. Preserve
 accepted physical reviews; do not use desktop/browser UI automation.
+
+A new actual V07 weather defect is established: co-op shows dense repeated
+glyphs instead of native snowfall. A control with co-op disabled before the
+original stage2 loader reaches the same real outdoor terrain/camera and renders
+proper snowfall. Source f28e06d8, original control718d0b21; native actual package
+GUI reproduces it. Original-raster/detached/VRAM attribution is in progress.
+Fix this actual BG3 finding before V07 acceptance; do not discard it as an
+unqualified teleport source. Tests are uncommitted; no production fix yet.
 
 The full180 objective and solo/local-only constraints remain. No release is
 ready or delivered. Complete the remaining authored gameplay, weather/scene

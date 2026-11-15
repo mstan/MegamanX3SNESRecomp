@@ -63,7 +63,10 @@ static void native_one_shot_revisit(uint8_t *work,uint8_t *expected,size_t capac
 #include "x3_coop_parts_test.inc"
 #include "x3_coop_readiness_test.inc"
 #include "x3_coop_cx4_test.inc"
+#include "x3_coop_package_test.inc"
 int main(int argc,char **argv) {
+  const char *catalog=getenv("X3_COOP_PACKAGE_CATALOG");
+  if(catalog){check(argc==2,"packaged provider has the original cartridge path");native_packaged_provider(catalog,argv[1]);return 0;}
   RtlEnableExtendedFrameTiming();
   int result=MmxStateChecksMain(argc,argv);
   if(!result && argc==2) {

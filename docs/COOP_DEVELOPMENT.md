@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:170/180;10 open/partial. Accepted areas:8/15
+**Accepted touch points:171/180;9 open/partial. Accepted areas:8/15
 (team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -68,7 +68,7 @@ the end of this document; older checkpoint counts are historical.
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
-| Owner/package/delivery |2/4|Z01,Z04|
+| Owner/package/delivery |3/4|Z04|
 
 ## Current evidence and next gate
 
@@ -6130,3 +6130,25 @@ Internal ZIP SHA256:
 Six native package process receipts and `native-package-qa/results.json` retain
 the individual outcomes. Formal170/180 accepted,10open,8/15 areas. Delivery is
 unchanged until the complete applicable suite and final release gate pass.
+
+
+## Z01 packaged launcher provider and native gameplay
+
+Z01 is accepted. The production launcher provider loads the exact extracted
+catalog and exposes the readable Co-op, local-view and adaptive Fit controls.
+Its actual feature/option/choice callbacks return all seven expected defaults,
+enabled controls, readable distinct choices and no feature diagnostics. The
+actual editing and PLAY/commit callbacks persist nondefault roster, camera,
+participation, learner, door, view and HUD choices independently; reopening the
+provider preserves every value. Restoring full-campaign/independent/automatic
+settings and toggling widescreen off/on also persist correctly. This check
+calls the native provider API without opening or automating a UI.
+
+Provider-test SHA256:
+`958cdd7d6acb441b2c4b8b525d183cafcd8491dc0127d2a495069f1c05336846`;
+`native-package-provider-receipt.json` is child0. The six production-GUI package
+runs recorded under Z02 supply actual fresh defaults,342/684-pixel wide native
+gameplay, per-seat input ownership, native current-build restore and retained
+saved choices. Physical-controller acceptance is retained. All4 standard checks
+from the same production build pass. Formal171/180 accepted,9 open,8/15 areas;
+Z04 remains the package area's final criterion. No delivery has occurred.
