@@ -2,7 +2,7 @@
 
 Development branch: `feat/x3-coop`, based on X3 master `11fd733`.
 Current pinned build reference: engine `614694ab`, UI `cf6315ad`.
-This is an incomplete development implementation, not a co-op release.
+Co-op release0.2.0 is qualified and delivered; two content-specific checks remain deferred to user QA.
 
 ## Implemented components
 
@@ -13,15 +13,15 @@ This is an incomplete development implementation, not a co-op release.
   so the second mapping pass cannot erase P1's new jump/fire edges.
 - Separate alive, voluntarily absent and fallen states. The lifecycle API
   refuses fallen rejoin and partial-team retry, and transfers the anchor to
-  the survivor. Development runtime handoff intercepts the native death state
-  before its global freeze; the remaining authored death and scene cases are tracked below.
+  the survivor. Runtime handoff intercepts the native death state
+  before its global freeze; qualified death and scene cases are recorded below.
 - Balanced native controller replay and post-enemy terrain replay. Enrollment
   is restricted to the native gameplay scheduler caller, excluding scripted
   controller calls. Both passes preserve elapsed guest time.
-- Development Zero body presentation reads native layouts, CHR and palette
+- Zero body presentation reads native layouts, CHR and palette
   lists from the validated cartridge. It suppresses the partner's body DMA
-  replacement of X's pages. Animation inheritance, effects and visual fidelity
-  still require qualification.
+  replacement of X's pages. Native reference checks for animation, effects and
+  visual fidelity are recorded below.
 - Actor/pass snapshot extensions and a transactional actor decoder, with
   snapshot preflight before the common loader changes guest memory.
 
@@ -35,42 +35,40 @@ Either living actor can open the original cartridge pause screen with Start.
 Shared output shows the requester; split output shows each character's original
 screen. Original navigation, weapons, equipment and shared subtank use remain;
 Start resumes when healing finishes. Learner mode has focused native protection and return
-checks. Adaptive co-op presentation and network startup have pilot evidence;
-full campaign, remaining lifecycle and presentation qualification remain open;
-accepted online checks are listed below.
+checks. Adaptive presentation, network startup, lifecycle and campaign
+qualification are accepted; individual evidence is listed below.
 
 Full campaign is the default Zero policy. Stock restrictions start him
 withdrawn; his Select control calls him when the original game permits it.
 Stock encounter return and permanent loss are implemented and have focused
-native-route checks; the complete campaign suite remains open.
+native-route checks; all16 campaign criteria are accepted.
 
 ## QA burndown
 
-**Accepted touch points:173/180;7 open/partial. Accepted areas:9/15
-(team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, visuals/audio, netplay and runtime).** Component
+**Accepted touch points:178/180;0 open;2 deferred to user QA (P06/E06). Accepted areas:13/15.** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
 the end of this document; older checkpoint counts are historical.
 
 | Area | Current acceptance | Remaining |
 | --- | --- | --- |
-| Individual death |15/16|D06 authored lethal crush|
+| Individual death |16/16|Accepted|
 | Team wipe |10/10|Accepted|
 | Fallen persistence |10/10|Accepted|
-| Separated spawning |13/14|A13|
-| Supports/hazards |14/16|P06,P12|
-| Enemy interactions |13/14|E06|
+| Separated spawning |14/14|Accepted|
+| Supports/hazards |15/16|P06 deferred to user QA|
+| Enemy interactions |13/14|E06 deferred to user QA|
 | Combat ownership |12/12|Accepted|
 | Doors/scripts |14/14|Accepted|
-| Campaign branches |15/16|G12|
+| Campaign branches |16/16|Accepted|
 | Menus/resources |12/12|Accepted|
 | Visuals/audio |14/14|Accepted|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
-| Owner/package/delivery |3/4|Z04|
+| Owner/package/delivery |4/4|Accepted|
 
-## Current evidence and next gate
+## Historical bring-up evidence and gates
 
 The standalone actor test passes projection-boundary isolation, both death
 orders, survivor anchoring, fallen rejoin rejection, withdrawal guards, retry,
@@ -6292,3 +6290,70 @@ Ignored evidence: native-earned-door-badge-server-receipt.json,
 native-earned-door-standard-receipt.json, cx4-visual-work/earned-door-badge-*-after.log
 and earned-door-pan-post.png. Existing GUI95a5d395 remains the qualified runtime;
 this addition changes tests only and needs no repeated owner review.
+
+
+### Authored moving press: D06/P12
+
+The native first-fortress NPC38 press earns its actual two-sided collision and
+127-damage branch for X or Zero in either seat. Every original/paired reference
+reaches death on native update index230 at the same floor. The untrapped actor
+retains16/28HP and moves30px during24 single world updates without a team wipe.
+All four complete paired death/survivor futures repeat exactly. The separate
+camera histories differ by one horizontal pixel at contact; exact horizontal
+body equality is not claimed. No production change was required.
+
+Frozen test SHA256:
+`b3b4fdce06a562e4187023436955ce364ca839dc4c67f48f49941bf350017c79`.
+P06 and E06 remain deferred to user QA and are not counted as passes.
+
+
+### Native two-region pool pressure: A13
+
+Actual Lab2 emitters fill all8 hostile slots. An actual living withdrawal
+provides a single-region control with1 allocation refusal; two active regions
+produce8 refusals and36/38 successful allocations, including30/32 natural slot
+reuses after exhaustion. Both real parent targets remain valid. There are7 fields without a native world-clock increment in one roster and0 in
+the other; no world update doubles.
+Both complete futures repeat their allocation and cadence results exactly, then
+traverse the remaining corridor and pass the original first door with both actors
+alive and controls released. The checkpoint remains0; no checkpoint increment
+is claimed. Both rosters and reversed physical entrants pass, along with all4
+standard tests. No production change was required.
+
+
+### Fortress traversal and delivered0.2.0 release: G12/Z04
+
+The authored fortress route checks now cover both first-stage branches, the
+optional gold-armor alcove, the native51 miniboss defeat/retirement and all three
+gates. Both rosters/either entrant pass complete repeated futures. Both Lab2
+Vile-outcome prefixes also pass that matrix; remaining destroy/escape corridors
+and gates reach their fresh4A/63 parents in both rosters. Native camera limits
+are allowed to ease to their actual destinations before further position
+assistance. No camera, scene, door, defeat or progression results are supplied.
+The lower5D allocator leaves an unused kind byte unchanged; its native handler
+does not dispatch on that byte, so tests require the actual class/HP/control
+release rather than an invented zero-kind requirement.
+
+Lab3's real shaft and hub entrance pass both rosters. The actual earnedFF hub
+exit corridor reaches the original Doppler doorway. In the packaged GUI,
+owner-seat A confirmation completes its native dialogue/admission with both
+actors alive16/28HP, checkpoint2 and controls released. Separate Right inputs
+then move X12px and Zero13px while the other actor stays fixed. The C-only
+Doppler dialogue prototype does not reproduce that GUI input lifecycle and is
+excluded; no full C future/matrix is claimed for this segment. Existing actual
+refight, Doppler consequence and final Sigma shaft/gate/ending evidence supplies
+the remaining already accepted coverage. Position assistance bypasses ordinary
+platforming difficulty; it does not establish support activation or grounded
+stun behavior. P06/E06 remain deferred, not passed. No runtime fix was needed.
+
+Release0.2.0 was delivered to
+`G:/Nextcloud/Games/SNES/MegaManX3SNESRecomp-windows-x64-v0.2.0.zip`.
+Archive SHA256 is
+`5148df1ffdb814d9b5747ed0bd4241e164dd64f70e66dfb1112eccbc86583b73`;
+GUI SHA256 is
+`464b026cd5a4fce61806ae81336f7665204846a6dbcc91de5053351fe09b6104`.
+All27 entries pass CRC, content and runtime-dependency verification. Fresh
+profiles/current-build resumes and three-profile update preservation pass;
+all4 final standard tests pass. Only the verified replacement X3 ZIP remains in
+the delivery folder; saves, settings and unrelated games were preserved.
+Current acceptance is178/180,0open,2deferred and13/15 fully accepted areas.

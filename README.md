@@ -38,9 +38,9 @@ or Unified cameras, and the local view in **Mods**; assign each player's
 keyboard or controller in **Controls**. Health and attacks belong to each
 character, while lives and subtanks are shared. Start opens the requesting
 character's original cartridge screen; Split shows both native screens.
-
-Campaign, presentation and package qualification continues before the next
-release.
+Full-campaign Zero is the default; stock participation rules are available in
+Mods. A fallen character returns on the team's next retry. Living players can
+hold Select to leave or return beside their partner.
 
 This project was stood up from the MegamanXRecomp host layer; every Mega Man
 X 1 specific finding (the fiber task scheduler, the BG2 widescreen shadow, the
@@ -114,7 +114,7 @@ cmake --build build
 observability rings — the bring-up configuration. Omit it for a release build.
 
 This title opts into snesrecomp's package loader. The build preloads a
-default-disabled Mega Man X3 Widescreen feature under `mods/packages`; users
+default-enabled Mega Man X3 Widescreen feature under `mods/preloaded/packages`; users
 may also install data-only `.snesmod` archives from the launcher's Mods page.
 
 ## Disassembly annotations

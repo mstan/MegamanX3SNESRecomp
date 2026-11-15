@@ -1,80 +1,39 @@
-# Mega Man X3 co-op â€” committed stopping point and full continuation
+# Mega Man X3 co-op - completed continuation
 
-## Current continuation - 2026-11-15
+## Completed release - 2026-11-15
 
-**173/180 accepted;7 open;9/15 areas complete.** Remaining criteria:
-D06; A13; P06,P12; E06; G12; Z04.
-Native creator graphics, attachment/armor ordering, entry/reversal/lock
-frontiers and independent streamed room pictures are now qualified. The latest
-source identities and individual evidence are at the end of
-`docs/COOP_DEVELOPMENT.md` and in the existing ignored qualification record.
-Original menus, controller ownership/reconnect, audio and moving presentation
-checks remain accepted. Preserve their completed evidence.
+**178/180 accepted;0 open;2 deferred to user QA;13/15 fully accepted areas.**
+P06 (falling support) and E06 (grounded stun) remain deferred, not passed.
+All applicable continuation work is complete. The following sections retain
+historical checkpoints; their old counts and next actions are superseded.
 
-Current-room palette animation and native script priority are now repaired and
-qualified. Both actual lighting arenas, animated normal/alternate entries and
-the Lab2 priority3/color-math scene match their original PPU references. The
-final22-phase visual regression and four standard tests pass. V07 still needs
-weather/view-local scope, and V12 still needs a valid complete-scene reference.
-The failed teleport-door source is frozen outside the suite; its native tile
-base was uninitialized, so do not patch the private art to reproduce it.
+Delivered one verified current release:
+`G:/Nextcloud/Games/SNES/MegaManX3SNESRecomp-windows-x64-v0.2.0.zip`.
+ZIP SHA256: `5148df1ffdb814d9b5747ed0bd4241e164dd64f70e66dfb1112eccbc86583b73`.
+The previous X3 archive was removed after replacement SHA/CRC verification;
+user saves, settings and unrelated games were preserved.
 
-Z01 and Z02 production package verification are accepted. TRACEoff/NETon build and all4
-standard tests pass; three fresh extractions and three current-build resumes
-run with package/Windows-only PATH, correct native co-op input isolation and
-actual342/684-pixel adaptive gameplay. Explicit saved widescreen-off remains
-256px; updates preserve each profile's settings/input/mods/snapshots exactly.
-Tool-only9234735 fixes the release helper's configured-engine path. Internal
-0.2.0-coop-qa ZIP remains outside delivery. The production launcher provider API verifies actual exposed readable controls,
-all seven option/choice callbacks and independent commit/reload persistence,
-including widescreen off/on, without UI automation. Provider receipt child0
-on958cdd7d; actual defaults/gameplay/input evidence above is retained.
-See ignored native-package-qa/results.json and six process receipts. Preserve
-accepted physical reviews; do not use desktop/browser UI automation.
+Original cartridge menus, audio, controller ownership/reconnect, moving
+presentation and the complete applicable gameplay/campaign checks are accepted.
+Fortress coverage includes both Lab1 branches and optional alcove, both Vile
+outcomes through Lab2, the Lab3 hub/Doppler route and the final Sigma stage.
+The packaged GUI completes the final Doppler doorway with both actors alive,
+then independent inputs move X12px and Zero13px without moving their partner.
+The C-only Doppler dialogue prototype is excluded from the evidence and retained
+privately; no exact C replay or full roster matrix is claimed for that segment.
 
-The actual V07 snowfall palette defect is repaired and qualified: actor
-projection/anchor selection no longer force full native BG palette uploads.
-Native original/co-op VRAM match all64KiB; the three visible weather colors now
-remain0421 instead of publishing staged72CA/5585/7F9C. Both rosters/all8 native
-cuts,24 affected visual phases,3 native audio phases and4 standard tests pass
-on8e3b986d. Actual GUI394464b5 shows proper snowfall. No new criterion is counted.
-The separated-view defect is now qualified: the original ROM camera predicate
-considers either living view; indoor planes/math remain normal, snow scrolls
-follow the correct camera, and another room's palette DMA preserves native snow
-colors. Both rosters/either outdoor actor pass all16 original indoor background
-cuts at a matching native star-animation phase and32-field full-machine replay.
-Frozen testsbd0e4fc6 andGUI89e1f3e8 pass24 affected visual phases and4 standard
-tests; an actual GUI resume confirms the separated pair. V07 is now accepted after its actual native boundary crossing, retirement and
-wide-margin gate: both rosters/either outdoor actor, all60 original indoor
-background cuts0pixels, full-machine replay exact, all4 wide Snow controls
-positive in both margins and both settled original native controls8cuts0.
-Tests9ab188ec/GUI95a5d395 pass6weather phases and4standard tests; actualGUI
-684px confirms the fixed margins. The native onset roof pickup OBJ remains an
-unqualified original-art reference; it is excluded from full OBJ claims, while
-the separate settled sources retain their full native references. The immediate
-post-teleport onset source was unsettled, not evidence of a product defect.
-V12 is now accepted with actual earned first-door pictures. Both rosters/either
-triggering actor: four moving pan and four post-scene cuts each, all32 original
-PPU/private comparisons0pixels outside approved co-op badges. Both selected and
-Split match, pure rendering changes no canonical state/time, and each32-field
-whole-machine pan future repeats. Existing native A dialogue inputs and3600field
-bound are used; no phase/cache/progression writes. Tests2104c078 pass4native
-cases and4standard tests; actual saved pictures inspected. No production change
-or repeated owner review. Visuals/audio14/14 is complete.
-Continue with the7remaining IDs, preserving the frozen God43 crush and later
-fortress navigation calibration limits. The previous first-door visual failure
-was test input/duration and badge-oracle setup, not a runtime defect. A bounded
-read-only follow-up found nativeclass39 falling-child construction at13:C49C
-inside the capsule/demo path and its own3C:B296; no gameplay acceptance follows
-from that code fact. Prefer a genuine authored pressure/drop source if it can
-resolve A13/P06 without restarting frozen setups or building another harness.
+TRACEoff release validation passes all4 standard tests. Fresh extracted profiles
+and current-build resumes verify adaptive342/684px gameplay and input isolation;
+three update profiles preserve all18 settings/input/mod/snapshot files exactly.
+The factory Auto window was native-width on the dummy/software backend; adaptive
+expanded output was verified after changing only the disposable window size.
+Explicit saved widescreen-off remains respected. Launcher defaults/callbacks,
+package CRC/content/DLL closure and normal owner reviews remain accepted.
 
-The full180 objective and solo/local-only constraints remain. No release is
-ready or delivered. Complete the remaining authored gameplay, weather/scene
-and final packaging criteria; retain the frozen crush/fortress calibration
-limits instead of restarting unsuccessful setup loops. Historical checkpoints
-below retain their original source identities and counts; this section and the
-latest development evidence supersede their next-action directions.
+Private receipts, observations, frozen inputs and final delivery/cleanup records
+remain under `build-coop/qa-state`. Production GUI SHA256:
+`464b026cd5a4fce61806ae81336f7665204846a6dbcc91de5053351fe09b6104`.
+Engine614694ab/UIcf6315ad remain pinned. No remote push/PR/merge or central sync.
 
 ## Native cartridge pause continuation - 2026-11-14
 
