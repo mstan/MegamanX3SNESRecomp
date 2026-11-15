@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:151/180;29 open/partial. Accepted areas:7/15
+**Accepted touch points:152/180;28 open/partial. Accepted areas:7/15
 (team wipe, fallen persistence, combat ownership, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -61,7 +61,7 @@ the end of this document; older checkpoint counts are historical.
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |13/14|E06|
 | Combat ownership |12/12|Accepted|
-| Doors/scripts |10/14|S06-S07,S09-S10|
+| Doors/scripts |11/14|S06-S07,S09|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
 | Visuals/audio |1/14|V02-V14|
@@ -5716,3 +5716,15 @@ preparation resets only the renderer's host motion history. State test SHA256
 GUI SHA256`55f6a24d67722cdaaea65d8f3f67870b0aec8e68d674069559abeacae5283c62`.
 The four standard tests pass. Existing native boarding, damage, destruction,
 withdrawal and pilot controls remain qualified; P15 is accepted again.
+
+
+### Native section and transport completion (S10)
+
+S10 is accepted from the existing ordinary/vertical gate, Vile factory entry
+and earned return, all32 refights, native reward/story/new-stage and actual
+scene-owner death/wipe qualifications. The four new sole-survivor refight
+roundtrips close the remaining return/control case. These receipts require the
+real native destination and resumed movement, retained character/lifecycle and
+progress, and source/lock cleanup, with complete futures twice. This reuses
+qualified family evidence without repeating accepted routes. Temporal display
+and demonstration checks remain separate under V12/V14 and S09.
