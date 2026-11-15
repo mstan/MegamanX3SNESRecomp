@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:154/180;26 open/partial. Accepted areas:7/15
+**Accepted touch points:155/180;25 open/partial. Accepted areas:7/15
 (team wipe, fallen persistence, combat ownership, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -61,7 +61,7 @@ the end of this document; older checkpoint counts are historical.
 | Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |13/14|E06|
 | Combat ownership |12/12|Accepted|
-| Doors/scripts |11/14|S06-S07,S09|
+| Doors/scripts |12/14|S06-S07|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
 | Visuals/audio |2/14|V02-V12,V14|
@@ -5740,3 +5740,16 @@ futures, this accepts V13. Prepared gameplay review is complete and its
 material findings have been resolved against native behavior, accepting Z03.
 Fresh-package defaults, final archive validation and the remaining temporal
 visual checks retain their own open criteria.
+
+
+### Native demonstration parking and release (S09)
+
+S09's forced-control contract is accepted from the complete nine-family capsule
+qualification: both rosters, the original recorded motion despite conflicting
+live input, unchanged native demonstration hashes, release of all scene/control
+locks, retained personal health and earned flags, actual resumed controls and
+complete restored futures. The native movement references also cover the tight
+stage6/golden alcoves. Six lifecycle-API retirement cuts per roster preserve
+the remaining actor and exact progress; they remain distinct from authored
+hazard deaths. The independent room/foreground and temporal-display questions
+remain under the visual criteria, rather than blocking this mechanical result.
