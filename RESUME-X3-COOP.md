@@ -2,8 +2,8 @@
 
 ## Current continuation - 2026-11-15
 
-**169/180 accepted;11 open;8/15 areas complete.** Remaining criteria:
-D06; A13; P06,P12; E06; G12; V07,V12; Z01,Z02,Z04.
+**170/180 accepted;10 open;8/15 areas complete.** Remaining criteria:
+D06; A13; P06,P12; E06; G12; V07,V12; Z01,Z04.
 Native creator graphics, attachment/armor ordering, entry/reversal/lock
 frontiers and independent streamed room pictures are now qualified. The latest
 source identities and individual evidence are at the end of
@@ -18,6 +18,17 @@ final22-phase visual regression and four standard tests pass. V07 still needs
 weather/view-local scope, and V12 still needs a valid complete-scene reference.
 The failed teleport-door source is frozen outside the suite; its native tile
 base was uninitialized, so do not patch the private art to reproduce it.
+
+Z02 production package verification is accepted. TRACEoff/NETon build and all4
+standard tests pass; three fresh extractions and three current-build resumes
+run with package/Windows-only PATH, correct native co-op input isolation and
+actual342/684-pixel adaptive gameplay. Explicit saved widescreen-off remains
+256px; updates preserve each profile's settings/input/mods/snapshots exactly.
+Tool-only9234735 fixes the release helper's configured-engine path. Internal
+0.2.0-coop-qa ZIP remains outside delivery. Z01 still needs packaged-launcher
+exposure disposition, with its native defaults/gameplay/input portion verified.
+See ignored native-package-qa/results.json and six process receipts. Preserve
+accepted physical reviews; do not use desktop/browser UI automation.
 
 The full180 objective and solo/local-only constraints remain. No release is
 ready or delivered. Complete the remaining authored gameplay, weather/scene

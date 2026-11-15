@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:169/180;11 open/partial. Accepted areas:8/15
+**Accepted touch points:170/180;10 open/partial. Accepted areas:8/15
 (team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -68,7 +68,7 @@ the end of this document; older checkpoint counts are historical.
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
-| Owner/package/delivery |1/4|Z01-Z02,Z04|
+| Owner/package/delivery |2/4|Z01,Z04|
 
 ## Current evidence and next gate
 
@@ -6096,3 +6096,37 @@ needs qualified scene-transition pictures. Total remains169/180,11open.
 Evidence: native-script-priority-final receipts and
 `build-coop/qa-state/cx4-visual-work/script-priority-final-outcomes.json` with
 its22 individual logs and the original-PPU positive-control measurements.
+
+
+## Z02 production-profile package contents and launch
+
+Z02 is accepted on the TRACE-disabled, NET-enabled Windows build from game
+`916be5f`, engine`614694ab` and UI`cf6315ad`. Internal staging version
+`0.2.0-coop-qa` is qualification data, not a delivered release. Packaging now
+resolves its dependency checker from the build's configured engine checkout;
+the former fixed nested-engine path failed in an isolated worktree. Tool-only
+fix`9234735` also rejects trace builds before creating/replacing a stage.
+
+The portable ZIP contains27 entries, x64 executable and recursive dependency
+closure (`SDL3.dll`, `libiconv-2.dll`), fonts/launcher assets, manifests and normal
+documentation. No source ROM, ROM-derived generated resources, saves, private
+configuration or prohibited loading packages are present. Three fresh extracted
+profiles cold-boot through the original stage loader with only package and
+Windows on PATH; all loaded modules resolve within those locations. Three
+current-build resumes also exit normally. All4 standard tests pass.
+
+Actual presented gameplay is342x224 for a1280x720 single view,684x224 for two
+independent342-pixel panes in a1600x450 window, and256x224 with an explicit
+saved widescreen-off choice. Native X-only/Zero-only input each moves exactly
+12px while the partner's complete sampled body remains unchanged; both retain
+16/28HP. Actual save/load restores the two starting positions. Re-extracting the
+archive preserves configuration, input bindings, mod choices and current-build
+snapshots byte for byte in all three disposable profiles. Z01's packaged
+launcher exposure still requires disposition; these results do not accept it.
+
+GUI SHA256:`087c80f72361672dcb1b05bbee482ca1bdef96010b6529891f756a7e90e798a6`.
+Internal ZIP SHA256:
+`441ff9143607abb008384a10ecd92d3b8ddadab92d9b9f79964ec62b1541e59b`.
+Six native package process receipts and `native-package-qa/results.json` retain
+the individual outcomes. Formal170/180 accepted,10open,8/15 areas. Delivery is
+unchanged until the complete applicable suite and final release gate pass.
