@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:164/180;16 open/partial. Accepted areas:8/15
+**Accepted touch points:165/180;15 open/partial. Accepted areas:8/15
 (team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -64,7 +64,7 @@ the end of this document; older checkpoint counts are historical.
 | Doors/scripts |14/14|Accepted|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |8/14|V02,V04,V06-V07,V12,V14|
+| Visuals/audio |9/14|V02,V04,V06-V07,V12|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
@@ -5948,3 +5948,15 @@ GUI build and all four standard tests pass (1.15s). Two older Doppler setups
 have incomplete native PPU background uploads and are excluded as visual
 oracles; their corruption is not copied into the private renderer. Broader
 per-room streaming/parallax qualification remains open under V06.
+
+
+### Moving death and survivor transition (V14)
+
+A450-field Split clip and the corresponding actual pre-fatal native state
+qualify X's final hit/death with Zero remaining alive and controllable.
+The moving presentation and prepared live scene pass review, with no supplied
+damage/death flags. Combined with the completed charge/attack, scrolling and
+original menu-fade reviews, this accepts V14. The frozen GUI is
+`b169447dc393c38bbf7e5de26d4a116771275ccf594e60f5505ea6e229e4d381`.
+Broader door/transport scene fidelity remains under V12; these accepted moving
+checks do not require another routine handoff.
