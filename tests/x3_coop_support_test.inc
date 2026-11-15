@@ -340,3 +340,91 @@ static void native_destructible_support_checks(const char *fixture,uint8_t *base
 
 
 }
+
+/* Authored factory record3C:F038, enemy31. This is a rising lift, not a
+ * factory lift. Its free rider crosses native camera rows after96 fields. */
+typedef struct FactoryLiftSample {uint8_t support[64],body[X3_COOP_BODY_BYTES];} FactoryLiftSample;
+static FactoryLiftSample factory_lift_sample(unsigned slot,unsigned seat,bool paired){
+  FactoryLiftSample out;memcpy(out.support,g_ram+slot,sizeof(out.support));
+  const X3CoopState *s=X3CoopRuntimeState();const uint8_t *body=!paired || s->current==seat?g_ram+X3_COOP_BODY:s->players[seat].body;
+  memcpy(out.body,body,sizeof(out.body));out.body[0x17]&=127;return out;
+}
+static void native_factory_lift_view_checks(const char *fixture,uint8_t *base,uint8_t *work,uint8_t *expected,size_t capacity){
+  enum{fields=720};
+  for(unsigned roster=0;roster<2;++roster)for(unsigned rider=0;rider<2;++rider){
+    check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==9 && (g_ram[0x1fc0]&64),"factory lift restores an actual factory and its authored campaign prerequisite");
+    X3CoopRuntimeFrame();check(X3CoopRuntimeReady() && !X3CoopRuntimeSceneActive(),"factory lift starts in a registered free native co-op world");
+    size_t n=RtlSaveSnapshotToMemory(base,capacity);X3CoopState setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+    if(roster){X3CoopPlayer swap=setup.players[0];setup.players[0]=setup.players[1];setup.players[1]=swap;}
+    setup.current=setup.anchor=(uint8_t)rider;
+    for(unsigned seat=0;seat<2;++seat){check(setup.players[seat].life==X3_COOP_ALIVE,"factory lift starts with a living free pair");setup.players[seat].body[0x88]=255;}
+    /* The route is bypassed. Read its three original ROM region records
+     * before positioning the initial view. No lift/rider state or future
+     * camera position is supplied. The continuation is compared to native. */
+    const unsigned approach[3][2]={{928,1480},{928,1696},{1152,1616}};
+    for(unsigned point=0;point<3;++point){
+      team_hazard_body(setup.players[rider].body,approach[point][0],approach[point][1]);
+      check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"factory lift approach positions the actor in an authored region record");door_install_player(&setup);X3CoopViewsUpdate(g_ram,&setup,false,false);
+      n=RtlSaveSnapshotToMemory(base,capacity);setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+    }
+    team_hazard_body(setup.players[rider].body,1152,1616);
+    check(X3CoopEncode(&setup,base+contact_context_offset(base,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(base,n),"factory lift changes only roster, personal protection and an airborne approach");door_install_player(&setup);X3CoopViewsConfigure(true);
+    X3CoopViewState views=*X3CoopViewsState();views.valid=views.camera_valid=3;
+    X3CoopViewsUpdate(g_ram,&setup,false,false);views=*X3CoopViewsState();
+    fprintf(stderr,"native LIFT INITIAL REGION targets%u/%u/%u/%u\n",views.limits[rider][0],views.limits[rider][1],views.limits[rider][2],views.limits[rider][3]);
+    check(views.limits[rider][2]==768 && views.limits[rider][3]==1536,"the original bypassed-route region records define the lift camera range");
+    views.camera[rider][0]=1024;views.camera[rider][1]=1456;
+    memcpy(views.current[rider],views.limits[rider],sizeof(views.current[rider]));
+    X3CoopViewsSetState(&views);vehicle_install_view(&views,rider);
+    CpuState caller=g_cpu;view_word(0,1088);view_word(2,1504);view_word(4,320);g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P&=(uint8_t)~0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);
+    check(interp_bridge_run(&g_cpu,0x00ded3) && g_cpu.S==caller.S,"native factory event column allocates the actual factory lift");
+    g_cpu.PB=0;g_cpu.DB=6;g_cpu.D=0;g_cpu.P|=0x30;cpu_p_to_mirrors(&g_cpu);cpu_push_jsr_return_frame(&g_cpu);
+    check(interp_bridge_run(&g_cpu,0x00dcc0) && g_cpu.S==caller.S,"original constructors initialize the authored platform and its actual child");
+    uint64_t master=g_cpu.master_cycles;uint32_t cycles=g_cpu.cycles;g_cpu=caller;g_cpu.master_cycles=master;g_cpu.cycles=cycles;
+    unsigned slot=0;for(unsigned d=0xd18;d<0x10d8;d+=64)if(g_ram[d] && g_ram[d+10]==0x31 && !g_ram[d+11])slot=d;
+    fprintf(stderr,"native FACTORY LIFT SETUP roster%u rider%u slot%04x XY%u,%u state%u/%u latch%02x\n",roster,rider,slot,view_read(slot+5),view_read(slot+8),g_ram[slot+1],g_ram[slot+2],g_ram[slot+0x2c]);
+    check(slot && g_ram[slot+1]==2 && !g_ram[slot+2] && view_read(slot+5)==1152 && view_read(slot+8)==1696,"native class31 is waiting for a rider at its original position before the landing");
+    /* Let the original OAM upload publish the newly admitted support before
+     * this camera-handoff cut. Initial admission itself is not the criterion. */
+    for(unsigned f=0;f<3;++f)frame(0);
+    setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);views=*X3CoopViewsState();
+    bool admitted=false;const X3CoopPresentedFrame *first_draw=X3CoopPresentationVisible();
+    for(unsigned i=0;i<first_draw->count;++i)if(first_draw->actors[i].address==slot)admitted=true;
+    check(admitted && !g_ram[slot+2],"the native upload shows the waiting support while the rider is still airborne");
+    n=RtlSaveSnapshotToMemory(base,capacity);FactoryLiftSample native[fields];unsigned trigger=0,rise=0,transitions=0,previous=0;uint16_t native_camera[fields];unsigned native_updates=0;
+    X3CoopRuntimeEnable(false);X3CoopViewsConfigure(false);door_install_player(&setup);vehicle_install_view(&views,rider);
+    for(unsigned f=0;f<fields;++f){unsigned tick=g_ram[0x9cc];frame(0);unsigned delta=(uint8_t)(g_ram[0x9cc]-tick);check(delta==1,"the original free lift world advances once on each observed field");native_updates+=delta;native[f]=factory_lift_sample(slot,rider,false);native_camera[f]=(uint16_t)view_read(0x1e60);
+      if(!trigger && g_ram[slot+2]==2)trigger=f+1;
+      if(g_ram[slot+2]==4 && previous!=4){++transitions;if(!rise)rise=f+1;}previous=g_ram[slot+2];
+    }
+    fprintf(stderr,"native FACTORY LIFT ORIGINAL roster%u rider%u char%u trigger%u rise%u transitions%u Y%u->%u HP%u action%u\n",roster,rider,setup.players[rider].character,trigger,rise,transitions,1696,view_read(slot+8),g_ram[X3_COOP_BODY+0x27],g_ram[X3_COOP_BODY+2]);
+    check(trigger && rise==trigger+96 && transitions==1 && view_read(slot+8)<1000 && g_ram[X3_COOP_BODY+0x27],"actual original landing triggers exactly one96-field delayed rise and retains its free native rider");
+    FactoryLiftSample native_control[8];unsigned initial_x=view_read(X3_COOP_BODY+5),initial_y=view_read(X3_COOP_BODY+8);bool native_moved=false;
+    for(unsigned f=0;f<8;++f){frame(SNES_PAD_RIGHT|SNES_PAD_B);native_control[f]=factory_lift_sample(slot,rider,false);native_moved|=view_read(X3_COOP_BODY+5)!=initial_x || view_read(X3_COOP_BODY+8)!=initial_y;}
+    check(native_moved && g_ram[X3_COOP_BODY+2]<0x1c,"the original rider resumes actual lateral or jump movement at the native lift endpoint");
+    size_t future=0;unsigned free_x=setup.players[rider^1].body[5]|setup.players[rider^1].body[6]<<8;
+    for(unsigned run=0;run<2;++run){check(RtlLoadSnapshotFromMemory(base,n),"paired factory lift restores the same native pre-landing cut");
+      X3CoopState paired=*X3CoopRuntimeState();paired.current=paired.anchor=(uint8_t)(rider^1);
+      memcpy(work,base,n);check(X3CoopEncode(&paired,work+contact_context_offset(work,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(work,n),"the free partner retains the canonical world while the real lift rider owns the distant camera");door_install_player(&paired);vehicle_install_view(&views,rider^1);
+      unsigned clock=g_ram[0x9cc],visible_fields=0,updates=0;int first_camera=-1,last_camera=-1;
+      X3Display_SetPresentationSeat((int)rider);
+      for(unsigned f=0;f<fields;++f){unsigned tick=g_ram[0x9cc];frame(f<12?(uint32_t)SNES_PAD_RIGHT<<((rider^1)*12):0);unsigned delta=(uint8_t)(g_ram[0x9cc]-tick);check(delta==1,"the paired lift world advances once on each observed field");updates+=delta;FactoryLiftSample now=factory_lift_sample(slot,rider,true);
+        if(memcmp(&native[f],&now,sizeof(now))){unsigned at=0;while(at<sizeof(now) && ((uint8_t *)&native[f])[at]==((uint8_t *)&now)[at])++at;fprintf(stderr,"native FACTORY LIFT MISMATCH roster%u rider%u f%u byte%u original%02x paired%02x\n",roster,rider,f,at,((uint8_t *)&native[f])[at],((uint8_t *)&now)[at]);check(RtlSaveSnapshot("native-factory-lift-mismatch.sav"),"actual factory-lift mismatch preserves its native machine");check(false,"the shared factory lift and actual rider match their original complete records on each native field");}
+        const X3CoopViewState *v=X3CoopViewsState();if(!f)first_camera=v->camera[rider][1];last_camera=v->camera[rider][1];
+        if(v->camera[rider][1]!=native_camera[f]){fprintf(stderr,"native LIFT CAMERA MISMATCH roster%u rider%u f%u original%u paired%u limits%u/%u\n",roster,rider,f,native_camera[f],v->camera[rider][1],v->current[rider][2],v->current[rider][3]);check(false,"the actual noncanonical rider camera follows the same native ascent on every field");}
+        const X3CoopPresentedFrame *draw=X3CoopPresentationVisible();bool drawn=false;for(unsigned i=0;i<draw->count;++i)if(draw->actors[i].address==slot)drawn=true;
+        if(drawn && X3Display_RenderedPrivateFrame())++visible_fields;
+        const char *image=getenv("X3_COOP_FACTORY_LIFT_IMAGE");
+        if(image && *image && !roster && !rider && !run && (f==4 || f==150 || f==350 || f==650)){
+          char path[1024];snprintf(path,sizeof(path),"%s-f%u.ppm",image,f);WritePpm(path,g_ppu->renderBuffer,g_ppu->renderPitch,256+g_ppu->extraLeftRight*2,224,0,false);
+        }
+      }
+      fprintf(stderr,"native LIFT CAMERA roster%u rider%u run%u camera%d->%d privateVisible%u/%u sourceY%u freeX%u\n",roster,rider,run,first_camera,last_camera,visible_fields,fields,view_read(slot+8),support_position(rider^1,5));
+      check(first_camera-last_camera>=512 && visible_fields==fields,"the real moving lift remains in its rider's private render across multiple native camera rows");
+      X3Display_SetPresentationSeat(-1);
+      check(X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE && support_position(rider^1,5)>free_x && updates==native_updates && updates==fields && (uint8_t)(g_ram[0x9cc]-clock)==(uint8_t)fields,"the free partner moves independently while one shared rise advances once per native world field");
+      for(unsigned f=0;f<8;++f){frame((uint32_t)(SNES_PAD_RIGHT|SNES_PAD_B)<<(rider*12));FactoryLiftSample now=factory_lift_sample(slot,rider,true);same(&native_control[f],sizeof(now),&now,sizeof(now),"the actual noncanonical rider resumes control with the same complete native body and lift update");}
+      size_t done=RtlSaveSnapshotToMemory(work,capacity);if(!run){future=done;memcpy(expected,work,done);}else same(expected,future,work,done,"actual landing, countdown, ascent, independent cameras and complete machine replay exactly");
+    }
+  }
+}

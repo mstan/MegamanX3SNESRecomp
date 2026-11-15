@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:155/180;25 open/partial. Accepted areas:7/15
+**Accepted touch points:156/180;24 open/partial. Accepted areas:7/15
 (team wipe, fallen persistence, combat ownership, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -58,7 +58,7 @@ the end of this document; older checkpoint counts are historical.
 | Team wipe |10/10|Accepted|
 | Fallen persistence |10/10|Accepted|
 | Separated spawning |12/14|A09,A13|
-| Supports/hazards |13/16|P06,P12,P13|
+| Supports/hazards |14/16|P06,P12|
 | Enemy interactions |13/14|E06|
 | Combat ownership |12/12|Accepted|
 | Doors/scripts |12/14|S06-S07|
@@ -5753,3 +5753,25 @@ stage6/golden alcoves. Six lifecycle-API retirement cuts per roster preserve
 the remaining actor and exact progress; they remain distinct from authored
 hazard deaths. The independent room/foreground and temporal-display questions
 remain under the visual criteria, rather than blocking this mechanical result.
+
+
+### A free native lift rider crossing independent cameras (P13)
+
+Authored factory record3C:F038 constructs enemy31 and its original child.
+Either rider in both roster orders lands naturally, triggers the original
+96-field wait and rides fromY1696 to869 while the other actor remains canonical
+in another room. All720 native support/body samples and private cameraY values
+match that rider's original single-player reference; only the body display-list
+submission bit is normalized. The real camera follows1488 to768, the support
+is submitted in all720 private fields, and the other actor moves independently.
+
+Actual Right+Jump control at the upper endpoint matches another eight complete
+native body/support samples for both characters. The native ceiling can block
+Zero's jump alone; lateral movement still works. Both complete paired futures
+replay exactly. Four standard tests pass. No production change was needed.
+State-test SHA256:
+`098b7ec2fe14aacde3337195d3f9709e9ea30a240fa85a4e4640252cea7d718c`.
+The route and initial view are prepared from the original region records;
+no lift motion, rider, future camera or result flags are supplied. Three real
+fields publish its initial native OAM before the camera comparison. This is a
+rising lift and therefore does not qualify P06's falling-support criterion.

@@ -313,6 +313,8 @@ int main(int argc,char **argv) {
       size=RtlSaveSnapshotToMemory(saved,cap);
       native_hud_checks(saved,size,after,damaged,cap);
     }
+    fixture=getenv("X3_COOP_FACTORY_LIFT_STATE");
+    if(fixture && *fixture)native_factory_lift_view_checks(fixture,saved,after,damaged,cap);
     fixture=getenv("X3_COOP_VEHICLE_RESOURCE_STATE");
     if(fixture && *fixture)native_vehicle_resource_checks(fixture,saved,after,cap);
     fixture=getenv("X3_COOP_RETURN_STATE");
