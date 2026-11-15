@@ -47,7 +47,7 @@ native-route checks; the complete campaign suite remains open.
 ## QA burndown
 
 **Accepted touch points:157/180;23 open/partial. Accepted areas:7/15
-(team wipe, fallen persistence, combat ownership, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
+(team wipe, fallen persistence, combat, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
 the end of this document; older checkpoint counts are historical.
@@ -5787,3 +5787,28 @@ review. Selected, Shared, Split and wider presentations retain the same
 simulation. The native/adaptive and final learner adaptive receipts remain
 passing and are reused. Fresh final-package defaults remain a separate Z01
 gate; this does not accept other scene, weather or temporal visual criteria.
+
+### Opposed charged-child lifetime and native shared-slot history ? C03/C09
+
+The420-field opposed movement/charge/combo case now runs both real rosters.
+The original shared allocator02:D859 preserves inactive slot contents; class34
+at01:87B8 inherits the fractional coordinates at04/07. Independent original
+actor timelines and the concurrent world can therefore use different native
+slot histories. One child crosses its retained parent coordinate one field
+earlier in the first roster; the second roster has a corresponding temporary
+child-count difference. Neither difference changes the compared native command,
+charge, pose, palette, owned pools, saber hit windows or body CHR.
+
+For each of those two counter differences, the regression additionally runs the
+complete original next field from the actual unchanged paired prior world,
+with that creator's complete native body, pools and original camera. Its full
+combat sample and every32-byte owned child record, including movement, animation
+and retirement, exactly match the paired field. The independent long reference
+remains strict for every other compared byte. Both complete420-field futures
+repeat exactly. A camera-borrow experiment failed to change the discrepancy
+and was removed; no production runtime change is required.
+
+Final test SHA25609a02d2373a397fcb4cbc1ced4d666fe5a9a231a61aa18ab512b1a089ff2d0c8,
+shared-child-final-server-receipt.json child0, and all four standard tests pass
+in1.41s. C03/C09 are restored to accepted. A09 still needs its separate native
+frontier/reversal/lock qualification; this combat case does not decide it.
