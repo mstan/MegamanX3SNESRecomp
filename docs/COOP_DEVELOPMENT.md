@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:163/180;17 open/partial. Accepted areas:8/15
+**Accepted touch points:164/180;16 open/partial. Accepted areas:8/15
 (team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -64,7 +64,7 @@ the end of this document; older checkpoint counts are historical.
 | Doors/scripts |14/14|Accepted|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |7/14|V02,V04-V07,V12,V14|
+| Visuals/audio |8/14|V02,V04,V06-V07,V12,V14|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
@@ -5897,3 +5897,34 @@ Final test SHA256255ddf6a4b70fbfe32334268629647e3aab4cf2d83686b5ba634134e70cd7d0
 hidden-oam-front-server-receipt.json child0 and all four standard tests pass
 in1.28s. The exact native-input fixtures, raw observations and source identity
 remain in the existing qualification record.
+
+
+### Native Cx4 boss canvases and OBJ overlap
+
+The independent compositor now reads Kaiser's live BG2 object canvas instead
+of rebuilding that layer from the ordinary stage map. Both rendering paths
+translate it with the complete camera offset and retain its native closed-arena
+extent, preventing missing body pixels and repeated boss art in wider margins.
+Native descriptor order also determines player/world OBJ overlap: a leading
+explosion remains in front of the primary body instead of the player being
+forced ahead of every shared object. Existing priority and color math remain.
+
+Four earned encounters (Kaiser led by X or Zero, virus and Maoh) run128 actual
+fields each. At16 animation cuts, the original native PPU and private world,
+body and health/energy pixels match exactly. The personal badge/charge rectangle
+is deliberately compared by the existing co-op HUD oracle rather than the
+original common X badge. Both selected fields equal the corresponding512px
+Split halves. Kaiser's live body remains present at342/448/800px, with zero
+canvas pixels outside the authored arena; fast tile rows equal the pixel path.
+Pure view composition leaves the complete canonical snapshot unchanged and
+executes no additional CPU/Cx4 instructions or Cx4 runs. The native scanout
+itself still owns the once-per-field PPU/HDMA bookkeeping.
+
+V05 is accepted on state-test SHA256
+`996abb64740c36293c5d402cdd8e5c5c05c94127dcf760be6f15b8a568c9b1f7`.
+The combined affected gate passes all13 phases: live six-layout HUD/energy,
+two unchanged actual survivor pictures, all four armors in both rosters,
+opposed native charged combat and both requesters' original pause fades in
+both rosters/all four presentations. GUI build and four standard tests pass
+(1.58s). V04 retains its remaining ordering/attachment scope; the wider fixed
+arena background gap remains under V06. No simulation or state format changes.

@@ -104,6 +104,7 @@ static void native_display_checks(const char *tag,uint8_t *original,size_t size,
   X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
   frame(0);frame(0);
   check(g_ppu->renderPitch==256*4,"native display comparison uses an actual256px field");
+  if(getenv("X3_COOP_CX4_VISUAL_STATE"))check(!X3Display_RenderedPrivateFrame(),"Cx4 reference uses the actual original native PPU raster");
   memcpy(native,g_ppu->renderBuffer,256u*224u*4u);
   X3CoopViewsConfigure(true);X3Display_SetPresentationSeat(X3CoopRuntimeState()->anchor);
   check(X3Display_BeginIndependentFrame(g_ppu),"private primary compositor is active for the comparison");
@@ -114,7 +115,11 @@ static void native_display_checks(const char *tag,uint8_t *original,size_t size,
   for(unsigned y=0;y<224;++y)for(unsigned x=0;x<256;++x){
     unsigned at=(y*256+x)*4;
     if(native[at] || native[at+1] || native[at+2])++nonblack;
-    if(memcmp(native+at,private+at,3)){
+    /* Personal badges and charge pips are an approved co-op HUD feature;
+     * the original single-player raster cannot be their visual oracle. The
+     * actual health/energy strips and every world pixel remain strict. */
+    bool own_badge=getenv("X3_COOP_CX4_VISUAL_STATE") && x>=8 && x<40 && y>=80 && y<96;
+    if(!own_badge && memcmp(native+at,private+at,3)){
       ++differences;if((int)x<left)left=x;if((int)x>right)right=x;if((int)y<top)top=y;if((int)y>bottom)bottom=y;
     }
   }

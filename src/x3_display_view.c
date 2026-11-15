@@ -258,6 +258,14 @@ static bool stage_tile(unsigned layer,int x,int y,unsigned *tile){
   unsigned hi=cart_read(g_snes->cart,frame.ram[ptr+2],(uint16_t)(a+1));
   *tile=lo|(hi<<8);return true;
 }
+/* Kaiser draws its transformed head/torso into the live BG2 object canvas,
+ * not the ordinary parallax stage map. The original closed arena is one
+ * native field; do not repeat this circular canvas into a distant view or
+ * wider margins. Pixel Y follows the PPU's visible scanlines1..224. */
+static bool object_canvas(unsigned layer){
+  return layer==1 && frame.stage==13 && frame.ram[0x1e99]==14;
+}
+static bool canvas_contains(int x,int y){return x>=0 && x<256 && y>=1 && y<=224;}
 static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   static const unsigned low[]={8,7,1},high[]={12,11,3};
   unsigned bpp=layer==2?2:4,size=PPU_bigTiles(p,layer)?16:8;
@@ -266,14 +274,17 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
     int mod=x%m;if(mod<0)mod+=m;x-=mod;
     y-=(y-p->mosaicStartLine)%m;
   }
-  int px=(x+p->hScroll[layer])&1023,py=(y+p->vScroll[layer])&1023;
+  bool canvas=object_canvas(layer);
+  int source_x=x+(canvas?frame.dx:0),source_y=y+(canvas?frame.dy:0);
+  if(canvas && !canvas_contains(source_x,source_y))return 0;
+  int px=(source_x+p->hScroll[layer])&1023,py=(source_y+p->vScroll[layer])&1023;
   unsigned sc=p->bgXsc[layer],tx=(unsigned)px/size,ty=(unsigned)py/size;
   unsigned a=(sc&0xfc)*256+(tx&31)+(ty&31)*32;
   if((sc&1) && (tx&32))a+=1024;
   if((sc&2) && (ty&32))a+=(sc&1)?2048:1024;
   unsigned tile=p->vram[a&32767];int asset_x=-1,asset_y=-1;
   unsigned mode=frame.ram[0x1e99];
-  bool stream=layer==0 || (layer==1 && (mode==2 || mode==4 || mode==14 || mode==16));
+  bool stream=!canvas && (layer==0 || (layer==1 && (mode==2 || mode==4 || mode==14 || mode==16)));
   if(layer<2 && size==8 && stream){
     int wx,wy;
     if(!layer){
@@ -340,7 +351,8 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
   }
   static const unsigned low[]={8,7,1},high[]={12,11,3};
   unsigned mode=frame.ram[0x1e99],bpp=layer==2?2:4;
-  bool stream=layer==0 || (layer==1 && (mode==2 || mode==4 || mode==14 || mode==16));
+  bool canvas=object_canvas(layer);
+  bool stream=!canvas && (layer==0 || (layer==1 && (mode==2 || mode==4 || mode==14 || mode==16)));
   bool half_x=layer==1 && (mode==2 || mode==14);
   bool half_y=layer==1 && (mode==2 || mode==16);
   int origin_x=0,origin_y=0;
@@ -361,6 +373,9 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
   for(unsigned i=0;i<width;){
     int x=(int)i-(int)left,px=(x+p->hScroll[layer])&1023,py=(y+p->vScroll[layer])&1023;
     unsigned tile=0,span;bool valid=true;
+    if(canvas){int nx=x+frame.dx,ny=y+frame.dy;
+      px=(nx+p->hScroll[layer])&1023;py=(ny+p->vScroll[layer])&1023;valid=canvas_contains(nx,ny);
+    }
     if(stream){
       px=origin_x+x;py=origin_y+y;
       if(x<0 && px<0)px=((px%32)+32)%32;
@@ -373,6 +388,10 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
       tile=p->vram[a&32767];
     }
     span=8-((unsigned)px&7);if(span>width-i)span=width-i;
+    if(canvas){int begin=-frame.dx,end=256-frame.dx;
+      if(x<begin && x+(int)span>begin)span=(unsigned)(begin-x);
+      if(x<end && x+(int)span>end)span=(unsigned)(end-x);
+    }
     /* The finite-origin margin wrap ends at the native field boundary. */
     if(x<0 && span>(unsigned)-x)span=(unsigned)-x;
     if(layer==2 && x<256 && x+(int)span>256)span=256-x;
@@ -415,13 +434,17 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
 }
 static void world_objects(const Ppu *p,int left,int right){
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
-  unsigned used=0;
-  for(unsigned i=0;i<visible->count && used<WORLD_PIECES;++i){
+  /* The cartridge's descriptor order owns native OBJ overlap. In particular,
+   * a leading explosion must remain in front of the primary player's body. */
+  unsigned used=0,native_slot=24,primary_slot=24;
+  for(unsigned i=0;i<visible->count;++i){
     const X3CoopWorldDraw *draw=&visible->actors[i];const uint8_t *b=draw->body;
-    if(draw->address==X3_COOP_BODY)continue;
     unsigned table,a,n;
     if(!rom_read(0x8d8000+b[0x16]*3,3,&table) ||
        !rom_read(table+(b[0x17]&127)*3,3,&a) || !rom_read(a,1,&n) || n>64)continue;
+    unsigned first=native_slot;native_slot+=n;
+    if(draw->address==X3_COOP_BODY){if(draw->owner==visible->players.anchor+1)primary_slot=first;continue;}
+    if(used==WORLD_PIECES)continue;
     uint16_t colors[256];memcpy(colors,p->cgram,sizeof(colors));
     ObjectResource resource;bool private_resource=object_resource(draw,colors,&resource);
     if(draw->owner){
@@ -447,13 +470,16 @@ static void world_objects(const Ppu *p,int left,int right){
         if(pixel)pixels[dy*16+dx]=(uint16_t)(0x8000|colors[128+((attributes>>1)&7)*16+pixel]);
       }
       frame.objects[frame.count++]=(PpuExtraObject){.x=x,.y=y,.width=(uint16_t)side,.height=(uint16_t)side,.stride=16,
-        .priority=(attributes>>4)&3,.math=((attributes>>1)&7)>=4,.oamSlot=(uint8_t)(16+used),.order=1,.pixels=pixels};
+        .priority=(attributes>>4)&3,.math=((attributes>>1)&7)>=4,
+        .oamSlot=(uint8_t)(first+piece<128?first+piece:127),.order=first+piece<128?1:2+first+piece-128,.pixels=pixels};
       ++used;
     }
   }
   for(unsigned seat=0;seat<2 && frame.count<EXTRA_PIECES;++seat){
     const PpuExtraObject *body=X3CoopRenderPlayer(seat,frame.x,frame.y);
-    if(body){PpuExtraObject object=*body;object.oamSlot=seat==visible->players.anchor?8:108;
+    if(body){PpuExtraObject object=*body;
+      if(seat==visible->players.anchor){object.oamSlot=(uint8_t)(primary_slot<128?primary_slot:127);object.order=primary_slot<128?1:2+primary_slot-128;}
+      else{object.oamSlot=108;object.order=2;} /* Native counterpart follows an original OBJ on a tie. */
       frame.objects[frame.count++]=object;}
   }
 }
