@@ -170,11 +170,20 @@ typedef struct ObjectResource {
 } ObjectResource;
 static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],ObjectResource *out){
   const uint8_t *b=draw->body;
-  if(draw->owner || !b[10])return false;
+  bool armor=false;
+  if(draw->address==0xcc8 && !b[10])for(unsigned variant=0;variant<4;++variant){
+    unsigned group;if(rom_read(0x06b517+variant,1,&group) && group==b[0x16])armor=true;
+  }
+  if(draw->owner || (!b[10] && !armor))return false;
   /* The common native02:E15C constructor selects group/file from06:E28E.
    * A customized group is left on its original native path. */
   unsigned group,key;
-  if(draw->address>=0xd18 && draw->address<0x10d8){
+  if(armor){
+    /* Playable armor03:9428 uses file25's placement cache, independently of
+     * the canonical body's room. Its native friendly palette is fixed by
+     * 03:9479; it does not use the enemy constructor's palette offset. */
+    group=b[0x16];key=0x25;
+  }else if(draw->address>=0xd18 && draw->address<0x10d8){
     if(!rom_read(0x06e28e + (b[10]-1)*5,1,&group) ||
        !rom_read(0x06e28f+(b[10]-1)*5,1,&key))return false;
   }else if(draw->address>=0x1518 && draw->address<0x1818 && !((draw->address-0x1518)%48)){
@@ -196,6 +205,7 @@ static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],Obj
   unsigned target,palette,offset;
   if(!rom_read(a+1,2,&target) || target>=32768 || !rom_read(a+3,2,&palette) || !rom_read(a+5,1,&offset))return false;
   out->tile=(target>>4)&255;out->attributes=(target>>12)|(offset>>3)|0x20;
+  if(armor)out->attributes=(target>>12)|(b[0x11]&62);
   if(draw->address>=0xd18 && draw->address<0x10d8 && (b[10]==0x4d || b[10]==0x5c)){
     /* Capsule13:C075 and hologram05:C863 use A0/80, forty tiles before
      * their file88/89 uploads at E0/C0. Their layouts include that40 bias;
@@ -209,12 +219,12 @@ static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],Obj
   /* Preserve native animation, flashing and uploaded art when the completed
    * local cache already has this file's actual placement and palette. */
   bool hologram=draw->address>=0xd18 && draw->address<0x10d8 && b[10]==0x5c;
-  if(!hologram && phase==frame.ram[0x1f18] && b[0x18]==out->tile && (b[0x11]&63)==out->attributes)return false;
+  if(!armor && !hologram && phase==frame.ram[0x1f18] && b[0x18]==out->tile && (b[0x11]&63)==out->attributes)return false;
   if(!file_ready[key]){
     file_ready[key]=X3ResourceDecode(frame.rom,frame.size,key,files[key],sizeof(files[key]),&file_length[key])?1:2;
   }
   if(file_ready[key]!=1 || !X3ResourceLayout(frame.rom,frame.size,key,target,out->segments,&out->count) ||
-     !X3ResourcePalette(frame.rom,frame.size,palette,offset,colors))return false;
+     (!armor && !X3ResourcePalette(frame.rom,frame.size,palette,offset,colors)))return false;
   /* Native05:C846 loads the hologram's fixed E4 palette into OBJ palette0.
    * It must not borrow a surviving Zero's current body colors. */
   if(hologram && !X3ResourcePalette(frame.rom,frame.size,0xe4,0,colors))return false;
@@ -512,6 +522,13 @@ bool X3Display_BeginIndependentFrame(Ppu *p){
   rendered_private=false;
   int seat=X3Display_PresentationSeat();
   if(seat>=0 && X3CoopViewsIndependent())return begin_view(p,(unsigned)seat,false);
+  if(X3CoopViewsIndependent()){
+    /* Narrow Shared needs the same per-room armor art as wider/split views;
+     * native OAM alone can still point at the other region's shared tiles. */
+    const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
+    for(unsigned i=0;i<visible->count;++i)if(visible->actors[i].address==0xcc8 && !visible->actors[i].body[10])
+      return begin_view(p,0,true);
+  }
   return panel_width>256 && begin_view(p,0,true);
 }
 bool X3Display_BeginLocalSplitFrame(Ppu *p){

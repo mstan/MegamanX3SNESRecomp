@@ -68,6 +68,49 @@ static void vehicle_capture(bool paired,uint8_t *work,const char *phase){
   X3Display_SetPresentationSeat(-1);
   check(clock==g_cpu.master_cycles && !memcmp(work,g_ram,0x20000),"actual vehicle image leaves the shared simulation unchanged");
 }
+static void native_vehicle_resource_checks(const char *fixture,uint8_t *work,uint8_t *after,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0xcc8] && !g_ram[0xcd2] && g_ram[0xd13]<4,
+      "vehicle resource isolation loads an actually summoned native armor");
+  unsigned variant=g_ram[0xd13],x=X3CoopRuntimeState()->players[0].character==X3_COOP_X?0:1;
+  for(unsigned f=0;f<3;++f)frame(0);
+  const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
+  check(visible->players.players[x].body[2]==0x2c && visible->views[x][1]!=visible->views[x^1][1],
+      "resource isolation retains the actual pilot and two separate native rooms");
+  bool wide=g_config.widescreen;g_config.widescreen=false;
+  uint16_t sprite_bank[4096];unsigned bank=PPU_objTileAdr2(g_ppu);
+  check(bank+4096<=32768,"the active native second sprite bank has a bounded complete tile span");
+  memcpy(sprite_bank,g_ppu->vram+bank,sizeof(sprite_bank));
+  uint8_t *image=malloc(capacity);check(image!=NULL,"two-view vehicle resource image allocates");
+  /* Settle the renderer's saved widescreen motion grace under the same
+   * native-width settings before comparing presentation passes. The display
+   * preference changes that host history; it is not a guest PPU port. */
+  X3Display_SetPresentationSeat((int)x);X3Display_SetLocalSplit(false);X3Display_SetCoopPanelWidth(256);
+  PpuResetWidescreenOamHistory(g_ppu);CaptureSimulationFrame(1);
+  size_t state_size=RtlSaveSnapshotToMemory(work,capacity);check(state_size!=0,"vehicle composition retains its complete native machine baseline");uint64_t clock=g_cpu.master_cycles;
+  const char *output=getenv("X3_COOP_VEHICLE_RESOURCE_OUTPUT");
+  for(unsigned mode=0;mode<3;++mode){
+    unsigned width=mode==2?512:256;size_t bytes=(size_t)width*224*4;
+    X3Display_SetPresentationSeat(mode==0?(int)x:-1);X3Display_SetLocalSplit(mode==2);X3Display_SetCoopPanelWidth(256);
+    CaptureSimulationFrame(1);check(X3Display_RenderedPrivateFrame(),"native-width selected, Shared and Split armor views use the actual private compositor");
+    if(mode==2)check(X3Display_DrawCoopFrame(after,width*4,NULL,width,224,1),"both actual native-width armor views compose");
+    else{check(g_ppu->renderPitch==256*4,"native armor field has its real256px pitch");memcpy(after,g_ppu->renderBuffer,bytes);}
+    if(output && *output){char path[1024];snprintf(path,sizeof(path),"%s-mode%u-normal.ppm",output,mode);WritePpm(path,after,width*4,width,224,0,false);}
+    /* The other region can replace shared OBJ tiles. Private vehicle art must
+     * retain its original file25 pixels; backgrounds and native palettes stay. */
+    memset(g_ppu->vram+bank,0,sizeof(sprite_bank));CaptureSimulationFrame(1);
+    if(mode==2)check(X3Display_DrawCoopFrame(image,width*4,NULL,width,224,1),"both private views recompose after another room's upload");
+    else memcpy(image,g_ppu->renderBuffer,bytes);
+    bool equal=!memcmp(after,image,bytes);
+    if(output && *output){char path[1024];snprintf(path,sizeof(path),"%s-mode%u-other-room-upload.ppm",output,mode);WritePpm(path,image,width*4,width,224,0,false);}
+    memcpy(g_ppu->vram+bank,sprite_bank,sizeof(sprite_bank));
+    check(equal,"the complete remote armor picture survives an unrelated replacement of canonical shared sprite tiles");
+    check(clock==g_cpu.master_cycles,"vehicle resource isolation does not advance the CPU");
+    same(work,state_size,image,RtlSaveSnapshotToMemory(image,capacity),"vehicle view composition and restored sprite bank preserve the complete machine, including native PPU state");
+    fprintf(stderr,"native VEHICLE RESOURCE variant%u pilot%u group%02x bank%04x mode%u complete%ux224 field exact after other-room OBJ upload\n",variant,x,g_ram[0xcde],bank,mode,width);
+  }
+  free(image);g_config.widescreen=wide;X3Display_SetPresentationSeat(-1);X3Display_SetLocalSplit(false);
+}
+
 static unsigned vehicle_action_buttons(unsigned phase,unsigned frame_index,unsigned variant){
   return phase?(frame_index>=12 && frame_index<60?SNES_PAD_Y:0):(frame_index<(variant>=2?60u:8u)?SNES_PAD_B:0);
 }

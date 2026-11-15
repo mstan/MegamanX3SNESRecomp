@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:150/180;30 open/partial. Accepted areas:7/15
+**Accepted touch points:151/180;29 open/partial. Accepted areas:7/15
 (team wipe, fallen persistence, combat ownership, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -58,7 +58,7 @@ the end of this document; older checkpoint counts are historical.
 | Team wipe |10/10|Accepted|
 | Fallen persistence |10/10|Accepted|
 | Separated spawning |12/14|A09,A13|
-| Supports/hazards |12/16|P06,P12,P13,P15|
+| Supports/hazards |13/16|P06,P12,P13|
 | Enemy interactions |13/14|E06|
 | Combat ownership |12/12|Accepted|
 | Doors/scripts |10/14|S06-S07,S09-S10|
@@ -5698,3 +5698,21 @@ door and transport survivor coverage. State test SHA256:
 The return check waits for actual controllable native bodies, rather than
 accepting the constructor's temporary zero coordinates as hub arrival.
 The four standard tests pass (1.43s). No production change was needed.
+
+
+### Native Ride Armor resources across separated rooms (P15)
+
+Playable armor atCC8 uses cartridge file25 and the original friendly palette
+and priority bits. Its private image now resolves that resource even when the
+canonical room's shared OBJ memory contains a different upload. Native-width
+Shared uses the same private composition as the wider and independent views.
+No guest graphics, controls or snapshot format is replaced.
+
+All four native station choices in both roster orders retain pixel-identical
+complete selected256, Shared256 and Split512 pictures when the canonical OBJ
+bank is replaced. Restoring the bank leaves the complete saved machine exact;
+preparation resets only the renderer's host motion history. State test SHA256
+`7391638d73657a840328179be6027e9108e3e1f97096bc1850435510a50c16f6`;
+GUI SHA256`55f6a24d67722cdaaea65d8f3f67870b0aec8e68d674069559abeacae5283c62`.
+The four standard tests pass. Existing native boarding, damage, destruction,
+withdrawal and pilot controls remain qualified; P15 is accepted again.
