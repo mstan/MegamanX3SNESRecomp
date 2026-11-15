@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:171/180;9 open/partial. Accepted areas:8/15
+**Accepted touch points:172/180;8 open/partial. Accepted areas:8/15
 (team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -64,7 +64,7 @@ the end of this document; older checkpoint counts are historical.
 | Doors/scripts |14/14|Accepted|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |12/14|V07,V12|
+| Visuals/audio |13/14|V12|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
@@ -6217,3 +6217,44 @@ snapshot resume also shows the separated indoor/outdoor pair correctly.
 Evidence remains in ignored native-weather-scope-*-receipt.json and
 cx4-visual-work/weather-qualified-*-after.log. V07 remains open for weather
 onset/retirement and wide-margin qualification; formal progress remains171/180.
+
+
+## V07 weather lifecycle and adaptive margins accepted - 2026-11-15
+
+The native weather background was clipped at the original256px field in
+adaptive views: removing only snow CHR changed12848central pixels and0pixels
+in either added margin. Both background paths now extend this actual weather
+layer across the panel, retaining the existing bounds for other BG3 content.
+
+A settled original stage2 view waits at camera3840,768 on a real full-foot
+flat ledge. Eight fields of native Right input cross the original strict
+weather-entry boundary. Both rosters/either outdoor actor preserve the original
+indoor background through the native13/04 subtractive fade,04/13 additive snow
+and animation. After both cameras leave, the original script performs its own
+fade, graphics cleanup and retirement, restores13/00 with math disabled, and
+keeps both actors alive. Positions/protection/cameras are setup prerequisites;
+no weather phase, fade timer, palette, graphics or result flag is supplied.
+
+All60 indoor background comparisons are0pixels at matching original star
+animation phases. All4 adaptive panels contain2223..2317changed snow pixels
+in the left margin,13081..13120in the center and2065..2303on the right. The
+control removes only the actual disjoint snow CHR and restores VRAM exactly.
+Selected/Split views, canonical presentation purity and each32-field whole
+machine future pass. Both settled co-located original PPU controls still pass
+all8 full native world/body/meter cuts. Onset's roof pickup OBJ is an unqualified
+native-art reference and is not used for a full OBJ claim; the original indoor
+background and the settled full-art sources supply their respective oracles.
+The earlier immediate post-teleport comparison was an unsettled source and
+establishes no product defect.
+
+Tests9ab188ec22530db1911d6b3b3ae2a264a8323eb1c68d69665cfc256606bcbf86
+and GUI95a5d395d26d002c61a29fa2d4e00ec2e145870fa666111e38ce59254eee687b
+pass the6phase weather gate and all4 standard tests. The actual1600x450 GUI
+resume presents684x224 with snow in the added margins. Combined with the
+qualified normal/alternate animated palettes, visible Lab2 color math and
+creator-local flash colors, this accepts V07. Earlier24phase affected visual
+regression on312d7a4 is retained; this final change affects weather margins only.
+Ignored evidence: native-weather-lifecycle-*-receipt.json,
+native-weather-wide-fixed-receipt.json, cx4-visual-work/weather-lifecycle-*-after.log
+and native-weather-wide-runtime/{before,fixed}.png. Progress172/180 accepted,
+8open,8/15 areas complete. No delivery archive has changed.

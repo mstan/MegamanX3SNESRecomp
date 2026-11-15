@@ -314,7 +314,7 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
     asset_x=layer && (mode==2 || mode==14)?wx*2-128:wx;
     asset_y=layer && (mode==2 || mode==16)?wy*2-112:wy;
   }else if(layer==2 && (x<0 || x>=256) &&
-           !(p->screenEnabled[1]==4 && !(p->screenEnabled[0]&4)))return 0;
+           !frame.weather && !(p->screenEnabled[1]==4 && !(p->screenEnabled[0]&4)))return 0;
   int cx=px&(size-1),cy=py&(size-1);
   if(tile&0x4000)cx=(int)size-1-cx;
   if(tile&0x8000)cy=(int)size-1-cy;
@@ -334,7 +334,7 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   }else pixel=tile_pixel(p->vram,a,(unsigned)cx&7,(unsigned)cy&7,bpp);
   if(!pixel)return 0;
   unsigned index=(((tile>>10)&7)<<bpp)|pixel;
-  /*03:C1B9 installs the visible snow ramp0421. Another living room may
+  /*03:C1BA installs the visible snow ramp0421. Another living room may
    * legitimately request a full palette DMA while03:C3BF edits its staged
    * fade colors. That room's upload must not recolor this view's snow. */
   if(layer==2 && frame.weather && index>=5 && index<=7)*color=0x421;
@@ -410,7 +410,7 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
     if(x<0 && span>(unsigned)-x)span=(unsigned)-x;
     if(layer==2 && x<256 && x+(int)span>256)span=256-x;
     if(layer==2 && (x<0 || x>=256) &&
-       !(p->screenEnabled[1]==4 && !(p->screenEnabled[0]&4)))valid=false;
+       !frame.weather && !(p->screenEnabled[1]==4 && !(p->screenEnabled[0]&4)))valid=false;
     if(!valid){for(unsigned j=0;j<span;++j){pixels[i+j]=0;colors[i+j]=-1;}i+=span;continue;}
     unsigned cy=(unsigned)py&7;if(tile&0x8000)cy=7-cy;
     unsigned a=(PPU_bgTileAdr(p,layer)+(tile&1023)*bpp*4)&32767;

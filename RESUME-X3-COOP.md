@@ -2,8 +2,8 @@
 
 ## Current continuation - 2026-11-15
 
-**171/180 accepted;9 open;8/15 areas complete.** Remaining criteria:
-D06; A13; P06,P12; E06; G12; V07,V12; Z04.
+**172/180 accepted;8 open;8/15 areas complete.** Remaining criteria:
+D06; A13; P06,P12; E06; G12; V12; Z04.
 Native creator graphics, attachment/armor ordering, entry/reversal/lock
 frontiers and independent streamed room pictures are now qualified. The latest
 source identities and individual evidence are at the end of
@@ -44,9 +44,18 @@ follow the correct camera, and another room's palette DMA preserves native snow
 colors. Both rosters/either outdoor actor pass all16 original indoor background
 cuts at a matching native star-animation phase and32-field full-machine replay.
 Frozen testsbd0e4fc6 andGUI89e1f3e8 pass24 affected visual phases and4 standard
-tests; an actual GUI resume confirms the separated pair. No new criterion is
-counted. Next qualify weather onset/retirement and adaptive wide margins, then
-finish V07 and the other remaining criteria without repeating owner reviews.
+tests; an actual GUI resume confirms the separated pair. V07 is now accepted after its actual native boundary crossing, retirement and
+wide-margin gate: both rosters/either outdoor actor, all60 original indoor
+background cuts0pixels, full-machine replay exact, all4 wide Snow controls
+positive in both margins and both settled original native controls8cuts0.
+Tests9ab188ec/GUI95a5d395 pass6weather phases and4standard tests; actualGUI
+684px confirms the fixed margins. The native onset roof pickup OBJ remains an
+unqualified original-art reference; it is excluded from full OBJ claims, while
+the separate settled sources retain their full native references. The immediate
+post-teleport onset source was unsettled, not evidence of a product defect.
+Next V12: reuse the qualified earned first-fortress-door prefix states for actual
+scene/door-pan pictures. Do not restart frozen fortress navigation or the invalid
+teleport-door/native-cache calibration. Other accepted owner reviews stay closed.
 
 The full180 objective and solo/local-only constraints remain. No release is
 ready or delivered. Complete the remaining authored gameplay, weather/scene
