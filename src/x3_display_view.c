@@ -332,7 +332,9 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   }else pixel=tile_pixel(p->vram,a,(unsigned)cx&7,(unsigned)cy&7,bpp);
   if(!pixel)return 0;
   unsigned index=(((tile>>10)&7)<<bpp)|pixel;
-  if(asset_x>=0 && asset_x<8192 && asset_y>=0 && asset_y<8192){
+  /* The current native view owns script overrides and palette animation.
+   * Authored room lists reconstruct only a different camera's colors. */
+  if((frame.dx || frame.dy) && asset_x>=0 && asset_x<8192 && asset_y>=0 && asset_y<8192){
     unsigned phase=resource_phase(1,asset_x,asset_y);
     unsigned current=frame.ram[0x1f1a];
     if((frame.stage==4 && (frame.ram[0x1fc9]&64)) ||
@@ -429,7 +431,7 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
         if(bpp==4)pixel|=(((live[1]>>shift)&1)<<2)|(((live[1]>>(8+shift))&1)<<3);
       }
       colors[i+j]=-1;pixels[i+j]=pixel?(uint16_t)(prefix|palette|pixel):0;
-      if(pixel && asset){
+      if(pixel && asset && (frame.dx || frame.dy)){
         unsigned phase=resource_phase(1,asset_x,asset_y);const Palette *pal=prepare_palette(phase);
         if(pal && pal->valid[palette|pixel] && phase!=current_palette)colors[i+j]=pal->colors[palette|pixel];
       }
