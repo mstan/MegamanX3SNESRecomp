@@ -433,8 +433,9 @@ static void input(unsigned seat) {
   g_ram[0x1f1e]=0;
 }
 static void anchor_palette(void) {
+  /* Context ownership must not request a full background-palette upload.
+   * Actual native palette changes retain their own original NMI requests. */
   memcpy(g_ram+X3_COOP_PALETTE,state.players[state.anchor].palette,X3_COOP_PALETTE_BYTES);
-  g_ram[0xa1]=1;
 }
 static bool fall_player(unsigned seat) {
   if(seat==state.anchor && state.players[seat^1].life==X3_COOP_ALIVE)

@@ -27,12 +27,14 @@ int main(void) {
   CHECK(s.players[1].body[5]==42);
   CHECK(ram[X3_COOP_BODY+5]==0x5a);
   CHECK(ram[0x1fd2]==16 && s.players[1].maximum_health==28);
+  ram[0xa1]=0; /* No native full-palette upload is pending. */
   memset(ram+X3_COOP_PALETTE,0x22,X3_COOP_PALETTE_BYTES);
   CHECK(X3CoopProject(&s,ram,1));
   CHECK(s.players[0].palette[0]==0x22 && ram[X3_COOP_PALETTE]==0x5a);
-  CHECK(ram[0xa1]==1);
+  CHECK(ram[0xa1]==0);
+  ram[0xa1]=0x5a; /* Preserve an actual pending native request. */
   CHECK(X3CoopProject(&s,ram,0));
-  CHECK(ram[X3_COOP_PALETTE]==0x22);
+  CHECK(ram[0xa1]==0x5a && ram[X3_COOP_PALETTE]==0x22);
   ram[0x1f37]|=1;
   memset(ram+X3_COOP_PALETTE,0x77,X3_COOP_PALETTE_BYTES);
   CHECK(X3CoopProject(&s,ram,1));

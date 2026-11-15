@@ -32,13 +32,17 @@ on958cdd7d; actual defaults/gameplay/input evidence above is retained.
 See ignored native-package-qa/results.json and six process receipts. Preserve
 accepted physical reviews; do not use desktop/browser UI automation.
 
-A new actual V07 weather defect is established: co-op shows dense repeated
-glyphs instead of native snowfall. A control with co-op disabled before the
-original stage2 loader reaches the same real outdoor terrain/camera and renders
-proper snowfall. Source f28e06d8, original control718d0b21; native actual package
-GUI reproduces it. Original-raster/detached/VRAM attribution is in progress.
-Fix this actual BG3 finding before V07 acceptance; do not discard it as an
-unqualified teleport source. Tests are uncommitted; no production fix yet.
+The actual V07 snowfall palette defect is repaired and qualified: actor
+projection/anchor selection no longer force full native BG palette uploads.
+Native original/co-op VRAM match all64KiB; the three visible weather colors now
+remain0421 instead of publishing staged72CA/5585/7F9C. Both rosters/all8 native
+cuts,24 affected visual phases,3 native audio phases and4 standard tests pass
+on8e3b986d. Actual GUI394464b5 shows proper snowfall. No new criterion is counted.
+Next V07 decision is separated-view scope: obtain the native indoor background
+reference before changing weather lifetime or per-view presentation. Native
+camera rectangles are in DB06:DF70 (not bank03); shared weather controller is
+stage2 class03/03:C17B. Do not design a new state/serialization framework before
+an actual scoped-view failure selects the required change.
 
 The full180 objective and solo/local-only constraints remain. No release is
 ready or delivered. Complete the remaining authored gameplay, weather/scene

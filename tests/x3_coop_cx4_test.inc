@@ -44,6 +44,24 @@ static void native_arena_edge_picture(unsigned panel,unsigned anchor,uint8_t *pr
 static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint8_t *left,uint8_t *right,size_t capacity){
   bool environment=getenv("X3_COOP_ENVIRONMENT_VISUAL")!=NULL;
   check(RtlLoadSnapshot(fixture),"native presentation loads its complete existing actor state");
+  if(environment && getenv("X3_COOP_ENVIRONMENT_OUTDOOR_ORIGINAL")){
+    /* Produce the control with co-op disabled before the original loader.
+     * Disabling it only after loading could retain an earlier renderer error. */
+    X3CoopRuntimeEnable(false);X3CoopViewsConfigure(false);g_config.widescreen=false;
+    X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
+    stage_request();g_ram[0x1fae]=2;unsigned f=0;
+    for(;f<3600;++f){frame(0);if(X3CoopRuntimeEnabled())check(false,"original outdoor loader never reenrolls co-op");if(g_ram[0xd1]==4 && g_ram[0xd2]==4 && !g_ram[0x1f22])break;}
+    check(f<3600,"original single-actor loader reaches playable stage2");for(unsigned i=0;i<120;++i)frame(0);
+    view_word(X3_COOP_BODY+5,4160);view_word(X3_COOP_BODY+8,879);g_ram[X3_COOP_BODY+0x88]=255;
+    X3CoopViewState v={0};v.camera[0][0]=3584;v.camera[0][1]=768;v.current[0][1]=v.limits[0][1]=8192;
+    v.current[0][2]=v.current[0][3]=v.limits[0][2]=v.limits[0][3]=768;vehicle_install_view(&v,0);
+    for(unsigned i=0;i<192;++i){frame(0);if(X3CoopRuntimeEnabled())check(false,"original outdoor producer remains entirely single actor");}
+    check((g_ram[X3_COOP_BODY+0x27]&127) && g_ppu->renderPitch==256*4,"actual original outdoor field contains the living native actor at native width");
+    const char *out=getenv("X3_COOP_DISPLAY_OUTPUT");if(out && *out){char path[1024];snprintf(path,sizeof(path),"%s-original-actual.ppm",out);WritePpm(path,g_ppu->renderBuffer,g_ppu->renderPitch,256,224,0,false);
+
+    }
+    fprintf(stderr,"native ORIGINAL OUTDOOR actual camera%u,%u body%u,%u HP%u phases%u/%u/%u BG%02x/%02x math%02x/%02x\n",view_read(0x1e5d),view_read(0x1e60),view_read(X3_COOP_BODY+5),view_read(X3_COOP_BODY+8),g_ram[X3_COOP_BODY+0x27]&127,g_ram[0x1f18],g_ram[0x1f19],g_ram[0x1f1a],g_ppu->screenEnabled[0],g_ppu->screenEnabled[1],g_ppu->cgwsel,g_ppu->cgadsub);return;
+  }
   if(environment && getenv("X3_COOP_ENVIRONMENT_ENTRY")){
     unsigned target=(unsigned)atoi(getenv("X3_COOP_ENVIRONMENT_ENTRY"));check(target==2 || target==4 || target==5 || target==6,"environment entry selects an authored stage");
     if(getenv("X3_COOP_ENVIRONMENT_ALTERNATE")){
@@ -61,6 +79,24 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
   check(g_snes->cart->cx4 && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual Cx4 encounter retains both living native participants");
   size_t n=RtlSaveSnapshotToMemory(cut,capacity);X3CoopState setup=*X3CoopRuntimeState();for(unsigned seat=0;seat<2;++seat)setup.players[seat].body[0x88]=255;
   check(X3CoopEncode(&setup,cut+contact_context_offset(cut,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(cut,n),"Cx4 scene supplies only participant damage protection");door_install_player(&setup);X3CoopViewsConfigure(true);
+  if(environment && getenv("X3_COOP_ENVIRONMENT_OUTDOOR")){
+    check(g_ram[0x1fae]==2,"outdoor environment source uses the actual Blizzard Buffalo stage");
+    n=RtlSaveSnapshotToMemory(cut,capacity);setup=*X3CoopRuntimeState();X3CoopCapture(&setup,g_ram);
+    for(unsigned seat=0;seat<2;++seat){unsigned x=4160+seat*24,foot=setup.players[seat].character==X3_COOP_ZERO?25:17;
+      check(terrain_test_kind(x,896)==0x3b && terrain_test_kind(x-12,895)==0 && terrain_test_kind(x+12,895)==0,"actual outdoor source has full-foot native flat terrain");
+      campaign_position_only(&setup.players[seat],x,896-foot);setup.players[seat].body[0x88]=255;
+    }
+    check(X3CoopEncode(&setup,cut+contact_context_offset(cut,n),X3CoopEncodedSize()) && RtlLoadSnapshotFromMemory(cut,n),"outdoor source changes only positions and personal damage protection");door_install_player(&setup);
+    X3CoopViewState views=*X3CoopViewsState();views.valid=views.camera_valid=3;
+    for(unsigned seat=0;seat<2;++seat){views.camera[seat][0]=3584;views.camera[seat][1]=768;
+      views.limits[seat][0]=views.current[seat][0]=0;views.limits[seat][1]=views.current[seat][1]=8192;
+      views.limits[seat][2]=views.current[seat][2]=768;views.limits[seat][3]=views.current[seat][3]=768;
+    }
+    X3CoopViewsSetState(&views);vehicle_install_view(&views,setup.anchor);
+    for(unsigned f=0;f<192;++f)frame(0);
+    fprintf(stderr,"native OUTDOOR source camera%u,%u actors%u,%u/%u,%u HP%u/%u phases%u/%u/%u BG%02x/%02x math%02x/%02x\n",view_read(0x1e5d),view_read(0x1e60),support_position(0,5),support_position(0,8),support_position(1,5),support_position(1,8),contact_hp(0),contact_hp(1),g_ram[0x1f18],g_ram[0x1f19],g_ram[0x1f1a],g_ppu->screenEnabled[0],g_ppu->screenEnabled[1],g_ppu->cgwsel,g_ppu->cgadsub);
+    check(contact_hp(0) && contact_hp(1) && !X3CoopRuntimeSceneActive(),"outdoor source reaches a living playable native world after its original camera pan");
+  }
   const char *entry_output=environment?getenv("X3_COOP_ENVIRONMENT_STATE_OUTPUT"):NULL;
   if(entry_output && *entry_output)check(RtlSaveSnapshot(entry_output),"actual native environment entry exports without a picker");
   bool wide=g_config.widescreen;g_config.widescreen=false;X3Display_SetCoopPanelWidth(256);X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
@@ -68,6 +104,8 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
   uint64_t initial=cx4_instructions_executed(g_snes->cart->cx4);unsigned cuts=0,math_pixels=0;
   for(unsigned f=0;f<128;++f){frame(0);
     if(f!=3 && f!=31 && f!=63 && f!=95)continue;
+    if(environment && getenv("X3_COOP_ENVIRONMENT_OUTDOOR"))
+      check(g_ppu->cgram[5]==0x421 && g_ppu->cgram[6]==0x421 && g_ppu->cgram[7]==0x421,"actual co-op snowfall keeps the original visible weather colors while its staged RAM palette animates");
     if(environment){uint32_t palette=2166136261u,tiles=2166136261u;
       for(unsigned i=0;i<128;++i)palette=(palette^g_ppu->cgram[i])*16777619u;
       for(unsigned i=0;i<0x6000;++i)tiles=(tiles^g_ppu->vram[i])*16777619u;

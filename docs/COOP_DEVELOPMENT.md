@@ -6152,3 +6152,39 @@ gameplay, per-seat input ownership, native current-build restore and retained
 saved choices. Physical-controller acceptance is retained. All4 standard checks
 from the same production build pass. Formal171/180 accepted,9 open,8/15 areas;
 Z04 remains the package area's final criterion. No delivery has occurred.
+
+
+## Native weather palette ownership repair
+
+Actual Blizzard Buffalo snowfall exposed a co-op defect: repeated glyph-like
+snow instead of the original low-contrast flakes. A single-actor control with
+co-op disabled before the native stage2 loader reaches the same real terrain
+and4032/768 camera after the same192-field pan. Its VRAM matches all65536 bytes
+of the co-op source. Only CGRAM5/6/7 differ: native0421/0421/0421 versus
+co-op72CA/5585/7F9C. Both actual and detached original PPU pictures agree, and
+the frozen production GUI reproduces the bad co-op picture.
+
+The original WRAM NMI at7E:2079 uploads all512 palette bytes from0300 whenA1
+is requested. The weather controller animates staged RAM colors while keeping
+its visible snow colors intact. Actor projection and anchor selection had
+forced that whole-background upload even though presentation already supplies
+each actor's personal OBJ ramp. Removing those two redundant requests preserves
+genuine native palette requests and leaves menu initialization unchanged. The
+existing projection contract checks both a cleared and a pending native request.
+
+State-test8e3b986d6d9472cd7292d1fbfd6790691682a37af1b627f08e3c9428b048b9c0
+passes both actual roster orders and all8 weather cuts, with original visible
+colors and0 native/private world differences. The24-phase affected visual gate
+passes, including lighting/math, creator colors, priority, Cx4, HUD, armor and
+native fades. All3 native audio regressions and all4 standard tests also pass.
+GUI394464b5907792c9800c0370c74c38905f06502f7c09c910508803de2f0b0b3b
+shows the repaired snowfall in actual presented Split output. The isolated
+capture setup's initially omitted runtime DLLs were corrected before its pass.
+
+Exact receipts are `native-weather-{regression,audio}-server-receipt.json`,
+`native-weather-upload-standard-receipt.json` and
+`native-weather-fixed-actual-receipt.json`, all child0. The temporary per-field
+palette logging and completed raw-memory attribution are removed from the test
+source; their negative evidence is retained privately. This repair adds no
+acceptance point:171/180 accepted,9open. V07 still needs separated-view scope;
+V12 and the remaining authored gameplay/delivery criteria remain open.

@@ -85,7 +85,9 @@ static bool project(X3CoopState *s,uint8_t ram[0x20000],unsigned seat,bool retir
   memcpy(ram+X3_COOP_SHOTS,p->shots,sizeof(p->shots));
   if(!X3CoopNativePauseActive(ram) && memcmp(ram+X3_COOP_PALETTE,p->palette,sizeof(p->palette))) {
     memcpy(ram+X3_COOP_PALETTE,p->palette,sizeof(p->palette));
-    ram[0xa1]=1; /* Request the native next-NMI palette upload. */
+    /* A context switch changes only the personal OBJ ramp. Rendering already
+     * supplies that ramp; a full native upload would also publish staged BG
+     * colors, including the snow controller's intermediate weather palette. */
   }
   ram[0x1f1e]=p->shot_command;
   ram[0x1fff]=p->native_flags;
