@@ -5,7 +5,7 @@ typedef struct CombatCues {uint8_t count,ids[32],pan[32];} CombatCues;
 static CombatCues combat_cues,combat_reference_cues[2][420];
 static uint16_t combat_reference_camera[2][420][6];
 static bool combat_audio_enabled,combat_visual_enabled;
-typedef struct CombatPicture {uint8_t chr[8192],palette[64];} CombatPicture;
+typedef struct CombatPicture {uint8_t chr[8192],palette[64],pose;} CombatPicture;
 enum {COMBAT_VISUAL_FRAMES=1200};
 static CombatPicture combat_pictures[2][COMBAT_VISUAL_FRAMES];
 static unsigned combat_hit_cues;
@@ -106,7 +106,7 @@ static void combat_visual_finish(void){
   }
 }
 static void combat_picture_capture(unsigned seat,unsigned f){
-  combat_effect_capture(seat,f);CombatPicture *p=&combat_pictures[seat][f];memcpy(p->chr,g_ppu->vram+0x6000,sizeof(p->chr));memcpy(p->palette,g_ppu->cgram+128,sizeof(p->palette));
+  combat_effect_capture(seat,f);CombatPicture *p=&combat_pictures[seat][f];memcpy(p->chr,g_ppu->vram+0x6000,sizeof(p->chr));memcpy(p->palette,g_ppu->cgram+128,sizeof(p->palette));p->pose=g_ram[X3_COOP_BODY+0x17];
   if(f==0 && getenv("X3_COOP_WEAPON_STATE") && getenv("X3_COOP_EFFECT_OUTPUT")){char name[100];snprintf(name,sizeof(name),"weapon-original-seat%u-f0.sav",seat);check(RtlSaveSnapshot(name),"original weapon graphics preserves its real initial native field");}
 }
 static void combat_picture_match(unsigned seat,unsigned f){
@@ -117,7 +117,7 @@ static void combat_picture_match(unsigned seat,unsigned f){
   check(pieces && pieces<=64,"actual concurrent pose uses an original nonempty native sprite layout");p=combat_rom(at,1+pieces*4);
   for(unsigned i=0;i<pieces;++i){const uint8_t *piece=p+1+i*4;unsigned size=piece[0]&32?2:1,tile=piece[3];
     for(unsigned y=0;y<size;++y)for(unsigned x=0;x<size;++x){unsigned index=(((tile>>4)+y)&15)*16+((tile+x)&15),offset=index*32;
-      if(memcmp(atlas+offset,native->chr+offset,32)){fprintf(stderr,"native BODY CHR mismatch seat%u f%u group%u pose%u tile%u\n",seat,f,b[0x16],b[0x17]&127,index);if(getenv("X3_COOP_EFFECT_OUTPUT"))check(RtlSaveSnapshot("weapon-actual-graphics-unqualified.sav"),"mismatched body graphics retains its unchanged native field");check(0,"every displayed native body tile matches actual original VRAM during concurrent movement and attacks");}}
+      if(memcmp(atlas+offset,native->chr+offset,32)){fprintf(stderr,"native BODY CHR mismatch seat%u f%u group%u pose%u tile%u\n",seat,f,b[0x16],b[0x17]&127,index);fprintf(stderr,"native BODY SOURCE originalPose%02x publishedPose%02x livePose%02x ref/cache:",native->pose,b[0x17],X3CoopRuntimeState()->players[seat].body[0x17]);for(unsigned source=0;source<2;++source){const uint8_t *bits=source?atlas+offset:native->chr+offset;fputc(32,stderr);for(unsigned j=0;j<32;++j)fprintf(stderr,"%02x",bits[j]);}fputc(10,stderr);if(getenv("X3_COOP_EFFECT_OUTPUT"))check(RtlSaveSnapshot("weapon-actual-graphics-unqualified.sav"),"mismatched body graphics retains its unchanged native field");check(0,"every displayed native body tile matches actual original VRAM during concurrent movement and attacks");}}
   }
   const uint8_t *colors=visible->players.players[seat].palette;
   for(unsigned i=0;i<32;++i)if(((colors[i*2]|colors[i*2+1]<<8)&32767)!=((native->palette[i*2]|native->palette[i*2+1]<<8)&32767)){

@@ -1,12 +1,22 @@
-# Mega Man X3 co-op — committed stopping point and full continuation
+# Mega Man X3 co-op â€” committed stopping point and full continuation
 
-## Current continuation - 2026-11-13
+## Current continuation - 2026-11-15
 
-**143/180 accepted;37 open;5/15 areas (T,R,M,N,Q).** Q01-Q06, A02, A05, A10-A12, E05 and E14 are accepted after S05. E10 and E08 are accepted
-after P09. Campaign15/16: G12 remains open. The full180 objective
-and solo/local-only constraints remain. No release is ready or delivered.
-Historical checkpoints below retain their original counts; this section and the
-latest `docs/COOP_DEVELOPMENT.md` entries supersede their next-action directions.
+**169/180 accepted;11 open;8/15 areas complete.** Remaining criteria:
+D06; A13; P06,P12; E06; G12; V07,V12; Z01,Z02,Z04.
+Native creator graphics, attachment/armor ordering, entry/reversal/lock
+frontiers and independent streamed room pictures are now qualified. The latest
+source identities and individual evidence are at the end of
+`docs/COOP_DEVELOPMENT.md` and in the existing ignored qualification record.
+Original menus, controller ownership/reconnect, audio and moving presentation
+checks remain accepted. Preserve their completed evidence.
+
+The full180 objective and solo/local-only constraints remain. No release is
+ready or delivered. Complete the remaining authored gameplay, weather/scene
+and final packaging criteria; retain the frozen crush/fortress calibration
+limits instead of restarting unsuccessful setup loops. Historical checkpoints
+below retain their original source identities and counts; this section and the
+latest development evidence supersede their next-action directions.
 
 ## Native cartridge pause continuation - 2026-11-14
 
@@ -677,7 +687,7 @@ All paths below are under build-coop/qa-state/effect-owner-fixtures/:
 ## How to build, run and inspect without disturbing the desktop
 
 Let q=G:/Temp/Codex/mmx3-coop/build-coop/qa-state/.
-The compact private record is q/native-crawfish-capture-qualification.json →
+The compact private record is q/native-crawfish-capture-qualification.json â†’
 bit_byte. Its other properties retain all accepted boss/frontier evidence.
 Raw job JSON, result logs and receipts are in the same existing q directory.
 The old resume history is preserved at q/RESUME-before-995201c.md.

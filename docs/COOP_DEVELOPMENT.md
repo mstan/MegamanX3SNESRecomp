@@ -46,7 +46,7 @@ native-route checks; the complete campaign suite remains open.
 
 ## QA burndown
 
-**Accepted touch points:165/180;15 open/partial. Accepted areas:8/15
+**Accepted touch points:169/180;11 open/partial. Accepted areas:8/15
 (team wipe, fallen persistence, combat, doors/scripts, snapshot/rewind/rollback, menus/resources, netplay and runtime).** Component
 checks and successful builds do not establish campaign or gameplay acceptance.
 The current native identity correction and individual evidence are recorded at
@@ -57,14 +57,14 @@ the end of this document; older checkpoint counts are historical.
 | Individual death |15/16|D06 authored lethal crush|
 | Team wipe |10/10|Accepted|
 | Fallen persistence |10/10|Accepted|
-| Separated spawning |12/14|A09,A13|
+| Separated spawning |13/14|A13|
 | Supports/hazards |14/16|P06,P12|
 | Enemy interactions |13/14|E06|
 | Combat ownership |12/12|Accepted|
 | Doors/scripts |14/14|Accepted|
 | Campaign branches |15/16|G12|
 | Menus/resources |12/12|Accepted|
-| Visuals/audio |9/14|V02,V04,V06-V07,V12|
+| Visuals/audio |12/14|V07,V12|
 | Rollback/state |10/10|Accepted|
 | Netplay |12/12|Accepted|
 | Runtime/portability |6/6|Accepted|
@@ -227,7 +227,7 @@ prepare its real room; this explicitly bypasses camera admission, normal
 activation frontiers and background-stream preparation. It does not set the
 support's movement or rider result flags. With normal native updates, X and
 Zero land and ride at their own standing heights. Over 45 frames, all 64 support
-bytes match a single-seat native reference, including movement 1464→1434;
+bytes match a single-seat native reference, including movement 1464â†’1434;
 both runs advance the world 45 times. X can then jump off while Zero keeps
 riding. A separate P2-first setup starts/moves the support while X remains
 outside its native contact width; its rider mask contains only Zero.
@@ -1372,18 +1372,18 @@ route uses the earned-intro baseline, the original stage loader and checkpoint2
 (traversal bypass), an actual P2-led final door, and the original boss at32HP.
 Positioned X fires his normal buster with only bossHP1 and personal-health
 assistance. Every main actor reaches original primary04 withHP0. Its own
-weapon byte changes00→DC, and the original reward/confirmation flow enters
+weapon byte changes00â†’DC, and the original reward/confirmation flow enters
 the next campaign stage with X16HP and Zero28HP, both alive.
 
 | Native stage / boss | Main class | Earned native weapon byte |
 | --- | --- | --- |
-| 2 / Blizzard Buffalo | 52 | 1FC8:00→DC |
-| 3 / Toxic Seahorse | 59 | 1FC6:00→DC |
-| 4 / Tunnel Rhino | 57 | 1FBC:00→DC |
-| 5 / Volt Catfish | 58 | 1FC0:00→DC |
-| 6 / Crush Crawfish | 54 | 1FC2:00→DC |
-| 7 / Neon Tiger | 55 | 1FCA:00→DC |
-| 8 / Gravity Beetle | 56 | 1FC4:00→DC |
+| 2 / Blizzard Buffalo | 52 | 1FC8:00â†’DC |
+| 3 / Toxic Seahorse | 59 | 1FC6:00â†’DC |
+| 4 / Tunnel Rhino | 57 | 1FBC:00â†’DC |
+| 5 / Volt Catfish | 58 | 1FC0:00â†’DC |
+| 6 / Crush Crawfish | 54 | 1FC2:00â†’DC |
+| 7 / Neon Tiger | 55 | 1FCA:00â†’DC |
+| 8 / Gravity Beetle | 56 | 1FC4:00â†’DC |
 
 Evidence: `campaign-maverick-entries-server-result.log` and
 `campaign-maverick-clears-server-result.log` (both child0); unique ready/clear
@@ -1625,7 +1625,7 @@ Zero presentation qualification; this mechanical repair alone is not that pass.
 
 ### Paired menus and shared healing qualification
 
-M01–M07 and R06 are accepted on runtime commit6df79ba. Exact state test
+M01â€“M07 and R06 are accepted on runtime commit6df79ba. Exact state test
 binary e88af430e3d94996695285f4c8ac5251705fc7fb8df927f6fab7604b10a13305
 passes paired-menu-current-result.log (receipt child0), using the actual native
 normal/reversed stage fixtures and default participation profile0000. Either
@@ -1645,8 +1645,8 @@ split and selected panel rendering leave the same machine state.
 
 The shared Escape modal also passes focused owner/cancel/refusal checks, but
 M11 remains partial pending the other required shared frontend/save flows.
-M08–M10 and M12 retain their independent requirements. Total15/180 accepted:
-D01–D04, F09, M01–M07, R06, N02/N04;165open/partial,0/15rollups.
+M08â€“M10 and M12 retain their independent requirements. Total15/180 accepted:
+D01â€“D04, F09, M01â€“M07, R06, N02/N04;165open/partial,0/15rollups.
 
 The pending intro observer originally misidentified ordinary green enemy
 class20/gfx42 as Zero. An actual native capture establishes that this is an
@@ -1679,7 +1679,7 @@ fall onto the authored stage5 spike row1632..1759/y1472, with the other on the
 adjacent1568/y1392 plateau. Default learner/stock profiles are off. Native
 fatal127 damage occurs once after22/23 frames, inside terrain pass1 with no
 controller pass or pit call. Only the touching actor falls. The survivor moves
-1568→1537 in24 Left frames, retains native phase4/4 and brightness0F, and all
+1568â†’1537 in24 Left frames, retains native phase4/4 and brightness0F, and all
 shared pool freezes stay clear. The last frame before contact and the actual
 fatal result restore/replay the complete machine and exact displayed pixels.
 This is a host-frame cut across real contact, not a claimed CPU-instruction cut.
@@ -1711,20 +1711,20 @@ initialized actor/owned-pool/input/resource snapshots restore immediately and
 replay the complete machine. Other gate families, general authored streaming,
 stock-unavailable policy and campaign exits keep their own open criteria.
 
-All4 CTests pass. Total24/180 accepted: D01–D05/D09/D16, E11, F09, G01,
-M01–M08, S01/S02, R01/R06, N02/N04. Remaining156open/partial,0/15rollups.
+All4 CTests pass. Total24/180 accepted: D01â€“D05/D09/D16, E11, F09, G01,
+M01â€“M08, S01/S02, R01/R06, N02/N04. Remaining156open/partial,0/15rollups.
 No release/delivery replacement or remote action was performed.
 
 
 ### Team retries, stock loss and public participation
 
-T01–T04, T09/T10 and R04 are accepted on runtime6df79ba, with tests prepared
+T01â€“T04, T09/T10 and R04 are accepted on runtime6df79ba, with tests prepared
 from the actual normal/reversed stage5 ground fixtures. native-team-current-
 result.log(child0), stateffcd1c2cad29ce5b3618ed2b5a7c7b15b1150f78ce40811f48fb0156cd82b3e1,
 passes simultaneous and both character-ordered deaths in both rosters. The
 simultaneous actors fall on the same frame22. Ordered deaths occur at22/45.
 The original retry completes at598/622/621 loop ticks, respectively, with one
-shared life debit2→1, the requested roster, full personal16/28HP and actual
+shared life debit2â†’1, the requested roster, full personal16/28HP and actual
 post-retry control. A snapshot immediately before the final fatal contact
 replays death, full wipe, debit and retry to the same complete machine.
 
@@ -1735,7 +1735,7 @@ refuses his return while X moves normally. A real95-frame Select withdrawal
 followed by the last living X's death reaches a default full-team retry. With
 Zero already fallen, X's actual native pit call occurs exactly once and reaches
 retry; the authored hole and original lower-room camera are retained. Each
-case debits2→1 once, passes complete-machine replay and advances the world
+case debits2â†’1 once, passes complete-machine replay and advances the world
 exactly24 ticks during24 post-retry movement frames. These cases do not claim
 boss-lock, door-wipe, game-over or every stale transient requirement.
 
@@ -1775,8 +1775,8 @@ observation. Those experiments are unqualified and their pending test code was
 removed. Native vehicle/pilot fatal paths are a concrete remaining candidate;
 ordinary post-controller spike evidence must not be relabeled as D08.
 
-Total36/180 accepted: D01–D05/D09/D16; T01–T04/T09/T10; E11; F02/F05–F07/F09;
-G01; M01–M08; S01–S03; R01/R04/R06; N02/N04. Remaining144open/partial,
+Total36/180 accepted: D01â€“D05/D09/D16; T01â€“T04/T09/T10; E11; F02/F05â€“F07/F09;
+G01; M01â€“M08; S01â€“S03; R01/R04/R06; N02/N04. Remaining144open/partial,
 0/15rollups. New Buffalo survivor/target/reward/next-stage coverage is prepared
 but has no accepted result yet. Production source remains unchanged.
 
@@ -1997,7 +1997,7 @@ and failed-case snapshot are being built to identify the actual source. This
 view-context candidate is still uncommitted and needs the broader regressions.
 
 
-### Fixed startup capability decision — N12
+### Fixed startup capability decision â€” N12
 
 N12 is accepted from the unchanged native capability path and actual two-host
 agreement. `src/x3_coop_netplay_host.inc` queries SDL SSE2/SSE3/AVX2/NEON,
@@ -2369,7 +2369,7 @@ retain them for now and remove through an allowed audited cleanup at completion.
 Actual71/180 accepted,109open/partial,1/15rollups. C10 complete weapon retirement
 and transition coverage remains open.
 
-### Complete native weapon retirement — C10
+### Complete native weapon retirement â€” C10
 
 C10 is accepted across both actual rosters, all nine native X weapon slots and
 normal/charged-or-automatic casts, for each of withdrawal, fatal contact, native
@@ -2410,7 +2410,7 @@ lifecycle coverage; native X3 Zero does not receive special weapons.
 Actual72/180 accepted,108open/partial,1/15rollups. C05 concurrency/cooldown and
 C09 broader lifetime/hurt/movement checks retain their separate open criteria.
 
-### Native boss hit windows and projectile contact ownership — C05/E02
+### Native boss hit windows and projectile contact ownership â€” C05/E02
 
 C05 and E02 are accepted on native-boss-native-window, child0, state SHA256
 c21f6587e1d4d9d45f7f76af9ea5fc7c0ece312207f8a88306076e8d7ee95df8. Eight cases
@@ -2461,7 +2461,7 @@ actual source and launches an expendable copy because --resume-state consumes
 its input. All four images/states stay in qa-state/retired-weapon-gui; no owner
 saves/settings or desktop focus were changed.
 
-### Persistent Buffalo ice and actual consumed hostile shots — E03
+### Persistent Buffalo ice and actual consumed hostile shots â€” E03
 
 E03 is accepted on native-consumed-hostile-center, child0, state SHA256
 9e0bf60884376758dc079c35a04702e40d1f74099129832fbb47f15f4a169c83. Both actual
@@ -2540,7 +2540,7 @@ and their meters render in the split field. This is supporting built evidence,
 not new full G02/E06/V14/Z03 acceptance. The disposable script preserves the
 source state and passes a copy to the consuming resume-state interface.
 
-### Native rightward admission, retired regions and safe catch-up — A01/A14/D15
+### Native rightward admission, retired regions and safe catch-up â€” A01/A14/D15
 
 These three IDs are accepted on native-activation-qualification(child0), state
 SHA25693f4dcf36a6c014131cf030e03b1ff87a653ed554f28f5ac66d12a4caea04f62.
@@ -2565,9 +2565,9 @@ Public withdrawal is exercised through the balanced runtime request. Fallen
 state is an explicit lifecycle-API prerequisite, not an authored fatality claim;
 existing native-death criteria supply that separate behavior. The actual next
 world frame excludes the retired private region and admits only the living
-region’s original enemy at736,1136 or1840,1056. Its private valid bit is cleared,
+regionâ€™s original enemy at736,1136 or1840,1056. Its private valid bit is cleared,
 the living bit remains, and gap/overlap/frontier/replay/presentation checks still
-pass. The first fallen prerequisite omitted the newly selected world actor’s
+pass. The first fallen prerequisite omitted the newly selected world actorâ€™s
 full native current/target camera limits, clamping the camera into a third
 region. Transferring those existing private limits fixes the setup; runtime
 activation was unchanged. Both failure and diagnostic logs remain.
@@ -2609,7 +2609,7 @@ Actual76/180 accepted,104open/partial,1/15rollups. No production code changed
 for this qualification repair.
 
 
-### Actual charged-source requalification and native hurt lifetime — C04/C09/C10
+### Actual charged-source requalification and native hurt lifetime â€” C04/C09/C10
 
 C04 and C10 are accepted again; C09 is now accepted. The native charged-source
 gate exits0 on state SHA256
@@ -2662,7 +2662,7 @@ source comparison still has an unresolved exact mismatch. No platform
 correctness or visual acceptance follows from successful activation.
 
 
-### Shared Gravity Well query and native support reversal — P05
+### Shared Gravity Well query and native support reversal â€” P05
 
 P05 is accepted by native-matched-gravity-lift(child0), state SHA256
 5d814df278c5491c5d033631a1fe17f6310c7fa3f28563366ced48c44416670b.
@@ -2774,7 +2774,7 @@ native field/route comparison. Temporary renderer diagnostics were removed.
 Actual acceptance stays80/180,100open/partial,1/15rollups.
 
 
-### All native capsule families and Zero-first ownership — S08
+### All native capsule families and Zero-first ownership â€” S08
 
 S08 is accepted on state SHA256
 80a3726016324f7adf611770cea75fcc0fe3f4c8d72fd12be61da8df4ec80483,
@@ -2831,7 +2831,7 @@ retained only with the private QA evidence. Actual81/180 accepted,99open,
 1/15rollups; no release delivery is implied.
 
 
-### Authored checkpoint crossing preserves the fallen actor — F01
+### Authored checkpoint crossing preserves the fallen actor â€” F01
 
 F01 is accepted by native-checkpoint(child0), state SHA256
 13657fbd6c4d6262aa14e90cc1d2baa0a982995c773e36ecfec515c14f341ae2.
@@ -2852,7 +2852,7 @@ frame. No production change was required. Actual82/180 accepted,98open,
 1/15rollups.
 
 
-### Difficult native return placement — F08
+### Difficult native return placement â€” F08
 
 F08 is accepted by native-difficult-return and native-difficult-support
 (both child0), state SHA256
@@ -2878,7 +2878,7 @@ unchanged. The original two-rider future is restored afterward. No production
 landing-policy change was needed. Actual83/180 accepted,97open,1/15rollups.
 
 
-### Actual peer roster and full/stock startup policies — N01
+### Actual peer roster and full/stock startup policies â€” N01
 
 N01 is accepted by native-session-policy(child0), GUI SHA256
 846f3e29ff2649cbb337a97bd44dae1509d2358a196a7139693f0e44a65aa8b5,
@@ -2904,7 +2904,7 @@ online combat, HUD, scene, rollback-episode or disconnect criterion is claimed.
 Actual84/180 accepted,96open,1/15rollups.
 
 
-### Complete co-op peer confirmation and real delayed combat — N06
+### Complete co-op peer confirmation and real delayed combat â€” N06
 
 N06 is accepted by native-online-simtick(child0), GUI SHA256
 85a7aea3b80940aca4d1a89bbbdc8a98c1244ea2129627139cbe0a4d3ead1aec.
@@ -2979,7 +2979,7 @@ This repairs a checkpoint ownership defect; broader S06/N09 and activation
 frontier criteria remain open. Actual acceptance stays85/180,95open,1/15.
 
 
-### Actual online paired menus and shared reserves — N08
+### Actual online paired menus and shared reserves â€” N08
 
 N08 is accepted by native-online-menu-qualified and native-online-menu-reversed
 (both child0), GUI SHA256
@@ -3012,7 +3012,7 @@ semantics and the configured network input delay informed the corrected checks.
 No menu correctness change was required. Actual86/180 accepted,94open,1/15.
 
 
-### Actual online survivor death and native team retry — N07
+### Actual online survivor death and native team retry â€” N07
 
 N07 is accepted on GUI SHA256
 48cf3e5d443699b5e2acba6bf23e139bee1e19aa4ddf6530b2214d3f2f1a5afd.
@@ -3055,7 +3055,7 @@ no desync under the same25ms/300ms UDP treatment. This is N09's checkpoint
 portion, not acceptance of its remaining doors/scripts/reward transitions.
 
 
-### Bounded online peer loss preserves fallen status — N10
+### Bounded online peer loss preserves fallen status â€” N10
 
 N10 is accepted by native-online-disconnect-guest and
 native-online-disconnect-host-retry(both child0), GUI SHA256
@@ -3080,7 +3080,7 @@ This qualifies the direct-session coherent exit path; existing pre-frame-zero
 refusal evidence remains separate. Actual88/180 accepted,92open,1/15rollups.
 
 
-### Actual independent peer cameras and private native HUDs — N03
+### Actual independent peer cameras and private native HUDs â€” N03
 
 N03 is accepted by native-online-private-both and
 native-online-private-reversed(both child0), GUI SHA256
@@ -3128,7 +3128,7 @@ Evidence remains net-lan/online-door88-x/observations.json with both process log
 Remote reward coverage remains open underN09; no acceptance increment follows.
 
 
-### Native pause requests across scenes, fatal contact and restore — M12
+### Native pause requests across scenes, fatal contact and restore â€” M12
 
 M12 is accepted by native-transition-menu-door and native-transition-menu-death
 (both child0), state SHA256
@@ -3154,7 +3154,7 @@ and bright, unfrozen world progression still pass. No production menu change
 was required. Actual90/180 accepted,90open,2/15rollups.
 
 
-### Actual remote native boss reward and next-stage return — N09
+### Actual remote native boss reward and next-stage return â€” N09
 
 N09 is accepted after its checkpoint and authored gate/script portions above,
 plus native-online-reward-early and native-online-reward-early-reversed
@@ -3187,7 +3187,7 @@ does not supply a hit, boss death, reward flag or exit, nor add a production
 combat exception. Evidence is net-lan/online-reward89-early-{x,zero}/observations.json
 and both peer logs. Actual91/180 accepted,89open,3/15rollups.
 
-### Native Ride Armor boarding and empty-vehicle eligibility — P14
+### Native Ride Armor boarding and empty-vehicle eligibility â€” P14
 
 P14 is accepted. Actual92/180 accepted,88open,3/15rollups.
 
@@ -3234,7 +3234,7 @@ frozen binary, covering native captures, rescue, retired participants and
 separate original supports in both rosters.
 P15 variant damage/presentation and P16 vehicle/support lifecycle remain open.
 
-### Native vehicle variants, immediate inputs and presentation — P15
+### Native vehicle variants, immediate inputs and presentation â€” P15
 
 P15 is accepted. Actual93/180 accepted,87open,3/15rollups. The actual native
 station selector, not a supplied vehicle result, chooses all four acquired
@@ -3292,7 +3292,7 @@ native-vehicle-variant-final-ctest checks pass. P16 support/vehicle retirement,
 withdrawal/death history and the other terrain/campaign/presentation criteria
 remain separate open work.
 
-### Native vehicle missile retirement and rider death — P16 partial
+### Native vehicle missile retirement and rider death â€” P16 partial
 
 P16 remains open until authored support destruction is qualified. Native firing
 allocates each Hawk/Frog missile pair in X's personal pool through02:D8C4 while
@@ -3327,7 +3327,7 @@ Zero stays alive, moves in a bright world and advances the clock once per frame.
 Fallen X cannot return through the public API. Four CTests remain passing.
 Actual93/180 accepted,87open,3/15rollups; no new whole criterion is claimed here.
 
-### Authored support destruction and rider cleanup — P16
+### Authored support destruction and rider cleanup â€” P16
 
 P16 is accepted. Actual94/180 accepted,86open,3/15rollups. Native jungle records
 3C:EC96/EC9E create class1F solid enemies at640,848 and880,816 with18HP. Native
@@ -3365,7 +3365,7 @@ rosters, unrelated ownership controls and complete-machine replays. The earlier
 stage5 class26 public rider-withdrawal evidence also remains applicable. This
 acceptance does not qualify remaining collapsing/one-way/terrain/crush criteria.
 
-### Actual survivor colors through native corpse cleanup — D10
+### Actual survivor colors through native corpse cleanup â€” D10
 
 D10 is accepted. Native-corpse-private-admission exits0 on state SHA256
 d154abd413bd34392ad6ada35632f74d65aa8e80a08d6a136aac28f1be8ec8af.
@@ -3393,7 +3393,7 @@ qualify corpse color/brightness isolation; the remaining general visual, HUD,
 weather, aspect and audio criteria stay open. Actual95/180 accepted,85open,
 3/15rollups.
 
-### Authored ladders and native camera-limit timing — P10
+### Authored ladders and native camera-limit timing â€” P10
 
 P10 is accepted. Native-ladder-region-timing exits0 on state SHA256
 5c3854e504e5697fd1217627d202ecffb18ad1e13ab853508c6add6484a72202.
@@ -3432,7 +3432,7 @@ terrain, crush, visual and performance criteria remain open. Actual96/180
 accepted,84open,3/15rollups.
 
 
-### Native one-way ladder tops — P07
+### Native one-way ladder tops â€” P07
 
 P07 is accepted. Native-oneway-cap-approach exits0 on state SHA256
 `990cad2bd92314566639c8d97de8b926c511e0f5e22cc270e9f74dc6e096792d`.
@@ -3463,7 +3463,7 @@ positive. Neither rejected setup is recorded as a co-op defect or pass.
 Actual97/180 accepted,83 open/partial; R/M/N remain the three accepted areas.
 
 
-### Native slope charge/origins and widescreen source lifetime — P08
+### Native slope charge/origins and widescreen source lifetime â€” P08
 
 P08 is accepted on state SHA256
 `2d04c4b97f626960c937f2ff3a583c30584414ae39919fb5a38bd41f7ff4e58f`; native-slope-widescreen exits0 for both
@@ -3499,7 +3499,7 @@ SHA256`eff3e6cb26197f0c27da0987c74dc138e6a21b9f9753b547bbb6415d161f1b26`. Eviden
 ground/air/facing acceptance. Actual98/180 accepted,82open/partial,3/15areas.
 
 
-### Earned ground, air and slope attack origins — C08
+### Earned ground, air and slope attack origins â€” C08
 
 C08 is accepted. Native-origin-isolated-qualification exits0 on state SHA256
 c3f958943525b8420656255ab67f39cbae03ae0ab1e5dbcd27bae7fedfcb906c, with production unchanged from0c95bd2.
@@ -3510,9 +3510,9 @@ paired modes emit on frame0 and compare every body, camera, limit, facing,
 charge, palette, auxiliary and projectile byte for12frames, followed by a
 strict complete-machine replay.
 
-Actual first-emission offsets from the acting body are Xground±26,-7 and
-Xair±22,-9; native Zero ground±24,-1 and air±24,-4. Grounded charged slope
-emissions use X±26,-7 and Zero±8,-9. The real Left/Right direction is earned
+Actual first-emission offsets from the acting body are XgroundÂ±26,-7 and
+XairÂ±22,-9; native Zero groundÂ±24,-1 and airÂ±24,-4. Grounded charged slope
+emissions use XÂ±26,-7 and ZeroÂ±8,-9. The real Left/Right direction is earned
 before180frames of charge, then a position-only approach traverses every
 ramp profile. All96 native slope samples, source lifetimes/counters and
 complete futures match. Only the tested actor charges: an unrelated
@@ -3520,7 +3520,7 @@ companion charged release consumes shared RNG and is not an equivalent
 single-actor reference. No comparison field was removed to obtain the pass.
 Evidence: build-coop/qa-state/native-attack-origin-qualification.json.
 
-### Independent authored ice forces in both directions — P11
+### Independent authored ice forces in both directions â€” P11
 
 P11 is accepted through the actual stage2 slippery-terrain contract. Live
 profiles8C/8B/8A/89 at832..880 impart native+0400 horizontal force; the
@@ -3543,7 +3543,7 @@ Evidence: build-coop/qa-state/native-ice-force-qualification.json.
 No production changes were needed for these two criteria beyond the existing
 widescreen correction. Actual100/180 accepted,80open/partial,3/15areas(R/M/N).
 
-### Native Buffalo captive retention and closed-arena views — partial G02/E07/E08
+### Native Buffalo captive retention and closed-arena views â€” partial G02/E07/E08
 
 A real native charge earns Buffalo's grip at03:CC5B/04:D034. Moving the free
 partner nearer then exposed a defect: the next NPC update selected that free
@@ -3606,7 +3606,7 @@ The matched freeze/escape comparison is in progress. G02/E07/E08 remain open
 overall; this evidence does not cover every authored captor or all lifecycle
 exits. Actual acceptance remains100/180,80open/partial and3/15areas.
 
-### Native beam victim, freeze effects and recorded inputs — G02 partial
+### Native beam victim, freeze effects and recorded inputs â€” G02 partial
 
 The half-health native Buffalo AI earns class20/variant2 after344frames. With
 a vulnerable actor64px ahead of its muzzle and a nearer free actor behind it,
@@ -3665,7 +3665,7 @@ release decisions are resolved. No new complete enemy/campaign criterion is
 claimed from these subcases. Actual acceptance remains100/180,80open/partial
 and3/15areas; presentation, owner validation and final delivery remain open.
 
-### Buffalo native input escape and weakness release — G02 accepted
+### Buffalo native input escape and weakness release â€” G02 accepted
 
 G02 is accepted after reconciling the earlier earned-intro/native arena and
 leader entry records with the current ice, charge/grip, beam, weakness, clear
@@ -3691,7 +3691,7 @@ withdrawal probe restores its exact snapshot before that ongoing comparison.
 Native-buffalo-nonlethal-matrix exits0 on the same executable. In four applicable
 roster/anchor cases native X selects prerequisite-acquired Parasitic Bomb and
 fires a real attack while Zero is genuinely held. The actual hit reduces the
-live boss32→29, selects native0E recovery and queues88 only on the real victim.
+live boss32â†’29, selects native0E recovery and queues88 only on the real victim.
 The free shooter remains unscripted; the released victim withdraws safely, and
 the whole32-frame native recovery future and hit timing replay exactly. No
 Zero special weapon, capture/release state, damage or success result is supplied.
@@ -3699,7 +3699,7 @@ Final state/GUI builds and four CTests pass; GUI SHA256
 fef300868460c413fc8553d517875269f2b0330901404ab322164af86b1cddb3.
 
 
-### Native Crawfish capture ownership and release (G06/E07–E10 partial)
+### Native Crawfish capture ownership and release (G06/E07â€“E10 partial)
 
 A real stage6 checkpoint2 entry and native door/intro produce the32-HP
 class54 Crawfish. Checkpoint2 must be selected after the loader reaches
@@ -3765,7 +3765,7 @@ the complete machine, including streamed and visible state. Video-frame
 counts differ between cases; this is not a runtime performance claim.
 
 This route exposed a real admission delay: the lower class0D enemy at
-3C:E744 /4488,2608 was created11–12 simulation steps late. The previous
+3C:E744 /4488,2608 was created11â€“12 simulation steps late. The previous
 rectangle omitted both the native downward row through cameraY+272 and
 the aligned column to the left. Widening only its bottom did not fix the
 missing column and would not preserve directional eligibility.
@@ -3798,7 +3798,7 @@ CTest gates pass; GUI SHA256
 05518dd7da7e1775bbd80bbe4f257b2cf54d7ef887258e2d7d1d709a9508a8d9.
 The preceding capture matrix plus this actual vertical-room and progression
 qualification accepts G06; the lower native admission/readiness and distant
-room boundary qualify A04. A02/A03/A05/A09–A13 and other captor families
+room boundary qualify A04. A02/A03/A05/A09â€“A13 and other captor families
 remain open. Accepted total103/180,77 open,3/15 areas. No release or owner
 playtest has been performed.
 
@@ -3905,7 +3905,7 @@ Other frontiers, complete per-stage presentation, remaining campaign mechanics,
 owner/DualSense checks and final release remain open.
 
 
-### Native Tunnel Rhino hazards, drill deaths and complete clears — G04
+### Native Tunnel Rhino hazards, drill deaths and complete clears â€” G04
 
 G04 is accepted. The native checkpoint2 loader and actual P2 Right door route
 reach class57/32HP with both actors released. The real13:E493 controller earns
@@ -3936,7 +3936,7 @@ class0B/3C:DFA8 at4752,880 (flagFC14). Original DB06 column allocation and nativ
 constructors establish an entered-room prerequisite; this bypasses traversal and
 is not a cold-activation check. Both characters in either seat match the original
 controller for96 updates: body, motion, source, personal pools and palettes.
-Actual contact on update2 removes twoHP (X16→14, Zero28→26), the free actor stays
+Actual contact on update2 removes twoHP (X16â†’14, Zero28â†’26), the free actor stays
 alive, the world advances96 times and every full-machine replay agrees.
 A prior mere teleport skipped native admission and was rejected as an invalid
 setup. No engine/runtime correction was needed for these qualified mechanics.
@@ -3952,7 +3952,7 @@ its numeric stage/class/reward results were already accurate.
 Actual106/180 accepted,74 open/partial; R/M/N remain the three accepted areas.
 
 
-### Native Volt Catfish electrical contact and parent cleanup — G05
+### Native Volt Catfish electrical contact and parent cleanup â€” G05
 
 G05 is accepted. Actual stage5 checkpoint2 and P2 Right door inputs reach the
 native class58/32HP encounter, both actors free, floor2992 and camera3328/2816.
@@ -3961,7 +3961,7 @@ class27 electrical sources and native13:F0BE reward at1FC0 (acquiredmask04/DC).
 No attack, capture, death, defeat or reward result is supplied.
 
 One persistent electrical source exposed a co-op contact defect. The original
-controller's actual electrode41/primary2 damages native X16→12 and Zero28→24.
+controller's actual electrode41/primary2 damages native X16â†’12 and Zero28â†’24.
 With both living actors overlapping, the previous paired update gave12/28.
 Its single-use-shot guard stopped after the first hit even though this source
 remained live.08:AFEB/B157 ignore the CB31 result; their native parent/movement
@@ -4009,7 +4009,7 @@ R/M/N remain the three accepted areas. Remaining capture, visual and other
 campaign criteria receive no extra acceptance from these permutations.
 
 
-### Native Neon Tiger rays and both-wall rush — G07
+### Native Neon Tiger rays and both-wall rush â€” G07
 
 G07 is accepted. Actual stage7 checkpoint2 and native P2 Right door inputs
 reach class55/32HP with both actors free. Actor5915/431X or423Zero, boss6096/424,
@@ -4061,7 +4061,7 @@ child0. Mechanics stateSHAa0af33db; rush stateSHA092f871a; production GUI SHA256
 state/GUI/fourCTest pass. Actual108/180 accepted,72 open,3/15 areas(R/M/N).
 Other capture families, visuals and remaining campaign routes stay open.
 
-### Native Gravity Beetle orb and timed-field contracts — G08
+### Native Gravity Beetle orb and timed-field contracts â€” G08
 
 G08 is accepted. The actual stage8 checkpoint2 route and native P2 door
 inputs admit class56/32HP with both actors free, floor1472 and arena7424..7680.
@@ -4069,8 +4069,8 @@ Native13:DCA0/DE40 selects its own attacks. Moving kind0 orbs and parent-followi
 kind2 fields are actual class25 children with the allocator-earned parent+38.
 Their angular variant0B is native state, rather than a fixed synthetic variant.
 
-The moving orb exposed a persistent-contact omission: original X16→14 and
-Zero28→26 became14/28 in the previous paired update. Native08:AB5C ignores
+The moving orb exposed a persistent-contact omission: original X16â†’14 and
+Zero28â†’26 became14/28 in the previous paired update. Native08:AB5C ignores
 CB31 hit and leaves the orb alive. Class25 now joins the existing20/26/27
 persistent contract; ordinary consumed shots retain their one-hit guard. Four
 roster/anchor comparisons now damage both bodies exactly as their original
@@ -4089,7 +4089,7 @@ The native06:EFA4/EFAE hitbox projects forward and upward. An approach24px
 forward and50px above lies inside that hitbox and outside the boss body.
 There is no invented96px aura, gravity pull or stun. Four original/paired
 comparisons prove actual eight-damage field contact for both native bodies:
-X16→8/Zero28→20, with one source update and exact complete paired replay.
+X16â†’8/Zero28â†’20, with one source update and exact complete paired replay.
 Four actual source-observed field fatalities retain the living8HP encounter
 and survivor control, then earn native survivor clears and stage returns.
 Four living-pair cases also defeat that native field phase and complete the
@@ -4103,9 +4103,9 @@ Every complete future repeats exactly. Four additional real parent kills
 leave zero active class25 children20updates after defeat, parentprimary4,
 before reward or loader reset; those futures also replay exactly. The earlier
 60px forward setup could not select an eligible in-arena field and was rejected
-as a setup failure; the actual24px/−50px native hitbox approach qualifies it.
+as a setup failure; the actual24px/âˆ’50px native hitbox approach qualifies it.
 
-Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json →
+Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json â†’
 gravity_beetle. native-beetle-survivors-normal/reversed, field-overlap,
 field-survivors, field-living, field-cleanup, contact-regression and final-builds
 all child0. Actual consumed03, balanced native registers/scratch/object/health,
@@ -4116,7 +4116,7 @@ production GUI SHAbe904e6f673fbc5386d363cbd1a8ba3e6cf8ab87ac0ba794464798edb9b56c
 Actual109/180 accepted,71 open,3/15 areas(R/M/N). No other capture, visual or
 campaign criterion receives acceptance from these permutations.
 
-### Native Blast Hornet attachments, marked targeting and clears — G09
+### Native Blast Hornet attachments, marked targeting and clears â€” G09
 
 G09 is accepted. The current stage1/class53 checkpoint2 route earns its real
 32HP introduction and control release (loader57/ready307/intro540), floor2224,
@@ -4177,7 +4177,7 @@ assertion also incorrectly rejected ordinary Hornet hurt action8/reaction8;
 Hornet does not capture, and completed native recovery is required at actual
 arrival. Neither setup failure was claimed as a game defect.
 
-Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json →
+Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json â†’
 blast_hornet. Normal survivor SHAaec958e2; initial contact/timer SHA07ba17e8;
 final marked/owner/living/absence/cleanup/regression SHA
 9ac8bdb282f6d4efa6b42fd9fad57fc15da115cf1c411a7ec62644611356f83a.
@@ -4188,7 +4188,7 @@ State/GUI/fourCTest pass. Actual110/180 accepted,70 open,3/15 areas(R/M/N).
 Other captures, enemy families, visuals and campaign branches remain open.
 
 
-### Bit/Byte native ownership checkpoint — G10 remains open
+### Bit/Byte native ownership checkpoint â€” G10 remains open
 
 G10 is partial; the suite remains110/180 accepted,70 open and3/15 accepted
 areas. Actual stage2 authored records admit Bit(class46) and Byte(class47)
@@ -4272,7 +4272,7 @@ retirement, survivor and clear consequences. The entry/assisted-clear evidence
 above does not substitute for that work or G12 traversal. The suite remains
 110/180 accepted,70 open and3/15 accepted areas.
 
-Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json →
+Evidence: build-coop/qa-state/native-crawfish-capture-qualification.json â†’
 bit_byte and exact named job receipts/logs. Earlier in-stage outcome SHA
 48f0a19f91f5856e50c44c7ff8c91ba971909dc3a3d49e255b96f6f63e9c8dac;
 living ring reference SHA
@@ -5597,7 +5597,7 @@ readiness-work/unqualified-readiness-test.inc. Stop this calibration; E13 remain
 open and no runtime defect is asserted. Total143/180,37open,5/15areas.
 Keep the live owner review and frozen navigation/crush setups untouched.
 
-## Native combat audio cadence — C11
+## Native combat audio cadence â€” C11
 
 C11 is qualified without a production change. The observer reads the original
 two-byte request ring at09A2..09C1 and its09D3 write index after each real field;
@@ -5987,3 +5987,60 @@ All four earned Cx4 scenes retain exact native pictures and whole-state view
 invariance on `3875323f9944a6b6cc447671ad919eb0ebb5f8301fc4d6716e7600909fcc74c7`.
 The GUI build and four standard tests pass (1.68s). V02 remains open for the
 remaining acquired-weapon graphics qualification.
+
+### Complete creator graphics and native ordering (V02, V04)
+
+Narrow Shared now uses each creator's colors for partner-owned effects in the
+personal OBJ ramps. Hornet's visible native target reticle previously borrowed
+Zero's common ramp when attached to X: all126 different pixels are exact
+same-index palette substitutions. The existing private compositor already
+resolves the correct creator; Shared now uses that path for this case too.
+There is no body-cache, gameplay or snapshot-format change.
+
+All36 normal/charged cases for X's nine acquired weapons pass in both rosters
+beside Zero's actual held full charge. The original X graphics reference runs
+its own native weapon selection before capture, avoiding a pending upload from
+the other character. The existing post-selection gameplay reference still
+compares every complete native sample, energy byte, owned pool, hit and full
+replay. Each correctly initialized graphics trace also retains that exact
+gameplay sample and numerical energy. Native owned effects match125641 tiles
+and3245584 opaque pixels per seat, including original colors. Ordinary and
+opposed charge/combo/saber comparisons remain exact.
+
+The earned Hornet mark runs128 shared fields. Four ordering comparisons use
+the original detached PPU/OAM with matching common FX sources and have zero
+world/body/priority differences. Restored creator colors are checked separately:
+the visible reticle control changes106 pixels, and borrowing the other actor's
+palette changes126. Correct narrow Shared world pixels match the owning field;
+both selected fields equal their Split halves. Pure rendering controls preserve
+the entire canonical simulation. Existing native explosion overlap, all four
+Ride Armor/pilot cases in both rosters and the completed attachment mechanics
+cover the remaining V04 ordering and ownership cases.
+
+V02 and V04 are accepted on state binary
+`43228a3026f13f04413e9916be036f88dbfeb0e8c3511882d3b3e826b5d8d7ca`.
+The combined21-phase gate passes, including four Cx4 encounters, live HUD and
+survivor pictures, all eight armor cases and ordinary/live-particle pause fades.
+The GUI builds and four standard tests pass (2.43s).
+
+### Native frontiers, room streaming and parallax (A09, V06)
+
+Both characters in both traveling seats complete the original stage2 cold-room
+Up/Down ladder route, followed by a real Right/Jump exit, while the other rider
+holds a separate room's ladder. The original lower-room pan is preparation;
+upper controllers remain unvisited until normal scrolling admits both on native
+step57. Every240-field admission flag, body, velocity, pose, HP, private camera
+and current limit matches the original through entry, reversal and lock changes.
+Controller retirement after loss of its covering view and complete futures also
+match; the supplied fallen state is a lifecycle prerequisite for that check.
+
+Sixteen native world/body pictures at steps57/91/120/240 have zero differences
+outside the personal HUD, with over52000 nonblack pixels each. These actual
+separate-room/column streams and parallax comparisons supplement the stage1
+room checks and the qualified342/448/800px finite-arena edges. Together with the
+existing real right visit, cull and left readmission, this accepts A09 and V06.
+The incomplete Doppler PPU setups remain excluded. Full fortress routes (G12),
+animated weather/math (V07) and the remaining scene transitions (V12) stay open.
+
+The burndown is169/180 accepted,11 open,8/15 areas complete. No release has been
+delivered; final packaging follows completion of the remaining criteria.

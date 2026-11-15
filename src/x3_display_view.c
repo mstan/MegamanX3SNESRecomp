@@ -574,6 +574,12 @@ bool X3Display_BeginIndependentFrame(Ppu *p){
   if(g_snes && g_snes->cart)for(unsigned i=0;i<visible->count;++i)
     if(X3CoopPresentationObjectTile(&visible->actors[i],0x6460,g_snes->cart->rom,g_snes->cart->romImageSize))
       return begin_view(p,0,true);
+  /* The original OBJ ramps belong to the anchor. An owned partner effect
+   * using a personal ramp needs its creator's colors in narrow Shared, too. */
+  for(unsigned i=0;i<visible->count;++i){const X3CoopWorldDraw *draw=&visible->actors[i];
+    if(draw->owner && draw->owner!=visible->players.anchor+1 && draw->address!=X3_COOP_BODY &&
+        ((draw->body[0x11]>>1)&7)<2)return begin_view(p,0,true);
+  }
   if(X3CoopViewsIndependent()){
     /* Narrow Shared needs the same per-room armor art as wider/split views;
      * native OAM alone can still point at the other region's shared tiles. */

@@ -104,13 +104,26 @@ static void native_display_checks(const char *tag,uint8_t *original,size_t size,
   X3Display_SetLocalSplit(false);X3Display_SetPresentationSeat(-1);
   frame(0);frame(0);
   check(g_ppu->renderPitch==256*4,"native display comparison uses an actual256px field");
-  if(getenv("X3_COOP_CX4_VISUAL_STATE"))check(!X3Display_RenderedPrivateFrame(),"Cx4 reference uses the actual original native PPU raster");
-  memcpy(native,g_ppu->renderBuffer,256u*224u*4u);
+  if(X3Display_RenderedPrivateFrame() || getenv("X3_COOP_ATTACHMENT_VISUAL_STATE")){
+    /* Shared may now require creator colors. Render the original PPU/OAM
+     * independently so the reference can never become a private self-check. */
+    Ppu *oracle=malloc(sizeof(*oracle));check(oracle!=NULL,"native ordering reference owns a detached original PPU");*oracle=*g_ppu;
+    oracle->renderBuffer=native;oracle->renderPitch=256*4;
+    for(int line=0;line<=224;++line)PpuDrawDetachedLine(oracle,line);free(oracle);
+  }else memcpy(native,g_ppu->renderBuffer,256u*224u*4u);
+  uint8_t owners[X3_COOP_WORLD_DRAWS];X3CoopPresentedFrame *shown=(X3CoopPresentedFrame *)X3CoopPresentationVisible();
+  /* The native common ramps cannot express two characters' FX colors at
+   * once. Match that source only for the ordering oracle; actual creator
+   * colors have independent original-character and visible-positive checks. */
+  for(unsigned d=0;d<shown->count;++d){owners[d]=shown->actors[d].owner;
+    if(getenv("X3_COOP_ATTACHMENT_VISUAL_STATE") && shown->actors[d].address!=X3_COOP_BODY)shown->actors[d].owner=0;
+  }
   X3CoopViewsConfigure(true);X3Display_SetPresentationSeat(X3CoopRuntimeState()->anchor);
   check(X3Display_BeginIndependentFrame(g_ppu),"private primary compositor is active for the comparison");
   g_rtl_game_info->draw_ppu_frame();
   check(X3Display_RenderedPrivateFrame(),"actual render call uses the private compositor rather than its native fallback");
   memcpy(private,g_ppu->renderBuffer,256u*224u*4u);
+  for(unsigned d=0;d<shown->count;++d)shown->actors[d].owner=owners[d];
   unsigned differences=0,nonblack=0;int left=256,right=0,top=224,bottom=0;
   for(unsigned y=0;y<224;++y)for(unsigned x=0;x<256;++x){
     unsigned at=(y*256+x)*4;
@@ -118,7 +131,7 @@ static void native_display_checks(const char *tag,uint8_t *original,size_t size,
     /* Personal badges and charge pips are an approved co-op HUD feature;
      * the original single-player raster cannot be their visual oracle. The
      * actual health/energy strips and every world pixel remain strict. */
-    bool own_badge=getenv("X3_COOP_CX4_VISUAL_STATE") && x>=8 && x<40 && y>=80 && y<96;
+    bool own_badge=(getenv("X3_COOP_CX4_VISUAL_STATE") || getenv("X3_COOP_ATTACHMENT_VISUAL_STATE")) && x>=8 && x<40 && y>=80 && y<96;
     if(!own_badge && memcmp(native+at,private+at,3)){
       ++differences;if((int)x<left)left=x;if((int)x>right)right=x;if((int)y<top)top=y;if((int)y>bottom)bottom=y;
     }
@@ -130,6 +143,7 @@ static void native_display_checks(const char *tag,uint8_t *original,size_t size,
     snprintf(path,sizeof(path),"%s-%s-private.ppm",out,tag);WritePpm(path,private,256*4,256,224,0,false);
   }
   check(nonblack>1000,"display comparison contains actual native stage content");
+  if(differences && getenv("X3_COOP_ATTACHMENT_VISUAL_STATE"))check(RtlSaveSnapshot("attachment-priority-unqualified.sav"),"actual native attachment priority mismatch retains its completed OAM and presentation metadata");
   check(!differences,"private primary view matches the native world, body and health HUD pixels");
   X3Display_SetPresentationSeat(-1);g_config.widescreen=wide;X3CoopHudSetLayout(hud);
   check(RtlLoadSnapshotFromMemory(original,size),"display probes restore their starting machine");

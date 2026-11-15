@@ -82,3 +82,54 @@ static void native_cx4_presentation_checks(const char *fixture,uint8_t *cut,uint
   fprintf(stderr,"native CX4 PRESENTATION cuts%u originalPPU/private world+meters exact bothViews/split exact DSPbefore%llu after%llu noRenderUpdates\n",cuts,(unsigned long long)initial,(unsigned long long)cx4_instructions_executed(g_snes->cart->cx4));
   free(split);g_config.widescreen=wide;
 }
+
+/* Reuse the earned Hornet mark/flight, original PPU oracle and pure view
+ * composition. No attachment, native priority or retirement result is set. */
+static void native_attachment_presentation_checks(const char *fixture,uint8_t *cut,uint8_t *left,uint8_t *right,size_t capacity){
+  check(RtlLoadSnapshot(fixture) && g_ram[0x1fae]==1,"attachment picture loads its actually earned Hornet mark and homing flight");
+  unsigned marker=0;for(unsigned d=0x1318;d<0x1518;d+=64)if(g_ram[d] && g_ram[d+10]==0x21 && g_ram[d+0x37]==4)marker=d;
+  check(marker && X3CoopRuntimeState()->players[0].life==X3_COOP_ALIVE && X3CoopRuntimeState()->players[1].life==X3_COOP_ALIVE,"actual attachment picture retains both living participants and a native marker");
+  X3CoopViewsConfigure(true);bool wide=g_config.widescreen;g_config.widescreen=false;
+  X3Display_SetCoopPanelWidth(256);X3Display_SetPresentationSeat(-1);X3Display_SetLocalSplit(false);
+  uint8_t *split=malloc(512u*224u*4u);check(split!=NULL,"attachment Split comparison allocates bounded pixels");
+  unsigned cuts=0,positive=0,personal_colors=0,tick=g_ram[0x9cc];
+  for(unsigned f=0;f<128;++f){
+    frame(0);if(f!=3 && f!=15 && f!=33 && f!=63)continue;
+    size_t n=RtlSaveSnapshotToMemory(cut,capacity);char tag[64];snprintf(tag,sizeof(tag),"attachment-field%u",f);
+    native_display_checks(tag,cut,n,left,right,capacity);
+    n=RtlNetplaySnapshotToMemory(cut,capacity);
+    cx4_picture(left,0,256,false);cx4_picture(right,1,256,false);cx4_picture(split,2,256,true);
+    for(unsigned y=0;y<224;++y)check(!memcmp(split+y*512*4,left+y*256*4,256*4) && !memcmp(split+(y*512+256)*4,right+y*256*4,256*4),"both attachment Split halves retain their own complete selected-view pixels");
+    if(!personal_colors){const X3CoopPresentedFrame *shown=X3CoopPresentationVisible();unsigned anchor=shown->players.anchor;
+      for(unsigned d=0;d<shown->count;++d){X3CoopWorldDraw *draw=(X3CoopWorldDraw *)&shown->actors[d];
+        if(!draw->owner || draw->owner==anchor+1 || draw->address==X3_COOP_BODY || ((draw->body[0x11]>>1)&7)>=2)continue;
+        uint8_t owner=draw->owner;cx4_picture(left,anchor,256,false);draw->owner=(uint8_t)(anchor+1);cx4_picture(right,anchor,256,false);draw->owner=owner;
+        for(unsigned pixel=0;pixel<256*224;++pixel)personal_colors+=memcmp(left+pixel*4,right+pixel*4,3)!=0;
+        cx4_picture(right,anchor,256,false);check(!memcmp(left,right,256u*224u*4u),"restoring the creator restores every owned effect color pixel");
+        if(personal_colors){cx4_picture(split,2,256,false);check(X3Display_RenderedPrivateFrame(),"actual narrow Shared uses creator colors for the partner's native personal-ramp effect");
+          for(unsigned y=0;y<224;++y)check(!memcmp(split+(y*256+40)*4,left+(y*256+40)*4,192*4),"Shared world and owned effect colors match the correct selected native-owner field");break;
+        }
+      }
+    }
+    if(!positive){
+      const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
+      /* The latched kind4 controller can be hidden; its real visible reticle
+       * is the owned native0B/group60 effect emitted around the marked body. */
+      for(unsigned d=0;d<visible->count;++d)if(visible->actors[d].address==marker ||
+          (visible->actors[d].owner && visible->actors[d].body[10]==0x0b && visible->actors[d].body[0x16]==0x60)){
+        X3CoopWorldDraw *draw=(X3CoopWorldDraw *)&visible->actors[d];uint8_t x[2]={draw->body[5],draw->body[6]};
+        unsigned anchor=X3CoopRuntimeState()->anchor;cx4_picture(left,anchor,256,false);
+        unsigned shifted=(draw->body[5]|draw->body[6]<<8)+4096;draw->body[5]=(uint8_t)shifted;draw->body[6]=(uint8_t)(shifted>>8);
+        cx4_picture(right,anchor,256,false);memcpy(draw->body+5,x,2);
+        for(unsigned pixel=0;pixel<256*224;++pixel)positive+=memcmp(left+pixel*4,right+pixel*4,3)!=0;
+        cx4_picture(right,anchor,256,false);check(!memcmp(left,right,256u*224u*4u),"restoring the actual attachment coordinate restores every composed pixel");break;
+      }
+    }
+    size_t after=RtlNetplaySnapshotToMemory(right,capacity);
+    same(cut,RtlNetplaySnapshotHashedBytes(n),right,RtlNetplaySnapshotHashedBytes(after),"attachment priority/view controls leave the entire canonical simulation unchanged");
+    X3Display_SetPresentationSeat(-1);X3Display_SetLocalSplit(false);++cuts;
+  }
+  fprintf(stderr,"native ATTACHMENT PRESENTATION cuts%u marker%04x positivePixels%u personalColorPixels%u nativePPU/priority exact bothViews/Split/Shared exact canonicalUnchanged\n",cuts,marker,positive,personal_colors);
+  check(cuts==4 && positive && personal_colors && (uint8_t)(g_ram[0x9cc]-tick)==128,"actual nonempty attachment, creator colors and native priority execute128 shared fields across four visual cuts");
+  free(split);g_config.widescreen=wide;
+}

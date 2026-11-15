@@ -310,6 +310,8 @@ int main(int argc,char **argv) {
     }
     fixture=getenv("X3_COOP_CX4_VISUAL_STATE");
     if(fixture && *fixture)native_cx4_presentation_checks(fixture,saved,damaged,after,cap);
+    fixture=getenv("X3_COOP_ATTACHMENT_VISUAL_STATE");
+    if(fixture && *fixture)native_attachment_presentation_checks(fixture,saved,damaged,after,cap);
     fixture=getenv("X3_COOP_HIDDEN_OAM_STATE");
     if(fixture && *fixture){const char *reversed=getenv("X3_COOP_HIDDEN_OAM_REVERSED_STATE");check(reversed && *reversed,"hidden OAM supplies both actual native rosters");native_hidden_oam_checks(fixture,reversed,saved,damaged);}
     fixture=getenv("X3_COOP_HUD_SURVIVOR_VIEW");
