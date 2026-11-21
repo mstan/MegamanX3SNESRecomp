@@ -1,6 +1,7 @@
 # Reporting problems in Mega Man X3
 
-Diagnostic recording is **enabled by default**, including after an upgrade.
+**Gameplay Diagnostics** in the launcher's **Mods** page is enabled by
+default, including after an upgrade. You can turn it off on that page.
 Play normally. After a problem, close the game and ZIP the complete `logs`
 folder beside the executable. Send it with your issue list, approximate times
 and, when useful, a video. Include `last_run_report.json` and crash reports

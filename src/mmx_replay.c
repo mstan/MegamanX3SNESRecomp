@@ -45,7 +45,8 @@
 enum { SEGMENT_FRAMES = 600, SEGMENTS = 360, STATE_LIMIT = 16*1024*1024,
        HISTORY_LIMIT = 256*1024*1024,
        SNAPSHOT_LIMIT = 2*1024*1024 };
-static bool enabled, playing, finished, failed, pending;
+static bool enabled = true; /* Standalone state tests run without a mod catalog. */
+static bool playing, finished, failed, pending;
 static bool recording;
 static SnesReplayWriter *writer;
 static FILE *stream, *states;
@@ -95,10 +96,6 @@ static uint32_t hash(const void *data,size_t size) {
 void MmxReplayRomLoaded(void) {
   /* SnesInit calls this before any title initialization can modify the bus image. */
   rom_identity=g_snes && g_snes->cart ? hash(g_snes->cart->rom,g_snes->cart->romSize):0;
-  /* Prepare the destination during startup, before gameplay. The worker owns
-   * subsequent segment creation, copies, hashing, writes and eviction. */
-  const char *capture=getenv("MMX_REPLAY_RECORD");
-  if(!capture || *capture!='0') init_stem();
 }
 static void hashes(uint32_t *w, uint32_t *c, uint32_t *v, uint32_t *p) {
   *w=hash(g_ram,0x20000);
@@ -126,10 +123,16 @@ void MmxReplayClose(void) {
   if(states) { if(fclose(states)) failed=true; states=NULL; }
   pending=false; rows=0;
 }
-void MmxReplayEnable(bool on) {
-  if(on && !enabled && !playing) failed=false;
-  if(on && !playing) init_stem();
-  enabled=on; if(!on && !playing) MmxReplayClose();
+static void replay_mod_reset(void) {
+  enabled=false;
+  if(!playing) MmxReplayClose();
+}
+static void replay_mod_activate(void) {
+  enabled=true;
+}
+SNES_MOD_CONSTRUCTOR(x3_register_replay_plugin) {
+  (void)snes_mod_register_reset_callback(replay_mod_reset);
+  (void)snes_mod_register_presentation_plugin("megaman-x3.replay-recording",replay_mod_activate);
 }
 void MmxReplaySetConfigPath(const char *name) {
   if(!snesrecomp_abspath(name,config_path,sizeof(config_path)))
@@ -317,12 +320,8 @@ static uint32_t playback_begin(uint32_t inputs) {
 }
 static uint32_t record_begin(uint32_t inputs) {
   static int env_record=-1;
-  /* Automatic capture must also work after an upgrade with saved Developer
-   * options disabled. MMX_REPLAY_RECORD=0 opts out of this default; explicitly
-   * enabled diagnostic mods can still request a capture. */
   if(env_record<0) { const char *e=getenv("MMX_REPLAY_RECORD"); env_record=!e || *e!='0'; }
-  if(failed || finished) return inputs;
-  if(!enabled && !env_record) return inputs;
+  if(failed || finished || !enabled || !env_record) return inputs;
   const char *writer_error=SnesReplayWriterError(writer);
   if(writer_error) {error(writer_error);return inputs;}
   if(snes_runahead_active() || RtlSpeculativeFrame()) {

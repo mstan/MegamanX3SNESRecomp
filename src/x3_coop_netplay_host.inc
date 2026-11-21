@@ -61,9 +61,15 @@ static void x3_net_capabilities(void){
   snes_netplay_set_profile_caps(0x58334331u,cpu,1,1,arch,x3_net_profile_settled);
 }
 static const char *x3_net_cosmetic_allow(void){
-  static char allow[112];char digest[65];
-  if(!snes_mod_runtime_package_digest_c(x3_net_package,"0.0.1",digest,sizeof(digest)))return "";
-  snprintf(allow,sizeof(allow),"%s@0.0.1#%s",x3_net_package,digest);
+  static char allow[224];
+  char co_op[65],diagnostics[65];
+  allow[0]=0;
+  if(snes_mod_runtime_package_digest_c(x3_net_package,"0.0.1",co_op,sizeof(co_op)))
+    snprintf(allow,sizeof(allow),"%s@0.0.1#%s",x3_net_package,co_op);
+  if(snes_mod_runtime_package_digest_c("megaman-x3.diagnostics","1.0.0",diagnostics,sizeof(diagnostics))){
+    size_t used=strlen(allow);
+    snprintf(allow+used,sizeof(allow)-used,"%smegaman-x3.diagnostics@1.0.0#%s",used?";":"",diagnostics);
+  }
   return allow;
 }
 static int x3_net_temporary_plan(void){

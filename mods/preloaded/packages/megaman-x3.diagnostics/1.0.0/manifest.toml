@@ -1,0 +1,25 @@
+format_version = 1
+id = "megaman-x3.diagnostics"
+version = "1.0.0"
+name = "Gameplay Diagnostics"
+author = "mstan"
+description = "Keep a local record of gameplay inputs and replay checkpoints to help reproduce issues."
+license = "MIT"
+resolver = "declarative"
+save_compatibility = "shared"
+
+[[target]]
+game_id = "megaman-x3-us"
+rom_sha256 = "65b03268afac296330e8ff8d60dd0825879e13ed658b37713c034a3bd074f1d7"
+
+[[feature]]
+id = "replay-recording"
+name = "Gameplay Diagnostics"
+description = "Record gameplay inputs and replay checkpoints locally in the logs folder."
+group = "Diagnostics"
+default_enabled = true
+presentation_only = true
+
+[[plugin]]
+feature = "replay-recording"
+id = "megaman-x3.replay-recording"

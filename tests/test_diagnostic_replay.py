@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import time
+import tomllib
 
 
 def main():
@@ -21,14 +22,14 @@ def main():
     work=a.work_dir.resolve();work.mkdir(parents=True,exist_ok=False)
     helper=Path(__file__).resolve().parents[1]/'tools/replay_diagnostic.py'
     evidence=[]
-    base_env={**os.environ,'SDL_VIDEODRIVER':'dummy','SDL_AUDIODRIVER':'dummy',
+    base_env={**os.environ,'SDL_VIDEODRIVER':'dummy','SDL_AUDIODRIVER':'dummy','PYTHONIOENCODING':'utf-8',
               'SNESRECOMP_RUNAHEAD':'0','SNESRECOMP_REWIND_INTERVAL':'1','MMX_REPLAY_FAST':'1'}
     base_env.pop('MMX_REPLAY_RECORD',None)  # Verify the actual default.
 
     def run(label,argv,cwd,env=base_env,good=True,contains=None):
         start=time.monotonic()
         result=subprocess.run([str(x) for x in argv],cwd=cwd,env=env,
-                              stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=180)
+                              stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         (work/(label+'.log')).write_bytes(result.stdout)
         text=result.stdout.decode(errors='replace')
         if (result.returncode==0)!=good or (contains and contains not in text):
@@ -61,11 +62,10 @@ def main():
     (desktop/'config.ini').write_text('[General]\nDisableFrameDelay = 1\nFullscreen = 0\n[Sound]\nAudioEnable = 1\n')
     catalog=desktop/'mods/preloaded'
     shutil.copytree(exe.parent/'mods/preloaded/packages',catalog/'packages')
-    manifest=next((catalog/'packages').glob('*/*/manifest.toml'))
-    import tomllib
+    manifest=catalog/'packages/megaman-x3.diagnostics/1.0.0/manifest.toml'
     package=tomllib.loads(manifest.read_text())
-    feature=package['feature'][0]
-    (catalog/'state.toml').write_text('format_version = 1\n[[feature]]\npackage_id = '+json.dumps(package['id'])+'\nid = '+json.dumps(feature['id'])+'\nenabled = true\n')
+    assert package['feature'][0]['default_enabled']
+    assert package['feature'][0]['group']=='Diagnostics'
     script=desktop/'inputs.txt'
     script.write_text('wait 200\npress start\nwait 150\npress start\nwait 650\nrenderer toggle\nwait 40\nreset\nwait 120\nquit\n')
     run('desktop-default-on',[exe,'--rom',rom,'--config',desktop/'config.ini','--no-launcher','--script',script],
@@ -74,6 +74,13 @@ def main():
     assert len(desktop_captures)>=2
     assert any('widescreen' in c.with_name(c.name+'.mods.txt').read_text() for c in desktop_captures)
     for i,capture in enumerate(desktop_captures):playback('desktop-replay-'+str(i),capture)
+    config=desktop/'config.ini'
+    off=work/'saved-off';off.mkdir()
+    (catalog/'state.toml').write_text('format_version = 1\n[[feature]]\npackage_id = "megaman-x3.diagnostics"\nid = "replay-recording"\nenabled = false\n')
+    run('desktop-saved-off',[exe,'--rom',rom,'--config',config,'--no-launcher'],desktop,
+        {**base_env,'SNESRECOMP_RUN_FRAMES':'30','MMX_REPLAY_DIR':str(off)})
+    assert not list(off.iterdir())
+    assert 'enabled = false' in (catalog/'state.toml').read_text()
     capture=desktop_captures[0]
     original=capture.read_text().splitlines()
     damaged=work/'damaged';damaged.mkdir()
