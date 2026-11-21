@@ -157,6 +157,16 @@ static bool view_ready(void) {
   return enabled && state.initialized && !state.wipe && X3CoopViewsIndependent() &&
       !view_scene() && g_ram[0xd1]==4 && g_ram[0xd2]==4;
 }
+static bool intro_x_at_capture(unsigned x,unsigned y){
+  unsigned seat=state.players[0].character==X3_COOP_X?0:1;
+  const uint8_t *body=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+  /* The upper floor directly above Mac is a separate corridor. A nearby
+   * secondary camera must never queue X's forced walk on that floor. */
+  if(state.players[seat].life!=X3_COOP_ALIVE || !(body[0x27]&127) ||
+     word(body+5)+256<x || word(body+8)+32<y)return false;
+  X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,seat,false);
+  return (uint16_t)((x&~31u)-view.x+63)<320 && (uint16_t)(y-view.y+32)<304;
+}
 static bool view_record_wanted(unsigned flag) {
   if(flag<0xfa02 || flag>0xfffb)return false;
   unsigned record=word(g_ram+flag+3);
@@ -165,6 +175,10 @@ static bool view_record_wanted(unsigned flag) {
   const uint8_t *r=g_snes->cart->rom+offset;
   unsigned kind=r[0]&15,x=word(r+5)&8191,y=word(r+1)&8191;
   if(kind>3)return false;
+  /* The stage-zero Mac constructor immediately starts X's recorded walk.
+   * Only X's approach may admit that story object to the shared world. */
+  if(!g_ram[0x1fae] && kind==3 && r[3]==0x62 && !r[4] &&
+     !intro_x_at_capture(x,y))return false;
   /* Resident parallax controllers write the shared native BG registers.
    * Keep their retail lifetime until private presentation owns those writes. */
   if(kind==1 && r[3]==4) {
@@ -1298,6 +1312,12 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
       attachments[attachment]=(uint8_t)((attachments[attachment]&~12u)|128u|64u|(4u<<recorded));
     unsigned captive=recorded<2?recorded:native_captive_owner(d),beam=native_beam_target(d);
     bool capsule=native_capsule(d),intro=intro_capture_actor(d),x_only=x_pickup(d) || capsule || intro;
+    if(at==0xdd1a && intro && !g_ram[d+1] && !intro_x_at_capture(word(g_ram+d+5),word(g_ram+d+8))){
+      /* Unified view can also scroll ahead of X. Leave the pending actor
+       * intact and return through its original dispatcher epilogue. */
+      interp_bridge_pre_opcode_redirect((pc&0x800000)|0x00fcf5);
+      return;
+    }
     /* Hostile constructors choose aim before populating native HP. */
     bool constructing_hostile=at==0xdcb3 && hostile_projectile(d) && !g_ram[d+1];
     bool pickup=at==0xdafa && (x_only || shared_pickup(d));
@@ -2078,6 +2098,7 @@ static void boundary(CpuState *cpu,uint32_t pc) {
          !g_ram[X3_COOP_BODY+0x27] || g_ram[X3_COOP_BODY+0xb6])return;
       X3CoopInit(&state,g_ram,p1_character);
       initialize_zero();
+      intro_opening_join();
       stock_start(NULL);
       X3CoopPresentationEnroll(&state,g_snes->ppu->vram,g_snes->cart->rom,g_snes->cart->romImageSize);
       fprintf(stderr,"[x3-coop] native actor qualification enrolled X and Zero\n");
@@ -2117,6 +2138,7 @@ static void boundary(CpuState *cpu,uint32_t pc) {
       fprintf(stderr,"[x3-coop] unbalanced native controller return\n");
       enabled=false;return;
     }
+    intro_hold_zero_at_capture();
     if(controller.pass==1) {
       controller.result=regs(cpu);
       unsigned partner=state.anchor^1;
@@ -2251,7 +2273,8 @@ void X3CoopRuntimeFrame(void) {
   if(!enabled)return;
   X3CoopViewsSetRom(g_snes->cart->rom,g_snes->cart->romImageSize);
   if(!interp_bridge_add_pre_opcode_hook(0x03c3bd,weather_camera_boundary))enabled=false;
-  static const uint32_t intro_pcs[]={0x03ac57,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03aed9};
+  static const uint32_t intro_pcs[]={0x03a9b4,0x04974d,
+      0x03ac57,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03aed9};
   if(!interp_bridge_add_pre_opcode_hook(0x00e49e,modal_input_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x7e25ef,native_input_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x7e2621,native_input_boundary))enabled=false;

@@ -26,8 +26,10 @@ typedef struct IndependentFrame {
   const uint8_t *rom;size_t size;
   uint8_t ram[0x20000];
   int x,y,dx,dy;
-  unsigned stage,events,count;
+  int bg2_x,bg2_y,bg2_palette;
+  unsigned stage,events,count,bg2_mode;
   bool closed_arena,weather,weather_outside;
+  bool private_bg2;
   ResourceEvent event[256];
   uint8_t phase[3][8192];
   PpuExtraObject objects[EXTRA_PIECES];
@@ -120,8 +122,13 @@ static const Palette *prepare_palette(unsigned phase){
   }
   return p;
 }
-static void prepare_events(void){
+static void prepare_events(const uint8_t *body){
   frame.events=0;
+  frame.bg2_mode=frame.ram[0x1e99];
+  frame.private_bg2=false;
+  frame.bg2_palette=-1;
+  unsigned body_x=word(body+5),body_y=word(body+8),parallax_x=0;
+  int parallax_distance=INT_MAX;
   bool first_phase[3]={true,true,true};
   memset(frame.phase[0],frame.ram[0x1f19],8192);
   memset(frame.phase[1],frame.ram[0x1f1a],8192);
@@ -133,16 +140,51 @@ static void prepare_events(void){
       unsigned a=word(frame.ram+flag+3),kind,id,param,y,x;
       if(a<32768 || !rom_read(0x3c0000|a,1,&kind) || (kind&15)!=2 ||
          !rom_read(0x3c0000|((a+3)&65535),1,&id) ||
-         (id<0x15 || id>0x1a) ||
+         ((id<0x15 || id>0x1a) && (frame.stage || id!=4 || (!frame.dx && !frame.dy))) ||
          !rom_read(0x3c0000|((a+4)&65535),1,&param) ||
          !rom_read(0x3c0000|((a+1)&65535),2,&y) ||
          !rom_read(0x3c0000|((a+5)&65535),2,&x))continue;
       x&=8191;y&=8191;
-      if(id<=0x17){unsigned kind=id==0x15?2:id-0x16;
+      if(id==4){
+        /* The opening stage chains four parallax commands along its shafts.
+         * Adjacent commands share the preset for the room between them.
+         * Resolve the private body's side of the closest authored seam using
+         * the native C4A3/C4B4 preset tables, without changing shared BG2. */
+        int distance=abs((int)body_x-(int)x);
+        unsigned routine,x_write,y_write,suffix,dx,dy;
+        unsigned table=body_y<y?0x03f50c:0x03f566;
+        if(param<7 || param>10 || distance>=parallax_distance ||
+           !rom_read(table+param*2,2,&routine) ||
+           !rom_read(0x030000|routine,1,&x_write) || x_write!=0xa9 ||
+           !rom_read(0x030001+routine,2,&dx) ||
+           !rom_read(0x030003+routine,3,&x_write) || x_write!=0x1ea28d ||
+           !rom_read(0x030006+routine,1,&y_write) || y_write!=0xa9 ||
+           !rom_read(0x030007+routine,2,&dy) ||
+           !rom_read(0x030009+routine,3,&y_write) || y_write!=0x1ea48d ||
+           !rom_read(0x03000c+routine,1,&suffix))continue;
+        unsigned mode=param<10?14:2;
+        if(suffix!=0x60 && (suffix!=0xe2 || !rom_read(0x03000f+routine,1,&mode)))continue;
+        parallax_distance=distance;parallax_x=x;
+        frame.private_bg2=true;frame.bg2_mode=mode;
+        frame.bg2_x=(int16_t)dx;frame.bg2_y=(int16_t)dy;
+      }else if(id<=0x17){unsigned kind=id==0x15?2:id-0x16;
         if(first_phase[kind]){memset(frame.phase[kind],param>>4,8192);first_phase[kind]=false;}
         memset(frame.phase[kind]+x,param&15,8192-x);
       }else if(frame.events<256)
         frame.event[frame.events++]=(ResourceEvent){(uint16_t)x,(uint16_t)y,(uint8_t)id,(uint8_t)param};
+    }
+  }
+  if(frame.private_bg2 && body_x<8192){
+    unsigned phase=frame.phase[1][body_x];
+    /* Palette loads for the first two shafts use the same body-side
+     * transitions. Palette selection follows the room even when an art
+     * tile comes from a distant part of the packed BG2 layout. */
+    if(phase==1)for(unsigned i=0;i<frame.events;++i){
+      const ResourceEvent *e=&frame.event[i];
+      if(e->kind==0x1a && e->x==parallax_x){
+        frame.bg2_palette=body_y<e->y?e->phase>>4:e->phase&15;
+        break;
+      }
     }
   }
 }
@@ -252,6 +294,9 @@ static unsigned resource_pixel(const ObjectResource *resource,unsigned address,u
   return 0;
 }
 static bool stage_tile(unsigned layer,int x,int y,unsigned *tile){
+  /* The native BG2 streamer indexes a circular 32-by-32 screen layout.
+   * The intro skyline starts at negative horizontal parallax scroll. */
+  if(layer==1){x=(unsigned)x&8191;y=(unsigned)y&8191;}
   if(x<0 || y<0 || x>=8192 || y>=8192)return false;
   unsigned layout=layer?0xec00:0xe800,defs=layer?0xa600:0x2800,ptr=layer?0x9c8:0x9c5;
   unsigned sid=frame.ram[layout+(unsigned)(y>>8)*32+(unsigned)(x>>8)];
@@ -270,6 +315,14 @@ static bool object_canvas(unsigned layer){
   return layer==1 && frame.stage==13 && frame.ram[0x1e99]==14;
 }
 static bool canvas_contains(int x,int y){return x>=0 && x<256 && y>=1 && y<=224;}
+static int parallax_origin(unsigned native, int scroll, int camera, int delta,
+                           bool half, int phase_mask, int private_offset){
+  int base=(int16_t)native;
+  int period=(phase_mask+1)/2;
+  int phase=((scroll-base+period)&phase_mask)-period;
+  if(frame.private_bg2)return (half?(camera+delta)>>1:camera+delta)+private_offset+phase;
+  return base+phase+(half?((camera+delta)>>1)-(camera>>1):delta);
+}
 static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   static const unsigned low[]={8,7,1},high[]={12,11,3};
   if(frame.closed_arena && layer<2){int native_x=x+frame.dx;
@@ -290,7 +343,7 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   if((sc&1) && (tx&32))a+=1024;
   if((sc&2) && (ty&32))a+=(sc&1)?2048:1024;
   unsigned tile=p->vram[a&32767];int asset_x=-1,asset_y=-1;
-  unsigned mode=frame.ram[0x1e99];
+  unsigned mode=frame.bg2_mode;
   bool stream=!canvas && (layer==0 || (layer==1 && (mode==2 || mode==4 || mode==14 || mode==16)));
   if(layer<2 && size==8 && stream){
     int wx,wy;
@@ -298,17 +351,14 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
       wx=X3Display_ExpandStageScroll((uint16_t)word(frame.ram+0x1e5d),p->hScroll[0])+frame.dx+x;
       wy=X3Display_ExpandStageScroll((uint16_t)word(frame.ram+0x1e60),p->vScroll[0])+frame.dy+y;
     }else{
-      int sx=word(frame.ram+0x1e9d),sy=word(frame.ram+0x1ea0);
-      wx=sx+(((p->hScroll[1]-sx+256)&511)-256)+x;
-      wy=sy+(((p->vScroll[1]-sy+128)&255)-128)+y;
       int nx=word(frame.ram+0x1e5d),ny=word(frame.ram+0x1e60);
-      wx+=(mode==2 || mode==14)?((nx+frame.dx)>>1)-(nx>>1):frame.dx;
-      wy+=(mode==2 || mode==16)?((ny+frame.dy)>>1)-(ny>>1):frame.dy;
+      wx=parallax_origin(word(frame.ram+0x1e9d),p->hScroll[1],nx,frame.dx,mode==2 || mode==14,511,frame.bg2_x)+x;
+      wy=parallax_origin(word(frame.ram+0x1ea0),p->vScroll[1],ny,frame.dy,mode==2 || mode==16,255,frame.bg2_y)+y;
     }
     /* Match the local compositor using this layer's own source. A slower
      * parallax stream can still cross its finite origin after the foreground
      * has left the edge. Native columns and nonnegative sources stay exact. */
-    if(x<0 && wx<0)wx=((wx%32)+32)%32;
+    if(!layer && x<0 && wx<0)wx=((wx%32)+32)%32;
     if(!stage_tile(layer,wx,wy,&tile))return 0;
     px=wx;py=wy;
     asset_x=layer && (mode==2 || mode==14)?wx*2-128:wx;
@@ -340,8 +390,9 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   if(layer==2 && frame.weather && index>=5 && index<=7)*color=0x421;
   /* The current native view owns script overrides and palette animation.
    * Authored room lists reconstruct only a different camera's colors. */
-  if((frame.dx || frame.dy) && asset_x>=0 && asset_x<8192 && asset_y>=0 && asset_y<8192){
-    unsigned phase=resource_phase(1,asset_x,asset_y);
+  int private_palette=layer==1?frame.bg2_palette:-1;
+  if((frame.dx || frame.dy) && (private_palette>=0 || (asset_x>=0 && asset_x<8192 && asset_y>=0 && asset_y<8192))){
+    unsigned phase=private_palette>=0?(unsigned)private_palette:resource_phase(1,asset_x,asset_y);
     unsigned current=frame.ram[0x1f1a];
     if((frame.stage==4 && (frame.ram[0x1fc9]&64)) ||
        (frame.stage==6 && (frame.ram[0x1fc3]&64)))current+=5;
@@ -363,7 +414,7 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
     return;
   }
   static const unsigned low[]={8,7,1},high[]={12,11,3};
-  unsigned mode=frame.ram[0x1e99],bpp=layer==2?2:4;
+  unsigned mode=frame.bg2_mode,bpp=layer==2?2:4;
   bool canvas=object_canvas(layer);
   bool stream=!canvas && (layer==0 || (layer==1 && (mode==2 || mode==4 || mode==14 || mode==16)));
   bool half_x=layer==1 && (mode==2 || mode==14);
@@ -375,9 +426,8 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
       origin_x=X3Display_ExpandStageScroll((uint16_t)nx,p->hScroll[0])+frame.dx;
       origin_y=X3Display_ExpandStageScroll((uint16_t)ny,p->vScroll[0])+frame.dy;
     }else{
-      int sx=word(frame.ram+0x1e9d),sy=word(frame.ram+0x1ea0);
-      origin_x=sx+(((p->hScroll[1]-sx+256)&511)-256)+(half_x?((nx+frame.dx)>>1)-(nx>>1):frame.dx);
-      origin_y=sy+(((p->vScroll[1]-sy+128)&255)-128)+(half_y?((ny+frame.dy)>>1)-(ny>>1):frame.dy);
+      origin_x=parallax_origin(word(frame.ram+0x1e9d),p->hScroll[1],nx,frame.dx,half_x,511,frame.bg2_x);
+      origin_y=parallax_origin(word(frame.ram+0x1ea0),p->vScroll[1],ny,frame.dy,half_y,255,frame.bg2_y);
     }
   }
   unsigned current_palette=frame.ram[0x1f1a];
@@ -392,7 +442,7 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
     else if(layer==2 && frame.weather){px=(x+frame.dx+p->hScroll[layer])&1023;py=(y+frame.dy+p->vScroll[layer])&1023;}
     if(stream){
       px=origin_x+x;py=origin_y+y;
-      if(x<0 && px<0)px=((px%32)+32)%32;
+      if(!layer && x<0 && px<0)px=((px%32)+32)%32;
       valid=stage_tile(layer,px,py,&tile);
     }else{
       unsigned sc=p->bgXsc[layer],tx=(unsigned)px>>3,ty=(unsigned)py>>3;
@@ -439,8 +489,10 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
       }
       colors[i+j]=-1;pixels[i+j]=pixel?(uint16_t)(prefix|palette|pixel):0;
       if(layer==2 && frame.weather && pixel && (palette|pixel)>=5 && (palette|pixel)<=7)colors[i+j]=0x421;
-      if(pixel && asset && (frame.dx || frame.dy)){
-        unsigned phase=resource_phase(1,asset_x,asset_y);const Palette *pal=prepare_palette(phase);
+      int private_palette=layer==1?frame.bg2_palette:-1;
+      if(pixel && (asset || private_palette>=0) && (frame.dx || frame.dy)){
+        unsigned phase=private_palette>=0?(unsigned)private_palette:resource_phase(1,asset_x,asset_y);
+        const Palette *pal=prepare_palette(phase);
         if(pal && pal->valid[palette|pixel] && phase!=current_palette)colors[i+j]=pal->colors[palette|pixel];
       }
     }
@@ -576,7 +628,7 @@ static bool begin_view(Ppu *p,unsigned seat,bool shared){
     memset(palette_ready,0,sizeof(palette_ready));memset(palettes,0,sizeof(palettes));
   }
   int extra=(int)(panel_width-256)/2,left=extra?extra:p->extraLeftCur,right=extra?extra:p->extraRightCur;
-  prepare_events();world_objects(p,left,right);boss_meter(p,right);
+  prepare_events(visible->players.players[seat].body);world_objects(p,left,right);boss_meter(p,right);
   unsigned layout=X3CoopHudLayout();
   for(unsigned who=shared?0:seat;who<(shared?2:seat+1) && frame.count<EXTRA_PIECES;++who){
     const X3CoopPlayer *actor=&visible->players.players[who];

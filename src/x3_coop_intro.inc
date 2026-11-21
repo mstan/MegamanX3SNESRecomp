@@ -9,8 +9,34 @@ static bool intro_capture_actor(unsigned d){
 static bool intro_constructing(void){
   return scene.phase && (scene.kind==SCENE_INTRO_ZERO_CONSTRUCT || scene.kind==SCENE_INTRO_X_CONSTRUCT);
 }
+static bool intro_opening_zero(void){
+  return !stock_zero && !state.wipe && !g_ram[0x1fae] &&
+      g_ram[0xcc8] && g_ram[0xcca]==0x10 && g_ram[0xcd2]==1;
+}
+static void intro_opening_join(void){
+  if(!intro_opening_zero() || g_ram[0xd04])return;
+  unsigned zero=state.players[0].character==X3_COOP_ZERO?0:1;
+  uint8_t *body=state.players[zero].body;
+  putword(body+5,word(g_ram+0xccd));putword(body+8,word(g_ram+0xcd0));
+  putword(body+0x22,word(body+5));putword(body+0x24,word(body+8));
+  body[4]=body[7]=0;
+  g_ram[0xcc8]=0;
+}
+static void intro_hold_zero_at_capture(void){
+  /* The native story requires X at Mac's approach. Let Zero step away from
+   * the boundary or continue alone if the team no longer has a living X. */
+  const unsigned boundary_x=0x1100;
+  if(g_ram[0x1fae] || scene.phase || state.players[state.current].character!=X3_COOP_ZERO ||
+     state.players[state.current^1].life!=X3_COOP_ALIVE)return;
+  uint8_t *body=g_ram+X3_COOP_BODY;
+  if(word(body+0x22)<=boundary_x && word(body+5)>boundary_x){
+    putword(body+5,boundary_x);body[4]=0;putword(body+0x1a,0);
+  }
+}
 static void intro_capture_begin(unsigned d){
-  if(scene.phase || !intro_capture_actor(d) || g_ram[X3_COOP_BODY+2]!=0x66 ||
+  const uint8_t *body=g_ram+X3_COOP_BODY;
+  bool walk_queued=(body[0x6e]&128) && word(body+0xb0)==0x1140 && g_ram[0x1f4f];
+  if(scene.phase || !intro_capture_actor(d) || (!walk_queued && body[2]!=0x66) ||
       state.players[state.current].character!=X3_COOP_X ||
       state.players[state.current].life!=X3_COOP_ALIVE)return;
   X3CoopViewsAdoptPlayer(g_ram,&state,state.current,false);
@@ -38,7 +64,20 @@ static void intro_helper_handoff(void){
   scene_install(survivor);
 }
 static void intro_boundary(CpuState *cpu,uint32_t pc){
-  if(!enabled || !state.initialized || g_ram[0x1fae])return;
+  if(!enabled || g_ram[0x1fae])return;
+  unsigned at=pc&0x7fffff;
+  if(!state.initialized && intro_opening_zero()){
+    if(at==0x03a9b4 && cpu->D==0xcc8 && g_ram[0xd04]<=1){
+      /* Keep the NPC's standing draw while the native ready sequence runs. */
+      g_ram[0xd04]=0;
+      interp_bridge_pre_opcode_redirect((pc&0x800000)|0x03a9b8);
+    }else if(at==0x04974d && cpu->D==X3_COOP_BODY && !g_ram[0xd04]){
+      /* The dialogue and its closing timer finished. Treat Zero as done
+       * here, then exchange the parked NPC for the player at enrollment. */
+      interp_bridge_pre_opcode_redirect((pc&0x800000)|0x049752);
+    }
+  }
+  if(!state.initialized)return;
   unsigned x=state.players[0].character==X3_COOP_X?0:1,zero=x^1;
   /* A prior-fallen X lets native Zero reach rescue without the earlier
    * capture scene. The actual exchange still needs its temporary X body. */
@@ -52,7 +91,7 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
     if(!g_ram[0x1f45])++g_ram[0x1f45];
   }
   if(!scene.phase)return;
-  switch(pc&0x7fffff){
+  switch(at){
     case 0x03ac57:
       if(scene.kind!=SCENE_INTRO_CAPTURE)return;
       /* The first constructor calls already replace the native X palette
