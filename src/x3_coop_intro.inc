@@ -53,7 +53,16 @@ static void intro_swap_arrive(void){
   state.current=state.anchor=(uint8_t)x;
   scene.owner=(uint8_t)x;scene.phase=2;scene.tick=0;
   scene_install(x);
-  intro_sound(0x11);
+}
+static void intro_swap_frame_camera(void){
+  if(scene.tick>=INTRO_FRAMING_FRAMES)return;
+  /* Native 08:B83D locks the room to this position during Mac's walk.
+   * Reach that framing while the corridor is empty, before X descends. */
+  unsigned lock_x;
+  if(!scene_rom(0x08b83e,2,&lock_x))return;
+  int camera_x=word(g_ram+0x1e5d);
+  int frames_left=INTRO_FRAMING_FRAMES-(int)scene.tick;
+  putword(g_ram+0x1e5d,(unsigned)(camera_x+((int)lock_x-camera_x)/frames_left));
 }
 static void intro_capture_begin(unsigned d){
   const uint8_t *body=g_ram+X3_COOP_BODY;
@@ -64,8 +73,15 @@ static void intro_capture_begin(unsigned d){
       state.players[state.current].life!=X3_COOP_ALIVE)return;
   X3CoopViewsAdoptPlayer(g_ram,&state,state.current,false);
   state.anchor=state.current;target.seat=state.current;
-  if(swapped){scene.kind=SCENE_INTRO_CAPTURE;scene.phase=2;scene.tick=0;}
-  else scene_begin(d,SCENE_INTRO_CAPTURE);
+  if(swapped){
+    /* The scripted camera targets match the settled framing. Commit the
+     * current bounds too so native tracking cannot pull back toward X
+     * for one tick when the walk takes over. */
+    unsigned camera_x=word(g_ram+0x1e5d);
+    putword(g_ram+0x1e66,camera_x);putword(g_ram+0x1e68,camera_x);
+    putword(g_ram+0x1e6e,camera_x);putword(g_ram+0x1e70,camera_x);
+    scene.kind=SCENE_INTRO_CAPTURE;scene.phase=2;scene.tick=0;
+  }else scene_begin(d,SCENE_INTRO_CAPTURE);
 }
 static void intro_change_owner(unsigned seat,unsigned kind){
   /* Do not project the old body over the original initializer's inputs.
@@ -125,7 +141,8 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
     case 0x00dfc6:
       /* Hold the capture camera while the original Zero entrance runs.
        * Parallax, room streaming and OAM still consume that same camera. */
-      if((X3CoopRuntimeIntroSwap() && scene.phase==2) || scene.kind==SCENE_INTRO_ZERO_CONSTRUCT ||
+      if(X3CoopRuntimeIntroSwap() && scene.phase==2)intro_swap_frame_camera();
+      if((X3CoopRuntimeIntroSwap() && scene.phase!=1) || scene.kind==SCENE_INTRO_ZERO_CONSTRUCT ||
          (scene.kind==SCENE_INTRO_ZERO && state.players[scene.owner].character==X3_COOP_ZERO &&
           g_ram[0x1f45] && g_ram[0x1f4f]))
         interp_bridge_pre_opcode_redirect((pc&0x800000)|0x00dffd);
@@ -182,7 +199,16 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
          * directly. The solo takeoff sound, movement and FX are unnecessary. */
         const uint8_t *npc=g_ram+0xcc8;
         uint8_t *body=state.players[zero].body;
+        /* Zero returns on the floor. His parked combat pool still refers
+         * to the position from which he broke the restraint. */
+        scene_cancel_transients(zero);
         scene_place(zero,npc);
+        /* Restore standing floor contact and clear the old airborne probe
+         * flag. Native 04:C188 uses it to suppress the normal floor probe. */
+        body[0x2b]=4;body[0x2c]=body[0x2f]=0;
+        /* Use the post-shot idle state from native 04:A617. Otherwise the
+         * canceled shot still leaves Zero's arm raised when controls return. */
+        body[0x50]=0xff;body[0x6f]=0x50;
         body[0x11]=(uint8_t)((body[0x11]&~64)|(npc[0x11]&64));
         body[0x17]=npc[0x17];
         X3CoopPresentationBodyDma(zero,body,g_snes->cart->rom,g_snes->cart->romImageSize);

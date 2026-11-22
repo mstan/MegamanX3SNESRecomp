@@ -279,6 +279,9 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
     if(!retired){
       check(intro_constructor_seen&2,"rescue exercised the actual pending native X constructor");
       check(stepped_heal,"the staged rescue refill presents intermediate X health");
+      bool parked_shot=false;
+      for(unsigned slot=0;slot<X3_COOP_SHOT_BYTES;slot+=64)parked_shot|=s->players[zero].shots[slot]!=0;
+      check(!parked_shot,"Zero rejoins with no shots from the rescue attempt");
     }
     fprintf(stderr,"intro rescued roster%u scenario%u Xlife%u selector%u HP%u max%u Zerolife%u selector%u HP%u max%u\n",
         reverse,scenario,s->players[x].life,s->players[x].body[0xb6],s->players[x].body[0x27],s->players[x].maximum_health,
