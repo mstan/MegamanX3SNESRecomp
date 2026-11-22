@@ -20,6 +20,8 @@ bool X3CoopRuntimeZeroAvailable(void);
 bool X3CoopRuntimeSceneActive(void);
 /* Shared view locks, excluding the native playable Ride Armor HUD mode. */
 bool X3CoopRuntimeViewScene(void);
+bool X3CoopRuntimeIntroSwap(void);
+bool X3CoopRuntimeIntroCaptureView(void);
 void X3CoopRuntimeScenePresentation(X3CoopState *copy);
 void X3CoopRuntimeDoorLeadPresentation(X3CoopState *copy,unsigned seat);
 void X3CoopRuntimeFrame(void);

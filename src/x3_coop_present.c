@@ -57,7 +57,7 @@ void X3CoopPresentationSubmit(const X3CoopState *p,const uint8_t *ram,unsigned a
   draw->address=(uint16_t)address;draw->owner=(uint8_t)owner;memcpy(draw->body,ram+address,32);
   /* The native player submission, rather than a later physics poll, owns
    * the displayed primary pose. The private partner is frozen at list start. */
-  if(address==X3_COOP_BODY && owner && owner-1==p->current){
+  if(address==X3_COOP_BODY && owner && owner-1==p->current && !X3CoopRuntimeIntroSwap()){
     X3CoopState copy=*p;X3CoopCapture(&copy,ram);
     queued.players.players[owner-1]=copy.players[owner-1];
     X3CoopRuntimeDoorLeadPresentation(&queued.players,owner-1);

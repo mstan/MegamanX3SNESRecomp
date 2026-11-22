@@ -125,13 +125,13 @@ static const Palette *prepare_palette(unsigned phase){
   }
   return p;
 }
-static void prepare_events(const uint8_t *body,bool private_room){
+static void prepare_events(unsigned body_x,unsigned body_y,bool private_room){
   frame.events=0;
   frame.bg2_mode=frame.ram[0x1e99];
   frame.private_bg2=false;
   frame.searchlight=false;
   frame.bg2_palette=-1;
-  unsigned body_x=word(body+5),body_y=word(body+8),parallax_x=0;
+  unsigned parallax_x=0;
   int parallax_distance=INT_MAX;
   bool first_phase[3]={true,true,true};
   memset(frame.phase[0],frame.ram[0x1f19],8192);
@@ -659,12 +659,17 @@ static bool begin_view(Ppu *p,unsigned seat,bool shared){
     memset(palette_ready,0,sizeof(palette_ready));memset(palettes,0,sizeof(palettes));
   }
   int extra=(int)(panel_width-256)/2,left=extra?extra:p->extraLeftCur,right=extra?extra:p->extraRightCur;
+  /* Both viewers are in the capture corridor once the swap has reached
+   * Zero's camera. The descending actor crosses the authored shaft seam
+   * vertically while the camera and its background stay in the same room. */
+  bool mac_room=frame.y==0x600 && X3CoopRuntimeIntroCaptureView();
   unsigned room_seat=seat;
   const X3CoopPlayer *viewer=&visible->players.players[seat];
-  if(shared || viewer->life!=X3_COOP_ALIVE || !(viewer->body[0x27]&127) || viewer->body[2]==12)
+  if(shared || mac_room || viewer->life!=X3_COOP_ALIVE || !(viewer->body[0x27]&127) || viewer->body[2]==12)
     room_seat=visible->players.anchor;
-  bool private_room=frame.dx || frame.dy || (!shared && room_seat!=visible->players.anchor);
-  prepare_events(visible->players.players[room_seat].body,private_room);
+  bool private_room=mac_room || frame.dx || frame.dy || (!shared && room_seat!=visible->players.anchor);
+  const uint8_t *body=visible->players.players[room_seat].body;
+  prepare_events(word(body+5),mac_room?(unsigned)frame.y+160:word(body+8),private_room);
   world_objects(p,left,right);boss_meter(p,right);
   unsigned layout=X3CoopHudLayout();
   for(unsigned who=shared?0:seat;who<(shared?2:seat+1) && frame.count<EXTRA_PIECES;++who){
@@ -682,6 +687,7 @@ bool X3Display_BeginIndependentFrame(Ppu *p){
   rendered_private=false;
   int seat=X3Display_PresentationSeat();
   if(seat>=0 && X3CoopViewsIndependent())return begin_view(p,(unsigned)seat,false);
+  if(X3CoopRuntimeIntroSwap() || (X3CoopRuntimeIntroCaptureView() && g_ram[0x1e61]==6))return begin_view(p,0,true);
   const X3CoopPresentedFrame *visible=X3CoopPresentationVisible();
   /* Narrow Shared also needs private composition when surviving particles
    * refer to a creator-specific payload in the shared native tile slot. */

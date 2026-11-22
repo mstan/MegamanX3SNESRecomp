@@ -4,7 +4,7 @@
 static bool intro_capture_actor(unsigned d){
   return !g_ram[0x1fae] && enemy_actor(d) && g_ram[d+10]==0x62 &&
       !g_ram[d+11] && g_ram[d+1]<4 &&
-      (!scene.phase || scene.kind==SCENE_INTRO_CAPTURE);
+      (!scene.phase || scene.kind==SCENE_INTRO_CAPTURE || (X3CoopRuntimeIntroSwap() && scene.slot==d));
 }
 static bool intro_constructing(void){
   return scene.phase && (scene.kind==SCENE_INTRO_ZERO_CONSTRUCT || scene.kind==SCENE_INTRO_X_CONSTRUCT);
@@ -22,33 +22,50 @@ static void intro_opening_join(void){
   body[4]=body[7]=0;
   g_ram[0xcc8]=0;
 }
-static void intro_capture_from_zero(unsigned zero,unsigned x){
-  /* Mac's native constructor always needs X. Exchange at the entering
-   * Zero's own position and camera before it queues the recorded walk.
-   * A fallen X gets just enough HP to take part in this scene; the original
-   * rescue cleanup later fills X to his own maximum. */
-  X3CoopViewsAdoptPlayer(g_ram,&state,zero,false);
+/* Original01:802B enqueues an ordinary unpanned sound in the WRAM ring.
+ * The game's sound driver still owns delivery, mixing and SPC timing. */
+static void intro_sound(uint8_t sound){
+  unsigned i=g_ram[0x9d3]&30;
+  g_ram[0x9a2+i]=sound;g_ram[0x9a3+i]=0;g_ram[0x9d3]=(uint8_t)((i+2)&30);
+}
+static void intro_swap_begin(unsigned slot){
   X3CoopCapture(&state,g_ram);
+  scene.slot=(uint16_t)slot;scene.stage=0;scene.owner=state.anchor;
+  scene.phase=1;scene.tick=0;scene.kind=SCENE_INTRO_SWAP;
+  learner_rescue=false;
+  for(unsigned seat=0;seat<2;++seat){
+    scene_cancel_transients(seat);
+    if(state.players[seat].life==X3_COOP_ALIVE)state.players[seat].body[0x26]=32;
+  }
+  scene_install(state.anchor);
+  intro_sound(0x10);
+}
+static void intro_swap_arrive(void){
+  unsigned x=state.players[0].character==X3_COOP_X?0:1,zero=x^1;
+  X3CoopViewsAdoptPlayer(g_ram,&state,zero,false);
   const uint8_t *from=state.players[zero].body;
   X3CoopPlayer *player=&state.players[x];
   bool fallen=player->life==X3_COOP_FALLEN;
-  scene_cancel_transients(x);
   scene_place(x,from);
   player->life=X3_COOP_ALIVE;
   if(fallen || !(player->body[0x27]&127))player->body[0x27]=1;
   player->body[0x11]=(uint8_t)((player->body[0x11]&~64)|(from[0x11]&64));
   state.current=state.anchor=(uint8_t)x;
+  scene.owner=(uint8_t)x;scene.phase=2;scene.tick=0;
   scene_install(x);
+  intro_sound(0x11);
 }
 static void intro_capture_begin(unsigned d){
   const uint8_t *body=g_ram+X3_COOP_BODY;
   bool walk_queued=(body[0x6e]&128) && word(body+0xb0)==0x1140 && g_ram[0x1f4f];
-  if(scene.phase || !intro_capture_actor(d) || (!walk_queued && body[2]!=0x66) ||
+  bool swapped=X3CoopRuntimeIntroSwap() && scene.phase==3;
+  if((scene.phase && !swapped) || !intro_capture_actor(d) || (!walk_queued && body[2]!=0x66) ||
       state.players[state.current].character!=X3_COOP_X ||
       state.players[state.current].life!=X3_COOP_ALIVE)return;
   X3CoopViewsAdoptPlayer(g_ram,&state,state.current,false);
   state.anchor=state.current;target.seat=state.current;
-  scene_begin(d,SCENE_INTRO_CAPTURE);
+  if(swapped){scene.kind=SCENE_INTRO_CAPTURE;scene.phase=2;scene.tick=0;}
+  else scene_begin(d,SCENE_INTRO_CAPTURE);
 }
 static void intro_change_owner(unsigned seat,unsigned kind){
   /* Do not project the old body over the original initializer's inputs.
@@ -105,6 +122,14 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
   }
   if(!scene.phase)return;
   switch(at){
+    case 0x00dfc6:
+      /* Hold the capture camera while the original Zero entrance runs.
+       * Parallax, room streaming and OAM still consume that same camera. */
+      if((X3CoopRuntimeIntroSwap() && scene.phase==2) || scene.kind==SCENE_INTRO_ZERO_CONSTRUCT ||
+         (scene.kind==SCENE_INTRO_ZERO && state.players[scene.owner].character==X3_COOP_ZERO &&
+          g_ram[0x1f45] && g_ram[0x1f4f]))
+        interp_bridge_pre_opcode_redirect((pc&0x800000)|0x00dffd);
+      break;
     case 0x03ac57:
       if(scene.kind!=SCENE_INTRO_CAPTURE)return;
       /* The first constructor calls already replace the native X palette
@@ -163,6 +188,12 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
         X3CoopPresentationBodyDma(zero,body,g_snes->cart->rom,g_snes->cart->romImageSize);
         interp_bridge_pre_opcode_redirect((pc&0x800000)|0x03aec2);
       }
+      break;
+    case 0x03aec6:
+      /* Keep personal HP through the stock story cleanup. The next scene
+       * ticks use the health item's one point per four ticks and sound. */
+      if(cpu->D==0xcc8 && intro_keep_partner())
+        interp_bridge_pre_opcode_redirect((pc&0x800000)|0x03aecc);
       break;
     case 0x03aed9:
       if(native_cinematic()){

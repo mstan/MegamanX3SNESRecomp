@@ -47,10 +47,10 @@ static void native_intro_survivor_display_checks(uint8_t *original,size_t size,u
     door_install_player(&setup);X3CoopViewsConfigure(false);
     unsigned observed=intro_visible_zero_frames;
     unsigned elapsed=0;
-    for(;elapsed<240 && !X3CoopRuntimeSceneActive();++elapsed)
+    for(;elapsed<300 && (!X3CoopRuntimeSceneActive() || X3CoopRuntimeState()->anchor!=x);++elapsed)
       intro_frame((uint32_t)SNES_PAD_RIGHT<<(zero*12));
-    check(elapsed<240 && intro_visible_zero_frames>observed && X3CoopRuntimeState()->anchor==x,
-        "Zero reaches the native capture and X takes over as the captive");
+    check(elapsed<300 && intro_visible_zero_frames>observed && X3CoopRuntimeState()->anchor==x,
+        "Zero departs before X arrives for the native capture");
     const X3CoopState *captured=X3CoopRuntimeState();
     check(captured->players[x].life==X3_COOP_ALIVE && (captured->players[x].body[0x27]&127)==1 &&
           !captured->players[x].body[0xb6],"the opening capture reenrolls fallen X at one HP");
@@ -251,6 +251,7 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
     size_t pending=RtlSaveSnapshotToMemory(expected,capacity);
     check(pending!=0,"the actual restraint death saves before X release");
     unsigned elapsed=0,cinematic_frame=0;size_t cinematic_size=0;intro_constructor_seen=0;
+    bool stepped_heal=false;
     for(;elapsed<6000;++elapsed){
       intro_frame(intro_confirm(elapsed));
       if(retired && !cinematic_size && !X3CoopRuntimeReady() && X3CoopRuntimeSceneActive()){
@@ -266,6 +267,8 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
       }
       const X3CoopState *s=X3CoopRuntimeState();
       unsigned owner=retired?zero:x;
+      unsigned hp=s->players[x].body[0x27]&127;
+      if(intro_rescue_native_seen==3 && hp>11 && hp<s->players[x].maximum_health)stepped_heal=true;
       if(intro_rescue_native_seen==3 && !X3CoopRuntimeSceneActive() && s->current==owner && s->anchor==owner &&
           g_ram[0xa8e]==(retired?2:0) && !g_ram[0x9da] && !g_ram[0xcc8])break;
     }
@@ -273,7 +276,10 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
     if(elapsed==6000)fprintf(stderr,"intro rescue roster%u scenario%u seen%u current%u anchor%u selector%u HP%u scene%u text%u locks%u/%u\n",
         reverse,scenario,intro_rescue_native_seen,s->current,s->anchor,g_ram[0xa8e],g_ram[0x9ff],X3CoopRuntimeSceneActive(),g_ram[0xcc8],g_ram[0x1f22],g_ram[0x1f24]);
     check(elapsed<6000 && intro_rescue_native_seen==3,"native rescue releases the living participant without reviving a fallen partner");
-    if(!retired)check(intro_constructor_seen&2,"rescue exercised the actual pending native X constructor");
+    if(!retired){
+      check(intro_constructor_seen&2,"rescue exercised the actual pending native X constructor");
+      check(stepped_heal,"the staged rescue refill presents intermediate X health");
+    }
     fprintf(stderr,"intro rescued roster%u scenario%u Xlife%u selector%u HP%u max%u Zerolife%u selector%u HP%u max%u\n",
         reverse,scenario,s->players[x].life,s->players[x].body[0xb6],s->players[x].body[0x27],s->players[x].maximum_health,
         s->players[zero].life,s->players[zero].body[0xb6],s->players[zero].body[0x27],s->players[zero].maximum_health);
