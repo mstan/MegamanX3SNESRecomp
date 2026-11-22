@@ -122,7 +122,7 @@ static const Palette *prepare_palette(unsigned phase){
   }
   return p;
 }
-static void prepare_events(const uint8_t *body){
+static void prepare_events(const uint8_t *body,bool private_room){
   frame.events=0;
   frame.bg2_mode=frame.ram[0x1e99];
   frame.private_bg2=false;
@@ -140,7 +140,7 @@ static void prepare_events(const uint8_t *body){
       unsigned a=word(frame.ram+flag+3),kind,id,param,y,x;
       if(a<32768 || !rom_read(0x3c0000|a,1,&kind) || (kind&15)!=2 ||
          !rom_read(0x3c0000|((a+3)&65535),1,&id) ||
-         ((id<0x15 || id>0x1a) && (frame.stage || id!=4 || (!frame.dx && !frame.dy))) ||
+         ((id<0x15 || id>0x1a) && (frame.stage || id!=4 || !private_room)) ||
          !rom_read(0x3c0000|((a+4)&65535),1,&param) ||
          !rom_read(0x3c0000|((a+1)&65535),2,&y) ||
          !rom_read(0x3c0000|((a+5)&65535),2,&x))continue;
@@ -317,10 +317,12 @@ static bool object_canvas(unsigned layer){
 static bool canvas_contains(int x,int y){return x>=0 && x<256 && y>=1 && y<=224;}
 static int parallax_origin(unsigned native, int scroll, int camera, int delta,
                            bool half, int phase_mask, int private_offset){
+  /* The opening's private rooms have fixed parallax offsets. The native
+   * scroll register can still contain the previous frame of the other view. */
+  if(frame.private_bg2)return (half?(camera+delta)>>1:camera+delta)+private_offset;
   int base=(int16_t)native;
   int period=(phase_mask+1)/2;
   int phase=((scroll-base+period)&phase_mask)-period;
-  if(frame.private_bg2)return (half?(camera+delta)>>1:camera+delta)+private_offset+phase;
   return base+phase+(half?((camera+delta)>>1)-(camera>>1):delta);
 }
 static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
@@ -391,7 +393,7 @@ static uint16_t background(const Ppu *p,unsigned layer,int x,int y,int *color){
   /* The current native view owns script overrides and palette animation.
    * Authored room lists reconstruct only a different camera's colors. */
   int private_palette=layer==1?frame.bg2_palette:-1;
-  if((frame.dx || frame.dy) && (private_palette>=0 || (asset_x>=0 && asset_x<8192 && asset_y>=0 && asset_y<8192))){
+  if(private_palette>=0 || ((frame.dx || frame.dy) && asset_x>=0 && asset_x<8192 && asset_y>=0 && asset_y<8192)){
     unsigned phase=private_palette>=0?(unsigned)private_palette:resource_phase(1,asset_x,asset_y);
     unsigned current=frame.ram[0x1f1a];
     if((frame.stage==4 && (frame.ram[0x1fc9]&64)) ||
@@ -490,7 +492,7 @@ static void background_line(const Ppu *p,unsigned layer,int y,unsigned left,
       colors[i+j]=-1;pixels[i+j]=pixel?(uint16_t)(prefix|palette|pixel):0;
       if(layer==2 && frame.weather && pixel && (palette|pixel)>=5 && (palette|pixel)<=7)colors[i+j]=0x421;
       int private_palette=layer==1?frame.bg2_palette:-1;
-      if(pixel && (asset || private_palette>=0) && (frame.dx || frame.dy)){
+      if(pixel && (private_palette>=0 || (asset && (frame.dx || frame.dy)))){
         unsigned phase=private_palette>=0?(unsigned)private_palette:resource_phase(1,asset_x,asset_y);
         const Palette *pal=prepare_palette(phase);
         if(pal && pal->valid[palette|pixel] && phase!=current_palette)colors[i+j]=pal->colors[palette|pixel];
@@ -628,7 +630,9 @@ static bool begin_view(Ppu *p,unsigned seat,bool shared){
     memset(palette_ready,0,sizeof(palette_ready));memset(palettes,0,sizeof(palettes));
   }
   int extra=(int)(panel_width-256)/2,left=extra?extra:p->extraLeftCur,right=extra?extra:p->extraRightCur;
-  prepare_events(visible->players.players[seat].body);world_objects(p,left,right);boss_meter(p,right);
+  bool private_room=frame.dx || frame.dy || (!shared && seat!=visible->players.anchor);
+  prepare_events(visible->players.players[seat].body,private_room);
+  world_objects(p,left,right);boss_meter(p,right);
   unsigned layout=X3CoopHudLayout();
   for(unsigned who=shared?0:seat;who<(shared?2:seat+1) && frame.count<EXTRA_PIECES;++who){
     const X3CoopPlayer *actor=&visible->players.players[who];
