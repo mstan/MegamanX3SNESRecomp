@@ -269,6 +269,11 @@ static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],Obj
   }else return false;
   if(group!=b[0x16] || key>=X3_RESOURCE_KEYS)return false;
   unsigned phase=resource_phase(2,(int)word(b+5),(int)word(b+8));
+  /* The opening capture can be reached from Zero's room while the native
+   * upload still belongs to X's previous room. Mac's capture actor uses
+   * the phase-2 placement for file72, as in the original entrance. */
+  bool capture_mac=!frame.stage && b[10]==0x62 && !b[11] && group==0x8c;
+  if(capture_mac)phase=2;
   unsigned a=resource_list(0x088623,phase),file=255;
   for(unsigned i=0;a && i<64;++i,a+=6){
     if(!rom_read(a,1,&file) || file==255)return false;
@@ -280,6 +285,9 @@ static bool object_resource(const X3CoopWorldDraw *draw,uint16_t colors[256],Obj
   /* Native scripts may raise a live actor above the common constructor's
    * priority2. Resource placement never owns that current sprite priority. */
   out->tile=(target>>4)&255;out->attributes=(((target>>12)|(offset>>3))&15)|(b[0x11]&0x30);
+  /* A missing placement also leaves the constructor's priority clear.
+   * Recover priority 2 so the corridor floor cannot cover the actor. */
+  if(capture_mac && frame.ram[0x1f18]!=phase && !(b[0x11]&0x30))out->attributes|=0x20;
   if(armor)out->attributes=(target>>12)|(b[0x11]&62);
   if(draw->address>=0xd18 && draw->address<0x10d8 && (b[10]==0x4d || b[10]==0x5c)){
     /* Capsule13:C075 and hologram05:C863 use A0/80, forty tiles before
@@ -662,14 +670,17 @@ static bool begin_view(Ppu *p,unsigned seat,bool shared){
   /* Both viewers are in the capture corridor once the swap has reached
    * Zero's camera. The descending actor crosses the authored shaft seam
    * vertically while the camera and its background stay in the same room. */
-  bool mac_room=frame.y==0x600 && X3CoopRuntimeIntroCaptureView();
+  bool mac_room=frame.y==0x600 && !frame.dx && !frame.dy && X3CoopRuntimeIntroCaptureView();
   unsigned room_seat=seat;
   const X3CoopPlayer *viewer=&visible->players.players[seat];
   if(shared || mac_room || viewer->life!=X3_COOP_ALIVE || !(viewer->body[0x27]&127) || viewer->body[2]==12)
     room_seat=visible->players.anchor;
   bool private_room=mac_room || frame.dx || frame.dy || (!shared && room_seat!=visible->players.anchor);
   const uint8_t *body=visible->players.players[room_seat].body;
-  prepare_events(word(body+5),mac_room?(unsigned)frame.y+160:word(body+8),private_room);
+  /* Departing beams also move through rooms their fixed cameras do not
+   * enter. Resolve those visuals from the camera's room until the swap. */
+  unsigned room_y=mac_room || X3CoopRuntimeIntroSwap()?(unsigned)frame.y+160:word(body+8);
+  prepare_events(word(body+5),room_y,private_room);
   world_objects(p,left,right);boss_meter(p,right);
   unsigned layout=X3CoopHudLayout();
   for(unsigned who=shared?0:seat;who<(shared?2:seat+1) && frame.count<EXTRA_PIECES;++who){

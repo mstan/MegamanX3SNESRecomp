@@ -74,7 +74,12 @@ enum { SCENE_DOOR,SCENE_CAPSULE_OPEN,SCENE_CAPSULE_AWARD,SCENE_STAGE_ENTRY,
        SCENE_INTRO_ZERO_CONSTRUCT,SCENE_INTRO_X_CONSTRUCT,SCENE_NATIVE_CINEMATIC,
        SCENE_INTRO_SWAP,SCENE_INTRO_HEAL };
 enum { SCENE_DOOR_WALK=4, DOOR_WALK_MIN_SPACING=12, DOOR_WALK_MAX_SPACING=16 };
-enum { INTRO_DEPART_FRAMES=24, INTRO_DESCEND_FRAMES=16, INTRO_ARRIVE_FRAMES=23 };
+enum {
+  INTRO_TRANSFORM_FRAMES=7, INTRO_ASCEND_FRAMES=18, INTRO_EMPTY_FRAMES=10,
+  INTRO_DESCEND_FRAMES=16, INTRO_LANDED_FRAMES=18, INTRO_BEAM_SPEED=14,
+  INTRO_DEPART_FRAMES=INTRO_TRANSFORM_FRAMES+INTRO_ASCEND_FRAMES+INTRO_EMPTY_FRAMES,
+  INTRO_ARRIVE_FRAMES=INTRO_DESCEND_FRAMES+INTRO_TRANSFORM_FRAMES+INTRO_LANDED_FRAMES
+};
 /* During a paired walk, tick stores the signed gap between the two actors. */
 typedef struct NativeScene {uint16_t slot;uint8_t owner,phase,tick,stage,both,kind;uint16_t raw[2];} NativeScene;
 static NativeScene scene;
@@ -1047,12 +1052,20 @@ void X3CoopRuntimeScenePresentation(X3CoopState *copy){
       X3CoopPlayer *p=&copy->players[seat];uint8_t *b=p->body;
       if(p->life!=X3_COOP_ALIVE || (scene.phase!=1 && seat!=x)){b[0x0e]=0;continue;}
       if(scene.phase==1){
-        scene_pose(seat,b,0x7f,scene.tick);
-        if(scene.tick>=6)putword(b+8,word(b+8)-(scene.tick-5)*14);
+        if(scene.tick<INTRO_TRANSFORM_FRAMES)scene_pose(seat,b,0x7f,scene.tick);
+        else if(scene.tick<INTRO_DEPART_FRAMES-INTRO_EMPTY_FRAMES){
+          unsigned rise=(scene.tick-INTRO_TRANSFORM_FRAMES+1)*INTRO_BEAM_SPEED;
+          putword(b+8,word(b+8)-rise);
+          scene_pose(seat,b,0x7d,0);
+        }else b[0x0e]=0;
       }else if(scene.phase==2){
-        unsigned down=scene.tick<INTRO_DESCEND_FRAMES?INTRO_DESCEND_FRAMES-scene.tick:0;
-        putword(b+8,word(b+8)-down*14);
-        scene_pose(seat,b,0x7e,down?0:scene.tick-INTRO_DESCEND_FRAMES);
+        if(scene.tick<INTRO_DESCEND_FRAMES){
+          unsigned height=(INTRO_DESCEND_FRAMES-scene.tick)*INTRO_BEAM_SPEED;
+          putword(b+8,word(b+8)-height);
+          scene_pose(seat,b,0x7d,0);
+        }else if(scene.tick<INTRO_DESCEND_FRAMES+INTRO_TRANSFORM_FRAMES)
+          scene_pose(seat,b,0x7e,scene.tick-INTRO_DESCEND_FRAMES);
+        else scene_pose(seat,b,0x50,0);
       }else scene_pose(seat,b,0x50,0);
     }
     return;
