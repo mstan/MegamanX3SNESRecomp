@@ -50,6 +50,8 @@ static void intro_swap_arrive(void){
   player->life=X3_COOP_ALIVE;
   if(fallen || !(player->body[0x27]&127))player->body[0x27]=1;
   player->body[0x11]=(uint8_t)((player->body[0x11]&~64)|(from[0x11]&64));
+  /* The walking script starts from the same pose as the settled beam. */
+  scene_pose(x,player->body,0x50,0);
   state.current=state.anchor=(uint8_t)x;
   scene.owner=(uint8_t)x;scene.phase=2;scene.tick=0;
   scene_install(x);
@@ -80,7 +82,8 @@ static void intro_capture_begin(unsigned d){
     unsigned camera_x=word(g_ram+0x1e5d);
     putword(g_ram+0x1e66,camera_x);putword(g_ram+0x1e68,camera_x);
     putword(g_ram+0x1e6e,camera_x);putword(g_ram+0x1e70,camera_x);
-    scene.kind=SCENE_INTRO_CAPTURE;scene.phase=2;scene.tick=0;
+    /* In the capture's steady phase, tick records a prior teleport. */
+    scene.kind=SCENE_INTRO_CAPTURE;scene.phase=2;scene.tick=1;
   }else scene_begin(d,SCENE_INTRO_CAPTURE);
 }
 static void intro_change_owner(unsigned seat,unsigned kind){
@@ -138,15 +141,23 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
   }
   if(!scene.phase)return;
   switch(at){
-    case 0x00dfc6:
+    case 0x00dfc6:{
       /* Hold the capture camera while the original Zero entrance runs.
        * Parallax, room streaming and OAM still consume that same camera. */
-      if(X3CoopRuntimeIntroSwap() && scene.phase==2)intro_swap_frame_camera();
-      if((X3CoopRuntimeIntroSwap() && scene.phase!=1) || scene.kind==SCENE_INTRO_ZERO_CONSTRUCT ||
+      bool swapping=X3CoopRuntimeIntroSwap() && scene.phase!=1;
+      if(swapping){
+        if(scene.phase==2)intro_swap_frame_camera();
+        /* Retain the NMI scroll staging from 00:DFF1 so BG1 does not
+         * carry the previous room's pixel phase into the teleport. */
+        putword(g_ram+0xb5,word(g_ram+0x1e5d));
+        putword(g_ram+0xb7,word(g_ram+0x1e60));
+      }
+      if(swapping || scene.kind==SCENE_INTRO_ZERO_CONSTRUCT ||
          (scene.kind==SCENE_INTRO_ZERO && state.players[scene.owner].character==X3_COOP_ZERO &&
           g_ram[0x1f45] && g_ram[0x1f4f]))
         interp_bridge_pre_opcode_redirect((pc&0x800000)|0x00dffd);
       break;
+    }
     case 0x03ac57:
       if(scene.kind!=SCENE_INTRO_CAPTURE)return;
       /* The first constructor calls already replace the native X palette

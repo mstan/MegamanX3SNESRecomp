@@ -61,6 +61,7 @@ void X3CoopPresentationSubmit(const X3CoopState *p,const uint8_t *ram,unsigned a
     X3CoopState copy=*p;X3CoopCapture(&copy,ram);
     queued.players.players[owner-1]=copy.players[owner-1];
     X3CoopRuntimeDoorLeadPresentation(&queued.players,owner-1);
+    X3CoopRuntimeIntroWalkPresentation(&queued.players);
     memcpy(queued.body_chr[owner-1],body_chr[owner-1],X3_COOP_BODY_CHR_BYTES);
   }
 }

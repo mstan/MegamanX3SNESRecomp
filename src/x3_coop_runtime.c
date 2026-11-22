@@ -868,6 +868,7 @@ static void participation_tick(void){
     }
   }
 }
+static void scene_pose(unsigned seat,uint8_t *body,unsigned animation,unsigned elapsed);
 #include "x3_coop_intro.inc"
 static bool native_return_ready(unsigned character){
   for(unsigned a=0x1f25;a<=0x1f2b;++a)if(g_ram[a])return false;
@@ -1048,8 +1049,16 @@ void X3CoopRuntimeDoorLeadPresentation(X3CoopState *copy,unsigned seat){
   unsigned walked=(unsigned)abs((int)word(body+5)-entered);
   scene_pose(seat,body,0x5c,(2*walked)%26);
 }
+void X3CoopRuntimeIntroWalkPresentation(X3CoopState *copy){
+  if(scene.kind!=SCENE_INTRO_CAPTURE || scene.phase!=2 || scene.tick!=1)return;
+  uint8_t *body=copy->players[scene.owner].body;
+  /* The arriving X remains visible during the scripted walk. The native
+   * capture and departure still own visibility once this action finishes. */
+  if(body[2]==0 || body[2]==0x66)body[0x0e]=1;
+}
 void X3CoopRuntimeScenePresentation(X3CoopState *copy){
   if(!X3CoopRuntimeSceneActive())return;
+  X3CoopRuntimeIntroWalkPresentation(copy);
   if(X3CoopRuntimeIntroSwap()){
     unsigned x=copy->players[0].character==X3_COOP_X?0:1;
     for(unsigned seat=0;seat<2;++seat){

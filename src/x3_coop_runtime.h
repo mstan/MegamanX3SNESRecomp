@@ -22,6 +22,7 @@ bool X3CoopRuntimeSceneActive(void);
 bool X3CoopRuntimeViewScene(void);
 bool X3CoopRuntimeIntroSwap(void);
 bool X3CoopRuntimeIntroCaptureView(void);
+void X3CoopRuntimeIntroWalkPresentation(X3CoopState *copy);
 void X3CoopRuntimeScenePresentation(X3CoopState *copy);
 void X3CoopRuntimeDoorLeadPresentation(X3CoopState *copy,unsigned seat);
 void X3CoopRuntimeFrame(void);
