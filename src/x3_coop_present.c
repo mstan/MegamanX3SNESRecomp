@@ -65,7 +65,16 @@ void X3CoopPresentationSubmit(const X3CoopState *p,const uint8_t *ram,unsigned a
     memcpy(queued.body_chr[owner-1],body_chr[owner-1],X3_COOP_BODY_CHR_BYTES);
   }
 }
-void X3CoopPresentationComplete(void){completed=queued;}
+void X3CoopPresentationComplete(void){
+  X3CoopWorldDraw mac;
+  if(queued.camera[1]==0x600 && queued.count<X3_COOP_WORLD_DRAWS && X3CoopRuntimeIntroMacDraw(&mac)){
+    unsigned i=0;
+    while(i<queued.count && queued.actors[i].address!=mac.address)++i;
+    if(i==queued.count)queued.actors[queued.count++]=mac;
+    else if(!queued.actors[i].body[2])queued.actors[i]=mac;
+  }
+  completed=queued;
+}
 void X3CoopPresentationUpload(void){visible=completed;}
 const X3CoopPresentedFrame *X3CoopPresentationVisible(void){return &visible;}
 const uint8_t *X3CoopPresentationObjectTile(const X3CoopWorldDraw *draw,unsigned address,const uint8_t *rom,size_t size){

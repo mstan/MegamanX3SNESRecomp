@@ -2,6 +2,7 @@
 #include "x3_coop.h"
 #include "cpu_state.h"
 struct SaveLoadInfo;
+struct X3CoopWorldDraw;
 /* Native actors, world borrowing and saved scene continuations. */
 void X3CoopRuntimeEnable(bool enabled);
 bool X3CoopRuntimeEnabled(void);
@@ -22,6 +23,7 @@ bool X3CoopRuntimeSceneActive(void);
 bool X3CoopRuntimeViewScene(void);
 bool X3CoopRuntimeIntroSwap(void);
 bool X3CoopRuntimeIntroCaptureView(void);
+bool X3CoopRuntimeIntroMacDraw(struct X3CoopWorldDraw *draw);
 void X3CoopRuntimeIntroWalkPresentation(X3CoopState *copy);
 void X3CoopRuntimeScenePresentation(X3CoopState *copy);
 void X3CoopRuntimeDoorLeadPresentation(X3CoopState *copy,unsigned seat);

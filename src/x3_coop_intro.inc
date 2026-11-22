@@ -55,16 +55,31 @@ static void intro_swap_arrive(void){
   state.current=state.anchor=(uint8_t)x;
   scene.owner=(uint8_t)x;scene.phase=2;scene.tick=0;
   scene_install(x);
-}
-static void intro_swap_frame_camera(void){
-  if(scene.tick>=INTRO_FRAMING_FRAMES)return;
-  /* Native 08:B83D locks the room to this position during Mac's walk.
-   * Reach that framing while the corridor is empty, before X descends. */
+  /* Show the full corridor, including Mac, on the cut to his room. The
+   * native walk uses this same framing once the teleport finishes. */
   unsigned lock_x;
-  if(!scene_rom(0x08b83e,2,&lock_x))return;
-  int camera_x=word(g_ram+0x1e5d);
-  int frames_left=INTRO_FRAMING_FRAMES-(int)scene.tick;
-  putword(g_ram+0x1e5d,(unsigned)(camera_x+((int)lock_x-camera_x)/frames_left));
+  if(scene_rom(0x08b83e,2,&lock_x))putword(g_ram+0x1e5d,lock_x);
+}
+static bool intro_arrived_capture(void){
+  return scene.kind==SCENE_INTRO_CAPTURE && scene.phase==2 && scene.tick==1;
+}
+bool X3CoopRuntimeIntroMacDraw(X3CoopWorldDraw *draw){
+  bool arriving=X3CoopRuntimeIntroSwap() && scene.phase!=1;
+  unsigned slot=scene.slot;
+  if((!arriving && !intro_arrived_capture()) || !intro_capture_actor(slot) || g_ram[slot+2]>2)return false;
+  *draw=(X3CoopWorldDraw){.address=(uint16_t)slot};
+  if(g_ram[slot+2]==2){
+    memcpy(draw->body,g_ram+slot,sizeof(draw->body));
+    return true;
+  }
+  /* Present the standing pose from the original constructor ahead of its
+   * trigger. The live actor and its capture timer remain pending. */
+  unsigned x,y,group;
+  if(!scene_rom(0x08b847,2,&x) || !scene_rom(0x08b84c,2,&y) ||
+     !scene_rom(0x06e28e + (0x62-1)*5,1,&group))return false;
+  putword(draw->body+5,x);putword(draw->body+8,y);
+  draw->body[10]=0x62;draw->body[0x16]=(uint8_t)group;
+  return true;
 }
 static void intro_capture_begin(unsigned d){
   const uint8_t *body=g_ram+X3_COOP_BODY;
@@ -146,7 +161,6 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
        * Parallax, room streaming and OAM still consume that same camera. */
       bool swapping=X3CoopRuntimeIntroSwap() && scene.phase!=1;
       if(swapping){
-        if(scene.phase==2)intro_swap_frame_camera();
         /* Retain the NMI scroll staging from 00:DFF1 so BG1 does not
          * carry the previous room's pixel phase into the teleport. */
         putword(g_ram+0xb5,word(g_ram+0x1e5d));

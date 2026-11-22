@@ -1050,7 +1050,7 @@ void X3CoopRuntimeDoorLeadPresentation(X3CoopState *copy,unsigned seat){
   scene_pose(seat,body,0x5c,(2*walked)%26);
 }
 void X3CoopRuntimeIntroWalkPresentation(X3CoopState *copy){
-  if(scene.kind!=SCENE_INTRO_CAPTURE || scene.phase!=2 || scene.tick!=1)return;
+  if(!intro_arrived_capture())return;
   uint8_t *body=copy->players[scene.owner].body;
   /* The arriving X remains visible during the scripted walk. The native
    * capture and departure still own visibility once this action finishes. */
