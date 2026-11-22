@@ -21,6 +21,7 @@ bool X3CoopRuntimeSceneActive(void);
 /* Shared view locks, excluding the native playable Ride Armor HUD mode. */
 bool X3CoopRuntimeViewScene(void);
 void X3CoopRuntimeScenePresentation(X3CoopState *copy);
+void X3CoopRuntimeDoorLeadPresentation(X3CoopState *copy,unsigned seat);
 void X3CoopRuntimeFrame(void);
 /* Sample once per emulated host frame, including native pause waits. */
 void X3CoopRuntimeInputFrame(uint32_t serial);

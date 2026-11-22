@@ -159,15 +159,19 @@ static bool view_ready(void) {
   return enabled && state.initialized && !state.wipe && X3CoopViewsIndependent() &&
       !view_scene() && g_ram[0xd1]==4 && g_ram[0xd2]==4;
 }
-static bool intro_x_at_capture(unsigned x,unsigned y){
-  unsigned seat=state.players[0].character==X3_COOP_X?0:1;
-  const uint8_t *body=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
-  /* The upper floor directly above Mac is a separate corridor. A nearby
-   * secondary camera must never queue X's forced walk on that floor. */
-  if(state.players[seat].life!=X3_COOP_ALIVE || !(body[0x27]&127) ||
-     word(body+5)+256<x || word(body+8)+32<y)return false;
-  X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,seat,false);
-  return (uint16_t)((x&~31u)-view.x+63)<320 && (uint16_t)(y-view.y+32)<304;
+static unsigned intro_entrant(unsigned x,unsigned y){
+  unsigned hero=state.players[0].character==X3_COOP_X?0:1;
+  /* Only real entry on the lower approach activates Mac. A player on the
+   * upper floor can see the column without entering the story corridor. */
+  for(unsigned i=0;i<2;++i){
+    unsigned seat=hero^i;
+    const uint8_t *body=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
+    if(state.players[seat].life!=X3_COOP_ALIVE || !(body[0x27]&127) || body[2]==12 ||
+       word(body+5)+(i?8:256)<x || word(body+8)+32<y)continue;
+    X3CoopView view=X3CoopViewsForPlayer(g_ram,&state,seat,false);
+    if((uint16_t)((x&~31u)-view.x+63)<320 && (uint16_t)(y-view.y+32)<304)return seat;
+  }
+  return 2;
 }
 static bool view_record_wanted(unsigned flag) {
   if(flag<0xfa02 || flag>0xfffb)return false;
@@ -178,9 +182,9 @@ static bool view_record_wanted(unsigned flag) {
   unsigned kind=r[0]&15,x=word(r+5)&8191,y=word(r+1)&8191;
   if(kind>3)return false;
   /* The stage-zero Mac constructor immediately starts X's recorded walk.
-   * Only X's approach may admit that story object to the shared world. */
+   * Either partner can reach the original lower approach to admit it. */
   if(!g_ram[0x1fae] && kind==3 && r[3]==0x62 && !r[4] &&
-     !intro_x_at_capture(x,y))return false;
+     intro_entrant(x,y)>1)return false;
   /* Resident parallax controllers write the shared native BG registers.
    * Keep their retail lifetime until private presentation owns those writes. */
   if(kind==1 && r[3]==4) {
@@ -207,8 +211,19 @@ static void view_spawn_begin(void) {
   for(unsigned col=0;col<256;++col) {
     unsigned first=word(g_ram+0xf800+col*2),end=word(g_ram+0xf802+col*2);
     if(first<0xfa02 || end>0xfffc || end<first || (end-first)%5)continue;
-    for(unsigned flag=first;flag<end;flag+=5)
-      X3CoopViewsMark(flag,view_record_wanted(flag) && g_ram[flag]);
+    for(unsigned flag=first;flag<end;flag+=5){
+      bool wanted=view_record_wanted(flag);
+      X3CoopViewsMark(flag,wanted && g_ram[flag]);
+      if(g_ram[0x1fae] || !wanted || g_ram[flag])continue;
+      unsigned record=word(g_ram+flag+3);
+      const uint8_t *r=g_snes->cart->rom+0x1e0000+(record&32767);
+      if((r[0]&15)==3 && r[3]==0x62 && !r[4]){
+        /* The lower approach can become eligible inside a column already
+         * traversed by either camera. Revisit it until native admission. */
+        unsigned seat=intro_entrant(word(r+5)&8191,word(r+1)&8191);
+        if(seat<2)view_spawn_add((int)col*32,seat|SCAN_FULL);
+      }
+    }
   }
   for(unsigned i=0;i<2;++i){unsigned seat=state.anchor^i;
     const uint8_t *body=seat==state.current?g_ram+X3_COOP_BODY:state.players[seat].body;
@@ -984,6 +999,15 @@ static void scene_pose(unsigned seat,uint8_t *body,unsigned animation,unsigned e
     elapsed-=duration;
   }
 }
+void X3CoopRuntimeDoorLeadPresentation(X3CoopState *copy,unsigned seat){
+  if(scene.phase!=SCENE_DOOR_WALK || seat!=scene.owner)return;
+  uint8_t *body=copy->players[seat].body;
+  if(body[2]!=0x1c)return;
+  const uint8_t *partner=state.players[seat^1].body;
+  int entered=(int)word(partner+5)-(int8_t)scene.tick;
+  unsigned walked=(unsigned)abs((int)word(body+5)-entered);
+  scene_pose(seat,body,0x5c,(2*walked)%26);
+}
 void X3CoopRuntimeScenePresentation(X3CoopState *copy){
   if(!X3CoopRuntimeSceneActive())return;
   if(native_cinematic()){
@@ -1357,8 +1381,10 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
       attachments[attachment]=(uint8_t)((attachments[attachment]&~12u)|128u|64u|(4u<<recorded));
     unsigned captive=recorded<2?recorded:native_captive_owner(d),beam=native_beam_target(d);
     bool capsule=native_capsule(d),intro=intro_capture_actor(d),x_only=x_pickup(d) || capsule || intro;
-    if(at==0xdd1a && intro && !g_ram[d+1] && !intro_x_at_capture(word(g_ram+d+5),word(g_ram+d+8))){
-      /* Unified view can also scroll ahead of X. Leave the pending actor
+    bool starting_capture=at==0xdd1a && intro && !scene.phase && !g_ram[d+1];
+    unsigned entrant=starting_capture?intro_entrant(word(g_ram+d+5),word(g_ram+d+8)):2;
+    if(starting_capture && entrant>1){
+      /* Unified view can also scroll ahead. Leave the pending actor
        * intact and return through its original dispatcher epilogue. */
       interp_bridge_pre_opcode_redirect((pc&0x800000)|0x00fcf5);
       return;
@@ -1385,7 +1411,8 @@ static void target_boundary(CpuState *cpu,uint32_t pc) {
      * including when its initial nearest target was already the anchor. */
     if(!pickup && !door && !capsule && !intro && seat==state.anchor && captive>=2 && !native_boss_actor(d))return;
     target=(WorldTarget){(uint16_t)d,cpu->S,1,(uint8_t)seat};
-    if(retired)X3CoopProjectRetired(&state,g_ram,seat);
+    if(starting_capture && entrant!=seat)intro_capture_from_zero(entrant,seat);
+    else if(retired)X3CoopProjectRetired(&state,g_ram,seat);
     else X3CoopProject(&state,g_ram,seat);
     /* A fallen actor retains its last captured pose. Native39:ABED tests
      * that pose, so it cannot discover retirement from the projected zero
@@ -2192,7 +2219,6 @@ static void boundary(CpuState *cpu,uint32_t pc) {
       fprintf(stderr,"[x3-coop] unbalanced native controller return\n");
       enabled=false;return;
     }
-    intro_hold_zero_at_capture();
     if(controller.pass==1) {
       controller.result=regs(cpu);
       unsigned partner=state.anchor^1;
@@ -2328,7 +2354,7 @@ void X3CoopRuntimeFrame(void) {
   X3CoopViewsSetRom(g_snes->cart->rom,g_snes->cart->romImageSize);
   if(!interp_bridge_add_pre_opcode_hook(0x03c3bd,weather_camera_boundary))enabled=false;
   static const uint32_t intro_pcs[]={0x03a9b4,0x04974d,
-      0x03ac57,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03ae95,0x03aed9};
+      0x03ac57,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03ae73,0x03aed9};
   if(!interp_bridge_add_pre_opcode_hook(0x00e49e,modal_input_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x7e25ef,native_input_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x7e2621,native_input_boundary))enabled=false;

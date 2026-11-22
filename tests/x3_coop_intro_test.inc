@@ -45,12 +45,23 @@ static void native_intro_survivor_display_checks(uint8_t *original,size_t size,u
     check(X3CoopEncode(&setup,work+contact_context_offset(work,size),X3CoopEncodedSize()) &&
           RtlLoadSnapshotFromMemory(work,size),"Zero-only intro roster precondition restores");
     door_install_player(&setup);X3CoopViewsConfigure(false);
-    unsigned before=coop_x(zero),observed=intro_visible_zero_frames;
-    for(unsigned i=0;i<240;++i)intro_frame((uint32_t)SNES_PAD_RIGHT<<(zero*12));
+    unsigned observed=intro_visible_zero_frames;
+    unsigned elapsed=0;
+    for(;elapsed<240 && !X3CoopRuntimeSceneActive();++elapsed)
+      intro_frame((uint32_t)SNES_PAD_RIGHT<<(zero*12));
+    check(elapsed<240 && intro_visible_zero_frames>observed && X3CoopRuntimeState()->anchor==x,
+        "Zero reaches the native capture and X takes over as the captive");
+    const X3CoopState *captured=X3CoopRuntimeState();
+    check(captured->players[x].life==X3_COOP_ALIVE && (captured->players[x].body[0x27]&127)==1 &&
+          !captured->players[x].body[0xb6],"the opening capture reenrolls fallen X at one HP");
+    for(elapsed=0;elapsed<4200;++elapsed){
+      intro_frame(intro_confirm(elapsed));
+      if(X3CoopRuntimeState()->anchor==zero && g_ram[0xa8e]==2 && !g_ram[0x1f22] && g_ram[0x9da]<0x16)break;
+    }
     const X3CoopState *s=X3CoopRuntimeState();
-    check(coop_x(zero)>before+8 && s->players[zero].life==X3_COOP_ALIVE && s->players[zero].body[0xb6]==2 &&
-        s->players[x].life==X3_COOP_FALLEN && !s->players[x].body[0xb6] && intro_visible_zero_frames>observed,
-        "actual Zero-only movement past the captor retains one displayed Zero and fallen X");
+    check(elapsed<4200 && s->players[zero].life==X3_COOP_ALIVE && s->players[zero].body[0xb6]==2 &&
+        s->players[x].life==X3_COOP_ALIVE && s->players[x].body[2]==0x66 && (s->players[x].body[0x27]&127)==1,
+        "native control returns to Zero while X stays captive until rescue");
   }
   check(RtlLoadSnapshotFromMemory(original,size),"survivor presentation probes restore their actual approach");
 }
@@ -212,8 +223,8 @@ static void native_intro_rescue_checks(uint8_t *original,size_t size,uint8_t *wo
      * a native cause of death. The actual restraint/rescue must not revive X. */
     if(retired)check(X3CoopFall(&setup,x),"previously fallen X precondition uses the lifecycle API");
     if(scenario>=2){
-      /* The real prior-fallen-X route reaches this room without enrolling
-       * the original capture scene. Keep its actual restraint/combat state. */
+      /* Exercise the native recovery path without a recorded capture.
+       * Keep the fixture's actual restraint and combat state. */
       uint8_t both=work[scene_at+10];memset(work+scene_at+4,0,12);work[scene_at+10]=both;
       size_t ram_at;check(RtlSnapshotGuestLayout(NULL,&ram_at)!=0,"untracked rescue uses the actual guest RAM layout");
       work[ram_at+0x1f45]=0; /* Actual prior-fallen-X route never acquired the capture token. */

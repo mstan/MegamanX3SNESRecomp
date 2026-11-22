@@ -15,6 +15,7 @@
 #include "snes/cart.h"
 #include <string.h>
 #include <limits.h>
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 extern Snes *g_snes;
@@ -27,9 +28,11 @@ typedef struct IndependentFrame {
   uint8_t ram[0x20000];
   int x,y,dx,dy;
   int bg2_x,bg2_y,bg2_palette;
+  int light_x,light_y;
+  double light_left,light_right;
   unsigned stage,events,count,bg2_mode;
   bool closed_arena,weather,weather_outside;
-  bool private_bg2;
+  bool private_bg2,searchlight;
   ResourceEvent event[256];
   uint8_t phase[3][8192];
   PpuExtraObject objects[EXTRA_PIECES];
@@ -126,6 +129,7 @@ static void prepare_events(const uint8_t *body,bool private_room){
   frame.events=0;
   frame.bg2_mode=frame.ram[0x1e99];
   frame.private_bg2=false;
+  frame.searchlight=false;
   frame.bg2_palette=-1;
   unsigned body_x=word(body+5),body_y=word(body+8),parallax_x=0;
   int parallax_distance=INT_MAX;
@@ -138,14 +142,25 @@ static void prepare_events(const uint8_t *body,bool private_room){
     if(first<0xfa02 || end>0xfffc || end<first || (end-first)%5)continue;
     for(unsigned flag=first;flag<end;flag+=5){
       unsigned a=word(frame.ram+flag+3),kind,id,param,y,x;
-      if(a<32768 || !rom_read(0x3c0000|a,1,&kind) || (kind&15)!=2 ||
-         !rom_read(0x3c0000|((a+3)&65535),1,&id) ||
-         ((id<0x15 || id>0x1a) && (frame.stage || id!=4 || !private_room)) ||
+      if(a<32768 || !rom_read(0x3c0000|a,1,&kind) ||
+         !rom_read(0x3c0000|((a+3)&65535),1,&id))continue;
+      bool light=!frame.stage && !(kind&15) && id==9;
+      if((!light && ((kind&15)!=2 || ((id<0x15 || id>0x1a) &&
+          (frame.stage || id!=4 || !private_room)))) ||
          !rom_read(0x3c0000|((a+4)&65535),1,&param) ||
          !rom_read(0x3c0000|((a+1)&65535),2,&y) ||
          !rom_read(0x3c0000|((a+5)&65535),2,&x))continue;
       x&=8191;y&=8191;
-      if(id==4){
+      if(light){
+        /* The opening has two native loader markers for the same lamp.
+         * Its fixed origin lives on the parallax plane (01:E625/E627). */
+        int dx=(int)x-frame.x,dy=(int)y-frame.y;
+        unsigned light_x,light_y;
+        if(dx>=-64 && dx<320 && dy>=0 && dy<288 &&
+           rom_read(0x06d825+param*4,2,&light_x) && rom_read(0x06d827+param*4,2,&light_y)){
+          frame.searchlight=true;frame.light_x=(int)light_x;frame.light_y=(int)light_y;
+        }
+      }else if(id==4){
         /* The opening stage chains four parallax commands along its shafts.
          * Adjacent commands share the preset for the room between them.
          * Resolve the private body's side of the closest authored seam using
@@ -186,6 +201,20 @@ static void prepare_events(const uint8_t *body,bool private_room){
         break;
       }
     }
+  }
+  if(frame.searchlight){
+    /* Use the active native sweep when either view has loaded it. A
+     * private camera can see the lamp while the native camera is below
+     * its plane, so give that case the same triangular angular sweep. */
+    unsigned tick=(unsigned)snes_frame_counter/2%384;
+    int center=(int)(tick<=192?tick:384-tick)-96;
+    for(unsigned a=0x1518;a<0x1818;a+=48)
+      if(frame.ram[a] && frame.ram[a+1]==4 && frame.ram[a+10]==9){
+        center=(int8_t)frame.ram[a+0x26];break;
+      }
+    const double angle_unit=0.01227184630308513; /* pi / 256 */
+    frame.light_left=tan((center-16)*angle_unit);
+    frame.light_right=tan((center+16)*angle_unit);
   }
 }
 static unsigned resource_phase(unsigned kind,int x,int y){
@@ -630,8 +659,12 @@ static bool begin_view(Ppu *p,unsigned seat,bool shared){
     memset(palette_ready,0,sizeof(palette_ready));memset(palettes,0,sizeof(palettes));
   }
   int extra=(int)(panel_width-256)/2,left=extra?extra:p->extraLeftCur,right=extra?extra:p->extraRightCur;
-  bool private_room=frame.dx || frame.dy || (!shared && seat!=visible->players.anchor);
-  prepare_events(visible->players.players[seat].body,private_room);
+  unsigned room_seat=seat;
+  const X3CoopPlayer *viewer=&visible->players.players[seat];
+  if(shared || viewer->life!=X3_COOP_ALIVE || !(viewer->body[0x27]&127) || viewer->body[2]==12)
+    room_seat=visible->players.anchor;
+  bool private_room=frame.dx || frame.dy || (!shared && room_seat!=visible->players.anchor);
+  prepare_events(visible->players.players[room_seat].body,private_room);
   world_objects(p,left,right);boss_meter(p,right);
   unsigned layout=X3CoopHudLayout();
   for(unsigned who=shared?0:seat;who<(shared?2:seat+1) && frame.count<EXTRA_PIECES;++who){
@@ -720,6 +753,23 @@ static void draw_view_line(const Ppu *p,int line,uint32_t *out,unsigned budget,u
   uint16_t backgrounds[3][kPpuBufWidth];int background_colors[3][kPpuBufWidth];
   if(tile_rows)for(unsigned layer=0;layer<3;++layer)
     background_line(p,layer,line,left,width,backgrounds[layer],background_colors[layer]);
+  bool native_light=!frame.stage && (p->windowsel&0xf0)==0x20 && p->cgwsel==0x82;
+  bool shifted=frame.dx || frame.dy;
+  bool local_light=frame.searchlight && shifted;
+  bool project_light=shifted && (frame.searchlight || native_light);
+  int light_left=1,light_right=0;
+  if(local_light){
+    unsigned mode=frame.bg2_mode;
+    int origin_x=parallax_origin(word(frame.ram+0x1e9d),p->hScroll[1],frame.x-frame.dx,
+        frame.dx,mode==2 || mode==14,511,frame.bg2_x);
+    int origin_y=parallax_origin(word(frame.ram+0x1ea0),p->vScroll[1],frame.y-frame.dy,
+        frame.dy,mode==2 || mode==16,255,frame.bg2_y);
+    int height=frame.light_y-origin_y-(line-1);
+    if(height>=0){
+      light_left=frame.light_x-origin_x+(int)floor(height*frame.light_left);
+      light_right=frame.light_x-origin_x+(int)floor(height*frame.light_right);
+    }
+  }
   for(unsigned i=0;i<width;++i){
     int x=(int)i-(int)left,bg_colors[3]={-1,-1,-1};uint16_t layers[4];
     for(unsigned layer=0;layer<3;++layer){
@@ -739,8 +789,10 @@ static void draw_view_line(const Ppu *p,int line,uint32_t *out,unsigned budget,u
     for(unsigned s=0;s<2;++s)for(unsigned layer=0;layer<4;++layer){
       unsigned bit=layer==3?16:1u<<layer,wl=layer==3?4:layer;
       unsigned enabled=frame.weather_outside?(s?0:(p->screenEnabled[0]|p->screenEnabled[1])&~4u):p->screenEnabled[s];
-      if((enabled&bit) && (!(p->screenWindowed[s]&bit) ||
-          !window(p,wl,x,left)) && layers[layer]>screen[s])screen[s]=layers[layer];
+      if(!(enabled&bit) || layers[layer]<=screen[s])continue;
+      bool masked=layer==1 && project_light?x>=light_left && x<=light_right:
+          (p->screenWindowed[s]&bit) && window(p,wl,x,left);
+      if(!masked)screen[s]=layers[layer];
     }
     out[i]=color(p,screen[0],screen[1],window(p,5,x,left),colors[i]?colors[i]:-1,bg_colors);
   }

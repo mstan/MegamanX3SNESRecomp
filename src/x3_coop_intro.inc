@@ -22,16 +22,23 @@ static void intro_opening_join(void){
   body[4]=body[7]=0;
   g_ram[0xcc8]=0;
 }
-static void intro_hold_zero_at_capture(void){
-  /* The native story requires X at Mac's approach. Let Zero step away from
-   * the boundary or continue alone if the team no longer has a living X. */
-  const unsigned boundary_x=0x1100;
-  if(g_ram[0x1fae] || scene.phase || state.players[state.current].character!=X3_COOP_ZERO ||
-     state.players[state.current^1].life!=X3_COOP_ALIVE)return;
-  uint8_t *body=g_ram+X3_COOP_BODY;
-  if(word(body+0x22)<=boundary_x && word(body+5)>boundary_x){
-    putword(body+5,boundary_x);body[4]=0;putword(body+0x1a,0);
-  }
+static void intro_capture_from_zero(unsigned zero,unsigned x){
+  /* Mac's native constructor always needs X. Exchange at the entering
+   * Zero's own position and camera before it queues the recorded walk.
+   * A fallen X gets just enough HP to take part in this scene; the original
+   * rescue cleanup later fills X to his own maximum. */
+  X3CoopViewsAdoptPlayer(g_ram,&state,zero,false);
+  X3CoopCapture(&state,g_ram);
+  const uint8_t *from=state.players[zero].body;
+  X3CoopPlayer *player=&state.players[x];
+  bool fallen=player->life==X3_COOP_FALLEN;
+  scene_cancel_transients(x);
+  scene_place(x,from);
+  player->life=X3_COOP_ALIVE;
+  if(fallen || !(player->body[0x27]&127))player->body[0x27]=1;
+  player->body[0x11]=(uint8_t)((player->body[0x11]&~64)|(from[0x11]&64));
+  state.current=state.anchor=(uint8_t)x;
+  scene_install(x);
 }
 static void intro_capture_begin(unsigned d){
   const uint8_t *body=g_ram+X3_COOP_BODY;
@@ -143,7 +150,7 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
         intro_change_owner(x,SCENE_INTRO_RETURN);
       }
       break;
-    case 0x03ae95:
+    case 0x03ae73:
       if(cpu->D==0xcc8 && intro_keep_partner()){
         /* The dialogue has finished. Exchange the standing story NPC for
          * its retained player, then execute the original lock/health cleanup
