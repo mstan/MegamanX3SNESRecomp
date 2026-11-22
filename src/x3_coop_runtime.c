@@ -72,6 +72,8 @@ static PickupRefill refill;
 enum { SCENE_DOOR,SCENE_CAPSULE_OPEN,SCENE_CAPSULE_AWARD,SCENE_STAGE_ENTRY,
        SCENE_INTRO_CAPTURE,SCENE_INTRO_ZERO,SCENE_INTRO_RETURN,
        SCENE_INTRO_ZERO_CONSTRUCT,SCENE_INTRO_X_CONSTRUCT,SCENE_NATIVE_CINEMATIC };
+enum { SCENE_DOOR_WALK=4, DOOR_WALK_MIN_SPACING=12, DOOR_WALK_MAX_SPACING=16 };
+/* During a paired walk, tick stores the signed gap between the two actors. */
 typedef struct NativeScene {uint16_t slot;uint8_t owner,phase,tick,stage,both,kind;uint16_t raw[2];} NativeScene;
 static NativeScene scene;
 enum { PARTICIPATION_HOLD=90, PROFILE_STOCK=1, PROFILE_LEARNER=2 };
@@ -565,11 +567,27 @@ static int scene_feet(const uint8_t *body){
   if(address<32768 || at+4>g_snes->cart->romImageSize)return 0;
   const uint8_t *rect=g_snes->cart->rom+at;return (int8_t)rect[1]+rect[3];
 }
+static unsigned scene_floor_y(const uint8_t *body,const uint8_t *owner){
+  int y=(int)word(owner+8)+scene_feet(owner)-scene_feet(body);
+  return (unsigned)(y<0?0:y>8191?8191:y);
+}
+static unsigned scene_walk_x(const uint8_t *owner,const uint8_t *partner){
+  int spacing=(int8_t)scene.tick;
+  int x=(int)word(owner+5)+spacing;
+  if(abs(spacing)<DOOR_WALK_MIN_SPACING){
+    /* The parked body still holds its entrance coordinate. Open up a close
+     * formation gradually while the native entrant moves through the door. */
+    int walked=x-(int)word(partner+5);
+    int gap=DOOR_WALK_MIN_SPACING-abs(spacing);
+    int spread=abs(walked)/2;
+    if(spread>gap)spread=gap;
+    x+=spacing<0 || (!spacing && walked>0)?-spread:spread;
+  }
+  return (unsigned)(x<0?0:x>8191?8191:x);
+}
 static void scene_position(unsigned seat,const uint8_t *owner){
-  X3CoopPlayer *p=&state.players[seat];uint8_t *b=p->body;
-  int y=(int)word(owner+8)+scene_feet(owner)-scene_feet(b);
-  if(y<0)y=0;if(y>8191)y=8191;
-  putword(b+5,word(owner+5));putword(b+8,(unsigned)y);b[4]=b[7]=0;
+  uint8_t *b=state.players[seat].body;
+  putword(b+5,word(owner+5));putword(b+8,scene_floor_y(b,owner));b[4]=b[7]=0;
   putword(b+0x22,word(b+5));putword(b+0x24,word(b+8));memset(b+0x1a,0,6);
 }
 static void restore_x_armor(unsigned seat){
@@ -909,13 +927,22 @@ static void scene_tick(void){
   bool present=state.players[other].life==X3_COOP_ALIVE &&
       (state.players[other].body[0x27]&127) && state.players[other].body[2]!=12;
   if(scene.phase==1){if(++scene.tick>=8){scene.phase=2;scene.tick=0;}}
-  if(scene.phase==2 && scene_finished()){
+  if((scene.phase==2 || scene.phase==SCENE_DOOR_WALK) && scene_finished()){
     if(scene.kind && state.players[scene.owner].life!=X3_COOP_ALIVE){
       X3CoopPlayer *p=&state.players[scene.owner];p->body[0x6e]=p->body[0xa3]=0;p->body[0xa5]&=127;
       if(p->life==X3_COOP_ABSENT)p->body[2]=p->body[3]=0;
     }
-    if(!present){scene_release_views();scene_clear();return;}
-    X3CoopCapture(&state,g_ram);scene_place(other,state.players[scene.owner].body);
+    if(!present || intro_keep_partner()){scene_release_views();scene_clear();return;}
+    X3CoopCapture(&state,g_ram);
+    const uint8_t *owner=state.players[scene.owner].body;
+    if(scene.phase==SCENE_DOOR_WALK){
+      uint8_t *body=state.players[other].body;
+      unsigned x=scene_walk_x(owner,body);
+      scene_place(other,owner);
+      putword(body+5,x);putword(body+0x22,x);
+      scene_release_views();scene_clear();return;
+    }
+    scene_place(other,owner);
     if(other==state.current)scene_install(other);
     scene.phase=3;scene.tick=0;
   }else if(scene.phase==3 && (!present || ++scene.tick>=8)){scene_release_views();scene_clear();}
@@ -945,6 +972,18 @@ static void weather_camera_boundary(CpuState *cpu,uint32_t pc){
     }
   }
 }
+static void scene_pose(unsigned seat,uint8_t *body,unsigned animation,unsigned elapsed){
+  unsigned directory,offset;
+  if(!scene_rom(0x3f8000+body[0x16]*3,3,&directory) ||
+     !scene_rom(directory+animation*2,2,&offset))return;
+  unsigned at=(directory&0xff0000)|((directory+offset)&65535);
+  for(unsigned i=0;i<16;++i,at+=3){unsigned duration,pose;
+    if(!scene_rom(at,1,&duration) || !duration || !scene_rom(at+2,1,&pose))return;
+    if(elapsed<duration){body[0x17]=(uint8_t)(pose|128);body[0x0e]=1;
+      X3CoopPresentationBodyDma(seat,body,g_snes->cart->rom,g_snes->cart->romImageSize);return;}
+    elapsed-=duration;
+  }
+}
 void X3CoopRuntimeScenePresentation(X3CoopState *copy){
   if(!X3CoopRuntimeSceneActive())return;
   if(native_cinematic()){
@@ -954,21 +993,27 @@ void X3CoopRuntimeScenePresentation(X3CoopState *copy){
     return;
   }
   unsigned other=scene.owner^1;X3CoopPlayer *p=&copy->players[other];
-  if(p->life!=X3_COOP_ALIVE)return;
-  uint8_t *b=p->body;b[0x0e]=0;
-  if(scene.phase==2)return;
+  if(p->life!=X3_COOP_ALIVE || (intro_keep_partner() && !g_ram[0xcc8]))return;
+  uint8_t *b=p->body;
+  if(scene.phase==SCENE_DOOR_WALK){
+    /* Both actors are in the same passage. The original entrant still
+     * drives the door and the camera. Show the companion at the same
+     * position that the end of the transition will hand back to gameplay. */
+    const uint8_t *owner=copy->players[scene.owner].body;
+    unsigned x=scene_walk_x(owner,b);
+    unsigned distance=(unsigned)abs((int)x-(int)word(b+5));
+    putword(b+5,x);putword(b+8,scene_floor_y(b,owner));
+    b[0x11]=(uint8_t)((b[0x11]&~64)|(owner[0x11]&64));
+    bool walking=owner[2]==0x1c;
+    /* Both characters have the native 26-tick footstep cycle. Tie it to
+     * displacement so a pause in the scripted door does not slide feet. */
+    scene_pose(other,b,walking?0x5c:0x50,walking?(2*distance)%26:0);
+    return;
+  }
+  b[0x0e]=0;
   /* Native04:B967 animation records; groups00 and4A share the original
    * 7F departure/7E arrival sequences. Only the queued visual copy changes. */
-  unsigned directory,offset,animation=scene.phase==1?0x7f:0x7e,elapsed=scene.tick;
-  if(!scene_rom(0x3f8000+b[0x16]*3,3,&directory) ||
-     !scene_rom(directory+animation*2,2,&offset))return;
-  unsigned at=(directory&0xff0000)|((directory+offset)&65535);
-  for(unsigned i=0;i<16;++i,at+=3){unsigned duration,pose;
-    if(!scene_rom(at,1,&duration) || !duration || !scene_rom(at+2,1,&pose))return;
-    if(elapsed<duration){b[0x17]=(uint8_t)(pose|128);b[0x0e]=1;
-      X3CoopPresentationBodyDma(other,b,g_snes->cart->rom,g_snes->cart->romImageSize);return;}
-    elapsed-=duration;
-  }
+  if(scene.phase!=2)scene_pose(other,b,scene.phase==1?0x7f:0x7e,scene.tick);
 }
 static int support_slot(unsigned d) {
   if(d>=0xd18 && d<0x10d8 && !((d-0xd18)%64))return (int)((d-0xd18)/64);
@@ -1754,6 +1799,15 @@ static void door_boundary(CpuState *cpu,uint32_t pc){
     X3CoopViewsAdoptPlayer(g_ram,&state,state.current,view_scene());
     state.anchor=state.current;target.seat=state.current;anchor_palette();
     scene_begin(d,SCENE_DOOR);
+    if(entry==0xe0ae && scene.phase==1){
+      const uint8_t *owner=state.players[scene.owner].body;
+      const uint8_t *other=state.players[scene.owner^1].body;
+      int spacing=(int)word(other+5)-(int)word(owner+5);
+      int foot_y=(int)word(other+8)-(int)scene_floor_y(other,owner);
+      if(abs(spacing)<=DOOR_WALK_MAX_SPACING && abs(foot_y)<=8){
+        scene.phase=SCENE_DOOR_WALK;scene.tick=(uint8_t)spacing;
+      }
+    }
   }else if(p->pass==2 && !scene.both){
     X3CoopProject(&state,g_ram,contact.seat);restore(cpu,&p->result);
     memcpy(g_ram,contact.result_scratch,24);
@@ -2274,7 +2328,7 @@ void X3CoopRuntimeFrame(void) {
   X3CoopViewsSetRom(g_snes->cart->rom,g_snes->cart->romImageSize);
   if(!interp_bridge_add_pre_opcode_hook(0x03c3bd,weather_camera_boundary))enabled=false;
   static const uint32_t intro_pcs[]={0x03a9b4,0x04974d,
-      0x03ac57,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03aed9};
+      0x03ac57,0x03ac8c,0x03ad70,0x03ad7f,0x03ad87,0x03ae95,0x03aed9};
   if(!interp_bridge_add_pre_opcode_hook(0x00e49e,modal_input_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x7e25ef,native_input_boundary) ||
      !interp_bridge_add_pre_opcode_hook(0x7e2621,native_input_boundary))enabled=false;
@@ -2489,7 +2543,11 @@ static bool refill_decode(PickupRefill *out,const uint8_t bytes[8],const X3CoopS
   *out=r;return true;
 }
 static bool scene_decode(NativeScene *out,const uint8_t bytes[16],const X3CoopState *s){
-  if(memcmp(bytes,"X3S2",4) || bytes[6]>1 || bytes[7]>3 || bytes[8]>7 || bytes[9]>14 || bytes[10]>1 || bytes[11]>SCENE_NATIVE_CINEMATIC)return false;
+  if(memcmp(bytes,"X3S2",4) || bytes[6]>1 || bytes[7]>SCENE_DOOR_WALK || bytes[9]>14 ||
+     bytes[10]>1 || bytes[11]>SCENE_NATIVE_CINEMATIC)return false;
+  if(bytes[7]==SCENE_DOOR_WALK){
+    if(bytes[11]!=SCENE_DOOR || abs((int8_t)bytes[8])>DOOR_WALK_MAX_SPACING)return false;
+  }else if(bytes[8]>7)return false;
   NativeScene next={(uint16_t)word(bytes+4),bytes[6],bytes[7],bytes[8],bytes[9],bytes[10],bytes[11],
       {(uint16_t)word(bytes+12),(uint16_t)word(bytes+14)}};
   if((next.raw[0]|next.raw[1])&15)return false;

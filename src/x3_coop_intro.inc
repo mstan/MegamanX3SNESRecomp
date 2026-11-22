@@ -63,6 +63,12 @@ static void intro_helper_handoff(void){
   scene.owner=(uint8_t)survivor;scene.phase=2;scene.tick=0;
   scene_install(survivor);
 }
+static bool intro_keep_partner(void){
+  return !stock_zero && !scene.stage && scene.kind==SCENE_INTRO_RETURN &&
+      state.players[scene.owner].character==X3_COOP_X &&
+      state.players[scene.owner].life==X3_COOP_ALIVE &&
+      state.players[scene.owner^1].life==X3_COOP_ALIVE;
+}
 static void intro_boundary(CpuState *cpu,uint32_t pc){
   if(!enabled || g_ram[0x1fae])return;
   unsigned at=pc&0x7fffff;
@@ -135,6 +141,20 @@ static void intro_boundary(CpuState *cpu,uint32_t pc){
         g_ram[X3_COOP_BODY+0x27]=state.players[x].body[0x27];
         g_ram[0x1fd2]=state.players[x].maximum_health;
         intro_change_owner(x,SCENE_INTRO_RETURN);
+      }
+      break;
+    case 0x03ae95:
+      if(cpu->D==0xcc8 && intro_keep_partner()){
+        /* The dialogue has finished. Exchange the standing story NPC for
+         * its retained player, then execute the original lock/health cleanup
+         * directly. The solo takeoff sound, movement and FX are unnecessary. */
+        const uint8_t *npc=g_ram+0xcc8;
+        uint8_t *body=state.players[zero].body;
+        scene_place(zero,npc);
+        body[0x11]=(uint8_t)((body[0x11]&~64)|(npc[0x11]&64));
+        body[0x17]=npc[0x17];
+        X3CoopPresentationBodyDma(zero,body,g_snes->cart->rom,g_snes->cart->romImageSize);
+        interp_bridge_pre_opcode_redirect((pc&0x800000)|0x03aec2);
       }
       break;
     case 0x03aed9:
