@@ -10,8 +10,8 @@ Implemented for Mega Man X3 (USA):
 - widescreen-aware enemy activation, visibility, drawing, and camera triggers;
 - unchanged 4:3 output when the feature is disabled.
 
-The launcher exposes the widescreen option. The embedded default remains
-`Widescreen = 0`, so a new install starts in authentic 4:3 until selected.
+The launcher enables **Widescreen: Fit to screen** by default on a new install.
+Turn it off in Mods to use the original 4:3 gameplay field.
 
 ## Mega Man X2 correspondence
 
