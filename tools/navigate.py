@@ -23,7 +23,11 @@ from __future__ import annotations
 
 import argparse
 import os
-import socket
+from pathlib import Path
+import os
+import sys
+sys.path.insert(0, str(Path(os.environ.get('SNESRECOMP_ROOT', Path(__file__).resolve().parents[1] / 'snesrecomp')) / 'tools'))
+from sneslib.client import DebugClient, GameplayClient
 import sys
 import time
 
@@ -31,69 +35,10 @@ PORT = int(os.environ.get('DBG_PORT', '4384'))
 HOST = '127.0.0.1'
 
 
-class Dbg:
+class Dbg(GameplayClient):
     def __init__(self, port=PORT):
-        self.s = socket.create_connection((HOST, port), 10)
-        self.s.settimeout(15)
-
-    def q(self, cmd: str) -> str:
-        self.s.sendall((cmd + '\n').encode())
-        buf = b''
-        while b'\n' not in buf:
-            chunk = self.s.recv(1 << 20)
-            if not chunk:
-                raise ConnectionError('debug server closed')
-            buf += chunk
-        return buf.split(b'\n')[0].decode()
-
-    def frame(self) -> int:
-        r = self.q('ping')
-        return int(r.split('"frame":')[1].rstrip('}'))
-
-    def wait_ready(self, timeout=60.0):
-        """Block until the emulator is actually presenting.
-
-        The trace build allocates ~730 MB of observability rings at startup, so
-        the debug server answers `ping` for several seconds before there is a
-        render buffer. Probing in that window returns
-        'render buffer unavailable', which is a NOT-READY answer -- not a
-        verdict about the screen. Distinguishing the two is the difference
-        between a real finding and a wasted conclusion."""
-        t0 = time.time()
-        while time.time() - t0 < timeout:
-            try:
-                if self.frame() > 0 and '"error"' not in self.q('get_ppu_state'):
-                    return
-            except Exception:
-                pass
-            time.sleep(0.25)
-        raise TimeoutError(f'emulator not presenting after {timeout}s')
-
-    def wait_frames(self, n: int, timeout=20.0):
-        """Wait for n emulated frames to elapse. Polls the frame counter rather
-        than sleeping a wall-clock guess -- the trace build runs below realtime
-        and a fixed sleep would be either flaky or needlessly slow."""
-        start = self.frame()
-        t0 = time.time()
-        while self.frame() - start < n:
-            if time.time() - t0 > timeout:
-                raise TimeoutError(
-                    f'only {self.frame() - start}/{n} frames advanced in '
-                    f'{timeout}s -- is the emulator wedged?')
-            time.sleep(0.02)
-
-    def press(self, buttons: str, hold=8, gap=10):
-        """Press, hold for `hold` frames, release, then settle for `gap`."""
-        self.q(f'set_controller {buttons}')
-        self.wait_frames(hold)
-        self.q('clear_controller')
-        self.wait_frames(gap)
-
-    def clear(self):
-        try:
-            self.q('clear_controller')
-        except Exception:
-            pass
+        super().__init__(port, host=HOST, timeout=15)
+        self._ensure_connected()
 
     def shot(self, path: str) -> dict:
         path = os.path.abspath(path)
@@ -106,7 +51,7 @@ class Dbg:
     def close(self):
         self.clear()
         try:
-            self.s.close()
+            super().close()
         except Exception:
             pass
 
